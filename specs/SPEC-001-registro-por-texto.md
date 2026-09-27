@@ -178,4 +178,30 @@ construcción; documentadas aquí para que el reviewer y el usuario las puedan o
   → Review.
 
 ## Review
-Informe del reviewer:
+Informe del reviewer (2026-09-27, subagente `reviewer`, rama `spec-001-registro-por-texto`):
+
+```
+VERDICT: PASS
+SPEC: SPEC-001
+Tests:
+- cd packages/nutrition_core && dart analyze && dart test → 0 issues; 26/26 tests pass.
+- cd data/build_catalog && dart analyze && dart test → 0 issues; 14/14 tests pass.
+- cd functions && npm run build && cd lib && node --test → build ok; 15/15 tests pass.
+- cd app && flutter analyze && flutter test → 0 issues; 20/20 tests pass.
+
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1-AC10 | ✅ | Ver tabla "Evidencia de Acceptance Criteria" arriba; el reviewer verificó cada test de primera mano. |
+| AC11 | ⏳ pendiente (esperado) | Bloqueado por falta de proyecto real de Vertex AI, documentado explícitamente. No es un fallo. |
+| AC12 | ✅ | El reviewer comparó 5 filas al azar de data/curated/foods.csv (huevo, pechuga de pollo, aguacate,
+  leche entera, manzana) contra su source_ref citado: las 5 coinciden con la fuente FDC.
+
+Hallazgos:
+- [MINOR] functions/src/index.ts:35-42 — el timeout de 10s (R3) es de toda la Cloud Function
+  (onCall), no específico de la llamada al proveedor. Cubre R3 tal como está escrito; solo importa
+  si en el futuro se agrega trabajo posterior a la llamada al proveedor dentro del mismo handler.
+- [MINOR] data/curated/foods.csv (platano_maduro, arepa, queso_campesino) — energy_kcal calculado
+  por Atwater y proxies FDC no colombianos, ambos ya anotados en source_ref/data/SOURCES.md. No
+  viola la trazabilidad de la skill nutrition-data; se deja constancia, no es un fallo.
+- Sin hallazgos BLOCKER o MAJOR.
+```

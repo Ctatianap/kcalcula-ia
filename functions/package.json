@@ -8,7 +8,8 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "test": "npm run build && cd lib && node --test"
+    "test": "npm run build && cd lib && node --test",
+    "evals": "npm run build && node lib/evals/run_smoke.js"
   },
   "engines": {
     "node": "24"
