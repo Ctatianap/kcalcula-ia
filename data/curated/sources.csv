@@ -1,0 +1,4 @@
+id,name,license,url,version
+usda_fdc_foundation,USDA FoodData Central — Foundation Foods,CC0 1.0,https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_foundation_food_csv_2025-12-18.zip,2025-12-18
+usda_fdc_sr_legacy,USDA FoodData Central — SR Legacy,CC0 1.0,https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_csv_2018-04.zip,2018-04 (publicado 2019-04-01)
+usda_fdc_fndds,USDA FoodData Central — Survey (FNDDS),CC0 1.0,https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_survey_food_csv_2024-10-31.zip,2024-10-31 (FNDDS 2021-2023)

@@ -1,0 +1,225 @@
+import 'package:flutter/foundation.dart';
+import 'package:nutrition_core/nutrition_core.dart';
+
+import '../../infra/ai_client/parsed_meal_dto.dart';
+import '../../infra/catalog/catalog_repository.dart';
+import '../../infra/catalog/food_match_result.dart';
+import '../../infra/storage/storage_repository.dart';
+import 'quantity_mapping.dart';
+import 'review_item.dart';
+
+/// R12: asignación de `meal_type` por hora local cuando la IA no lo pudo
+/// inferir del texto.
+String assignMealTypeByHour(DateTime at) {
+  final hour = at.hour;
+  if (hour >= 5 && hour <= 10) return 'desayuno';
+  if (hour >= 11 && hour <= 15) return 'almuerzo';
+  if (hour >= 18 && hour <= 22) return 'cena';
+  return 'snack';
+}
+
+/// Controller de la pantalla de revisión (R8, R9, R10). No es un provider de
+/// Riverpod a propósito: su estado es específico de una sesión de revisión
+/// (un `ParsedMealDto`), así que vive como `ChangeNotifier` creado por
+/// `ReviewScreen`, no compartido con el resto del árbol de widgets.
+class ReviewController extends ChangeNotifier {
+  final CatalogRepository _catalog;
+  final StorageRepository _storage;
+  final Map<QuantityUnit, double> _householdUnits;
+
+  late List<ReviewItem> _items;
+  late String mealType;
+
+  ReviewController({
+    required ParsedMealDto parsedMeal,
+    required CatalogRepository catalog,
+    required StorageRepository storage,
+    DateTime? now,
+  }) : _catalog = catalog,
+       // ignore: prefer_initializing_formals
+       _storage = storage,
+       _householdUnits = catalog.householdUnitMlByUnit() {
+    mealType =
+        parsedMeal.mealType ?? assignMealTypeByHour(now ?? DateTime.now());
+    _items = parsedMeal.items.map(_buildItem).toList();
+  }
+
+  List<ReviewItem> get items => List.unmodifiable(_items);
+
+  bool get canRegister =>
+      _items.isNotEmpty &&
+      _items.every(
+        (item) =>
+            item.status != ReviewItemStatus.ambiguous &&
+            item.status != ReviewItemStatus.notFound,
+      );
+
+  NutrientTotals get mealTotals => sumNutrients(
+    _items.where((i) => i.nutrients != null).map((i) => i.nutrients!),
+  );
+
+  ConfidenceLevel? get mealConfidenceLevel {
+    final withConfidence = _items
+        .where((i) => i.confidence != null && i.nutrients != null)
+        .map(
+          (i) =>
+              (energyKcal: i.nutrients!.energyKcal, confidence: i.confidence!),
+        )
+        .toList();
+    if (withConfidence.isEmpty) return null;
+    return mealConfidence(withConfidence);
+  }
+
+  ReviewItem _buildItem(ParsedMealItemDto parsed) {
+    final match = _catalog.resolve(parsed.foodQuery);
+    return switch (match) {
+      FoodMatched(food: final food) => _matchedItem(parsed, food),
+      FoodAmbiguous(candidates: final candidates) => ReviewItem(
+        mention: parsed.mention,
+        foodQuery: parsed.foodQuery,
+        isVague: parsed.isVague,
+        parentIndex: parsed.parentIndex,
+        quantityRaw: parsed.quantity,
+        unitRaw: parsed.unit,
+        sizeRaw: parsed.size,
+        status: ReviewItemStatus.ambiguous,
+        candidates: candidates,
+        grams: 0,
+      ),
+      FoodNotFound() => ReviewItem(
+        mention: parsed.mention,
+        foodQuery: parsed.foodQuery,
+        isVague: parsed.isVague,
+        parentIndex: parsed.parentIndex,
+        quantityRaw: parsed.quantity,
+        unitRaw: parsed.unit,
+        sizeRaw: parsed.size,
+        status: ReviewItemStatus.notFound,
+        grams: 0,
+      ),
+    };
+  }
+
+  ReviewItem _matchedItem(ParsedMealItemDto parsed, FoodCatalogEntry food) {
+    final resolution = resolveGrams(
+      input: QuantityInput(
+        quantity: parsed.quantity,
+        unit: mapUnit(parsed.unit),
+        size: mapSize(parsed.size),
+        isVague: parsed.isVague,
+      ),
+      food: food,
+      householdUnitMlByUnit: _householdUnits,
+    );
+    final grams = resolution.resolvable
+        ? resolution.grams!
+        : _fallbackGrams(food);
+    final confidence = itemConfidence(
+      basis: resolution.basis,
+      isVague: parsed.isVague,
+      usedCuratedEstimatePortion: resolution.usedCuratedEstimatePortion,
+      usedDensityFallback: resolution.usedDensityFallback,
+    );
+    return ReviewItem(
+      mention: parsed.mention,
+      foodQuery: parsed.foodQuery,
+      isVague: parsed.isVague,
+      parentIndex: parsed.parentIndex,
+      quantityRaw: parsed.quantity,
+      unitRaw: parsed.unit,
+      sizeRaw: parsed.size,
+      status: ReviewItemStatus.matched,
+      food: food,
+      grams: grams,
+      basis: resolution.basis,
+      confidence: confidence,
+      nutrients: calculateItemNutrients(food, grams),
+      highlightForEdit:
+          !resolution.resolvable ||
+          resolution.basis == QuantityBasis.defaultPortion,
+    );
+  }
+
+  double _fallbackGrams(FoodCatalogEntry food) =>
+      food.portions.isNotEmpty ? food.portions.first.grams : 100.0;
+
+  void selectCandidate(int index, String foodId) {
+    final food = _catalog.getFoodById(foodId);
+    if (food == null) return;
+    final item = _items[index];
+    final rebuilt = _matchedItem(
+      ParsedMealItemDto(
+        mention: item.mention,
+        foodQuery: item.foodQuery,
+        quantity: item.quantityRaw,
+        unit: item.unitRaw,
+        size: item.sizeRaw,
+        preparation: null,
+        isVague: item.isVague,
+        parentIndex: item.parentIndex,
+      ),
+      food,
+    );
+    _items[index] = rebuilt;
+    notifyListeners();
+  }
+
+  void removeItem(int index) {
+    _items.removeAt(index);
+    notifyListeners();
+  }
+
+  /// AC8: recalcula kcal/macros localmente, sin llamadas de red.
+  void setGrams(int index, double grams) {
+    final item = _items[index];
+    if (item.food == null || grams <= 0) return;
+    _items[index] = item.copyWith(
+      grams: grams,
+      nutrients: calculateItemNutrients(item.food!, grams),
+    );
+    notifyListeners();
+  }
+
+  void setMealType(String type) {
+    mealType = type;
+    notifyListeners();
+  }
+
+  Future<int> register({DateTime? eatenAt}) {
+    final confidence = mealConfidenceLevel;
+    if (!canRegister || confidence == null) {
+      throw StateError(
+        'No se puede registrar: hay ítems pendientes o sin confianza calculada.',
+      );
+    }
+    final records = _items
+        .where((item) => item.status == ReviewItemStatus.matched)
+        .map(
+          (item) => MealItemRecord(
+            mention: item.mention,
+            foodId: item.food!.id,
+            nameSnapshot: item.food!.nameEs,
+            grams: item.grams,
+            quantityInput: item.quantityRaw,
+            unitInput: item.unitRaw,
+            sizeInput: item.sizeRaw,
+            quantityBasis: item.basis!.name,
+            energyKcal: item.nutrients!.energyKcal,
+            proteinG: item.nutrients!.proteinG,
+            carbsG: item.nutrients!.carbsG,
+            fatG: item.nutrients!.fatG,
+            confidence: item.confidence!.name,
+            sourceRef: item.food!.sourceRef,
+          ),
+        )
+        .toList();
+
+    return _storage.registerMeal(
+      eatenAt: eatenAt ?? DateTime.now(),
+      mealType: mealType,
+      confidence: confidence.name,
+      catalogVersion: _catalog.catalogVersion,
+      items: records,
+    );
+  }
+}

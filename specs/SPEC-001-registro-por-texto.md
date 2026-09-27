@@ -1,7 +1,7 @@
 # SPEC-001: Registro de una comida por texto, de extremo a extremo
 
 ## Status
-Draft
+Review
 Path: Strict (crea `nutrition_core`, el primer prompt y esquema de IA, el catálogo semilla y el primer dato que sale del dispositivo)
 
 ## Objective
@@ -132,6 +132,37 @@ comidas frecuentes, consentimiento y onboarding, despliegue a producción, catá
 ## Open Questions
 - ¿Nombre visible de la app? (No bloquea; se usa "Calorías IA" provisionalmente.)
 
+## Evidencia de Acceptance Criteria
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/integration/capture_to_review_flow_test.dart` |
+| AC2 | ✅ | `functions/src/ai/parse_meal_handler.test.ts` |
+| AC3 | ✅ | `functions/src/ai/parse_meal_handler.test.ts` |
+| AC4 | ✅ | `packages/nutrition_core/test/nutrient_calculation_test.dart` |
+| AC5 | ✅ | `packages/nutrition_core/test/confidence_test.dart` |
+| AC6 | ✅ | `packages/nutrition_core/test/meal_confidence_test.dart` |
+| AC7 | ✅ | `app/test/features/review/review_screen_test.dart` |
+| AC8 | ✅ | `app/test/features/review/review_screen_test.dart` |
+| AC9 | ✅ | `app/test/infra/storage/storage_repository_test.dart` |
+| AC10 | ✅ | `functions/src/ai/parse_meal_handler.test.ts` |
+| AC11 | ⏳ pendiente | Bloqueado: requiere proyecto real de Firebase/GCP con Vertex AI habilitado (checklist de cuentas ya entregado al usuario). El código de `vertex.ts` está implementado; falta correr el smoke y guardar el baseline. |
+| AC12 | ⏳ pendiente | Corresponde al subagente `reviewer` o al usuario: comparar 5 filas al azar de `data/curated/foods.csv` contra su `source_ref` citado. |
+
+## Decisiones de implementación (no cuantificadas en `docs/architecture.md`, tomadas durante la
+construcción; documentadas aquí para que el reviewer y el usuario las puedan objetar)
+- **Umbral matched/ambiguous/not_found (R8):** coincidencia exacta de `name_es` o sinónimo →
+  `matched`; cualquier resultado de FTS5 → `ambiguous` (mostrando hasta 3); cero resultados →
+  `not_found`. Implementado en `app/lib/infra/catalog/catalog_repository.dart`.
+- **SDK de IA:** `@google/genai` (no `@google-cloud/vertexai`, que ya depende internamente del
+  primero y está en retiro). Modelo `gemini-2.5-flash`, región `us-east1`, configurables por
+  Firebase Functions params (no hardcodeados) — ver `docs/research/2026-09-27-vertex-ai-functions.md`.
+- **Catálogo semilla (R7):** 28 alimentos de USDA FDC (Foundation/SR Legacy/FNDDS, CC0), nunca TCAC
+  (bloqueada por licencia). Descargados en bloque (sin API key, sin límite de tasa) en vez de la API
+  de búsqueda pública. Detalle completo y huecos documentados en `data/SOURCES.md`.
+- **Riverpod sin code generation**; `catalog.db` se lee con `sqlite3` directo (no se modela en
+  Drift, que sí se usa para `user.db`).
+- La rama `label` de `resolveGrams` no se implementó (etiquetas están en Out of Scope).
+
 ## Definition of Done
 - AC1–AC12 con evidencia enlazada en esta SPEC.
 - `flutter analyze`, `dart analyze` y todos los tests verdes.
@@ -141,6 +172,36 @@ comidas frecuentes, consentimiento y onboarding, despliegue a producción, catá
 
 ## Change Log
 - 2026-09-27: creación (VPF).
+- 2026-09-27: aprobada por el usuario ("aprobado spec-001"); implementación completa de AC1-AC10
+  (nutrition_core, functions/src/ai, data/build_catalog con 28 alimentos reales, infra/ y features/
+  de la app). AC11 pendiente del proyecto real de Firebase/GCP; AC12 pendiente del reviewer. Status
+  → Review.
 
 ## Review
-Informe del reviewer:
+Informe del reviewer (2026-09-27, subagente `reviewer`, rama `spec-001-registro-por-texto`):
+
+```
+VERDICT: PASS
+SPEC: SPEC-001
+Tests:
+- cd packages/nutrition_core && dart analyze && dart test → 0 issues; 26/26 tests pass.
+- cd data/build_catalog && dart analyze && dart test → 0 issues; 14/14 tests pass.
+- cd functions && npm run build && cd lib && node --test → build ok; 15/15 tests pass.
+- cd app && flutter analyze && flutter test → 0 issues; 20/20 tests pass.
+
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1-AC10 | ✅ | Ver tabla "Evidencia de Acceptance Criteria" arriba; el reviewer verificó cada test de primera mano. |
+| AC11 | ⏳ pendiente (esperado) | Bloqueado por falta de proyecto real de Vertex AI, documentado explícitamente. No es un fallo. |
+| AC12 | ✅ | El reviewer comparó 5 filas al azar de data/curated/foods.csv (huevo, pechuga de pollo, aguacate,
+  leche entera, manzana) contra su source_ref citado: las 5 coinciden con la fuente FDC.
+
+Hallazgos:
+- [MINOR] functions/src/index.ts:35-42 — el timeout de 10s (R3) es de toda la Cloud Function
+  (onCall), no específico de la llamada al proveedor. Cubre R3 tal como está escrito; solo importa
+  si en el futuro se agrega trabajo posterior a la llamada al proveedor dentro del mismo handler.
+- [MINOR] data/curated/foods.csv (platano_maduro, arepa, queso_campesino) — energy_kcal calculado
+  por Atwater y proxies FDC no colombianos, ambos ya anotados en source_ref/data/SOURCES.md. No
+  viola la trazabilidad de la skill nutrition-data; se deja constancia, no es un fallo.
+- Sin hallazgos BLOCKER o MAJOR.
+```
