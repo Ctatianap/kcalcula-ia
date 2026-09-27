@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nutrition_core/nutrition_core.dart';
 
 void main() {
-  // Prueba de enlace con el paquete Dart puro nutrition_core (T-000).
-  debugPrint('nutrition_core linked: ${Awesome().isAwesome}');
   runApp(const MyApp());
 }
 

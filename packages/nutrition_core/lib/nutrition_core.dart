@@ -1,8 +1,13 @@
-/// Support for doing something awesome.
-///
-/// More dartdocs go here.
+/// Dart puro: unidades, resolución de cantidades a gramos, cálculo de
+/// nutrientes, confianza y redondeo. Sin Flutter, sin E/S, sin red.
 library;
 
-export 'src/nutrition_core_base.dart';
-
-// TODO: Export any libraries intended for clients of this package.
+export 'src/confidence.dart';
+export 'src/models/confidence_level.dart';
+export 'src/models/food_catalog_entry.dart';
+export 'src/models/portion_option.dart';
+export 'src/models/quantity_basis.dart';
+export 'src/models/quantity_unit.dart';
+export 'src/nutrient_calculation.dart';
+export 'src/quantity_resolution.dart';
+export 'src/rounding.dart';
