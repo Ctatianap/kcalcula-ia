@@ -1,0 +1,40 @@
+# Secretos (nunca versionar)
+.env
+.env.*
+*service-account*.json
+*credentials*.json
+*.pem
+*.p12
+*.keystore
+*.jks
+key.properties
+
+# Flutter / Dart
+.dart_tool/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+pubspec_overrides.yaml
+
+# Node / Functions
+node_modules/
+functions/lib/
+
+# Firebase
+.firebase/
+firebase-debug.log
+*-debug.log
+
+# Datos generados o pesados
+data/sources/**
+!data/sources/README.md
+app/assets/catalog/catalog.db
+
+# Claude Code (configuración personal)
+.claude/settings.local.json
+CLAUDE.local.md
+
+# SO / IDE
+.DS_Store
+.idea/
+.vscode/
