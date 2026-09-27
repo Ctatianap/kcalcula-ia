@@ -1,0 +1,19 @@
+# Ítems POR VERIFICAR
+
+El subagente `researcher` los resuelve y deja notas en esta carpeta.
+Estado: `abierto` | `resuelto` (con enlace a la nota) | `descartado`.
+
+| ID | Pregunta | Bloquea | Estado |
+|---|---|---|---|
+| PV-01 | ¿La TCAC 2018 del ICBF se puede redistribuir en una app comercial? ¿Con qué atribución? ¿Existe en formato tabular (Excel/CSV) o solo PDF? | T-004, release | resuelto — [nota](2026-09-27-tcac-licencia.md): NO redistribuible en app comercial sin autorización escrita del ICBF (portal prohíbe uso comercial); solo PDF confirmado, sin Excel/CSV/API oficial. Queda pendiente verificar si existe versión con licencia abierta en datos.gov.co |
+| PV-02 | Identificador del modelo Gemini recomendado en Vertex AI para salida estructurada (JSON schema) + visión; precio por token/imagen; regiones disponibles | SPEC-001 | resuelto — ver [docs/research/2026-09-27-vertex-ai-functions.md](2026-09-27-vertex-ai-functions.md#pv-02--modelo-gemini-recomendado-salida-estructurada--visión-precio-regiones). Recomendación no vinculante: `gemini-2.5-flash` (GA). Precio confirmado solo en la página de Gemini Developer API, no en la de Vertex (página demasiado grande para leer); estado GA/regiones de la familia Gemini 3.x no confirmado. |
+| PV-03 | Términos de datos de Vertex AI: retención, uso para entrenamiento, ubicación del procesamiento, opciones de no retención | SPEC-001 (consentimiento), T-007 | resuelto — ver [docs/research/2026-09-27-vertex-ai-functions.md](2026-09-27-vertex-ai-functions.md#pv-03--términos-de-datos-de-vertex-ai-retención-entrenamiento-ubicación-no-retención). Confirmado vía snippets de búsqueda que citan páginas oficiales (no se pudo leer el cuerpo completo de la página con la herramienta de fetch disponible): sin entrenamiento con datos del cliente por defecto, caché opcional de hasta 24h, logging de abuso por defecto (se puede pedir excepción). Pendiente confirmación visual humana antes de citarlo en texto de consentimiento. |
+| PV-04 | Región de Cloud Functions (2nd gen) con menor latencia desde Colombia y compatibilidad con la región de Vertex elegida | SPEC-001 | resuelto — ver [docs/research/2026-09-27-vertex-ai-functions.md](2026-09-27-vertex-ai-functions.md#pv-04--región-de-cloud-functions-2nd-gen-con-menor-latencia-desde-colombia-y-compatible-con-la-región-de-vertex-ai). Recomendación no vinculante: `us-east1` para Functions y Vertex AI (Vertex Gemini no tiene endpoint regional en Sudamérica). Latencia real Bogotá→us-east1 vs. Bogotá→southamerica-east1 no medida, queda como hipótesis de red razonable, no dato confirmado. |
+| PV-05 | Calidad de `speech_to_text` en es-CO en Android e iOS; ¿reconocimiento en el dispositivo o en servidores del SO? | T-003 | abierto |
+| PV-06 | Resolución 810 de 2021 (MinSalud): formato obligatorio de la tabla nutricional (¿por 100 g y por porción?) | T-005 | abierto |
+| PV-07 | Ley 1581 de 2012 aplicada a esta app: autorización, transferencia internacional, registro de bases de datos, minoría de edad | T-007 (revisión legal humana) | abierto |
+| PV-08 | Cuotas de Play Integrity y App Attest a escala; TTL de token recomendado | T-008 | abierto |
+| PV-09 | Sintaxis vigente de reglas de permisos de Claude Code (`Bash(cmd:*)` vs `Bash(cmd *)`); comprobar con `/permissions` | T-000 | abierto |
+| PV-10 | ¿Aportan valor los servidores MCP de Dart/Flutter y de Firebase frente a sus CLI? | Opcional | abierto |
+| PV-11 | Cifrado de SQLite en Flutter (SQLCipher con Drift): madurez y coste | Opcional | abierto |
+| PV-12 | Samsung Health: qué datos nutricionales permite leer/escribir, permisos, requisitos de publicación | F4 | abierto |
