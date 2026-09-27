@@ -65,7 +65,8 @@ Reglas:
   Pásale la ruta de la SPEC y el nombre de la rama.
 - **researcher** (subagente): ítems `POR VERIFICAR` o decisiones que dependan de información
   externa actual. Escribe notas en `docs/research/`.
-- Skills (`.claude/skills/`): `write-spec`, `nutrition-data`, `ai-pipeline`.
+- Skills (`.claude/skills/`): `write-spec`, `nutrition-data`, `ai-pipeline`, `loop-impl` (avanza
+  `docs/backlog.md` una tarea a la vez; nunca aprueba SPECs por su cuenta).
 
 Al terminar una tarea, cierra con este handoff:
 ```yaml

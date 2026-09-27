@@ -1,7 +1,12 @@
 # Backlog inicial — Calorías IA
 
 Ordenado por dependencias. Las SPEC se crean con la skill `write-spec` cuando llega su turno
-(salvo SPEC-001, que ya existe en Draft).
+(salvo SPEC-001, que ya existe).
+
+Seguimiento de avance (para la skill `loop-impl`): las tareas con `spec_required: false` llevan
+su propio campo `status` aquí (`done` | sin campo = pendiente). Las tareas con `spec_required: true`
+no repiten el estado aquí — su SPEC vinculada (comentario `# specs/SPEC-NNN-*.md`) es la única fuente
+de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
 
 ```yaml
 - id: T-000
@@ -12,6 +17,7 @@ Ordenado por dependencias. Las SPEC se crean con la skill `write-spec` cuando ll
   dependencies: []
   spec_required: false   # Fast Path con checklist; el usuario hace los pasos de consola
   assigned_agent: sesión principal + usuario
+  status: done
   acceptance_summary: >
     `flutter analyze`, `dart test` (nutrition_core) y `npm --prefix functions test` pasan;
     `firebase emulators:start --only functions` arranca; los comandos de CLAUDE.md existen.
@@ -24,13 +30,14 @@ Ordenado por dependencias. Las SPEC se crean con la skill `write-spec` cuando ll
   dependencies: []
   spec_required: false
   assigned_agent: researcher
+  status: done
   acceptance_summary: Notas en docs/research/ con fuentes; ítems actualizados.
 
 - id: T-002
   title: SPEC-001 — Registro por texto de extremo a extremo (vertical slice)
   objective: texto → parseMeal → resolución → cálculo → revisión → registro → diario
   dependencies: [T-000, T-001]
-  spec_required: true    # specs/SPEC-001-registro-por-texto.md (Draft)
+  spec_required: true    # specs/SPEC-001-registro-por-texto.md (Review — reviewer PASS, AC11 pendiente del proyecto real de Vertex AI)
   assigned_agent: sesión principal → reviewer
   acceptance_summary: Ver AC1–AC12 de SPEC-001.
 
