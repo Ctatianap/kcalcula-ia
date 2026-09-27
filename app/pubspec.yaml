@@ -39,6 +39,23 @@ dependencies:
   nutrition_core:
     path: ../packages/nutrition_core
 
+  # Estado (Riverpod, sin code generation).
+  flutter_riverpod: ^3.4.3
+
+  # user.db (lo único que la app escribe) y lectura de catalog.db (solo
+  # lectura, generado por data/build_catalog). sqlite3 3.6+ ya integra la
+  # carga de la librería nativa: sqlite3_flutter_libs quedó deprecado
+  # ("Not used anymore, update to version 3.x of package:sqlite3 instead").
+  drift: ^2.35.0
+  sqlite3: ^3.6.0
+  path_provider: ^2.1.6
+  path: ^1.9.1
+
+  # Backend: callable parseMeal + App Check.
+  firebase_core: ^4.15.0
+  cloud_functions: ^6.5.0
+  firebase_app_check: ^0.4.8
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -49,6 +66,9 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+
+  drift_dev: ^2.35.0
+  build_runner: ^2.16.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
