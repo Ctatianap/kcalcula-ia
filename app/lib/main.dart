@@ -1,7 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'infra/storage/app_database.dart';
+import 'infra/storage/storage_providers.dart';
+
+Future<void> main() async {
+  final docsDir = await getApplicationDocumentsDirectory();
+  final db = AppDatabase(AppDatabase.openFile('${docsDir.path}/user.db'));
+
+  runApp(
+    ProviderScope(
+      overrides: [appDatabaseProvider.overrideWithValue(db)],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
