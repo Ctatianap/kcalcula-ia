@@ -1,7 +1,7 @@
 # SPEC-003: Catálogo nutricional completo (~200 alimentos)
 
 ## Status
-Review
+Done
 Path: Strict (toca el catálogo nutricional — skill `nutrition-data`, siempre Strict)
 
 ## Objective
@@ -135,7 +135,7 @@ esquema — decisión explícita del usuario de dejarlas fuera por ahora, ver Ch
 | AC1 | ✅ | `cd data/build_catalog && dart run bin/build_catalog.dart` → `catalog_version: 2026-09-27-3`, 124 alimentos añadidos, 0 errores, solo warnings esperados de `atwater_review` |
 | AC2 | ✅ | `data/build_catalog/test/validators_test.dart` — 20/20 tests verdes (las reglas ya existentes, sin cambios) |
 | AC3 | ✅ | Nuevo grupo `validateNoTcacSource` en `validators_test.dart` (3 tests): rechaza `source_id` con "tcac" en foods y portions, acepta `usda_fdc_*` |
-| AC4 | ✅ | `data/curated/COBERTURA.md` — 152 alimentos por categoría, 20 proxies documentados, 15 `atwater_review`, 12 sin cobertura documentados, 1 hueco de esquema (cerveza) |
+| AC4 | ✅ | `data/curated/COBERTURA.md` — 152 alimentos por categoría, 21 proxies documentados, 15 `atwater_review`, 10 sin cobertura documentados, 1 hueco de esquema (cerveza) |
 | AC5 | ✅ | Reviewer comparó 10 filas al azar contra `data/sources/{sr_legacy,foundation}/.../food.csv` y `food_nutrient.csv`: descripción, `fdc_id` y valores nutricionales coinciden exactamente, sin señales de invención |
 | AC6 | ✅ | `app/test/integration/catalog_real_db_test.dart` (nuevo): resuelve 5 `food_query` nuevos (mango, guayaba, aceite de coco, queso mozzarella, avena cocida) contra el `catalog.db` real regenerado |
 
@@ -200,3 +200,30 @@ No hubo BLOCKER en ninguna pasada.
 Correcciones aplicadas (misma sesión, antes de re-solicitar revisión): recuento de
 `COBERTURA.md` (12→10 sin cobertura, tabla de proxies reconstruida a exactamente 20 filas
 verificadas por grep contra `foods.csv`, reconciliación 135=124+10+1) y fecha del Change Log.
+
+Segunda pasada del reviewer (mismo subagente, mismo día):
+
+```
+VERDICT: PASS
+SPEC: SPEC-003
+Tests: cd data/build_catalog && dart analyze && dart test → sin issues, 17/17 verdes |
+cd app && flutter analyze && flutter test → sin issues, 30/30 verdes (sin cambios de código/datos
+desde la primera pasada)
+
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1-AC3, AC5, AC6 | Cumple | sin cambios desde la primera pasada |
+| AC4 | Cumple | 10 sin cobertura (reconciliado 124+10+1=135); quedó un residuo MINOR de conteo
+  de proxies (18 vs. 19 filas reales) que no invalida el criterio |
+
+Hallazgos:
+- [MINOR] COBERTURA.md — el texto decía "18 nuevas" proxies pero la tabla reconstruida tenía 19
+  filas (incluía `lulo`, que no usa la palabra "proxy" en su texto aunque sí sustituye pulpa
+  congelada por fruta fresca). Corregido: `lulo` se mantiene como proxy legítimo (mismo criterio
+  que `mora`/`granadilla`), Resumen actualizado a 21 proxy / 131 directo / 14%-86%.
+- [MINOR] specs/SPEC-003-catalogo-completo.md — la tabla "Evidencia de Acceptance Criteria" seguía
+  diciendo "12 sin cobertura" tras el fix. Corregido a 10 (y a 21 proxies).
+
+Ambos MINOR corregidos en el mismo turno; no requieren una tercera pasada del reviewer (son
+ediciones de texto/conteo sin tocar datos ni código).
+```

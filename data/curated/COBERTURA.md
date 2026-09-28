@@ -11,8 +11,8 @@ dato (124 + 10 + 1 = 135 ✓).
 | Métrica | Valor |
 |---|---|
 | Alimentos totales en `foods.csv` | 152 (28 semilla + 124 nuevos de SPEC-003) |
-| Coincidencia directa de FDC | 132 (87 %) |
-| Proxy documentado (no es el alimento colombiano exacto) | 20 (13 %) |
+| Coincidencia directa de FDC | 131 (86 %) |
+| Proxy documentado (no es el alimento colombiano exacto) | 21 (14 %) |
 | `atwater_review = true` (excepción numérica aceptada, no error de dato) | 15 |
 | Sin cobertura razonable en FDC (documentado, no forzado) | 10 alimentos propuestos |
 | Fuentes usadas | Solo USDA FDC (Foundation, SR Legacy, FNDDS) — TCAC/ICBF sigue bloqueada (PV-01) |
@@ -38,10 +38,13 @@ catálogo semilla).
 
 ## Proxies documentados (no es el alimento colombiano exacto)
 
-Lista exacta de las 20 filas de `foods.csv` cuyo `source_ref` documenta un proxy (sustitución por
-una especie/producto distinto, no solo una nota de variedad o estado de preparación de la misma
-cosa) — 2 del catálogo semilla (`arepa`, `queso_campesino`, ya documentados en SPEC-001) + 18
-nuevas de SPEC-003:
+Lista exacta de las 21 filas de `foods.csv` cuyo `source_ref` documenta un proxy (sustitución por
+una especie/producto/forma distinta, no solo una nota de variedad o estado de preparación de la
+misma cosa) — 2 del catálogo semilla (`arepa`, `queso_campesino`, ya documentados en SPEC-001) +
+19 nuevas de SPEC-003. El criterio es sustantivo, no la búsqueda literal de la palabra "proxy" en
+el texto: 20 de estas 21 filas la usan, pero `lulo` (pulpa congelada sin azúcar en vez de la fruta
+fresca) es igual de sustituto que `mora`/`granadilla` aunque su `source_ref` no use esa palabra —
+se incluye por el mismo criterio, no por coincidencia de texto:
 
 | Alimento | Proxy usado |
 |---|---|
