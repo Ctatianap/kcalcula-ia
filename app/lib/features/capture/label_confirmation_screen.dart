@@ -200,28 +200,27 @@ class _LabelConfirmationScreenState
                     color: Theme.of(context).colorScheme.errorContainer,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Estos valores no cuadran entre sí (calorías vs. '
-                        'proteína/carbohidratos/grasa). Revisa si transcribiste '
-                        'bien la etiqueta, o confirma que así está impreso.',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onErrorContainer,
-                        ),
-                      ),
-                      CheckboxListTile(
-                        value: _controller.atwaterConfirmedDespiteWarning,
-                        onChanged: (value) => _controller
-                            .setAtwaterConfirmedDespiteWarning(value ?? false),
-                        title: const Text(
-                          'Confirmo que los valores son correctos así',
-                        ),
-                        controlAffinity: ListTileControlAffinity.leading,
-                      ),
-                    ],
+                  child: Text(
+                    'Estos valores no cuadran entre sí (calorías vs. '
+                    'proteína/carbohidratos/grasa). Revisa si transcribiste '
+                    'bien la etiqueta, o confirma que así está impreso.',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onErrorContainer,
+                    ),
                   ),
+                ),
+                // Fuera del contenedor de color: un ListTile pinta su fondo
+                // e ink splashes sobre el Material ancestro más cercano, y
+                // el DecoratedBox de arriba lo taparía (advertencia real del
+                // framework, no solo estética).
+                CheckboxListTile(
+                  value: _controller.atwaterConfirmedDespiteWarning,
+                  onChanged: (value) => _controller
+                      .setAtwaterConfirmedDespiteWarning(value ?? false),
+                  title: const Text(
+                    'Confirmo que los valores son correctos así',
+                  ),
+                  controlAffinity: ListTileControlAffinity.leading,
                 ),
               ],
               const SizedBox(height: 16),

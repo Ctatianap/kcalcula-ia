@@ -83,4 +83,79 @@ void main() {
 
     await db.close();
   });
+
+  group('SPEC-004: personal_products', () {
+    test('savePersonalProduct + getAllPersonalProducts persiste', () async {
+      final dir = Directory.systemTemp.createTempSync('calorias_ia_test');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final db = AppDatabase(AppDatabase.openFile('${dir.path}/user_test.db'));
+      final repo = StorageRepository(db);
+
+      final id = await repo.savePersonalProduct(
+        nameEs: 'Producto de prueba',
+        energyKcal100: 466.7,
+        proteinG100: 6.7,
+        carbsG100: 66.7,
+        fatG100: 20,
+        servingGrams: 30,
+        sourceRef: 'fixture de prueba',
+      );
+
+      final all = await repo.getAllPersonalProducts();
+      expect(all, hasLength(1));
+      expect(all.first.id, id);
+      expect(all.first.nameEs, 'Producto de prueba');
+      expect(all.first.energyKcal100, closeTo(466.7, 1e-9));
+      expect(all.first.fiberG100, isNull);
+
+      await db.close();
+    });
+
+    test('registerMeal con personalProductId no escribe foodId (uno u otro, nunca ambos)', () async {
+      final dir = Directory.systemTemp.createTempSync('calorias_ia_test');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final db = AppDatabase(AppDatabase.openFile('${dir.path}/user_test.db'));
+      final repo = StorageRepository(db);
+
+      final productId = await repo.savePersonalProduct(
+        nameEs: 'Producto de prueba',
+        energyKcal100: 466.7,
+        proteinG100: 6.7,
+        carbsG100: 66.7,
+        fatG100: 20,
+        servingGrams: 30,
+        sourceRef: 'fixture de prueba',
+      );
+
+      await repo.registerMeal(
+        eatenAt: DateTime(2026, 9, 27, 8),
+        mealType: 'snack',
+        confidence: 'altaPrecision',
+        catalogVersion: 'test-1',
+        items: [
+          MealItemRecord(
+            mention: 'Producto de prueba',
+            personalProductId: productId,
+            nameSnapshot: 'Producto de prueba',
+            grams: 45,
+            quantityInput: 45,
+            unitInput: 'g',
+            quantityBasis: 'label',
+            energyKcal: 210,
+            proteinG: 3,
+            carbsG: 30,
+            fatG: 9,
+            confidence: 'altaPrecision',
+            sourceRef: 'fixture de prueba',
+          ),
+        ],
+      );
+
+      final meals = await repo.mealsForDay(DateTime(2026, 9, 27, 8));
+      expect(meals.first.items.first.foodId, isNull);
+      expect(meals.first.items.first.personalProductId, productId.toString());
+
+      await db.close();
+    });
+  });
 }

@@ -69,4 +69,65 @@ void main() {
       ),
     );
   });
+
+  test(
+    'extractLabel devuelve un LabelExtractionDto con la respuesta del caller',
+    () async {
+      final client = AiClient((data) async => {}, (data) async {
+        expect(data, {'image_base64': 'YWJj', 'mime_type': 'image/jpeg'});
+        return {
+          'schema_version': 'label_extraction.v1',
+          'product_name': 'Producto de prueba',
+          'serving_size': {'quantity': 30, 'unit': 'g'},
+          'per_serving': {
+            'energy_kcal': 140,
+            'protein_g': 2,
+            'carbs_g': 20,
+            'fat_g': 6,
+            'fiber_g': null,
+            'sugar_g': null,
+            'sodium_mg': null,
+          },
+          'per_100': null,
+          'unreadable_fields': [],
+        };
+      });
+
+      final result = await client.extractLabel(
+        imageBase64: 'YWJj',
+        mimeType: 'image/jpeg',
+      );
+      expect(result.productName, 'Producto de prueba');
+      expect(result.servingSize?.quantity, 30);
+      expect(result.perServing?.energyKcal, 140);
+    },
+  );
+
+  test('extractLabel sin caller configurado lanza StateError', () async {
+    final client = AiClient((data) async => {});
+    await expectLater(
+      () => client.extractLabel(imageBase64: 'abc', mimeType: 'image/jpeg'),
+      throwsA(isA<StateError>()),
+    );
+  });
+
+  test('extractLabel traduce errores igual que parseMeal', () async {
+    final client = AiClient((data) async => {}, (data) async {
+      throw FirebaseException(
+        plugin: 'firebase_functions',
+        code: 'deadline-exceeded',
+      );
+    });
+
+    await expectLater(
+      () => client.extractLabel(imageBase64: 'abc', mimeType: 'image/jpeg'),
+      throwsA(
+        isA<AiClientException>().having(
+          (e) => e.type,
+          'type',
+          AiClientErrorType.network,
+        ),
+      ),
+    );
+  });
 }

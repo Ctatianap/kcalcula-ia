@@ -114,8 +114,16 @@ class LabelConfirmationController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// R5: mientras el usuario no haya tocado "cuánto comiste" directamente,
+  /// sigue reflejando la porción — incluye el caso en que la porción llegó
+  /// vacía (etiqueta ilegible) y el usuario la completa después.
+  bool _consumedQuantityTouchedByUser = false;
+
   void setServingQuantity(double? value) {
     servingQuantity = value;
+    if (!_consumedQuantityTouchedByUser) {
+      consumedQuantity = value ?? 0;
+    }
     notifyListeners();
   }
 
@@ -126,6 +134,7 @@ class LabelConfirmationController extends ChangeNotifier {
 
   void setConsumedQuantity(double value) {
     consumedQuantity = value;
+    _consumedQuantityTouchedByUser = true;
     notifyListeners();
   }
 
