@@ -164,8 +164,45 @@ List<ValidationIssue> validatePortions(
   return issues;
 }
 
+/// SPEC-003 R2: la TCAC/ICBF sigue bloqueada por licencia (PV-01, sin
+/// autorización escrita del ICBF). Ningún `source_id` puede referenciarla
+/// mientras eso no cambie explícitamente.
+List<ValidationIssue> validateNoTcacSource(
+  List<FoodRow> foods,
+  List<PortionRow> portions,
+) {
+  final issues = <ValidationIssue>[];
+  for (final food in foods) {
+    if (food.sourceId.toLowerCase().contains('tcac')) {
+      issues.add(
+        ValidationIssue(
+          IssueSeverity.error,
+          'foods "${food.id}": source_id "${food.sourceId}" referencia la '
+          'TCAC/ICBF, bloqueada por licencia (PV-01). No se puede usar hasta '
+          'que exista autorización escrita.',
+        ),
+      );
+    }
+  }
+  for (final portion in portions) {
+    if (portion.sourceId.toLowerCase().contains('tcac')) {
+      issues.add(
+        ValidationIssue(
+          IssueSeverity.error,
+          'portions "${portion.foodId}/${portion.descriptor}": source_id '
+          '"${portion.sourceId}" referencia la TCAC/ICBF, bloqueada por '
+          'licencia (PV-01). No se puede usar hasta que exista autorización '
+          'escrita.',
+        ),
+      );
+    }
+  }
+  return issues;
+}
+
 List<ValidationIssue> validateCuratedData(CuratedData data) => [
   ...validateFoods(data.foods),
   ...validateSynonyms(data.synonyms, data.foods),
   ...validatePortions(data.portions, data.foods),
+  ...validateNoTcacSource(data.foods, data.portions),
 ];
