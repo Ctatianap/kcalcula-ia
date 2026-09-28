@@ -1,7 +1,7 @@
 # SPEC-002: Entrada de una comida por voz
 
 ## Status
-Draft
+Review
 Path: Strict (el audio puede salir del dispositivo hacia los servidores de reconocimiento de voz
 del sistema operativo — requiere actualizar `docs/privacy.md`, aunque nunca vaya a nuestro backend)
 
@@ -118,6 +118,21 @@ otro propósito que no sea rellenar el campo de texto.
 
 ## Open Questions
 - Paquete Flutter exacto para STT (se verifica su versión estable al implementar, no se fija aquí).
+
+## Evidencia de Acceptance Criteria
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/features/capture/capture_screen_voice_test.dart` |
+| AC2 | ✅ | `app/test/features/capture/voice_input_controller_test.dart` |
+| AC3 | ✅ | `app/test/features/capture/capture_screen_voice_test.dart` |
+| AC4 | ✅ | `voice_input_controller_test.dart` + `capture_screen_voice_test.dart` |
+| AC5 | ✅ | `voice_input_controller_test.dart` + `capture_screen_voice_test.dart` |
+| AC6 | ✅ | `app/test/features/capture/voice_input_controller_test.dart` |
+| AC7 | ✅ | `app/test/integration/voice_to_review_flow_test.dart` |
+| AC8 | ⏳ pendiente | Requiere un Android y un iPhone físicos (no simulable en este entorno). Paquete elegido: `speech_to_text` 7.5.0 (verificado en pub.dev, sin discontinuar, ~600k descargas/30 días). |
+
+Verificado: `flutter analyze` sin issues; `flutter test` 29/29 verdes (antes 19; suma las 10 nuevas
+de esta SPEC más 0 regresiones).
 
 ## Definition of Done
 - AC1–AC8 con evidencia enlazada en esta SPEC.
