@@ -1,7 +1,7 @@
 # SPEC-002: Entrada de una comida por voz
 
 ## Status
-Draft
+Review
 Path: Strict (el audio puede salir del dispositivo hacia los servidores de reconocimiento de voz
 del sistema operativo — requiere actualizar `docs/privacy.md`, aunque nunca vaya a nuestro backend)
 
@@ -119,6 +119,21 @@ otro propósito que no sea rellenar el campo de texto.
 ## Open Questions
 - Paquete Flutter exacto para STT (se verifica su versión estable al implementar, no se fija aquí).
 
+## Evidencia de Acceptance Criteria
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/features/capture/capture_screen_voice_test.dart` |
+| AC2 | ✅ | `app/test/features/capture/voice_input_controller_test.dart` |
+| AC3 | ✅ | `app/test/features/capture/capture_screen_voice_test.dart` |
+| AC4 | ✅ | `voice_input_controller_test.dart` + `capture_screen_voice_test.dart` |
+| AC5 | ✅ | `voice_input_controller_test.dart` + `capture_screen_voice_test.dart` |
+| AC6 | ✅ | `app/test/features/capture/voice_input_controller_test.dart` |
+| AC7 | ✅ | `app/test/integration/voice_to_review_flow_test.dart` |
+| AC8 | ⏳ pendiente | Requiere un Android y un iPhone físicos (no simulable en este entorno). Paquete elegido: `speech_to_text` 7.5.0 (verificado en pub.dev, sin discontinuar, ~600k descargas/30 días). |
+
+Verificado: `flutter analyze` sin issues; `flutter test` 29/29 verdes (antes 19; suma las 10 nuevas
+de esta SPEC más 0 regresiones).
+
 ## Definition of Done
 - AC1–AC8 con evidencia enlazada en esta SPEC.
 - `flutter analyze` y todos los tests verdes.
@@ -133,4 +148,33 @@ otro propósito que no sea rellenar el campo de texto.
   timeout de silencio (~2s), ambos soportados.
 
 ## Review
-Informe del reviewer:
+Informe del reviewer (2026-09-28, subagente `reviewer`, rama `spec-002-entrada-por-voz`):
+
+```
+VERDICT: PASS
+SPEC: SPEC-002
+Tests: cd app && flutter analyze && flutter test → "No issues found!"; 29/29 tests verdes.
+
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1-AC7 | ✅ | Ver tabla "Evidencia de Acceptance Criteria" arriba; el reviewer verificó cada test
+  de primera mano (incluye el mensaje exacto de error y que nunca se filtra el errorMsg crudo
+  del plugin en AC6).
+| AC8 | ⏳ pendiente (aceptado) | Requiere Android e iPhone físicos, no simulable. No es un fallo.
+
+Verificado además: sin dato nuevo hacia el backend propio (solo el audio puede salir hacia el SO,
+según R3/D3); docs/privacy.md actualizado sin inventar el resultado de AC8; sin cambios a
+parsed_meal.v1 ni prompts de IA; sin telemetría de calidad de transcripción (R8); permisos de
+plataforma declarados en español; features/capture sigue sin importar otras features;
+SpeechRecognizer/MicrophonePermission son interfaces propias usadas con fakes en los tests;
+fixture_catalog.dart se comparte correctamente en los 4 sitios que antes duplicaban el esquema.
+
+Hallazgos:
+- [MINOR] voice_input_controller.dart — `reset()` no se usaba desde ningún sitio. Corregido:
+  se eliminó (no hacía falta en ningún flujo real).
+- [MINOR] capture_screen.dart — un resultado parcial de voz puede sobrescribir texto que el
+  usuario escribiera a mano *durante* la escucha (no cubierto por ningún R/AC, que solo exigen
+  edición *después* de detener). Documentado como comportamiento conocido, no se corrigió por
+  estar fuera del alcance de esta SPEC.
+- Sin BLOCKER ni MAJOR.
+```

@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Necesitamos el micrófono para que puedas decir lo que comiste en vez de escribirlo.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Convertimos lo que dices en texto en tu propio dispositivo para registrar tu comida.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

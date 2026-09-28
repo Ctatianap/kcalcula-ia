@@ -13,7 +13,7 @@ Estado: borrador técnico. **Requiere revisión legal antes de publicar** (no es
 |---|---|---|---|---|
 | Registro de comidas, cantidades, totales | `user.db` en el dispositivo | No | — | Hasta que el usuario lo borre o desinstale |
 | Texto de la comida (escrito o transcrito) | Memoria | Sí, en cada análisis | Cloud Function → Vertex AI (Google) | Backend: no se guarda ni se registra. Proveedor: Vertex AI no usa el contenido para entrenar sus modelos; el caché de datos es opcional y se puede desactivar a nivel de proyecto para retención cero. Google sí puede registrar prompts para monitoreo de abuso de su política de uso aceptable, como parte del servicio — esto ocurre del lado de Google, fuera del control de este backend, no es una contradicción de "backend sin estado" sino una dependencia de terceros a declarar. Ver `docs/research/2026-09-27-vertex-ai-functions.md` (PV-03); confirmar visualmente el texto oficial antes de citarlo en un aviso de consentimiento al usuario. |
-| Audio de voz | Motor de voz del sistema operativo | Depende del dispositivo (puede procesarse en servidores de Apple o Google) | SO | POR VERIFICAR |
+| Audio de voz | Motor de voz del sistema operativo | Depende del dispositivo (puede procesarse en servidores de Apple o Google), nunca hacia nuestro backend (SPEC-002) | SO | POR VERIFICAR — se completa con la medición real en dispositivo de PV-05 / AC8 de SPEC-002 |
 | Foto de etiqueta | Memoria / galería del usuario | Sí, al analizarla | Cloud Function → Vertex AI | Igual que el texto |
 | Token de App Check | Dispositivo | Sí | Firebase | Gestionado por Google |
 | Metadatos técnicos (latencia, tokens, códigos de error) | Cloud Logging | — | Google Cloud | Retención por defecto de Cloud Logging, POR VERIFICAR |
