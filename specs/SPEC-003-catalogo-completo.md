@@ -103,7 +103,8 @@ T-001 (hecho). T-002 (`Status: Review`, no bloquea por decisión explícita del 
 ## Out of Scope
 Platos compuestos/recetas de varios ingredientes, sinónimos regionales exhaustivos (solo los más
 comunes), TCAC (sigue bloqueada por licencia), fotos de etiqueta (T-005), traducción a otros
-idiomas, ampliar `household_units`.
+idiomas, ampliar `household_units`, bebidas alcohólicas (requieren agregar `alcohol_g` al
+esquema — decisión explícita del usuario de dejarlas fuera por ahora, ver Change Log).
 
 ## Open Questions
 - ~~Antes de curar los ~200 alimentos en bloque: ¿revisar la lista primero?~~ Resuelto: el usuario
@@ -113,14 +114,14 @@ idiomas, ampliar `household_units`.
 - ~~Mecanismo exacto de curación en lote~~ Resuelto: 7 subagentes `fork` en paralelo (uno por grupo
   de categorías), todos usando el mismo script de lookup offline sobre los CSV bulk de FDC ya
   descargados (`data/sources/{sr_legacy,foundation,fndds}/`), sin llamadas de red nuevas.
-- **Nueva, sin resolver — decisión pendiente del usuario**: la curación reveló un hueco de
-  esquema, no de dato: FDC tiene un valor real para "cerveza" (43 kcal/100g, SR Legacy FDC ID
-  168746) pero `catalog.db` no tiene columna `alcohol_g`, así que el Atwater 4/4/9 subestimaría
-  sus calorías reales en ~63% (el etanol no está en ningún macronutriente del esquema actual). No
-  se agregó `cerveza` a este build. El usuario debe decidir entre (a) agregar `alcohol_g` al
-  esquema (cambio explícito, requiere su aprobación, fuera de esta SPEC) o (b) dejar bebidas
-  alcohólicas fuera de alcance por ahora. Detalle completo en
-  `data/curated/COBERTURA.md#hueco-de-esquema-distinto-de-falta-de-dato-cerveza`.
+- ~~Hueco de esquema revelado por "cerveza"~~ Resuelto por el usuario (2026-09-27): bebidas
+  alcohólicas quedan fuera de alcance por ahora, no se agrega `alcohol_g` al esquema en esta SPEC.
+  FDC tiene un valor real para cerveza (43 kcal/100g, SR Legacy FDC ID 168746) pero `catalog.db` no
+  tiene columna `alcohol_g`, así que el Atwater 4/4/9 subestimaría sus calorías reales en ~63% (el
+  etanol no está en ningún macronutriente del esquema actual) — por eso no se forzó el dato.
+  Detalle en `data/curated/COBERTURA.md#hueco-de-esquema-distinto-de-falta-de-dato-cerveza`. Si en
+  el futuro se quiere cubrir bebidas alcohólicas, hace falta una SPEC/ADR propia que agregue
+  `alcohol_g` al esquema (`data/build_catalog/lib/schema.dart`) y su fórmula de energía asociada.
 
 ## Definition of Done
 - AC1–AC6 con evidencia enlazada en esta SPEC.
@@ -151,8 +152,9 @@ nuevo de AC6).
   `data/curated/*.csv` (152 alimentos totales) tras verificar manualmente varias filas contra el
   CSV crudo; `catalog.db` regenerado; `COBERTURA.md` escrito; test de integración nuevo para AC6.
   Hueco revelado durante la implementación (no en la SPEC original): "cerveza" no se pudo incluir
-  por falta de columna `alcohol_g` en el esquema — documentado arriba como Open Question sin
-  resolver, no se improvisó un cambio de esquema.
+  por falta de columna `alcohol_g` en el esquema — no se improvisó un cambio de esquema; se
+  planteó al usuario, que decidió dejar bebidas alcohólicas fuera de alcance por ahora (ver Out of
+  Scope).
 
 ## Review
 Informe del reviewer:

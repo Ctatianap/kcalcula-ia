@@ -110,9 +110,9 @@ etanol aporta ~7 kcal/g que no está en `protein_g`/`carbs_g`/`fat_g`, así que 
 ~16 kcal/100g — subestimaría las calorías reales en ~63% si se agregara tal cual, sin ser un caso
 de `atwater_review` (esa excepción es para inestabilidad numérica en valores casi cero, no para un
 hueco estructural real). Por la regla de CLAUDE.md de detenerse y proponer en vez de improvisar
-cuando algo no encaja en el esquema, **no se agregó `cerveza` en este build**; queda pendiente de
-que el usuario decida entre (a) agregar `alcohol_g` al esquema (cambio de esquema explícito,
-requiere aprobación) o (b) dejar bebidas alcohólicas fuera de alcance del catálogo por ahora.
+cuando algo no encaja en el esquema, **no se agregó `cerveza` en este build**. El usuario decidió
+(2026-09-27) dejar las bebidas alcohólicas fuera de alcance por ahora; cubrirlas en el futuro
+requiere una SPEC/ADR propia que agregue `alcohol_g` al esquema y su fórmula de energía asociada.
 
 ## Reproducibilidad
 
