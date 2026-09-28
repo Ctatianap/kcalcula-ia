@@ -1,10 +1,16 @@
 import { Ollama } from "ollama";
 import { z } from "zod";
 import type { AiProvider, AiProviderResult } from "./provider.js";
-import { renderParseMealPrompt } from "./prompt.js";
-import { parsedMealSchema, type ParseMealRequest } from "./schemas.js";
+import { renderExtractLabelPrompt, renderParseMealPrompt } from "./prompt.js";
+import {
+  labelExtractionSchema,
+  parsedMealSchema,
+  type ExtractLabelRequest,
+  type ParseMealRequest,
+} from "./schemas.js";
 
 const PARSED_MEAL_JSON_SCHEMA = z.toJSONSchema(parsedMealSchema);
+const LABEL_EXTRACTION_JSON_SCHEMA = z.toJSONSchema(labelExtractionSchema);
 
 export interface OllamaProviderConfig {
   model: string;
@@ -29,6 +35,31 @@ export function createOllamaProvider(config: OllamaProviderConfig): AiProvider {
         model: config.model,
         messages: [{ role: "user", content: renderParseMealPrompt(input) }],
         format: PARSED_MEAL_JSON_SCHEMA,
+        stream: false,
+        think: false,
+        options: { temperature: 0 },
+      });
+      return {
+        raw: JSON.parse(response.message.content),
+        modelId: config.model,
+        latencyMs: Date.now() - start,
+        tokensInput: response.prompt_eval_count,
+        tokensOutput: response.eval_count,
+      };
+    },
+
+    async extractLabel(input: ExtractLabelRequest): Promise<AiProviderResult> {
+      const start = Date.now();
+      const response = await client.chat({
+        model: config.model,
+        messages: [
+          {
+            role: "user",
+            content: renderExtractLabelPrompt(),
+            images: [input.image_base64],
+          },
+        ],
+        format: LABEL_EXTRACTION_JSON_SCHEMA,
         stream: false,
         think: false,
         options: { temperature: 0 },

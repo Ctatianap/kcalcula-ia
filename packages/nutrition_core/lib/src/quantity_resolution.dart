@@ -37,19 +37,31 @@ QuantityResolution resolveGrams({
   required QuantityInput input,
   required FoodCatalogEntry food,
   Map<QuantityUnit, double> householdUnitMlByUnit = const {},
+
+  /// SPEC-004: `true` cuando `food` viene de un producto personal
+  /// (etiqueta confirmada), no del catálogo. Con cantidad explícita en
+  /// g/ml, la base pasa a ser `QuantityBasis.label` en vez de
+  /// `explicit_weight` (Alta precisión, `docs/architecture.md`). No
+  /// cambia ninguna otra rama: sin cantidad explícita, un producto
+  /// personal solo tiene la porción de la etiqueta y cae en
+  /// `unit_portion`/`default_portion` igual que hoy.
+  bool isLabelProduct = false,
 }) {
   final quantity = input.quantity;
   final unit = input.unit;
+  final explicitBasis = isLabelProduct
+      ? QuantityBasis.label
+      : QuantityBasis.explicitWeight;
 
   if (quantity != null && unit == QuantityUnit.gramos) {
-    return _resolved(grams: quantity, basis: QuantityBasis.explicitWeight);
+    return _resolved(grams: quantity, basis: explicitBasis);
   }
 
   if (quantity != null && unit == QuantityUnit.mililitros) {
     final density = food.densityGPerMl;
     return _resolved(
       grams: quantity * (density ?? 1.0),
-      basis: QuantityBasis.explicitWeight,
+      basis: explicitBasis,
       usedDensityFallback: density == null,
     );
   }

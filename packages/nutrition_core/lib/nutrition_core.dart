@@ -3,6 +3,7 @@
 library;
 
 export 'src/confidence.dart';
+export 'src/label_validation.dart';
 export 'src/models/confidence_level.dart';
 export 'src/models/food_catalog_entry.dart';
 export 'src/models/portion_option.dart';

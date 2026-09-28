@@ -5,4 +5,5 @@ abstract class AppRoutes {
   static const diary = '/';
   static const capture = '/capture';
   static const review = '/review';
+  static const labelConfirmation = '/label-confirmation';
 }

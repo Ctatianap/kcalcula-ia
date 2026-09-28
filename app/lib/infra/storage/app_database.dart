@@ -40,12 +40,46 @@ class MealItems extends Table {
   TextColumn get sourceRef => text()();
 }
 
-@DriftDatabase(tables: [Meals, MealItems])
+/// SPEC-004 R7: producto personal confirmado a partir de una foto de
+/// etiqueta. Valores por 100 g/ml, igual convención que `catalog.db`, para
+/// poder tratarlo como un `FoodCatalogEntry` en `nutrition_core` sin
+/// duplicar lógica de cálculo. `sourceRef` es la auditoría de invariante 8
+/// ("etiqueta confirmada" es una fuente válida): cuándo y qué se confirmó.
+class PersonalProducts extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get nameEs => text()();
+  RealColumn get energyKcal100 => real()();
+  RealColumn get proteinG100 => real()();
+  RealColumn get carbsG100 => real()();
+  RealColumn get fatG100 => real()();
+  RealColumn get fiberG100 => real().nullable()();
+  RealColumn get sugarG100 => real().nullable()();
+  RealColumn get sodiumMg100 => real().nullable()();
+
+  /// Porción declarada en la etiqueta (R3: siempre > 0), usada como la
+  /// única `PortionOption` ("porcion") del producto.
+  RealColumn get servingGrams => real()();
+  RealColumn get densityGPerMl => real().nullable()();
+  TextColumn get sourceRef => text()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+@DriftDatabase(tables: [Meals, MealItems, PersonalProducts])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (m) => m.createAll(),
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        await m.createTable(personalProducts);
+      }
+    },
+  );
 
   /// Base de datos real en disco (`user.db`), en la ruta que decida
   /// `infra` (normalmente el directorio de documentos de la app).

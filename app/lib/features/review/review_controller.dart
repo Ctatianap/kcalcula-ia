@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../infra/ai_client/parsed_meal_dto.dart';
-import '../../infra/catalog/catalog_repository.dart';
 import '../../infra/catalog/food_match_result.dart';
+import '../../infra/food_resolution/food_query_resolver.dart';
 import '../../infra/storage/storage_repository.dart';
 import 'quantity_mapping.dart';
 import 'review_item.dart';
@@ -23,7 +23,7 @@ String assignMealTypeByHour(DateTime at) {
 /// (un `ParsedMealDto`), así que vive como `ChangeNotifier` creado por
 /// `ReviewScreen`, no compartido con el resto del árbol de widgets.
 class ReviewController extends ChangeNotifier {
-  final CatalogRepository _catalog;
+  final FoodQueryResolver _resolver;
   final StorageRepository _storage;
   final Map<QuantityUnit, double> _householdUnits;
 
@@ -32,13 +32,13 @@ class ReviewController extends ChangeNotifier {
 
   ReviewController({
     required ParsedMealDto parsedMeal,
-    required CatalogRepository catalog,
+    required FoodQueryResolver resolver,
     required StorageRepository storage,
     DateTime? now,
-  }) : _catalog = catalog,
+  }) : _resolver = resolver,
        // ignore: prefer_initializing_formals
        _storage = storage,
-       _householdUnits = catalog.householdUnitMlByUnit() {
+       _householdUnits = resolver.householdUnitMlByUnit() {
     mealType =
         parsedMeal.mealType ?? assignMealTypeByHour(now ?? DateTime.now());
     _items = parsedMeal.items.map(_buildItem).toList();
@@ -71,7 +71,7 @@ class ReviewController extends ChangeNotifier {
   }
 
   ReviewItem _buildItem(ParsedMealItemDto parsed) {
-    final match = _catalog.resolve(parsed.foodQuery);
+    final match = _resolver.resolve(parsed.foodQuery);
     return switch (match) {
       FoodMatched(food: final food) => _matchedItem(parsed, food),
       FoodAmbiguous(candidates: final candidates) => ReviewItem(
@@ -101,6 +101,7 @@ class ReviewController extends ChangeNotifier {
   }
 
   ReviewItem _matchedItem(ParsedMealItemDto parsed, FoodCatalogEntry food) {
+    final isLabelProduct = isPersonalProductFood(food);
     final resolution = resolveGrams(
       input: QuantityInput(
         quantity: parsed.quantity,
@@ -110,6 +111,7 @@ class ReviewController extends ChangeNotifier {
       ),
       food: food,
       householdUnitMlByUnit: _householdUnits,
+      isLabelProduct: isLabelProduct,
     );
     final grams = resolution.resolvable
         ? resolution.grams!
@@ -119,6 +121,7 @@ class ReviewController extends ChangeNotifier {
       isVague: parsed.isVague,
       usedCuratedEstimatePortion: resolution.usedCuratedEstimatePortion,
       usedDensityFallback: resolution.usedDensityFallback,
+      hasLabelGramsOrMl: resolution.basis == QuantityBasis.label,
     );
     return ReviewItem(
       mention: parsed.mention,
@@ -144,7 +147,7 @@ class ReviewController extends ChangeNotifier {
       food.portions.isNotEmpty ? food.portions.first.grams : 100.0;
 
   void selectCandidate(int index, String foodId) {
-    final food = _catalog.getFoodById(foodId);
+    final food = _resolver.getFoodById(foodId);
     if (food == null) return;
     final item = _items[index];
     final rebuilt = _matchedItem(
@@ -194,11 +197,14 @@ class ReviewController extends ChangeNotifier {
     }
     final records = _items
         .where((item) => item.status == ReviewItemStatus.matched)
-        .map(
-          (item) => MealItemRecord(
+        .map((item) {
+          final food = item.food!;
+          final personalId = personalProductIdFrom(food.id);
+          return MealItemRecord(
             mention: item.mention,
-            foodId: item.food!.id,
-            nameSnapshot: item.food!.nameEs,
+            foodId: personalId == null ? food.id : null,
+            personalProductId: personalId,
+            nameSnapshot: food.nameEs,
             grams: item.grams,
             quantityInput: item.quantityRaw,
             unitInput: item.unitRaw,
@@ -209,16 +215,16 @@ class ReviewController extends ChangeNotifier {
             carbsG: item.nutrients!.carbsG,
             fatG: item.nutrients!.fatG,
             confidence: item.confidence!.name,
-            sourceRef: item.food!.sourceRef,
-          ),
-        )
+            sourceRef: food.sourceRef,
+          );
+        })
         .toList();
 
     return _storage.registerMeal(
       eatenAt: eatenAt ?? DateTime.now(),
       mealType: mealType,
       confidence: confidence.name,
-      catalogVersion: _catalog.catalogVersion,
+      catalogVersion: _resolver.catalogVersion,
       items: records,
     );
   }

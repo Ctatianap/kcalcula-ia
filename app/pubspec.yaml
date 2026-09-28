@@ -58,9 +58,18 @@ dependencies:
   speech_to_text: ^7.5.0
   permission_handler: ^13.0.2
 
+  # SPEC-004: foto de tabla nutricional (cámara/galería). Versión estable
+  # verificada en pub.dev al momento de escribir (2026-09-27).
+  image_picker: ^1.2.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  # AC10 de SPEC-004: verificar en tests los parámetros de redimensionado
+  # que PluginImagePickerService le pide a image_picker (ya es dependencia
+  # transitiva de image_picker; se declara directa por usarse en tests).
+  image_picker_platform_interface: ^2.11.1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

@@ -1,7 +1,12 @@
 import { GoogleGenAI } from "@google/genai";
 import type { AiProvider, AiProviderResult } from "./provider.js";
-import { renderParseMealPrompt } from "./prompt.js";
-import { PARSED_MEAL_RESPONSE_SCHEMA, type ParseMealRequest } from "./schemas.js";
+import { renderExtractLabelPrompt, renderParseMealPrompt } from "./prompt.js";
+import {
+  LABEL_EXTRACTION_RESPONSE_SCHEMA,
+  PARSED_MEAL_RESPONSE_SCHEMA,
+  type ExtractLabelRequest,
+  type ParseMealRequest,
+} from "./schemas.js";
 
 export interface VertexAiProviderConfig {
   project: string;
@@ -28,6 +33,38 @@ export function createVertexAiProvider(
         config: {
           responseMimeType: "application/json",
           responseJsonSchema: PARSED_MEAL_RESPONSE_SCHEMA,
+          temperature: 0,
+        },
+      });
+      const text = response.text;
+      if (text === undefined) {
+        throw new Error("Vertex AI no devolvió texto en la respuesta.");
+      }
+      return {
+        raw: JSON.parse(text),
+        modelId: config.modelId,
+        latencyMs: Date.now() - start,
+        tokensInput: response.usageMetadata?.promptTokenCount,
+        tokensOutput: response.usageMetadata?.candidatesTokenCount,
+      };
+    },
+
+    async extractLabel(input: ExtractLabelRequest): Promise<AiProviderResult> {
+      const start = Date.now();
+      const response = await client.models.generateContent({
+        model: config.modelId,
+        contents: [
+          {
+            inlineData: {
+              mimeType: input.mime_type,
+              data: input.image_base64,
+            },
+          },
+          { text: renderExtractLabelPrompt() },
+        ],
+        config: {
+          responseMimeType: "application/json",
+          responseJsonSchema: LABEL_EXTRACTION_RESPONSE_SCHEMA,
           temperature: 0,
         },
       });
