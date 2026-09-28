@@ -2,95 +2,13 @@ import 'package:calorias_ia/infra/catalog/catalog_repository.dart';
 import 'package:calorias_ia/infra/catalog/food_match_result.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrition_core/nutrition_core.dart';
-import 'package:sqlite3/sqlite3.dart';
 
-// Mismo esquema que data/build_catalog/lib/schema.dart (paquete separado:
-// se duplica aquí solo como fixture de test, no como build real).
-const _schema = [
-  'CREATE TABLE meta (catalog_version TEXT NOT NULL, built_at TEXT NOT NULL)',
-  '''
-  CREATE TABLE foods (
-    id TEXT PRIMARY KEY, name_es TEXT NOT NULL, category TEXT,
-    source_id TEXT NOT NULL, source_ref TEXT NOT NULL,
-    energy_kcal REAL NOT NULL, protein_g REAL NOT NULL, carbs_g REAL NOT NULL,
-    fat_g REAL NOT NULL, fiber_g REAL, sugar_g REAL, sodium_mg REAL,
-    density_g_per_ml REAL, license_status TEXT NOT NULL DEFAULT 'ok',
-    atwater_review INTEGER NOT NULL DEFAULT 0
-  )
-  ''',
-  'CREATE TABLE food_synonyms (food_id TEXT NOT NULL, term TEXT NOT NULL)',
-  'CREATE VIRTUAL TABLE food_search USING fts5(food_id UNINDEXED, name_es, term)',
-  '''
-  CREATE TABLE portions (
-    food_id TEXT NOT NULL, descriptor TEXT NOT NULL, grams REAL NOT NULL,
-    source_id TEXT NOT NULL, source_ref TEXT NOT NULL,
-    is_curated_estimate INTEGER NOT NULL DEFAULT 0
-  )
-  ''',
-  'CREATE TABLE household_units (unit TEXT PRIMARY KEY, ml REAL NOT NULL, source_ref TEXT NOT NULL)',
-];
-
-CatalogRepository _buildFixtureCatalog() {
-  final db = sqlite3.openInMemory();
-  for (final statement in _schema) {
-    db.execute(statement);
-  }
-  db.execute(
-    "INSERT INTO meta (catalog_version, built_at) VALUES ('test-1', '2026-09-27T00:00:00')",
-  );
-
-  void insertFood(String id, String nameEs, double kcal) {
-    db.execute(
-      'INSERT INTO foods (id, name_es, source_id, source_ref, energy_kcal, protein_g, carbs_g, fat_g) '
-      "VALUES (?, ?, 'test', 'fixture', ?, 1, 1, 1)",
-      [id, nameEs, kcal],
-    );
-    db.execute(
-      'INSERT INTO food_search (food_id, name_es, term) VALUES (?, ?, ?)',
-      [id, nameEs, nameEs],
-    );
-  }
-
-  void insertSynonym(String foodId, String term) {
-    db.execute('INSERT INTO food_synonyms (food_id, term) VALUES (?, ?)', [
-      foodId,
-      term,
-    ]);
-    final nameEs = db.select('SELECT name_es FROM foods WHERE id = ?', [
-      foodId,
-    ]).first['name_es'];
-    db.execute(
-      'INSERT INTO food_search (food_id, name_es, term) VALUES (?, ?, ?)',
-      [foodId, nameEs, term],
-    );
-  }
-
-  insertFood('huevo', 'Huevo', 143);
-  db.execute(
-    "INSERT INTO portions (food_id, descriptor, grams, source_id, source_ref) "
-    "VALUES ('huevo', 'unidad', 50, 'test', 'fixture')",
-  );
-
-  insertFood('pechuga_de_pollo', 'Pechuga de pollo', 165);
-  insertSynonym('pechuga_de_pollo', 'pollo');
-
-  insertFood('pollo_muslo', 'Muslo de pollo', 200);
-  insertSynonym(
-    'pollo_muslo',
-    'pollo',
-  ); // mismo término, distinto alimento -> ambiguous
-
-  db.execute(
-    "INSERT INTO household_units (unit, ml, source_ref) VALUES ('cucharada', 15, 'fixture')",
-  );
-
-  return CatalogRepository(db);
-}
+import '../../support/fixture_catalog.dart';
 
 void main() {
   late CatalogRepository repo;
 
-  setUp(() => repo = _buildFixtureCatalog());
+  setUp(() => repo = buildFixtureCatalog());
   tearDown(() => repo.close());
 
   test('matched: nombre exacto', () {
