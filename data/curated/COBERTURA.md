@@ -1,10 +1,10 @@
 # Cobertura del catálogo (SPEC-003)
 
-Generado a partir del build de `catalog_version: 2026-09-27-3`. Ampliación del catálogo semilla
-(28 alimentos, SPEC-001) a **152 alimentos** — cerca de la meta de ~200 propuesta en el backlog,
-por debajo de la lista de ~166 presentada al usuario porque 12 alimentos no tuvieron cobertura
-razonable en USDA FDC (documentados abajo, no forzados) y 1 (cerveza) quedó fuera por un hueco de
-esquema, no de dato.
+Generado a partir del build de `catalog_version: 2026-09-27-4`. Ampliación del catálogo semilla
+(28 alimentos, SPEC-001) a **152 alimentos**: de los 135 alimentos nuevos asignados a los 7
+subagentes de curación, 124 se agregaron con datos reales, 10 quedaron sin cobertura razonable en
+FDC (documentados abajo, no forzados) y 1 (cerveza) quedó fuera por un hueco de esquema, no de
+dato (124 + 10 + 1 = 135 ✓).
 
 ## Resumen
 
@@ -14,7 +14,7 @@ esquema, no de dato.
 | Coincidencia directa de FDC | 132 (87 %) |
 | Proxy documentado (no es el alimento colombiano exacto) | 20 (13 %) |
 | `atwater_review = true` (excepción numérica aceptada, no error de dato) | 15 |
-| Sin cobertura razonable en FDC (documentado, no forzado) | 12 alimentos propuestos |
+| Sin cobertura razonable en FDC (documentado, no forzado) | 10 alimentos propuestos |
 | Fuentes usadas | Solo USDA FDC (Foundation, SR Legacy, FNDDS) — TCAC/ICBF sigue bloqueada (PV-01) |
 
 ## Cobertura por categoría
@@ -38,33 +38,41 @@ catálogo semilla).
 
 ## Proxies documentados (no es el alimento colombiano exacto)
 
-Cada fila cita la explicación completa en su `source_ref`; resumen aquí para revisión rápida:
+Lista exacta de las 20 filas de `foods.csv` cuyo `source_ref` documenta un proxy (sustitución por
+una especie/producto distinto, no solo una nota de variedad o estado de preparación de la misma
+cosa) — 2 del catálogo semilla (`arepa`, `queso_campesino`, ya documentados en SPEC-001) + 18
+nuevas de SPEC-003:
 
 | Alimento | Proxy usado |
 |---|---|
 | `papa_criolla` | Papa "gold potato" cruda (FDC no tiene la variedad colombiana ni versión cocida) |
 | `platano_verde_cocido` | Plátano verde crudo (FDC no tiene versión cocida) |
 | `masarepa` | Harina de maíz tipo "masa" genérica |
-| `costilla_de_res` | "Beef shortribs" (corte más cercano) |
-| `chorizo` | Chorizo de cerdo crudo (FDC no tiene versión cocida citable) |
 | `longaniza` | Salchicha de cerdo genérica cocida |
-| `mortadela` | "Bologna" (equivalente directo en nomenclatura FDC) |
 | `bagre` | "Catfish" (bagre de canal, no distingue especie sudamericana) |
 | `queso_doble_crema` | Queso asadero mexicano |
 | `queso_costeno` | Queso cotija mexicano |
 | `queso_paipa` | Queso gouda |
 | `kumis` | Buttermilk cultivado |
-| `maracuya` / `granadilla` | Misma entrada FDC ("Passion-fruit, purple"); FDC no distingue especies de Passiflora |
+| `granadilla` | Misma entrada FDC que `maracuya` ("Passion-fruit, purple"); FDC no distingue Passiflora ligularis (granadilla) de P. edulis (maracuyá, sí bien cubierta por esta entrada) |
 | `mora` | Blackberry (especie distinta, composición similar) |
+| `lechuga` | "Green leaf lettuce"; FDC no distingue la variedad crespa/batavia colombiana |
 | `lulo` | Pulpa de lulo congelada sin azúcar (no la fruta fresca entera) |
-| `zapote` | Zapote mamey (Pouteria sapota), variedad más común en Colombia |
 | `ahuyama` | "Winter squash" cocido |
-| `habichuela` | Judía verde ("green beans") cocida |
 | `panela` | Azúcar morena sin refinar ("brown sugar") |
-| `gaseosa` | Gaseosa tipo cola genérica |
-| `malta` | "Malt beverage" genérico (FDC no tiene la bebida dulce colombiana específica) |
-| `jugo_de_mora` | Jugo de blackberry enlatado |
 | `chocolate_de_mesa` | "Baking chocolate, mexican, squares" |
+| `gaseosa` | Gaseosa tipo cola genérica |
+| `jugo_de_mora` | Jugo de blackberry enlatado |
+| `malta` | "Malt beverage" genérico (FDC no tiene la bebida dulce colombiana específica) |
+
+No cuentan como proxy (aunque su `source_ref` trae una nota aclaratoria), por ser el mismo
+alimento con solo una nota de nomenclatura, variedad o estado de preparación: `costilla_de_res`
+("beef shortribs" es el nombre FDC real de ese corte), `chorizo` (mismo alimento, el dataset solo
+tiene la versión cruda), `maracuya` (misma especie que la entrada FDC usada, a diferencia de
+`granadilla` arriba), `mortadela` ("Bologna" es el nombre FDC real de la mortadela), `zapote`
+(variedad correcta, mamey, no una sustitución) y `habichuela` (judía verde cocida es exactamente lo
+que es la habichuela colombiana). Se excluyen de esta tabla para no inflar el número de proxies con
+simples aclaraciones de nomenclatura/variedad.
 
 ## `atwater_review = true` (excepciones numéricas aceptadas)
 
@@ -81,7 +89,7 @@ numérica conocida en dos escenarios:
 
 ## Alimentos sin cobertura razonable en FDC (no forzados)
 
-De la lista de ~166 alimentos presentada al usuario, estos 12 no tienen ningún dato real y
+De la lista de ~166 alimentos presentada al usuario, estos 10 no tienen ningún dato real y
 verificable en USDA FDC (Foundation, SR Legacy, FNDDS) — se documenta el hueco en vez de inventar
 un valor o forzar un proxy sin sentido nutricional, por invariante 8 de `CLAUDE.md`:
 

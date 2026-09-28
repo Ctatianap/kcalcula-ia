@@ -136,7 +136,7 @@ esquema — decisión explícita del usuario de dejarlas fuera por ahora, ver Ch
 | AC2 | ✅ | `data/build_catalog/test/validators_test.dart` — 20/20 tests verdes (las reglas ya existentes, sin cambios) |
 | AC3 | ✅ | Nuevo grupo `validateNoTcacSource` en `validators_test.dart` (3 tests): rechaza `source_id` con "tcac" en foods y portions, acepta `usda_fdc_*` |
 | AC4 | ✅ | `data/curated/COBERTURA.md` — 152 alimentos por categoría, 20 proxies documentados, 15 `atwater_review`, 12 sin cobertura documentados, 1 hueco de esquema (cerveza) |
-| AC5 | ⏳ pendiente | Reviewer aún no comparó las 10 filas al azar contra `source_ref` — se hace en el paso de reviewer, antes de `Done` |
+| AC5 | ✅ | Reviewer comparó 10 filas al azar contra `data/sources/{sr_legacy,foundation}/.../food.csv` y `food_nutrient.csv`: descripción, `fdc_id` y valores nutricionales coinciden exactamente, sin señales de invención |
 | AC6 | ✅ | `app/test/integration/catalog_real_db_test.dart` (nuevo): resuelve 5 `food_query` nuevos (mango, guayaba, aceite de coco, queso mozzarella, avena cocida) contra el `catalog.db` real regenerado |
 
 Verificado: `data/build_catalog` → `dart analyze` sin issues, `dart test` 17/17 verdes (14 antes +
@@ -144,7 +144,7 @@ Verificado: `data/build_catalog` → `dart analyze` sin issues, `dart test` 17/1
 nuevo de AC6).
 
 ## Change Log
-- 2026-09-28: creación, a partir de T-004 de `docs/backlog.md`. Ajusta el objetivo original
+- 2026-09-27: creación, a partir de T-004 de `docs/backlog.md`. Ajusta el objetivo original
   ("TCAC + FDC") a solo USDA FDC, por PV-01 (resuelto después de escribirse el backlog).
 - 2026-09-27: lista de ~166 alimentos presentada y confirmada por el usuario sin cambios.
   Implementación: R2 (validador anti-TCAC) agregado y probado; 124 alimentos curados vía 7
@@ -157,4 +157,46 @@ nuevo de AC6).
   Scope).
 
 ## Review
-Informe del reviewer:
+Informe del reviewer (2026-09-27, subagente `reviewer`, rama `spec-003-catalogo-completo`):
+
+```
+VERDICT: CHANGES_REQUESTED (primera pasada)
+SPEC: SPEC-003
+Tests: cd data/build_catalog && dart analyze && dart test → sin issues, 17/17 verdes |
+cd app && flutter analyze && flutter test → sin issues, 30/30 verdes |
+dart run bin/build_catalog.dart → 0 errores
+
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1-AC3, AC6 | Cumple | ver tabla "Evidencia de Acceptance Criteria" arriba |
+| AC4 | No cumple (primera pasada) | COBERTURA.md existe y sus conteos por categoría son exactos,
+  pero sus conteos agregados (proxy, sin cobertura) no coincidían con su propio detalle |
+| AC5 | Cumple | 10 filas al azar comparadas contra los CSV crudos de FDC: descripción, fdc_id y
+  valores nutricionales coinciden exactamente |
+
+Hallazgos:
+- [MAJOR] data/curated/COBERTURA.md — el resumen decía "12 alimentos sin cobertura" pero la tabla
+  detallada enumeraba 10. Corregido: resumen y encabezado ahora dicen 10, con reconciliación
+  explícita (135 asignados = 124 agregados + 10 sin cobertura + 1 cerveza).
+- [MAJOR] data/curated/COBERTURA.md — el resumen decía "20 proxies (13%)" pero la tabla detallada
+  listaba 23-24 alimentos con criterio inconsistente (mezclaba proxies reales con simples notas de
+  variedad/nomenclatura, y omitía `lechuga`). Corregido: tabla reconstruida para listar
+  exactamente las 20 filas cuyo `source_ref` documenta una sustitución real de especie/producto
+  (coincide con el 20 del resumen); se explica por qué 5 alimentos que sí tenían una nota
+  aclaratoria (`costilla_de_res`, `chorizo`, `maracuya`, `mortadela`, `zapote`, `habichuela`) no
+  cuentan como proxy.
+- [MINOR] specs/SPEC-003-catalogo-completo.md — Change Log con fecha invertida (2026-09-28 antes
+  de 2026-09-27). Corregido a 2026-09-27.
+- [MINOR] data/curated/COBERTURA.md — la aritmética del encabezado usaba "~138 nuevos" (cifra
+  aproximada de la propuesta inicial) en vez de los 135 realmente asignados a los subagentes de
+  curación. Corregido con la cifra exacta y su reconciliación.
+
+Confirmado sin hallazgos: 0 filas con source_id "tcac"; 0 filas de "cerveza" en ningún CSV;
+schema.dart sin cambios; nutrition_core/functions/docs/privacy.md sin cambios (fuera de alcance
+respetado); 152 alimentos con ≥1 portion; 0 ids/name_es duplicados; 0 conflictos sinónimo-food_id.
+No hubo BLOCKER en ninguna pasada.
+```
+
+Correcciones aplicadas (misma sesión, antes de re-solicitar revisión): recuento de
+`COBERTURA.md` (12→10 sin cobertura, tabla de proxies reconstruida a exactamente 20 filas
+verificadas por grep contra `foods.csv`, reconciliación 135=124+10+1) y fecha del Change Log.
