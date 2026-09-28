@@ -82,8 +82,6 @@ class VoiceInputController extends Notifier<VoiceInputState> {
     await ref.read(speechRecognizerProvider).stop();
     state = const VoiceInputIdle();
   }
-
-  void reset() => state = const VoiceInputIdle();
 }
 
 final voiceInputControllerProvider =

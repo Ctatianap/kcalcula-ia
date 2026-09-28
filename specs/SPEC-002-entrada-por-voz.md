@@ -148,4 +148,33 @@ de esta SPEC más 0 regresiones).
   timeout de silencio (~2s), ambos soportados.
 
 ## Review
-Informe del reviewer:
+Informe del reviewer (2026-09-28, subagente `reviewer`, rama `spec-002-entrada-por-voz`):
+
+```
+VERDICT: PASS
+SPEC: SPEC-002
+Tests: cd app && flutter analyze && flutter test → "No issues found!"; 29/29 tests verdes.
+
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1-AC7 | ✅ | Ver tabla "Evidencia de Acceptance Criteria" arriba; el reviewer verificó cada test
+  de primera mano (incluye el mensaje exacto de error y que nunca se filtra el errorMsg crudo
+  del plugin en AC6).
+| AC8 | ⏳ pendiente (aceptado) | Requiere Android e iPhone físicos, no simulable. No es un fallo.
+
+Verificado además: sin dato nuevo hacia el backend propio (solo el audio puede salir hacia el SO,
+según R3/D3); docs/privacy.md actualizado sin inventar el resultado de AC8; sin cambios a
+parsed_meal.v1 ni prompts de IA; sin telemetría de calidad de transcripción (R8); permisos de
+plataforma declarados en español; features/capture sigue sin importar otras features;
+SpeechRecognizer/MicrophonePermission son interfaces propias usadas con fakes en los tests;
+fixture_catalog.dart se comparte correctamente en los 4 sitios que antes duplicaban el esquema.
+
+Hallazgos:
+- [MINOR] voice_input_controller.dart — `reset()` no se usaba desde ningún sitio. Corregido:
+  se eliminó (no hacía falta en ningún flujo real).
+- [MINOR] capture_screen.dart — un resultado parcial de voz puede sobrescribir texto que el
+  usuario escribiera a mano *durante* la escucha (no cubierto por ningún R/AC, que solo exigen
+  edición *después* de detener). Documentado como comportamiento conocido, no se corrigió por
+  estar fuera del alcance de esta SPEC.
+- Sin BLOCKER ni MAJOR.
+```
