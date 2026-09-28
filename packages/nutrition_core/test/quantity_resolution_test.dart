@@ -51,6 +51,66 @@ void main() {
     });
   });
 
+  group('SPEC-004: isLabelProduct', () {
+    test('gramos directo sobre producto de etiqueta -> basis label', () {
+      final food = buildFood();
+      final result = resolveGrams(
+        input: const QuantityInput(
+          quantity: 45,
+          unit: QuantityUnit.gramos,
+          isVague: false,
+        ),
+        food: food,
+        isLabelProduct: true,
+      );
+      expect(result.basis, QuantityBasis.label);
+      expect(result.grams, 45);
+      expect(result.usedDensityFallback, isFalse);
+    });
+
+    test('mililitros con densidad conocida sobre producto de etiqueta -> basis label', () {
+      final food = buildFood(densityGPerMl: 1.03);
+      final result = resolveGrams(
+        input: const QuantityInput(
+          quantity: 200,
+          unit: QuantityUnit.mililitros,
+          isVague: false,
+        ),
+        food: food,
+        isLabelProduct: true,
+      );
+      expect(result.basis, QuantityBasis.label);
+      expect(result.grams, closeTo(206, 1e-9));
+      expect(result.usedDensityFallback, isFalse);
+    });
+
+    test('sin cantidad explícita, producto de etiqueta cae en unit_portion igual que hoy', () {
+      final food = buildFood(
+        portions: [buildPortion(descriptor: 'porcion', grams: 30)],
+      );
+      final result = resolveGrams(
+        input: const QuantityInput(isVague: true),
+        food: food,
+        isLabelProduct: true,
+      );
+      expect(result.basis, QuantityBasis.defaultPortion);
+      expect(result.grams, 30);
+    });
+
+    test('isLabelProduct=false (default) sigue dando explicit_weight', () {
+      final food = buildFood();
+      final result = resolveGrams(
+        input: const QuantityInput(
+          quantity: 45,
+          unit: QuantityUnit.gramos,
+          isVague: false,
+        ),
+        food: food,
+      );
+      expect(result.basis, QuantityBasis.explicitWeight);
+    });
+  });
+
   group('unit_portion', () {
     test('"2 huevos" usa la porción "unidad"', () {
       final food = buildFood(

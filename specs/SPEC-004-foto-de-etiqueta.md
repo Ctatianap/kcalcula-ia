@@ -1,7 +1,7 @@
 # SPEC-004: Foto de tabla nutricional
 
 ## Status
-Draft
+Implementing
 Path: Strict (toca `nutrition_core`, un esquema/prompt de IA nuevo y datos que salen del
 dispositivo — skill `ai-pipeline`)
 

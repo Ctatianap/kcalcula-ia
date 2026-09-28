@@ -35,4 +35,41 @@ void main() {
     expect(presentMacro(1.25), 1.3);
     expect(presentMacro(1.24), 1.2);
   });
+
+  test('AC5 SPEC-004: producto de etiqueta "30 g = 140 kcal", comí 45 g -> 210 kcal, Alta precisión', () {
+    // La etiqueta declara 140 kcal por una porción de 30 g; nutrition_core
+    // guarda el producto personal en su forma normalizada por 100 g.
+    final product = buildFood(
+      energyKcal100g: 140 / 30 * 100, // 466.666...
+      proteinG100g: 0,
+      carbsG100g: 0,
+      fatG100g: 140 / 9 / 30 * 100, // solo grasa, para que Atwater calce
+      portions: [buildPortion(descriptor: 'porcion', grams: 30)],
+    );
+
+    final resolution = resolveGrams(
+      input: const QuantityInput(
+        quantity: 45,
+        unit: QuantityUnit.gramos,
+        isVague: false,
+      ),
+      food: product,
+      isLabelProduct: true,
+    );
+    expect(resolution.basis, QuantityBasis.label);
+    expect(resolution.grams, 45);
+
+    final totals = calculateItemNutrients(product, resolution.grams!);
+    expect(totals.energyKcal, closeTo(210, 1e-9));
+    expect(presentKcal(totals.energyKcal), 210);
+
+    final confidence = itemConfidence(
+      basis: resolution.basis,
+      isVague: false,
+      usedCuratedEstimatePortion: resolution.usedCuratedEstimatePortion,
+      usedDensityFallback: resolution.usedDensityFallback,
+      hasLabelGramsOrMl: true,
+    );
+    expect(confidence, ConfidenceLevel.altaPrecision);
+  });
 }
