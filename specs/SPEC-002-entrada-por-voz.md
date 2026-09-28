@@ -35,9 +35,10 @@ registrar sea más rápido cuando tengo las manos ocupadas o prefiero hablar.
   ocurre en cualquier app que use STT del SO, no es un dato nuevo que este proyecto envíe).
 - R4. Mientras escucha, muestra la transcripción parcial en vivo en el mismo campo de texto de
   captura (no un campo separado).
-- R5. Al detener (botón de parar, o un silencio prolongado detectado por el paquete), la
-  transcripción final queda en el campo de texto, editable, exactamente como si el usuario la
-  hubiera escrito — reutiliza `CaptureController.analyze(text)` sin ningún cambio.
+- R5. Se puede detener de dos formas, ambas soportadas: (a) botón manual de "detener", y (b) un
+  timeout de silencio automático (~2 segundos sin habla detectada). En cualquiera de los dos
+  casos, la transcripción final queda en el campo de texto, editable, exactamente como si el
+  usuario la hubiera escrito — reutiliza `CaptureController.analyze(text)` sin ningún cambio.
 - R6. El usuario puede editar la transcripción antes de presionar "Analizar" (ya existe el mismo
   `TextField`; esto solo lo prellena).
 - R7. Errores manejados con mensaje en español y vuelta a estado inicial (nunca una traza técnica):
@@ -116,8 +117,6 @@ app, corrección conversacional del resultado (Fase 3, F3), guardar o transcribi
 otro propósito que no sea rellenar el campo de texto.
 
 ## Open Questions
-- ¿Detener la escucha solo con botón manual, o también con un timeout de silencio automático (p.
-  ej. 2 segundos)? Propuesta: ambos. Confirmar o ajustar antes de aprobar.
 - Paquete Flutter exacto para STT (se verifica su versión estable al implementar, no se fija aquí).
 
 ## Definition of Done
@@ -130,6 +129,8 @@ otro propósito que no sea rellenar el campo de texto.
 
 ## Change Log
 - 2026-09-28: creación, a partir de T-003 de `docs/backlog.md`.
+- 2026-09-28: resuelta la Open Question de detener la escucha — R5 confirma botón manual y
+  timeout de silencio (~2s), ambos soportados.
 
 ## Review
 Informe del reviewer:
