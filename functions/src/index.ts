@@ -7,6 +7,7 @@ import {
 } from "./ai/config.js";
 import { createFakeAiProvider } from "./ai/fake.js";
 import { buildParseMealHandler } from "./ai/handler.js";
+import { createOllamaProvider } from "./ai/ollama.js";
 import type { AiProvider } from "./ai/provider.js";
 import { createVertexAiProvider } from "./ai/vertex.js";
 import { ping } from "./ping.js";
@@ -18,18 +19,35 @@ import { ping } from "./ping.js";
 setGlobalOptions({ maxInstances: 10 });
 
 /**
- * `fake` por defecto: nunca se llama a Vertex AI (con costo real) a menos
- * que se ponga explícitamente `AI_PROVIDER=vertex` (evals de AC11).
+ * `fake` por defecto (sin costo). `AI_PROVIDER=ollama` usa un modelo local
+ * (gratis, mientras el proyecto sigue en MVP) — ver
+ * docs/decisions/ADR-002-ia-local-vs-vertex.md. `AI_PROVIDER=vertex` sí
+ * cuesta dinero real: solo para cuando se decida pasar a producción o para
+ * los evals puntuales de AC11.
  */
 function selectProvider(): AiProvider {
-  if (process.env.AI_PROVIDER === "vertex") {
-    return createVertexAiProvider({
-      project: vertexProjectIdParam.value(),
-      location: vertexLocationParam.value(),
-      modelId: geminiModelIdParam.value(),
-    });
+  switch (process.env.AI_PROVIDER) {
+    case "vertex": {
+      const project = vertexProjectIdParam.value();
+      if (!project) {
+        throw new Error(
+          "AI_PROVIDER=vertex requiere VERTEX_PROJECT_ID configurado (un proyecto real de GCP con Vertex AI habilitado).",
+        );
+      }
+      return createVertexAiProvider({
+        project,
+        location: vertexLocationParam.value(),
+        modelId: geminiModelIdParam.value(),
+      });
+    }
+    case "ollama":
+      return createOllamaProvider({
+        model: process.env.OLLAMA_MODEL ?? "gemma4:e4b",
+        host: process.env.OLLAMA_HOST,
+      });
+    default:
+      return createFakeAiProvider();
   }
-  return createFakeAiProvider();
 }
 
 export const parseMeal = onCall(

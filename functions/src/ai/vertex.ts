@@ -1,20 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import type { AiProvider, AiProviderResult } from "./provider.js";
+import { renderParseMealPrompt } from "./prompt.js";
 import { PARSED_MEAL_RESPONSE_SCHEMA, type ParseMealRequest } from "./schemas.js";
-
-const PROMPT_TEMPLATE = readFileSync(
-  join(__dirname, "prompts", "parse_meal.v1.md"),
-  "utf-8",
-);
-
-function renderPrompt(input: ParseMealRequest): string {
-  return PROMPT_TEMPLATE.replace("{{LOCALE}}", input.locale).replace(
-    "{{TEXTO_USUARIO}}",
-    input.text,
-  );
-}
 
 export interface VertexAiProviderConfig {
   project: string;
@@ -37,7 +24,7 @@ export function createVertexAiProvider(
       const start = Date.now();
       const response = await client.models.generateContent({
         model: config.modelId,
-        contents: renderPrompt(input),
+        contents: renderParseMealPrompt(input),
         config: {
           responseMimeType: "application/json",
           responseJsonSchema: PARSED_MEAL_RESPONSE_SCHEMA,
