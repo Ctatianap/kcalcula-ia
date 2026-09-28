@@ -60,8 +60,11 @@ y que si vuelvo a comer lo mismo, no tenga que repetir la foto.
 - R7. El producto confirmado se guarda como **producto personal** reutilizable
   (`personal_products` en `user.db`, ver Components) con su `source_ref` de auditoría ("etiqueta
   transcrita y confirmada por el usuario, `<fecha>`" — invariante 8 ya contempla "etiqueta
-  confirmada" como fuente válida). Se puede volver a usar sin repetir la foto (ver R7 en
-  Acceptance Criteria y la Open Question sobre cómo se busca).
+  confirmada" como fuente válida). **Búsqueda integrada** (decisión del usuario, 2026-09-27): el
+  mismo `food_query` de texto/voz debe encontrar tanto alimentos de `catalog.db` como productos
+  personales de `user.db`, sin una lista separada. Esto requiere una capa de resolución nueva
+  (ver Technical Constraints) que combine candidatos de ambas fuentes bajo las mismas reglas de
+  `matched`/`ambiguous`/`not_found` que ya existen.
 - R8. Una vez resuelto el ítem (gramos + nutrientes + confianza), entra a la misma
   `ReviewController`/pantalla de revisión que ya existe — no se duplica lógica de cálculo ni de
   registro.
@@ -91,8 +94,9 @@ y que si vuelvo a comer lo mismo, no tenga que repetir la foto.
 - AC5. Con el producto "30 g = 140 kcal" confirmado y el usuario indicando "comí 45 g": el
   resultado es 210 kcal (140 × 45/30) con confianza **Alta precisión** `[unit]` — coincide con el
   criterio de aceptación del backlog.
-- AC6. El producto queda guardado en `personal_products`; en una comida posterior aparece
-  disponible para reutilizarse sin repetir la foto (mecanismo exacto: ver Open Questions)
+- AC6. El producto queda guardado en `personal_products`; escribir su nombre (o parte de él) como
+  `food_query` en una comida posterior de texto/voz lo devuelve como candidato (`matched` si es el
+  único, `ambiguous` si coincide también con un alimento del catálogo), sin repetir la foto
   `[integration]`.
 - AC7. Sin permiso de cámara: mensaje "Necesito permiso de la cámara para esto. Puedes escribirlo
   en su lugar." y el campo de texto sigue disponible `[widget]`.
@@ -131,9 +135,28 @@ y que si vuelvo a comer lo mismo, no tenga que repetir la foto.
   vigente), y acoplar dos paquetes por una fórmula de 3 líneas sería una abstracción prematura.
 - `label_extraction.v1`: mismo patrón que `parsed_meal.v1` (`zod.strictObject`,
   `additionalProperties: false`, JSON Schema espejo con `anyOf`+`null` para opcionales).
-- Paquete Flutter para cámara/galería: verificar versión estable actual al implementar (no se fija
-  aquí). Permiso de cámara vía `permission_handler` (ya es dependencia del proyecto, se reutiliza
-  el mismo patrón que `speech_to_text`/micrófono de SPEC-002).
+- Paquete Flutter para cámara/galería (decisión del usuario: sí usar uno, ej. `image_picker`):
+  verificar versión estable actual al implementar (no se fija aquí, mismo patrón que
+  `speech_to_text` en SPEC-002). Permiso de cámara vía `permission_handler` (ya es dependencia del
+  proyecto, se reutiliza el mismo patrón que voz/micrófono).
+- **Búsqueda integrada (R7)**: `CatalogRepository` (solo lee `catalog.db`) y `personal_products`
+  (Drift, `user.db`) son bases distintas — `resolve(foodQuery)` hoy vive solo en
+  `CatalogRepository`. Se agrega una capa nueva (propuesto: `app/lib/infra/food_resolution/
+  food_query_resolver.dart`) que llama a ambos repositorios, combina los candidatos de las dos
+  fuentes bajo las mismas reglas `matched`(1)/`ambiguous`(2-3)/`not_found`(0) que ya existen, y es
+  lo que `CaptureController`/`ReviewController` usan en vez de llamar a `CatalogRepository`
+  directamente. `CatalogRepository` no cambia su contrato (regla ya vigente en `docs/architecture.md`
+  de que `app/infra/catalog` "No hace: Calcular").
+- **Tamaño de imagen (R10)**: 1600 px en el lado más largo, JPEG ~85 %, queda como default. No es
+  "mucho" en los dos sentidos que importan: (a) tamaño de archivo — un JPEG a esa resolución pesa
+  típicamente 150-400 KB, muy por debajo de una foto de celular sin comprimir (3-12 MB) y del
+  límite práctico de un callable de Firebase; (b) costo por imagen en el modelo — a esa resolución
+  son 1-2 "tiles" de Gemini (~250-500 tokens), una fracción de centavo a los precios ya
+  confirmados en PV-02 (USD 0.30/1M tokens de imagen). El motivo real de 1600 px no es el costo
+  sino la legibilidad: las tablas nutricionales colombianas suelen tener letra pequeña, y bajar
+  mucho la resolución arriesga que los dígitos de gramos/mg se vuelvan ilegibles para el modelo.
+  Si en AC12 (fotos reales) se ve que es más de lo necesario, se ajusta ahí con evidencia real en
+  vez de adivinar ahora.
 
 ## Components / Files Affected
 `functions/src/ai/schemas.ts` (nuevo `label_extraction.v1` + JSON Schema espejo) ·
@@ -144,9 +167,11 @@ y que si vuelvo a comer lo mismo, no tenga que repetir la foto.
 igual que `parseMeal`) · `packages/nutrition_core/lib/src/quantity_resolution.dart`
 (`isLabelProduct`) · nueva función de validación Atwater en `nutrition_core` ·
 `app/lib/infra/ai_client/*` (método `extractLabel`) · `app/lib/infra/storage/*` (tabla
-`personal_products`, DAO) · `app/lib/features/capture/*` (botón de foto, flujo de cámara/galería,
-pantalla de confirmación de etiqueta) · `app/lib/features/review/*` (cantidad consumida en g/ml
-para productos personales) · `app/android/.../AndroidManifest.xml` +
+`personal_products`, DAO) · `app/lib/infra/food_resolution/food_query_resolver.dart` (nuevo:
+combina `CatalogRepository` + productos personales) · `app/lib/features/capture/*` (botón de
+foto, flujo de cámara/galería, pantalla de confirmación de etiqueta, usa el resolver nuevo en vez
+de `CatalogRepository` directo) · `app/lib/features/review/*` (cantidad consumida en g/ml para
+productos personales) · `app/android/.../AndroidManifest.xml` +
 `app/ios/.../Info.plist` (permiso de cámara/galería) · `app/pubspec.yaml` (paquete de
 cámara/imagen) · `docs/privacy.md` (fila "Foto de etiqueta").
 
@@ -197,18 +222,9 @@ productos personales duplicados, edición de un producto personal ya creado desd
 de captura, empaques en otro idioma que español, evals formales con dataset (T-006).
 
 ## Open Questions
-- **Cómo se reutiliza un producto personal (R7/AC6)**: propongo una lista simple "Mis productos"
-  buscable por nombre, accesible desde `CaptureScreen` (botón junto a texto/voz/foto), separada de
-  la búsqueda por `food_query` del catálogo — evita mezclar dos fuentes de datos (`catalog.db`
-  solo-lectura vs. `user.db` de escritura) en una sola búsqueda FTS. Alternativa: integrar
-  productos personales directamente en la resolución de `food_query` de texto/voz (para que
-  "yogur griego marca X" lo encuentre sin abrir una lista aparte) — más natural para el usuario
-  pero cambia `CatalogRepository`/`ReviewController` para consultar dos bases de datos distintas
-  en el mismo paso, más alcance. ¿Cuál de las dos para esta SPEC?
-- Paquete Flutter exacto para cámara/galería (se verifica su versión estable al implementar, no se
-  fija aquí — mismo patrón que `speech_to_text` en SPEC-002).
-- Límite exacto de tamaño/resolución de imagen (R10 propone 1600 px / JPEG 85 % como default
-  razonable): ¿de acuerdo, o el usuario prefiere otro valor?
+Ninguna pendiente — las tres de la primera versión de esta SPEC quedaron resueltas por el usuario
+el 2026-09-27 (búsqueda integrada, sí usar paquete Flutter de cámara/galería, 1600 px/JPEG 85 %
+como default). Ver Change Log.
 
 ## Definition of Done
 - AC1–AC12 con evidencia enlazada en esta SPEC (AC12 puede quedar "pendiente aceptado").
@@ -218,6 +234,13 @@ de captura, empaques en otro idioma que español, evals formales con dataset (T-
 
 ## Change Log
 - 2026-09-27: creación, a partir de T-005 de `docs/backlog.md`.
+- 2026-09-27: resueltas las 3 Open Questions de la versión inicial. Usuario decidió: (1) búsqueda
+  integrada entre catálogo y productos personales, en vez de una lista "Mis productos" separada
+  — cambia R7/AC6 y agrega el componente nuevo `food_query_resolver.dart` (más alcance que la
+  alternativa, aceptado explícitamente); (2) sí usar un paquete Flutter de cámara/galería (versión
+  exacta a verificar al implementar); (3) mantener 1600 px / JPEG 85 % tras aclarar que la
+  motivación es legibilidad de letra pequeña, no costo (el costo es una fracción de centavo en
+  cualquiera de los dos casos).
 
 ## Review
 Informe del reviewer:
