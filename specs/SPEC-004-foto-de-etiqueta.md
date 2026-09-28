@@ -1,7 +1,7 @@
 # SPEC-004: Foto de tabla nutricional
 
 ## Status
-Review
+Done
 Path: Strict (toca `nutrition_core`, un esquema/prompt de IA nuevo y datos que salen del
 dispositivo — skill `ai-pipeline`)
 
@@ -273,4 +273,56 @@ Verificado: `packages/nutrition_core` → `dart analyze` sin issues, `dart test`
   entre "no impreso" e "ilegible").
 
 ## Review
-Informe del reviewer:
+Informe del reviewer (2026-09-28, subagente `reviewer`, rama `spec-004-foto-de-etiqueta`):
+
+```
+VERDICT: CHANGES_REQUESTED (primera pasada)
+SPEC: SPEC-004
+Tests: packages/nutrition_core 37/37 verdes | functions 35/35 verdes | app 55/55 verdes,
+analyze limpio en los tres.
+
+| AC | Estado |
+|----|--------|
+| AC1-AC9, AC11 | Confirmado con evidencia real (cada test citado prueba lo que dice, no solo
+  el nombre) |
+| AC10 | Confirmado, honesto sobre su límite (no decodifica tamaño real de archivo) |
+| AC12 | Pendiente aceptado, correctamente etiquetado |
+
+Hallazgos:
+- [MAJOR] app_database.dart — la migración onUpgrade (1→2) solo crea la tabla
+  personal_products, pero según el reviewer faltaba un addColumn para
+  meal_items.personal_product_id en una tabla que ya existía en schemaVersion 1.
+- [MINOR] label_capture_controller.dart — R10 no maneja explícitamente "archivo no es una
+  imagen válida" (bajo riesgo real, image_picker solo deja elegir imágenes).
+- [MINOR] storage_repository.dart — el XOR foodId/personalProductId no tiene constraint a
+  nivel de esquema (CHECK), solo se cumple por la lógica de ReviewController.register().
+```
+
+**Corrección al hallazgo MAJOR (misma sesión, antes de re-solicitar revisión)**: verificado con
+`git log -p --follow` y `git diff develop...spec-004-foto-de-etiqueta` que `personalProductId` en
+`MealItems` **ya existía desde SPEC-001** (`schemaVersion 1`, commit `03782cec...`), no es una
+columna nueva de esta SPEC — el diff real de esta rama no toca `MealItems` en absoluto, solo
+agrega la tabla `PersonalProducts` y sube `schemaVersion` de 1 a 2, que es exactamente lo que
+`onUpgrade` ya cubre. Se le devolvió la evidencia al reviewer en vez de "corregir" un problema
+que no existía.
+
+Segunda pasada del reviewer (mismo subagente, mismo día):
+
+```
+VERDICT: PASS
+SPEC: SPEC-004
+Tests: sin cambios respecto a la primera pasada (37/37, 35/35, 55/55 verdes).
+
+Hallazgo MAJOR retractado por completo: confirmado con la misma evidencia (git log -p,
+git diff) que personalProductId ya existía en schemaVersion 1 desde SPEC-001; el error fue
+del reviewer al leer el archivo completo en vez de cruzarlo contra el diff línea por línea.
+onUpgrade's m.createTable(personalProducts) es exactamente lo que hace falta.
+
+Los 12 AC quedan como en la primera pasada (AC1-AC11 confirmados, AC12 pendiente aceptado).
+Los 2 MINOR se mantienen, ninguno bloquea PASS. Sin más hallazgos BLOCKER ni MAJOR.
+Invariantes 1,2,3,4,5,8,9 respetadas. Sin cambios fuera del alcance declarado de la SPEC más
+allá del refactor necesario en functions/src/index.ts (una sola instancia de AiProvider
+compartida entre parseMeal y extractLabel).
+
+Recomendación: puede moverse a Done en cuanto el usuario dé su aprobación explícita.
+```
