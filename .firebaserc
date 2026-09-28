@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "demo-calorias-ia"
+    "default": "kcalcula-ia-dev",
+    "dev": "kcalcula-ia-dev",
+    "prod": "kcalcula-ia"
   }
 }
