@@ -1,7 +1,7 @@
 # SPEC-005: Evals de IA
 
 ## Status
-Review
+Done
 Path: Strict (toca prompts/esquemas de IA — skill `ai-pipeline`, siempre Strict)
 
 ## Objective
@@ -238,6 +238,27 @@ nuevos: 7 unit tests de `run_parse_meal.ts` + 9 de `run_extract_label.ts`).
   ocultar el caso. Vertex AI queda pendiente aceptado (AC4) por no existir todavía un proyecto GCP
   real — no bloquea. El usuario decide los umbrales de aceptación con estos números reales delante
   (R6); no se fijó ninguno de antemano.
+- 2026-09-28: reviewer `PASS` en la tercera pasada (ver sección Review). Status → `Done`. Pendiente
+  la aprobación explícita del usuario para fusionar `spec-005-evals-de-ia` a `develop` (CLAUDE.md,
+  Strict Path).
 
 ## Review
-Informe del reviewer:
+Tres pasadas del subagente `reviewer` (independiente, solo lectura) sobre `spec-005-evals-de-ia`:
+
+1. **Primera pasada — CHANGES_REQUESTED.** 2 MAJOR: baseline de `extract_label` desactualizado
+   respecto al fix del marcador de grupo (`isUnreadable`); prosa "0 alucinaciones" sin matizar los 8
+   `fieldChecks` en campos no confirmables. 1 MINOR: AC5 etiquetado `[unit]` sin test dedicado.
+2. **Segunda pasada — CHANGES_REQUESTED.** Verificó las correcciones de la pasada 1 (confirmó
+   `fieldAccuracy` recalculado dígito a dígito, `ranAt` posterior al commit del fix). Encontró un
+   MAJOR nuevo: `label_10` tenía un desalineo real de fila en `cases.jsonl` (`Fibra dietaria` con el
+   valor de `Polialcoholes`, `Azúcares totales` con el valor de la fila siguiente) — verificado
+   contra `images/10.jpg`.
+3. **Tercera pasada — PASS.** Verificó directamente contra las fotos las 3 correcciones de ground
+   truth (`label_10`, `label_24`, `label_38`), recalculó la aritmética del baseline final desde los
+   `fieldChecks` crudos (742 puntuados, 542 correctos, 0 alucinados — coincide con la SPEC), y
+   muestreó 5 fotos adicionales al azar (`label_15`, `label_19`, `label_29`, `label_42`, `label_50`)
+   sin encontrar errores nuevos. `npm test` → 51/51 verdes. Único hallazgo: 1 MINOR (asimetría menor
+   entre `run_parse_meal.ts`/`run_extract_label.ts` en el manejo de dataset vacío — no bloquea, no
+   aplica a `parse_meal.v1.jsonl` que siempre tiene 50 casos).
+
+**Veredicto final: PASS.** Sin BLOCKER ni MAJOR pendientes.
