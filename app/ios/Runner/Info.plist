@@ -30,6 +30,10 @@
 	<string>Necesitamos el micrófono para que puedas decir lo que comiste en vez de escribirlo.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Convertimos lo que dices en texto en tu propio dispositivo para registrar tu comida.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Necesitamos la cámara para que puedas fotografiar la tabla nutricional de un producto.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Necesitamos acceso a tus fotos para que puedas elegir una foto de la tabla nutricional de un producto.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

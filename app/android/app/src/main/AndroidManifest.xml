@@ -1,6 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- SPEC-002: entrada por voz (speech_to_text). -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <!-- SPEC-004: foto de tabla nutricional (image_picker). La galería no
+         necesita permiso declarado en Android moderno (usa el selector del
+         sistema), solo la cámara. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
     <application
         android:label="calorias_ia"
         android:name="${applicationName}"
