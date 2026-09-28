@@ -2,20 +2,20 @@
   "dataset": "extract_label.v1",
   "provider": "ollama",
   "modelId": "gemma4:e4b",
-  "ranAt": "2026-09-28T21:08:41.226Z",
+  "ranAt": "2026-09-28T21:23:25.189Z",
   "caseCount": 47,
   "schemaValidRate": "47/47 (100.0%)",
-  "fieldAccuracy": "562/760 (73.9%)",
+  "fieldAccuracy": "539/737 (73.1%)",
   "hallucinatedFields": 0,
-  "latencyP50Ms": 5714,
-  "latencyP95Ms": 6134,
+  "latencyP50Ms": 5809,
+  "latencyP95Ms": 6347,
   "avgTokensInput": 1566,
   "avgTokensOutput": 248,
   "results": [
     {
       "id": "label_06",
       "schemaValid": true,
-      "latencyMs": 5465,
+      "latencyMs": 9855,
       "tokensInput": 1566,
       "tokensOutput": 219,
       "fieldChecks": [
@@ -163,7 +163,7 @@
     {
       "id": "label_07",
       "schemaValid": true,
-      "latencyMs": 5716,
+      "latencyMs": 5718,
       "tokensInput": 1566,
       "tokensOutput": 251,
       "fieldChecks": [
@@ -311,7 +311,7 @@
     {
       "id": "label_08",
       "schemaValid": true,
-      "latencyMs": 5196,
+      "latencyMs": 5217,
       "tokensInput": 1566,
       "tokensOutput": 221,
       "fieldChecks": [
@@ -459,7 +459,7 @@
     {
       "id": "label_09",
       "schemaValid": true,
-      "latencyMs": 5744,
+      "latencyMs": 5797,
       "tokensInput": 1566,
       "tokensOutput": 254,
       "fieldChecks": [
@@ -607,7 +607,7 @@
     {
       "id": "label_10",
       "schemaValid": true,
-      "latencyMs": 5594,
+      "latencyMs": 5603,
       "tokensInput": 1566,
       "tokensOutput": 247,
       "fieldChecks": [
@@ -755,7 +755,7 @@
     {
       "id": "label_11",
       "schemaValid": true,
-      "latencyMs": 5601,
+      "latencyMs": 5613,
       "tokensInput": 1566,
       "tokensOutput": 249,
       "fieldChecks": [
@@ -903,7 +903,7 @@
     {
       "id": "label_12",
       "schemaValid": true,
-      "latencyMs": 5747,
+      "latencyMs": 5646,
       "tokensInput": 1566,
       "tokensOutput": 252,
       "fieldChecks": [
@@ -1051,7 +1051,7 @@
     {
       "id": "label_13",
       "schemaValid": true,
-      "latencyMs": 5755,
+      "latencyMs": 5762,
       "tokensInput": 1566,
       "tokensOutput": 253,
       "fieldChecks": [
@@ -1199,7 +1199,7 @@
     {
       "id": "label_14",
       "schemaValid": true,
-      "latencyMs": 5882,
+      "latencyMs": 5861,
       "tokensInput": 1566,
       "tokensOutput": 257,
       "fieldChecks": [
@@ -1347,7 +1347,7 @@
     {
       "id": "label_15",
       "schemaValid": true,
-      "latencyMs": 5646,
+      "latencyMs": 5754,
       "tokensInput": 1566,
       "tokensOutput": 252,
       "fieldChecks": [
@@ -1495,7 +1495,7 @@
     {
       "id": "label_16",
       "schemaValid": true,
-      "latencyMs": 5373,
+      "latencyMs": 5435,
       "tokensInput": 1566,
       "tokensOutput": 232,
       "fieldChecks": [
@@ -1643,7 +1643,7 @@
     {
       "id": "label_17",
       "schemaValid": true,
-      "latencyMs": 6010,
+      "latencyMs": 5939,
       "tokensInput": 1566,
       "tokensOutput": 266,
       "fieldChecks": [
@@ -1791,7 +1791,7 @@
     {
       "id": "label_18",
       "schemaValid": true,
-      "latencyMs": 5622,
+      "latencyMs": 5727,
       "tokensInput": 1566,
       "tokensOutput": 253,
       "fieldChecks": [
@@ -1939,7 +1939,7 @@
     {
       "id": "label_19",
       "schemaValid": true,
-      "latencyMs": 5621,
+      "latencyMs": 5742,
       "tokensInput": 1566,
       "tokensOutput": 253,
       "fieldChecks": [
@@ -2087,7 +2087,7 @@
     {
       "id": "label_20",
       "schemaValid": true,
-      "latencyMs": 5596,
+      "latencyMs": 5719,
       "tokensInput": 1566,
       "tokensOutput": 251,
       "fieldChecks": [
@@ -2235,7 +2235,7 @@
     {
       "id": "label_21",
       "schemaValid": true,
-      "latencyMs": 5795,
+      "latencyMs": 5809,
       "tokensInput": 1566,
       "tokensOutput": 256,
       "fieldChecks": [
@@ -2383,7 +2383,7 @@
     {
       "id": "label_22",
       "schemaValid": true,
-      "latencyMs": 5795,
+      "latencyMs": 5763,
       "tokensInput": 1566,
       "tokensOutput": 251,
       "fieldChecks": [
@@ -2531,7 +2531,7 @@
     {
       "id": "label_23",
       "schemaValid": true,
-      "latencyMs": 4731,
+      "latencyMs": 4833,
       "tokensInput": 1566,
       "tokensOutput": 192,
       "fieldChecks": [
@@ -2547,7 +2547,7 @@
           "field": "serving_size.quantity",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         },
@@ -2555,7 +2555,7 @@
           "field": "serving_size.unit",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         },
@@ -2563,7 +2563,7 @@
           "field": "per_serving.energy_kcal",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         },
@@ -2571,7 +2571,7 @@
           "field": "per_serving.protein_g",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         },
@@ -2579,7 +2579,7 @@
           "field": "per_serving.carbs_g",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         },
@@ -2587,7 +2587,7 @@
           "field": "per_serving.fat_g",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         },
@@ -2595,7 +2595,7 @@
           "field": "per_serving.fiber_g",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         },
@@ -2603,7 +2603,7 @@
           "field": "per_serving.sugar_g",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         },
@@ -2611,7 +2611,7 @@
           "field": "per_serving.sodium_mg",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         },
@@ -2619,7 +2619,7 @@
           "field": "per_100.energy_kcal",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         },
@@ -2627,7 +2627,7 @@
           "field": "per_100.protein_g",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         },
@@ -2635,7 +2635,7 @@
           "field": "per_100.carbs_g",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         },
@@ -2643,7 +2643,7 @@
           "field": "per_100.fat_g",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         },
@@ -2651,7 +2651,7 @@
           "field": "per_100.fiber_g",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         },
@@ -2659,7 +2659,7 @@
           "field": "per_100.sugar_g",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         },
@@ -2667,19 +2667,19 @@
           "field": "per_100.sodium_mg",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         }
       ],
-      "scoredCount": 16,
-      "correctCount": 16,
+      "scoredCount": 0,
+      "correctCount": 0,
       "hallucinatedCount": 0
     },
     {
       "id": "label_24",
       "schemaValid": true,
-      "latencyMs": 6231,
+      "latencyMs": 6225,
       "tokensInput": 1566,
       "tokensOutput": 280,
       "fieldChecks": [
@@ -2827,7 +2827,7 @@
     {
       "id": "label_25",
       "schemaValid": true,
-      "latencyMs": 4279,
+      "latencyMs": 4401,
       "tokensInput": 1566,
       "tokensOutput": 165,
       "fieldChecks": [
@@ -2975,7 +2975,7 @@
     {
       "id": "label_26",
       "schemaValid": true,
-      "latencyMs": 5223,
+      "latencyMs": 5266,
       "tokensInput": 1566,
       "tokensOutput": 220,
       "fieldChecks": [
@@ -3123,7 +3123,7 @@
     {
       "id": "label_27",
       "schemaValid": true,
-      "latencyMs": 6575,
+      "latencyMs": 6584,
       "tokensInput": 1566,
       "tokensOutput": 295,
       "fieldChecks": [
@@ -3271,7 +3271,7 @@
     {
       "id": "label_28",
       "schemaValid": true,
-      "latencyMs": 5682,
+      "latencyMs": 5922,
       "tokensInput": 1566,
       "tokensOutput": 255,
       "fieldChecks": [
@@ -3419,7 +3419,7 @@
     {
       "id": "label_29",
       "schemaValid": true,
-      "latencyMs": 5759,
+      "latencyMs": 5905,
       "tokensInput": 1566,
       "tokensOutput": 250,
       "fieldChecks": [
@@ -3567,7 +3567,7 @@
     {
       "id": "label_30",
       "schemaValid": true,
-      "latencyMs": 6083,
+      "latencyMs": 6250,
       "tokensInput": 1566,
       "tokensOutput": 274,
       "fieldChecks": [
@@ -3715,7 +3715,7 @@
     {
       "id": "label_31",
       "schemaValid": true,
-      "latencyMs": 5569,
+      "latencyMs": 5654,
       "tokensInput": 1566,
       "tokensOutput": 240,
       "fieldChecks": [
@@ -3863,7 +3863,7 @@
     {
       "id": "label_32",
       "schemaValid": true,
-      "latencyMs": 6113,
+      "latencyMs": 6255,
       "tokensInput": 1566,
       "tokensOutput": 273,
       "fieldChecks": [
@@ -4011,7 +4011,7 @@
     {
       "id": "label_33",
       "schemaValid": true,
-      "latencyMs": 5681,
+      "latencyMs": 5883,
       "tokensInput": 1566,
       "tokensOutput": 252,
       "fieldChecks": [
@@ -4159,7 +4159,7 @@
     {
       "id": "label_34",
       "schemaValid": true,
-      "latencyMs": 6131,
+      "latencyMs": 6347,
       "tokensInput": 1566,
       "tokensOutput": 272,
       "fieldChecks": [
@@ -4307,7 +4307,7 @@
     {
       "id": "label_35",
       "schemaValid": true,
-      "latencyMs": 5521,
+      "latencyMs": 5724,
       "tokensInput": 1566,
       "tokensOutput": 241,
       "fieldChecks": [
@@ -4455,7 +4455,7 @@
     {
       "id": "label_36",
       "schemaValid": true,
-      "latencyMs": 5831,
+      "latencyMs": 5889,
       "tokensInput": 1566,
       "tokensOutput": 254,
       "fieldChecks": [
@@ -4603,7 +4603,7 @@
     {
       "id": "label_37",
       "schemaValid": true,
-      "latencyMs": 5805,
+      "latencyMs": 5962,
       "tokensInput": 1566,
       "tokensOutput": 252,
       "fieldChecks": [
@@ -4751,7 +4751,7 @@
     {
       "id": "label_38",
       "schemaValid": true,
-      "latencyMs": 5972,
+      "latencyMs": 6090,
       "tokensInput": 1566,
       "tokensOutput": 268,
       "fieldChecks": [
@@ -4899,7 +4899,7 @@
     {
       "id": "label_39",
       "schemaValid": true,
-      "latencyMs": 5699,
+      "latencyMs": 5864,
       "tokensInput": 1566,
       "tokensOutput": 251,
       "fieldChecks": [
@@ -5047,7 +5047,7 @@
     {
       "id": "label_40",
       "schemaValid": true,
-      "latencyMs": 5711,
+      "latencyMs": 5840,
       "tokensInput": 1566,
       "tokensOutput": 252,
       "fieldChecks": [
@@ -5195,7 +5195,7 @@
     {
       "id": "label_41",
       "schemaValid": true,
-      "latencyMs": 5759,
+      "latencyMs": 5864,
       "tokensInput": 1566,
       "tokensOutput": 252,
       "fieldChecks": [
@@ -5343,7 +5343,7 @@
     {
       "id": "label_42",
       "schemaValid": true,
-      "latencyMs": 5742,
+      "latencyMs": 5873,
       "tokensInput": 1566,
       "tokensOutput": 255,
       "fieldChecks": [
@@ -5491,7 +5491,7 @@
     {
       "id": "label_43",
       "schemaValid": true,
-      "latencyMs": 5708,
+      "latencyMs": 6013,
       "tokensInput": 1566,
       "tokensOutput": 252,
       "fieldChecks": [
@@ -5639,7 +5639,7 @@
     {
       "id": "label_44",
       "schemaValid": true,
-      "latencyMs": 5714,
+      "latencyMs": 5733,
       "tokensInput": 1566,
       "tokensOutput": 249,
       "fieldChecks": [
@@ -5787,7 +5787,7 @@
     {
       "id": "label_45",
       "schemaValid": true,
-      "latencyMs": 4380,
+      "latencyMs": 4432,
       "tokensInput": 1566,
       "tokensOutput": 169,
       "fieldChecks": [
@@ -5875,7 +5875,7 @@
           "field": "per_100.energy_kcal",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         },
@@ -5883,7 +5883,7 @@
           "field": "per_100.protein_g",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         },
@@ -5891,7 +5891,7 @@
           "field": "per_100.carbs_g",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         },
@@ -5899,7 +5899,7 @@
           "field": "per_100.fat_g",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         },
@@ -5907,7 +5907,7 @@
           "field": "per_100.fiber_g",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         },
@@ -5915,7 +5915,7 @@
           "field": "per_100.sugar_g",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         },
@@ -5923,19 +5923,19 @@
           "field": "per_100.sodium_mg",
           "expected": null,
           "actual": null,
-          "scored": true,
+          "scored": false,
           "correct": true,
           "hallucinated": false
         }
       ],
-      "scoredCount": 16,
-      "correctCount": 15,
+      "scoredCount": 9,
+      "correctCount": 8,
       "hallucinatedCount": 0
     },
     {
       "id": "label_46",
       "schemaValid": true,
-      "latencyMs": 5795,
+      "latencyMs": 5859,
       "tokensInput": 1566,
       "tokensOutput": 252,
       "fieldChecks": [
@@ -6083,7 +6083,7 @@
     {
       "id": "label_47",
       "schemaValid": true,
-      "latencyMs": 5591,
+      "latencyMs": 5691,
       "tokensInput": 1566,
       "tokensOutput": 247,
       "fieldChecks": [
@@ -6231,7 +6231,7 @@
     {
       "id": "label_48",
       "schemaValid": true,
-      "latencyMs": 6134,
+      "latencyMs": 6147,
       "tokensInput": 1566,
       "tokensOutput": 267,
       "fieldChecks": [
@@ -6379,7 +6379,7 @@
     {
       "id": "label_49",
       "schemaValid": true,
-      "latencyMs": 5922,
+      "latencyMs": 6277,
       "tokensInput": 1566,
       "tokensOutput": 265,
       "fieldChecks": [
@@ -6527,7 +6527,7 @@
     {
       "id": "label_50",
       "schemaValid": true,
-      "latencyMs": 5862,
+      "latencyMs": 5865,
       "tokensInput": 1566,
       "tokensOutput": 257,
       "fieldChecks": [
@@ -6675,7 +6675,7 @@
     {
       "id": "label_51",
       "schemaValid": true,
-      "latencyMs": 5574,
+      "latencyMs": 5607,
       "tokensInput": 1566,
       "tokensOutput": 242,
       "fieldChecks": [
@@ -6823,7 +6823,7 @@
     {
       "id": "label_52",
       "schemaValid": true,
-      "latencyMs": 5451,
+      "latencyMs": 5385,
       "tokensInput": 1566,
       "tokensOutput": 235,
       "fieldChecks": [

@@ -75,7 +75,10 @@ ajustarse antes de confiar en él.
 - AC4. Corrida contra `vertex`: **pendiente aceptado** si no existe todavía un proyecto GCP real
   con Vertex AI habilitado (mismo criterio que AC11 de SPEC-001) — no bloquea esta SPEC.
 - AC5. El runner de etiquetas corre sin error con un `cases.jsonl` vacío o con pocos casos
-  (mínimo viable, no exige que las 20 fotos ya existan para que el código funcione) `[unit]`.
+  (mínimo viable, no exige que las 20 fotos ya existan para que el código funcione) `[manual]`
+  (el código lo maneja explícitamente — `raw.length === 0 ? [] : ...`, guards `"n/a"` cuando no
+  hay casos — pero no hay un test automatizado dedicado; corregido de `[unit]` a `[manual]` tras
+  el señalamiento del reviewer de que la etiqueta no coincidía con la evidencia real).
 - AC6. Si el usuario aporta al menos 3-5 fotos reales durante esta SPEC: corrida real del runner de
   etiquetas contra `ollama`, reporte guardado `[manual]`. Si no aporta ninguna: **pendiente
   aceptado**, documentado explícitamente (no se inventan fotos ni transcripciones).
@@ -162,7 +165,7 @@ Ninguna pendiente — resueltas por el usuario el 2026-09-28:
 | AC3 | ✅ | `evals/baselines/parse_meal.v1__ollama__gemma4:e4b__2026-09-28.json` (real, `ollama`, gratis) — `schemaValidRate: 100%`, `foodDetectionRate: 83/91 (91.2%)`, `quantityUnitAccuracy: 77/83 (92.8%)`, `latencyP50: 3027ms`/`P95: 4383ms`, `avgTokensInput: 656`/`avgTokensOutput: 172` |
 | AC4 | ⏳ pendiente aceptado | No existe todavía un proyecto GCP real con Vertex AI habilitado — mismo criterio que AC11 de SPEC-001 |
 | AC5 | ✅ | `run_extract_label.ts` corre sin error con `cases.jsonl` vacío o parcial (probado durante el desarrollo antes de fusionar el dataset real) |
-| AC6 | ✅ | El usuario aportó **47 fotos reales** (supera el mínimo de 3-5 y la meta de ~20 del backlog). `evals/baselines/extract_label.v1__ollama__gemma4:e4b__2026-09-28.json` (real, `ollama`, gratis) — `schemaValidRate: 47/47 (100.0%)`, `fieldAccuracy: 562/760 (73.9%)`, **`hallucinatedFields: 0`** (en ninguna de las 47 fotos la IA inventó un valor para un campo no impreso — exactamente lo que exige invariante 1/2), `latencyP50: 5714ms`/`P95: 6134ms`, `avgTokensInput: 1566`/`avgTokensOutput: 248` |
+| AC6 | ✅ | El usuario aportó **47 fotos reales** (supera el mínimo de 3-5 y la meta de ~20 del backlog). `evals/baselines/extract_label.v1__ollama__gemma4:e4b__2026-09-28.json` (real, `ollama`, gratis, regenerado tras el fix de marcador de grupo) — `schemaValidRate: 47/47 (100.0%)`, `fieldAccuracy: 539/737 (73.1%)`, `hallucinatedFields: 0` entre campos puntuados (+8 `fieldChecks` en campos no confirmables ni por humano ni por IA — ver Change Log), `latencyP50: 5809ms`/`P95: 6347ms`, `avgTokensInput: 1566`/`avgTokensOutput: 248` |
 | AC7 | ✅ | `evals/README.md` |
 | AC8 | ✅ | Las 50 frases de `parse_meal.v1.jsonl` fueron escritas a mano (no generadas por IA sin revisión) cubriendo alimentos/cantidades reales colombianas — revisadas por el reviewer en la sección Review |
 
@@ -189,21 +192,29 @@ nuevos: 7 unit tests de `run_parse_meal.ts` + 9 de `run_extract_label.ts`).
   `npm test` disparaba una corrida real completa como efecto secundario de importar
   `normalize`/`matchItems` para las unit tests — con `AI_PROVIDER=vertex` en el entorno, esto
   habría hecho una llamada paga real en cada `npm test`. Corregido con un guard
-  `require.main === module`. Y un tercer hallazgo (impacto nulo en este baseline, corregido de
-  todos modos): 2 de los 4 subagentes que transcribieron las 47 fotos en paralelo usaron un
+  `require.main === module`. Y un tercer hallazgo, este sí con impacto en el baseline guardado:
+  2 de los 4 subagentes que transcribieron las 47 fotos en paralelo usaron un
   marcador de grupo entero (`"per_100"`) en vez de campo por campo (`"per_100.energy_kcal"`) en
-  `human_unreadable_fields` — el comparador no lo reconocía. No distorsionó los números de este
-  baseline (en ambos casos afectados el modelo ya devolvía `null` correctamente), pero se corrigió
-  la lógica de comparación para reconocer ambas convenciones antes de que importe en un baseline
-  futuro.
+  `human_unreadable_fields` — el comparador no lo reconocía. Esto **sí distorsionó** el primer
+  baseline guardado: en `label_23` y `label_45`, 23 campos que debían quedar fuera de la puntuación
+  (grupo entero no legible) se contaban como puntuados, inflando el denominador de `fieldAccuracy`.
+  Se corrigió la lógica de comparación para reconocer ambas convenciones (campo específico y grupo
+  entero) y se regeneró el baseline con el código corregido — ver números reales abajo.
 
   **Resultados reales (no supuestos)**: `parse_meal.v1` contra `ollama`/`gemma4:e4b` (gratis) — 50
   frases, validez de esquema 100%, detección de alimentos 91.2% (83/91), exactitud de
   cantidad/unidad 92.8% (77/83), latencia p50 3.0s/p95 4.4s. `extract_label.v1` contra el mismo
-  modelo — 47 fotos reales, validez de esquema 100%, exactitud de campo 73.9% (562/760), **0
-  alucinaciones** (nunca inventó un valor no impreso). Vertex AI queda pendiente aceptado (AC4) por
-  no existir todavía un proyecto GCP real — no bloquea. El usuario decide los umbrales de
-  aceptación con estos números reales delante (R6); no se fijó ninguno de antemano.
+  modelo (baseline regenerado con el fix de marcador de grupo, 2026-09-28T21:23Z) — 47 fotos
+  reales, validez de esquema 100% (47/47), exactitud de campo 73.1% (539/737) sobre los campos con
+  ground truth confirmado, latencia p50 5.8s/p95 6.3s, avgTokensInput 1566/avgTokensOutput 248.
+  **0 alucinaciones entre los campos puntuados** (ningún campo con valor esperado `null` confirmado
+  recibió un valor inventado). Aparte de eso, en 8 `fieldChecks` (5 de las 47 fotos: label_10 ×2,
+  label_19, label_24, label_39 ×3, label_51) el modelo devolvió un valor no nulo en un campo que ni
+  el transcriptor humano pudo confirmar como impreso o no — estos quedan fuera de la puntuación (ni
+  humano ni IA tienen certeza) y no se cuentan como alucinación ni como acierto; se documentan
+  aparte para no ocultar el caso. Vertex AI queda pendiente aceptado (AC4) por no existir todavía un
+  proyecto GCP real — no bloquea. El usuario decide los umbrales de aceptación con estos números
+  reales delante (R6); no se fijó ninguno de antemano.
 
 ## Review
 Informe del reviewer:
