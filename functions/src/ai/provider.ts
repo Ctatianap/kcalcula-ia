@@ -1,4 +1,4 @@
-import type { ParseMealRequest } from "./schemas.js";
+import type { ExtractLabelRequest, ParseMealRequest } from "./schemas.js";
 
 export interface AiProviderResult {
   /** JSON crudo devuelto por el modelo, sin validar todavía contra zod. */
@@ -11,4 +11,5 @@ export interface AiProviderResult {
 
 export interface AiProvider {
   parseMeal(input: ParseMealRequest): Promise<AiProviderResult>;
+  extractLabel(input: ExtractLabelRequest): Promise<AiProviderResult>;
 }

@@ -6,7 +6,7 @@ import {
   vertexProjectIdParam,
 } from "./ai/config.js";
 import { createFakeAiProvider } from "./ai/fake.js";
-import { buildParseMealHandler } from "./ai/handler.js";
+import { buildExtractLabelHandler, buildParseMealHandler } from "./ai/handler.js";
 import { createOllamaProvider } from "./ai/ollama.js";
 import type { AiProvider } from "./ai/provider.js";
 import { createVertexAiProvider } from "./ai/vertex.js";
@@ -50,13 +50,26 @@ function selectProvider(): AiProvider {
   }
 }
 
+// Una sola instancia: evita crear dos clientes (Vertex/Ollama) para el
+// mismo proveedor cuando ambos callables comparten configuración.
+const aiProvider = selectProvider();
+
 export const parseMeal = onCall(
   {
     region: "us-east1",
     enforceAppCheck: true,
     timeoutSeconds: 10,
   },
-  buildParseMealHandler(selectProvider()),
+  buildParseMealHandler(aiProvider),
+);
+
+export const extractLabel = onCall(
+  {
+    region: "us-east1",
+    enforceAppCheck: true,
+    timeoutSeconds: 10,
+  },
+  buildExtractLabelHandler(aiProvider),
 );
 
 // Placeholder de T-000 para verificar que el emulador arranca.

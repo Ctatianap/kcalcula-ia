@@ -1,6 +1,8 @@
 import type { AiProvider, AiProviderResult } from "./provider.js";
 import {
+  LABEL_EXTRACTION_SCHEMA_VERSION,
   PARSED_MEAL_SCHEMA_VERSION,
+  type LabelExtraction,
   type ParsedMeal,
   type ParsedMealItem,
 } from "./schemas.js";
@@ -191,12 +193,110 @@ function normalize(text: string): string {
   return text.trim().toLowerCase();
 }
 
+function fullyUnreadableLabel(): LabelExtraction {
+  return {
+    schema_version: LABEL_EXTRACTION_SCHEMA_VERSION,
+    product_name: null,
+    serving_size: null,
+    per_serving: null,
+    per_100: null,
+    unreadable_fields: [
+      "product_name",
+      "serving_size",
+      "energy_kcal",
+      "protein_g",
+      "carbs_g",
+      "fat_g",
+      "fiber_g",
+      "sugar_g",
+      "sodium_mg",
+    ],
+  };
+}
+
+/**
+ * Fixtures deterministas de `extractLabel`, igual que `FIXTURES` de arriba
+ * pero indexadas por `image_base64` (en las pruebas no se manda una imagen
+ * real: se manda uno de estos marcadores literales como si fuera la
+ * "imagen"). Un marcador desconocido nunca inventa datos: cae en
+ * `fullyUnreadableLabel()`, el mismo criterio que `items: []` para texto
+ * desconocido.
+ */
+const LABEL_FIXTURES: Record<string, () => LabelExtraction> = {
+  // AC2/AC5: "30 g = 140 kcal", dentro de ±20% Atwater (4*2+4*20+9*6=142).
+  "fixture:etiqueta-30g-140kcal": () => ({
+    schema_version: LABEL_EXTRACTION_SCHEMA_VERSION,
+    product_name: "Producto de prueba",
+    serving_size: { quantity: 30, unit: "g" },
+    per_serving: {
+      energy_kcal: 140,
+      protein_g: 2,
+      carbs_g: 20,
+      fat_g: 6,
+      fiber_g: 1,
+      sugar_g: 15,
+      sodium_mg: 50,
+    },
+    per_100: null,
+    unreadable_fields: [],
+  }),
+
+  // AC3: fuera de ±20% Atwater (4*1+4*1+9*1=17 vs 500 declaradas).
+  "fixture:etiqueta-fuera-de-atwater": () => ({
+    schema_version: LABEL_EXTRACTION_SCHEMA_VERSION,
+    product_name: "Producto de prueba (dato inconsistente)",
+    serving_size: { quantity: 30, unit: "g" },
+    per_serving: {
+      energy_kcal: 500,
+      protein_g: 1,
+      carbs_g: 1,
+      fat_g: 1,
+      fiber_g: null,
+      sugar_g: null,
+      sodium_mg: null,
+    },
+    per_100: null,
+    unreadable_fields: [],
+  }),
+
+  // AC4: grasa ilegible en la foto (no es que falte en la etiqueta).
+  "fixture:etiqueta-grasa-ilegible": () => ({
+    schema_version: LABEL_EXTRACTION_SCHEMA_VERSION,
+    product_name: "Producto de prueba",
+    serving_size: { quantity: 30, unit: "g" },
+    per_serving: {
+      energy_kcal: 140,
+      protein_g: 2,
+      carbs_g: 20,
+      fat_g: null,
+      fiber_g: 1,
+      sugar_g: 15,
+      sodium_mg: 50,
+    },
+    per_100: null,
+    unreadable_fields: ["fat_g"],
+  }),
+
+  // Foto totalmente ilegible / sin tabla nutricional visible.
+  "fixture:etiqueta-ilegible": fullyUnreadableLabel,
+};
+
 export function createFakeAiProvider(): AiProvider {
   return {
     async parseMeal({ text }): Promise<AiProviderResult> {
       const start = Date.now();
       const build = FIXTURES[normalize(text)];
       const raw: ParsedMeal = build ? build() : meal([]);
+      return {
+        raw,
+        modelId: "fake",
+        latencyMs: Date.now() - start,
+      };
+    },
+    async extractLabel({ image_base64 }): Promise<AiProviderResult> {
+      const start = Date.now();
+      const build = LABEL_FIXTURES[image_base64];
+      const raw: LabelExtraction = build ? build() : fullyUnreadableLabel();
       return {
         raw,
         modelId: "fake",

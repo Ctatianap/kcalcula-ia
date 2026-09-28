@@ -23,3 +23,19 @@ export interface ParseMealLogEntry {
 export function logParseMealAttempt(entry: ParseMealLogEntry): void {
   logger.info("parseMeal", entry);
 }
+
+/** Igual que `ParseMealLogEntry`, para `extractLabel` (SPEC-004, R11). */
+export interface ExtractLabelLogEntry {
+  requestId: string;
+  promptVersion: string;
+  modelId: string;
+  latencyMs: number;
+  valid: boolean;
+  tokensInput?: number;
+  tokensOutput?: number;
+  errorCode?: string;
+}
+
+export function logExtractLabelAttempt(entry: ExtractLabelLogEntry): void {
+  logger.info("extractLabel", entry);
+}

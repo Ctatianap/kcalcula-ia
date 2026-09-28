@@ -21,6 +21,9 @@ function countingProvider(
       calls += 1;
       return { raw, modelId: "mock", latencyMs: 1 };
     },
+    async extractLabel(): Promise<AiProviderResult> {
+      throw new Error("no usado en estos tests");
+    },
   };
   return { provider, callCount: () => calls };
 }
