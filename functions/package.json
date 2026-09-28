@@ -9,7 +9,8 @@
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
     "test": "npm run build && cd lib && node --test",
-    "evals": "npm run build && node lib/evals/run_smoke.js"
+    "evals:parse-meal": "npm run build && node lib/evals/run_parse_meal.js",
+    "evals:extract-label": "npm run build && node lib/evals/run_extract_label.js"
   },
   "engines": {
     "node": "24"

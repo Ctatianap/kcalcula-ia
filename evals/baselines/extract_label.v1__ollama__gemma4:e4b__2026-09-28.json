@@ -1,0 +1,6972 @@
+{
+  "dataset": "extract_label.v1",
+  "provider": "ollama",
+  "modelId": "gemma4:e4b",
+  "ranAt": "2026-09-28T21:41:46.358Z",
+  "caseCount": 47,
+  "schemaValidRate": "47/47 (100.0%)",
+  "fieldAccuracy": "542/742 (73.0%)",
+  "hallucinatedFields": 0,
+  "latencyP50Ms": 5814,
+  "latencyP95Ms": 6433,
+  "avgTokensInput": 1566,
+  "avgTokensOutput": 248,
+  "results": [
+    {
+      "id": "label_06",
+      "schemaValid": true,
+      "latencyMs": 7053,
+      "tokensInput": 1566,
+      "tokensOutput": 219,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": "Sabor a Lulo (bebida en polvo, marca no visible completa)",
+          "actual": "Sabor a Lulo",
+          "scored": false,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 200,
+          "actual": 1,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "ml",
+          "actual": "ml",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 3,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_07",
+      "schemaValid": true,
+      "latencyMs": 5526,
+      "tokensInput": 1566,
+      "tokensOutput": 251,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 20,
+          "actual": 2,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 110,
+          "actual": 110,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 5.2,
+          "actual": 5.2,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 5.9,
+          "actual": 5.9,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 8,
+          "actual": 0.7,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 2.5,
+          "actual": 2.5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 1.8,
+          "actual": 1.8,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 12,
+          "actual": 12,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 550,
+          "actual": 550,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 26,
+          "actual": 26,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 29,
+          "actual": 29,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 40,
+          "actual": 8,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 12,
+          "actual": 12,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 9.1,
+          "actual": 9.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 61,
+          "actual": 61,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 13,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_08",
+      "schemaValid": true,
+      "latencyMs": 5051,
+      "tokensInput": 1566,
+      "tokensOutput": 221,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": "Maizena",
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 7,
+          "actual": 7,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 25,
+          "actual": 25,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 6,
+          "actual": 6,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 15,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_09",
+      "schemaValid": true,
+      "latencyMs": 5563,
+      "tokensInput": 1566,
+      "tokensOutput": 254,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 25,
+          "actual": 2,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 88,
+          "actual": 88,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 1.8,
+          "actual": 2.9,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 20,
+          "actual": 20,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 0.5,
+          "actual": 0.5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 1.5,
+          "actual": 1.5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0.3,
+          "actual": 0.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 2.9,
+          "actual": 0.31,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 350,
+          "actual": 350,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 7.3,
+          "actual": 4.2,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 79,
+          "actual": 20,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 2,
+          "actual": 2,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 6,
+          "actual": 6,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 1.3,
+          "actual": 1.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 42,
+          "actual": 1.2,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 10,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_10",
+      "schemaValid": true,
+      "latencyMs": 5456,
+      "tokensInput": 1566,
+      "tokensOutput": 247,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": "Surtido Frutal (marca Colombina, parcialmente visible)",
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 20,
+          "actual": 20,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 94,
+          "actual": 94,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 0.9,
+          "actual": 11,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 13,
+          "actual": 13,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 4.3,
+          "actual": 4.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 0.4,
+          "actual": 13,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 11,
+          "actual": 11,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 15,
+          "actual": 15,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 460,
+          "actual": 460,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 4.6,
+          "actual": 4.6,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 67,
+          "actual": 67,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 21,
+          "actual": 21,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 1.8,
+          "actual": 1.8,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 57,
+          "actual": 57,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 75,
+          "actual": 75,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 17,
+      "correctCount": 14,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_11",
+      "schemaValid": true,
+      "latencyMs": 5495,
+      "tokensInput": 1566,
+      "tokensOutput": 249,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 45,
+          "actual": 5,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 195,
+          "actual": 195,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 2.2,
+          "actual": 2.2,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 29,
+          "actual": 9.5,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 8.1,
+          "actual": 8.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 1,
+          "actual": 1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 9.5,
+          "actual": 9.5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 302,
+          "actual": 302,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 433,
+          "actual": 433,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 5,
+          "actual": 5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 64,
+          "actual": 29,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 18,
+          "actual": 18,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 2.3,
+          "actual": 2.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 21,
+          "actual": 21,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 672,
+          "actual": 672,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 13,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_12",
+      "schemaValid": true,
+      "latencyMs": 5542,
+      "tokensInput": 1566,
+      "tokensOutput": 252,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": "Tostaos mantequilla (Bimbo)",
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 30,
+          "actual": 2,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 119,
+          "actual": 119,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 3.9,
+          "actual": 3.9,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 22,
+          "actual": 22,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 2,
+          "actual": 2,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 1.1,
+          "actual": 1.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 3.3,
+          "actual": 3.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 170,
+          "actual": 170,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 401,
+          "actual": 401,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 13,
+          "actual": 13,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 74,
+          "actual": 74,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 6.7,
+          "actual": 6.7,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 3.5,
+          "actual": 3.5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 11,
+          "actual": 11,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 565,
+          "actual": 565,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 17,
+      "correctCount": 15,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_13",
+      "schemaValid": true,
+      "latencyMs": 5542,
+      "tokensInput": 1566,
+      "tokensOutput": 253,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 27,
+          "actual": 27,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 70,
+          "actual": 70,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 2.8,
+          "actual": 2.8,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 15,
+          "actual": 15,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 0.2,
+          "actual": 0.2,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 1.3,
+          "actual": 1.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 1.8,
+          "actual": 1.8,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 115,
+          "actual": 115,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 260,
+          "actual": 260,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 11,
+          "actual": 11,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 55,
+          "actual": 55,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 0.6,
+          "actual": 0.6,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 4.9,
+          "actual": 4.9,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 6.8,
+          "actual": 6.8,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 428,
+          "actual": 428,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 16,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_14",
+      "schemaValid": true,
+      "latencyMs": 5632,
+      "tokensInput": 1566,
+      "tokensOutput": 257,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": "Pan integral con avena, centeno y cebada (Bimbo)",
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 33,
+          "actual": 33,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 90,
+          "actual": 90,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 4.3,
+          "actual": 73,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 17,
+          "actual": 17,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 1.1,
+          "actual": 1.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 2.7,
+          "actual": 2.7,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 3.6,
+          "actual": 3.6,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 73,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 268,
+          "actual": 268,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 13,
+          "actual": 221,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 51,
+          "actual": 51,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 3.2,
+          "actual": 3.2,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 8.2,
+          "actual": 8.2,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 11,
+          "actual": 6.2,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 221,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 17,
+      "correctCount": 11,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_15",
+      "schemaValid": true,
+      "latencyMs": 5691,
+      "tokensInput": 1566,
+      "tokensOutput": 252,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 37,
+          "actual": 1,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 96,
+          "actual": 96,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 4.1,
+          "actual": 3.7,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 13,
+          "actual": 13,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 3.7,
+          "actual": 3.7,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 3.2,
+          "actual": 3.2,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0.9,
+          "actual": 0.9,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 317,
+          "actual": 76,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 260,
+          "actual": 260,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 11,
+          "actual": 9.9,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 36,
+          "actual": 36,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 9.9,
+          "actual": 9.9,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 8.7,
+          "actual": 8.7,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 2.3,
+          "actual": 2.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 856,
+          "actual": 205,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 11,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_16",
+      "schemaValid": true,
+      "latencyMs": 5814,
+      "tokensInput": 1566,
+      "tokensOutput": 232,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": "Galleta con chip de chocolate con edulcorante",
+          "actual": "GALLETA CON CHIP DE CHOCOLATE CON EDULCORANTE.",
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 29,
+          "actual": 3,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 133,
+          "actual": 133,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 1.7,
+          "actual": 1,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 19,
+          "actual": 19,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 6.7,
+          "actual": 1,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 1,
+          "actual": 1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 78,
+          "actual": 78,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 453,
+          "actual": 453,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 5.9,
+          "actual": 5,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 66,
+          "actual": 19,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 23,
+          "actual": 6,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 3.4,
+          "actual": 1,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 270,
+          "actual": 270,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 17,
+      "correctCount": 9,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_17",
+      "schemaValid": true,
+      "latencyMs": 5979,
+      "tokensInput": 1566,
+      "tokensOutput": 266,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": "Snack horneado queso tipo pan de yuca",
+          "actual": "SNACK HORNEADO QUESO TIPO PAN DE Y",
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 15,
+          "actual": 15,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 37,
+          "actual": 37,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 0.8,
+          "actual": 47,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 5.4,
+          "actual": 5.4,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 1.3,
+          "actual": 1.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0,
+          "actual": 0.8,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 47,
+          "actual": 15,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 246,
+          "actual": 246,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 5.5,
+          "actual": 312,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 36,
+          "actual": 36,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 8.9,
+          "actual": 8.9,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 312,
+          "actual": 102,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 17,
+      "correctCount": 11,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_18",
+      "schemaValid": true,
+      "latencyMs": 5676,
+      "tokensInput": 1566,
+      "tokensOutput": 253,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": "Queso tipo palito",
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 20,
+          "actual": 20,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 89,
+          "actual": 89,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 1.4,
+          "actual": 145,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 15,
+          "actual": 15,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 2.9,
+          "actual": 2.9,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 1.5,
+          "actual": 1.5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 145,
+          "actual": 145,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 431,
+          "actual": 431,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 6.8,
+          "actual": 726,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 73,
+          "actual": 73,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 14,
+          "actual": 14,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 7.3,
+          "actual": 7.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 726,
+          "actual": 726,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 17,
+      "correctCount": 14,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_19",
+      "schemaValid": true,
+      "latencyMs": 5702,
+      "tokensInput": 1566,
+      "tokensOutput": 253,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 20,
+          "actual": 20,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 56,
+          "actual": 56,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 1.7,
+          "actual": 2.1,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 7.5,
+          "actual": 7.5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 2.1,
+          "actual": 1.2,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 0,
+          "actual": 1.4,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 1.4,
+          "actual": 1.3,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": null,
+          "actual": 3.9,
+          "scored": false,
+          "correct": false,
+          "hallucinated": true
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 281,
+          "actual": 281,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 8.6,
+          "actual": 8.6,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 37,
+          "actual": 37,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 11,
+          "actual": 11,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 6.9,
+          "actual": 6.9,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 467,
+          "actual": 19,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 15,
+      "correctCount": 10,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_20",
+      "schemaValid": true,
+      "latencyMs": 5771,
+      "tokensInput": 1566,
+      "tokensOutput": 251,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 30,
+          "actual": 30,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 97,
+          "actual": 97,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 1,
+          "actual": 0,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 24,
+          "actual": 24,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 1.4,
+          "actual": 1.4,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 20,
+          "actual": 20,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 7.8,
+          "actual": 7.8,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 320,
+          "actual": 320,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 3.3,
+          "actual": 0,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 79,
+          "actual": 79,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 4.5,
+          "actual": 4.5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 65,
+          "actual": 65,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 26,
+          "actual": 26,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 14,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_21",
+      "schemaValid": true,
+      "latencyMs": 5880,
+      "tokensInput": 1566,
+      "tokensOutput": 256,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": "Frijol Caraota Aburrá",
+          "actual": "Frijol Cariota Aburrá",
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 60,
+          "actual": 60,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 209,
+          "actual": 209,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 13,
+          "actual": 13,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 37,
+          "actual": 37,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 0.8,
+          "actual": 0.8,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 9.6,
+          "actual": 9.6,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 1.3,
+          "actual": 1.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 349,
+          "actual": 349,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 22,
+          "actual": 22,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 62,
+          "actual": 62,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 1.4,
+          "actual": 1.4,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 16,
+          "actual": 16,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 2.1,
+          "actual": 2.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 17,
+      "correctCount": 16,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_22",
+      "schemaValid": true,
+      "latencyMs": 5811,
+      "tokensInput": 1566,
+      "tokensOutput": 251,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 52,
+          "actual": 1,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 55,
+          "actual": 55,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 13,
+          "actual": 13,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 0.7,
+          "actual": 1.3,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 375,
+          "actual": 375,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 105,
+          "actual": 105,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 25,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 1.3,
+          "actual": 1.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 720,
+          "actual": 720,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 13,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_23",
+      "schemaValid": true,
+      "latencyMs": 4848,
+      "tokensInput": 1566,
+      "tokensOutput": 192,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 0,
+      "correctCount": 0,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_24",
+      "schemaValid": true,
+      "latencyMs": 6302,
+      "tokensInput": 1566,
+      "tokensOutput": 280,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 15,
+          "actual": 15,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 63,
+          "actual": 63,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 3.3,
+          "actual": 0,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 5.9,
+          "actual": 5.9,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 4,
+          "actual": 4,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 5,
+          "actual": 5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0.3,
+          "actual": 0.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 4.3,
+          "actual": 3.3,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 421,
+          "actual": 421,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 22,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 39,
+          "actual": 39,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 27,
+          "actual": 27,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 33,
+          "actual": 33,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 1.9,
+          "actual": 1.9,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 29,
+          "actual": 22,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 12,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_25",
+      "schemaValid": true,
+      "latencyMs": 4384,
+      "tokensInput": 1566,
+      "tokensOutput": 165,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": "Castellano",
+          "actual": "CASTELANO",
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 50,
+          "actual": 50,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 170,
+          "actual": 170,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 4,
+          "actual": 4,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 40,
+          "actual": 40,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 0.5,
+          "actual": 0.5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 3,
+          "actual": 3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 17,
+      "correctCount": 16,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_26",
+      "schemaValid": true,
+      "latencyMs": 5261,
+      "tokensInput": 1566,
+      "tokensOutput": 220,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 1.2,
+          "actual": 1,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 7,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_27",
+      "schemaValid": true,
+      "latencyMs": 6495,
+      "tokensInput": 1566,
+      "tokensOutput": 295,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": "Quaker",
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 24,
+          "actual": 3,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 82,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 2.9,
+          "actual": 2.9,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 16,
+          "actual": 21,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 1.5,
+          "actual": 1.1,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 3.4,
+          "actual": 1.1,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 2.1,
+          "actual": 89,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 351,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 12,
+          "actual": 12,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 69,
+          "actual": 82,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 6.1,
+          "actual": 0.39,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 14,
+          "actual": 3.4,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 8.9,
+          "actual": 17,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 17,
+      "correctCount": 5,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_28",
+      "schemaValid": true,
+      "latencyMs": 6018,
+      "tokensInput": 1566,
+      "tokensOutput": 255,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 200,
+          "actual": 200,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "ml",
+          "actual": "ml",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 116,
+          "actual": 116,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 6,
+          "actual": 3.5,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 9,
+          "actual": 9,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 6.2,
+          "actual": 1.7,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 9,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 85,
+          "actual": 279,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 58,
+          "actual": 58,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 3,
+          "actual": 6.2,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 4.5,
+          "actual": 9,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 3.1,
+          "actual": 3.5,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 4.5,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 43,
+          "actual": 558,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 5,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_29",
+      "schemaValid": true,
+      "latencyMs": 5927,
+      "tokensInput": 1566,
+      "tokensOutput": 250,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": "Dejamu",
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 160,
+          "actual": 1,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 157,
+          "actual": 157,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 6.1,
+          "actual": 6.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 18,
+          "actual": 18,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 6.9,
+          "actual": 3.7,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 0.7,
+          "actual": 0.7,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 16,
+          "actual": 12,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 99,
+          "actual": 99,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 97,
+          "actual": 97,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 3.8,
+          "actual": 3.8,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 11,
+          "actual": 11,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 4.3,
+          "actual": 4.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 0.4,
+          "actual": 0.4,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 10,
+          "actual": 7.6,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 62,
+          "actual": 62,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 17,
+      "correctCount": 12,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_30",
+      "schemaValid": true,
+      "latencyMs": 6433,
+      "tokensInput": 1566,
+      "tokensOutput": 274,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 30,
+          "actual": 30,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 25,
+          "actual": 25,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 6.7,
+          "actual": 6.7,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 0.8,
+          "actual": 0.8,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 6.8,
+          "actual": 5.4,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 2.3,
+          "actual": 2.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 83,
+          "actual": 83,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 22,
+          "actual": 22,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 2.6,
+          "actual": 2.6,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 23,
+          "actual": 23,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 7.5,
+          "actual": 7.5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 15,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_31",
+      "schemaValid": true,
+      "latencyMs": 5589,
+      "tokensInput": 1566,
+      "tokensOutput": 240,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 150,
+          "actual": 1,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "ml",
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 86,
+          "actual": 86,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 15,
+          "actual": 15,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 6.5,
+          "actual": 4.7,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 4.7,
+          "actual": 0,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 62,
+          "actual": 62,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 58,
+          "actual": 58,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 10,
+          "actual": 10,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 4.4,
+          "actual": 4.4,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 3.1,
+          "actual": 3.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 42,
+          "actual": 42,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 12,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_32",
+      "schemaValid": true,
+      "latencyMs": 6246,
+      "tokensInput": 1566,
+      "tokensOutput": 273,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": "Red Bull Sugarfree",
+          "actual": "RED BULL® Sugarfree.",
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 250,
+          "actual": 1,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "ml",
+          "actual": "ml",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 7.2,
+          "actual": 7.2,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 88,
+          "actual": 88,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 2.9,
+          "actual": 2.9,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 35,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 17,
+      "correctCount": 10,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_33",
+      "schemaValid": true,
+      "latencyMs": 5940,
+      "tokensInput": 1566,
+      "tokensOutput": 252,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": "Dulce de Guayaba (Dulce Naturaleza)",
+          "actual": "DULCE DE GUAYABA",
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 44,
+          "actual": 2,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 153,
+          "actual": 153,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 0.4,
+          "actual": 0.4,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 39,
+          "actual": 39,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 2.3,
+          "actual": 2.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 35,
+          "actual": 31,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 7,
+          "actual": 7,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 349,
+          "actual": 349,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 0.8,
+          "actual": 0.8,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 89,
+          "actual": 89,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 5.2,
+          "actual": 5.2,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 79,
+          "actual": 79,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 16,
+          "actual": 16,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 17,
+      "correctCount": 14,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_34",
+      "schemaValid": true,
+      "latencyMs": 6384,
+      "tokensInput": 1566,
+      "tokensOutput": 272,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": "Queso fresco VITA LATTI",
+          "actual": "Queso fresco red.VITA LATTI 15 taj.x249g",
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 30,
+          "actual": 2,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 70,
+          "actual": 70,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 7.4,
+          "actual": 7.4,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 0.5,
+          "actual": 0.5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 4.3,
+          "actual": 4.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0.2,
+          "actual": 0.2,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 50,
+          "actual": 50,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 232,
+          "actual": 232,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 25,
+          "actual": 25,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 1.5,
+          "actual": 1.5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 14,
+          "actual": 14,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 0.6,
+          "actual": 0.6,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 165,
+          "actual": 165,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 17,
+      "correctCount": 15,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_35",
+      "schemaValid": true,
+      "latencyMs": 5782,
+      "tokensInput": 1566,
+      "tokensOutput": 241,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 15,
+          "actual": 15,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 24,
+          "actual": 24,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 1.9,
+          "actual": 1.9,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 0.3,
+          "actual": 0,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 1.7,
+          "actual": 1.7,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 33,
+          "actual": 33,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 156,
+          "actual": 156,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 12,
+          "actual": 12,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 2.3,
+          "actual": 2.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 11,
+          "actual": 11,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 221,
+          "actual": 221,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 15,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_36",
+      "schemaValid": true,
+      "latencyMs": 5911,
+      "tokensInput": 1566,
+      "tokensOutput": 254,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": "Jamón Serrano - Jamón de Cerdo",
+          "actual": "JAMÓN SERRANO - JAMÓN DE CERDO",
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 32,
+          "actual": 32,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 58,
+          "actual": 58,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 11,
+          "actual": 11,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 1.5,
+          "actual": 1.5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 625,
+          "actual": 625,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 175,
+          "actual": 175,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 33,
+          "actual": 33,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 4.8,
+          "actual": 4.8,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 1952,
+          "actual": 1952,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 17,
+      "correctCount": 16,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_37",
+      "schemaValid": true,
+      "latencyMs": 6061,
+      "tokensInput": 1566,
+      "tokensOutput": 252,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 21,
+          "actual": 2,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 45,
+          "actual": 45,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 0.9,
+          "actual": 0.9,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 9.5,
+          "actual": 9.5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 0.6,
+          "actual": 0.6,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 1.1,
+          "actual": 1.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 11,
+          "actual": 11,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 213,
+          "actual": 213,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 4.5,
+          "actual": 4.5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 45,
+          "actual": 45,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 2.8,
+          "actual": 2.8,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 5.2,
+          "actual": 5.2,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 52,
+          "actual": 52,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 15,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_38",
+      "schemaValid": true,
+      "latencyMs": 6368,
+      "tokensInput": 1566,
+      "tokensOutput": 268,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 10,
+          "actual": 10,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 32,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 3.5,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 28,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 315,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 35,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 275,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 10,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_39",
+      "schemaValid": true,
+      "latencyMs": 5923,
+      "tokensInput": 1566,
+      "tokensOutput": 251,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 27.5,
+          "actual": 7,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 145,
+          "actual": 145,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 1.8,
+          "actual": 2.2,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 17,
+          "actual": 2.2,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": null,
+          "actual": 7.8,
+          "scored": false,
+          "correct": false,
+          "hallucinated": true
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 0.7,
+          "actual": 0.3,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 15,
+          "actual": 4.5,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 44,
+          "actual": 5.4,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 523,
+          "actual": 523,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 6.7,
+          "actual": 16,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 61,
+          "actual": 79,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": null,
+          "actual": 28,
+          "scored": false,
+          "correct": false,
+          "hallucinated": true
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 2.4,
+          "actual": 2.4,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": null,
+          "actual": 22,
+          "scored": false,
+          "correct": false,
+          "hallucinated": true
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 159,
+          "actual": 20,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 13,
+      "correctCount": 4,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_40",
+      "schemaValid": true,
+      "latencyMs": 5903,
+      "tokensInput": 1566,
+      "tokensOutput": 252,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": "Colanta (leche)",
+          "actual": "Colanta",
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 200,
+          "actual": 200,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "ml",
+          "actual": "ml",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 97,
+          "actual": 97,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 6.5,
+          "actual": 6.5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 10,
+          "actual": 10,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 3.4,
+          "actual": 3.4,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 8.8,
+          "actual": 8.8,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 119,
+          "actual": 119,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 49,
+          "actual": 49,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 3.2,
+          "actual": 3.2,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 5.1,
+          "actual": 5.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 1.7,
+          "actual": 1.7,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 4.4,
+          "actual": 4.4,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 59,
+          "actual": 59,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 17,
+      "correctCount": 16,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_41",
+      "schemaValid": true,
+      "latencyMs": 5929,
+      "tokensInput": 1566,
+      "tokensOutput": 252,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 125,
+          "actual": 125,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 35,
+          "actual": 35,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 1.3,
+          "actual": 1.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 8.2,
+          "actual": 5.6,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 1.6,
+          "actual": 1.6,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 5.6,
+          "actual": 1.3,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 369,
+          "actual": 369,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 28,
+          "actual": 28,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 1.1,
+          "actual": 1.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 6.5,
+          "actual": 4.6,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 1.3,
+          "actual": 1.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 4.6,
+          "actual": 1,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 295,
+          "actual": 295,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 12,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_42",
+      "schemaValid": true,
+      "latencyMs": 6081,
+      "tokensInput": 1566,
+      "tokensOutput": 255,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 5,
+          "actual": 5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 2.5,
+          "actual": 2.5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 0.1,
+          "actual": 0.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 0.4,
+          "actual": 0.4,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 0.1,
+          "actual": 0.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 0.2,
+          "actual": 0.2,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 72,
+          "actual": 72,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 37,
+          "actual": 37,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 1.2,
+          "actual": 1.2,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 7.6,
+          "actual": 7.6,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 0.9,
+          "actual": 0.9,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 3.3,
+          "actual": 3.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 1444,
+          "actual": 1444,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 16,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_43",
+      "schemaValid": true,
+      "latencyMs": 5920,
+      "tokensInput": 1566,
+      "tokensOutput": 252,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 23,
+          "actual": 1,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 70,
+          "actual": 70,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 1.9,
+          "actual": 1.9,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 16,
+          "actual": 9.7,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 1.2,
+          "actual": 1.2,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 4.7,
+          "actual": 4.7,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 2.2,
+          "actual": 0,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 52,
+          "actual": 52,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 306,
+          "actual": 306,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 8.3,
+          "actual": 8.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 71,
+          "actual": 42,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 5.1,
+          "actual": 5.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 21,
+          "actual": 21,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 9.7,
+          "actual": 9.7,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 226,
+          "actual": 226,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 12,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_44",
+      "schemaValid": true,
+      "latencyMs": 5860,
+      "tokensInput": 1566,
+      "tokensOutput": 249,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 5,
+          "actual": 1,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 2.1,
+          "actual": 36,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 0.1,
+          "actual": 2.1,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 0.3,
+          "actual": 0.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 0.1,
+          "actual": 0.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 0.2,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 80,
+          "actual": 80,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 36,
+          "actual": 36,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 2.4,
+          "actual": 2.4,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 5.4,
+          "actual": 0.2,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 1.4,
+          "actual": 0.2,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 3.9,
+          "actual": 0.2,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 1600,
+          "actual": 17,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 8,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_45",
+      "schemaValid": true,
+      "latencyMs": 4379,
+      "tokensInput": 1566,
+      "tokensOutput": 169,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 24,
+          "actual": 3,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 106,
+          "actual": 106,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 1.7,
+          "actual": 1.7,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 16,
+          "actual": 16,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 3.9,
+          "actual": 3.9,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 0.8,
+          "actual": 0.8,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 2.1,
+          "actual": 2.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 175,
+          "actual": 175,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 9,
+      "correctCount": 8,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_46",
+      "schemaValid": true,
+      "latencyMs": 5715,
+      "tokensInput": 1566,
+      "tokensOutput": 252,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 5,
+          "actual": 5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 3.3,
+          "actual": 3.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 0.1,
+          "actual": 0.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 0.5,
+          "actual": 0.5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 0.1,
+          "actual": 0.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0.2,
+          "actual": 0.2,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 76,
+          "actual": 76,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 67,
+          "actual": 67,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 1.8,
+          "actual": 1.8,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 10,
+          "actual": 10,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 1.5,
+          "actual": 1.5,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 0.7,
+          "actual": 0.7,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 4.4,
+          "actual": 4.4,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 1522,
+          "actual": 1522,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 16,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_47",
+      "schemaValid": true,
+      "latencyMs": 5690,
+      "tokensInput": 1566,
+      "tokensOutput": 247,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 5,
+          "actual": 1,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 1.4,
+          "actual": 1.4,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 0.1,
+          "actual": 0.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 0.3,
+          "actual": 0.3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 0.1,
+          "actual": 0,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 0.1,
+          "actual": 0.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 73,
+          "actual": 73,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 34,
+          "actual": 34,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 2,
+          "actual": 2,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 6.8,
+          "actual": 6.8,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 1.7,
+          "actual": 1.7,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 1456,
+          "actual": 1456,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 14,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_48",
+      "schemaValid": true,
+      "latencyMs": 6030,
+      "tokensInput": 1566,
+      "tokensOutput": 267,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 2.3,
+          "actual": 1,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 10,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 1,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 1,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 20,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 357,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 36,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 36,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 0,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 714,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 3,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_49",
+      "schemaValid": true,
+      "latencyMs": 6037,
+      "tokensInput": 1566,
+      "tokensOutput": 265,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": "Maggi Jugoso al Sartén con Ajo y Cebolla",
+          "actual": "Maggi",
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 6,
+          "actual": 1,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 30,
+          "actual": 518,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 0.3,
+          "actual": 30,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 1.9,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 2.4,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 0.2,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0.4,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 273,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 518,
+          "actual": 518,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 5.9,
+          "actual": 30,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 33,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 41,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 3.9,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 6.2,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 4669,
+          "actual": null,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 17,
+      "correctCount": 2,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_50",
+      "schemaValid": true,
+      "latencyMs": 5870,
+      "tokensInput": 1566,
+      "tokensOutput": 257,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": null,
+          "scored": false,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 3,
+          "actual": 3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "g",
+          "actual": "g",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 7.1,
+          "actual": 7.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 0.2,
+          "actual": 0.2,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 1.4,
+          "actual": 1.4,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 0.1,
+          "actual": 0.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": 0.1,
+          "actual": 0.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0.2,
+          "actual": 0.2,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 431,
+          "actual": 431,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 238,
+          "actual": 238,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 7.8,
+          "actual": 7.8,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 46,
+          "actual": 46,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 3,
+          "actual": 3,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": 3.1,
+          "actual": 3.1,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 5.7,
+          "actual": 5.7,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 14360,
+          "actual": 14360,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 16,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_51",
+      "schemaValid": true,
+      "latencyMs": 5641,
+      "tokensInput": 1566,
+      "tokensOutput": 242,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": null,
+          "actual": "Maggi",
+          "scored": false,
+          "correct": false,
+          "hallucinated": true
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 125,
+          "actual": 125,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "ml",
+          "actual": "ml",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 0.8,
+          "actual": 0.8,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 0,
+          "actual": 0.2,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 494,
+          "actual": 494,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 0.7,
+          "actual": 0.8,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 0,
+          "actual": 0.2,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 395,
+          "actual": 494,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 16,
+      "correctCount": 12,
+      "hallucinatedCount": 0
+    },
+    {
+      "id": "label_52",
+      "schemaValid": true,
+      "latencyMs": 5789,
+      "tokensInput": 1566,
+      "tokensOutput": 235,
+      "fieldChecks": [
+        {
+          "field": "product_name",
+          "expected": "Caldo con Costilla",
+          "actual": "Caldo con Costilla",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.quantity",
+          "expected": 250,
+          "actual": 1,
+          "scored": true,
+          "correct": false,
+          "hallucinated": false
+        },
+        {
+          "field": "serving_size.unit",
+          "expected": "ml",
+          "actual": "ml",
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.energy_kcal",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.protein_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.carbs_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fat_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.fiber_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_serving.sodium_mg",
+          "expected": 423,
+          "actual": 423,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.energy_kcal",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.protein_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.carbs_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fat_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.fiber_g",
+          "expected": null,
+          "actual": null,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sugar_g",
+          "expected": 0,
+          "actual": 0,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        },
+        {
+          "field": "per_100.sodium_mg",
+          "expected": 169,
+          "actual": 169,
+          "scored": true,
+          "correct": true,
+          "hallucinated": false
+        }
+      ],
+      "scoredCount": 17,
+      "correctCount": 16,
+      "hallucinatedCount": 0
+    }
+  ]
+}
