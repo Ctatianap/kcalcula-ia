@@ -102,6 +102,36 @@ void main() {
     });
   });
 
+  group('validateNoTcacSource (SPEC-003 R2)', () {
+    test('rechaza un food con source_id que referencia tcac', () {
+      final issues = validateNoTcacSource([_food(sourceId: 'tcac2018')], []);
+      expect(issues, isNotEmpty);
+      expect(issues.first.severity, IssueSeverity.error);
+    });
+
+    test('rechaza una portion con source_id que referencia tcac', () {
+      final foods = [_food(id: 'a')];
+      final issues = validateNoTcacSource(foods, [
+        const PortionRow(
+          foodId: 'a',
+          descriptor: 'unidad',
+          grams: 50,
+          sourceId: 'tcac2018',
+          sourceRef: 'fixture',
+          isCuratedEstimate: false,
+        ),
+      ]);
+      expect(issues, isNotEmpty);
+    });
+
+    test('acepta usda_fdc_* sin error', () {
+      final issues = validateNoTcacSource([
+        _food(sourceId: 'usda_fdc_sr_legacy'),
+      ], []);
+      expect(issues, isEmpty);
+    });
+  });
+
   group('validatePortions', () {
     test('rechaza grams <= 0', () {
       final foods = [_food(id: 'a')];

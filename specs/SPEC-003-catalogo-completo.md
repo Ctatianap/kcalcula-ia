@@ -1,7 +1,7 @@
 # SPEC-003: Catálogo nutricional completo (~200 alimentos)
 
 ## Status
-Draft
+Review
 Path: Strict (toca el catálogo nutricional — skill `nutrition-data`, siempre Strict)
 
 ## Objective
@@ -106,14 +106,21 @@ comunes), TCAC (sigue bloqueada por licencia), fotos de etiqueta (T-005), traduc
 idiomas, ampliar `household_units`.
 
 ## Open Questions
-- Antes de curar los ~200 alimentos en bloque: ¿el usuario quiere revisar la lista de categorías
-  y alimentos propuestos primero (solo nombres, sin datos todavía), o prefiere que se arme
-  razonablemente a partir de la dieta colombiana típica y se revise al final con el reporte de
-  cobertura (R7/AC4)? Dado el volumen, conviene confirmar la lista antes de invertir tiempo
-  curando datos de alimentos que el usuario no consideraría prioritarios.
-- Mecanismo exacto de curación en lote para no repetir 200 veces el proceso manual del catálogo
-  semilla (probablemente uno o más subagentes en paralelo, por categoría) — se decide al empezar
-  a implementar, no bloquea la aprobación de esta SPEC.
+- ~~Antes de curar los ~200 alimentos en bloque: ¿revisar la lista primero?~~ Resuelto: el usuario
+  aprobó la SPEC y pidió ver la lista antes de curar datos. Lista de ~166 alimentos (28 existentes
+  + ~138 nuevos, por categoría) presentada en el chat el 2026-09-27; el usuario respondió "sigue
+  con la curación tal como está" — lista confirmada sin cambios.
+- ~~Mecanismo exacto de curación en lote~~ Resuelto: 7 subagentes `fork` en paralelo (uno por grupo
+  de categorías), todos usando el mismo script de lookup offline sobre los CSV bulk de FDC ya
+  descargados (`data/sources/{sr_legacy,foundation,fndds}/`), sin llamadas de red nuevas.
+- **Nueva, sin resolver — decisión pendiente del usuario**: la curación reveló un hueco de
+  esquema, no de dato: FDC tiene un valor real para "cerveza" (43 kcal/100g, SR Legacy FDC ID
+  168746) pero `catalog.db` no tiene columna `alcohol_g`, así que el Atwater 4/4/9 subestimaría
+  sus calorías reales en ~63% (el etanol no está en ningún macronutriente del esquema actual). No
+  se agregó `cerveza` a este build. El usuario debe decidir entre (a) agregar `alcohol_g` al
+  esquema (cambio explícito, requiere su aprobación, fuera de esta SPEC) o (b) dejar bebidas
+  alcohólicas fuera de alcance por ahora. Detalle completo en
+  `data/curated/COBERTURA.md#hueco-de-esquema-distinto-de-falta-de-dato-cerveza`.
 
 ## Definition of Done
 - AC1–AC6 con evidencia enlazada en esta SPEC.
@@ -121,9 +128,31 @@ idiomas, ampliar `household_units`.
 - Reviewer: PASS enlazado.
 - `data/SOURCES.md` y `data/curated/COBERTURA.md` reflejan lo implementado.
 
+## Evidencia de Acceptance Criteria
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `cd data/build_catalog && dart run bin/build_catalog.dart` → `catalog_version: 2026-09-27-3`, 124 alimentos añadidos, 0 errores, solo warnings esperados de `atwater_review` |
+| AC2 | ✅ | `data/build_catalog/test/validators_test.dart` — 20/20 tests verdes (las reglas ya existentes, sin cambios) |
+| AC3 | ✅ | Nuevo grupo `validateNoTcacSource` en `validators_test.dart` (3 tests): rechaza `source_id` con "tcac" en foods y portions, acepta `usda_fdc_*` |
+| AC4 | ✅ | `data/curated/COBERTURA.md` — 152 alimentos por categoría, 20 proxies documentados, 15 `atwater_review`, 12 sin cobertura documentados, 1 hueco de esquema (cerveza) |
+| AC5 | ⏳ pendiente | Reviewer aún no comparó las 10 filas al azar contra `source_ref` — se hace en el paso de reviewer, antes de `Done` |
+| AC6 | ✅ | `app/test/integration/catalog_real_db_test.dart` (nuevo): resuelve 5 `food_query` nuevos (mango, guayaba, aceite de coco, queso mozzarella, avena cocida) contra el `catalog.db` real regenerado |
+
+Verificado: `data/build_catalog` → `dart analyze` sin issues, `dart test` 17/17 verdes (14 antes +
+3 nuevos de R2). `app` → `flutter analyze` sin issues, `flutter test` todos verdes (29 antes + 1
+nuevo de AC6).
+
 ## Change Log
 - 2026-09-28: creación, a partir de T-004 de `docs/backlog.md`. Ajusta el objetivo original
   ("TCAC + FDC") a solo USDA FDC, por PV-01 (resuelto después de escribirse el backlog).
+- 2026-09-27: lista de ~166 alimentos presentada y confirmada por el usuario sin cambios.
+  Implementación: R2 (validador anti-TCAC) agregado y probado; 124 alimentos curados vía 7
+  subagentes `fork` en paralelo contra los CSV bulk de FDC ya descargados; fusionados a
+  `data/curated/*.csv` (152 alimentos totales) tras verificar manualmente varias filas contra el
+  CSV crudo; `catalog.db` regenerado; `COBERTURA.md` escrito; test de integración nuevo para AC6.
+  Hueco revelado durante la implementación (no en la SPEC original): "cerveza" no se pudo incluir
+  por falta de columna `alcohol_g` en el esquema — documentado arriba como Open Question sin
+  resolver, no se improvisó un cambio de esquema.
 
 ## Review
 Informe del reviewer:

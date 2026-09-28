@@ -53,7 +53,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   title: Catálogo completo (Strict)
   objective: Pipeline TCAC + FDC + sinónimos es-CO + porciones domésticas con fuentes; cobertura de ~200 alimentos frecuentes.
   dependencies: [T-001, T-002]
-  spec_required: true    # specs/SPEC-003-catalogo-completo.md (Draft)
+  spec_required: true    # specs/SPEC-003-catalogo-completo.md (Review — reviewer pendiente)
   assigned_agent: sesión principal (skill nutrition-data) → reviewer
   acceptance_summary: Build reproducible, validaciones del catálogo verdes, reporte de cobertura.
 

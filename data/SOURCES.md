@@ -45,13 +45,19 @@ en su `source_ref`.
   kcal/100g) solo por tratarse de un alimento de kcal casi nula, donde la
   tolerancia porcentual es numéricamente inestable; la diferencia absoluta
   (0.3 kcal/100g) es irrelevante. Aceptado con `atwater_review = true`.
-- Alimentos considerados y **descartados** por no tener una coincidencia
+- Alimento considerado y **descartado** por no tener una coincidencia
   razonable en ninguno de los tres datasets: "ensalada" (plato compuesto,
-  sin un ingrediente único representativo) y "chocolate de mesa" (bebida
-  colombiana de chocolate, sin entrada equivalente en FDC). Ninguno de los
-  dos es parte de la lista R7 de `specs/SPEC-001-registro-por-texto.md`
-  (eran adiciones propias para ampliar cobertura); se documenta el hueco
-  en vez de forzar un dato.
+  sin un ingrediente único representativo; fuera de alcance por definición,
+  no es un alimento base). No es parte de la lista R7 de
+  `specs/SPEC-001-registro-por-texto.md` (era una adición propia para
+  ampliar cobertura); se documenta el hueco en vez de forzar un dato.
+- SPEC-003 amplió el catálogo de 28 a 152 alimentos (~166 propuestos, 12
+  sin cobertura razonable en FDC + 1 hueco de esquema con "cerveza"). Ver
+  `data/curated/COBERTURA.md` para el detalle completo por categoría,
+  proxies usados y exclusiones documentadas. Nota corregida: "chocolate de
+  mesa" (descartado en SPEC-001 por no tener match) sí se cubrió en
+  SPEC-003 con un proxy razonable ("Baking chocolate, mexican, squares",
+  FDC ID 167999).
 
 ## Unidades domésticas (`data/curated/household_units.csv`)
 
@@ -62,7 +68,7 @@ culinaria colombiana (250 mL) marcada explícitamente como tal.
 
 ## Catálogo generado
 
-`app/assets/catalog/catalog.db` (generado, no versionado): 28 alimentos,
+`app/assets/catalog/catalog.db` (generado, no versionado): 152 alimentos,
 `catalog_version` con fecha + contador. Regenerar con
 `cd data/build_catalog && dart run bin/build_catalog.dart` tras editar
 cualquier CSV curado.
