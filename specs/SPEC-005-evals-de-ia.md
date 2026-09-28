@@ -165,7 +165,7 @@ Ninguna pendiente — resueltas por el usuario el 2026-09-28:
 | AC3 | ✅ | `evals/baselines/parse_meal.v1__ollama__gemma4:e4b__2026-09-28.json` (real, `ollama`, gratis) — `schemaValidRate: 100%`, `foodDetectionRate: 83/91 (91.2%)`, `quantityUnitAccuracy: 77/83 (92.8%)`, `latencyP50: 3027ms`/`P95: 4383ms`, `avgTokensInput: 656`/`avgTokensOutput: 172` |
 | AC4 | ⏳ pendiente aceptado | No existe todavía un proyecto GCP real con Vertex AI habilitado — mismo criterio que AC11 de SPEC-001 |
 | AC5 | ✅ | `run_extract_label.ts` corre sin error con `cases.jsonl` vacío o parcial (probado durante el desarrollo antes de fusionar el dataset real) |
-| AC6 | ✅ | El usuario aportó **47 fotos reales** (supera el mínimo de 3-5 y la meta de ~20 del backlog). `evals/baselines/extract_label.v1__ollama__gemma4:e4b__2026-09-28.json` (real, `ollama`, gratis, regenerado tras el fix de marcador de grupo) — `schemaValidRate: 47/47 (100.0%)`, `fieldAccuracy: 539/737 (73.1%)`, `hallucinatedFields: 0` entre campos puntuados (+8 `fieldChecks` en campos no confirmables ni por humano ni por IA — ver Change Log), `latencyP50: 5809ms`/`P95: 6347ms`, `avgTokensInput: 1566`/`avgTokensOutput: 248` |
+| AC6 | ✅ | El usuario aportó **47 fotos reales** (supera el mínimo de 3-5 y la meta de ~20 del backlog). `evals/baselines/extract_label.v1__ollama__gemma4:e4b__2026-09-28.json` (real, `ollama`, gratis, regenerado dos veces tras hallazgos del reviewer — ver Change Log) — `schemaValidRate: 47/47 (100.0%)`, `fieldAccuracy: 542/742 (73.0%)`, `hallucinatedFields: 0` entre campos puntuados (+5 `fieldChecks` en campos no confirmables ni por humano ni por IA — ver Change Log), `latencyP50: 5814ms`/`P95: 6433ms`, `avgTokensInput: 1566`/`avgTokensOutput: 248` |
 | AC7 | ✅ | `evals/README.md` |
 | AC8 | ✅ | Las 50 frases de `parse_meal.v1.jsonl` fueron escritas a mano (no generadas por IA sin revisión) cubriendo alimentos/cantidades reales colombianas — revisadas por el reviewer en la sección Review |
 
@@ -201,20 +201,43 @@ nuevos: 7 unit tests de `run_parse_meal.ts` + 9 de `run_extract_label.ts`).
   Se corrigió la lógica de comparación para reconocer ambas convenciones (campo específico y grupo
   entero) y se regeneró el baseline con el código corregido — ver números reales abajo.
 
+- 2026-09-28: segunda pasada del reviewer sobre este mismo baseline regenerado. Encontró un
+  hallazgo **MAJOR** real (no falso positivo): el ground truth de `label_10` (`cases.jsonl`)
+  desalineó una fila completa de la sección "Carbohidratos totales" de la etiqueta — le asignó a
+  `Fibra dietaria` el valor real de `Polialcoholes` (1,8g/0,4g) y la marcó como no legible, y le
+  asignó a `Azúcares totales` el valor de la fila `Polialcoholes` siguiente (2,0g/0,4g) en vez de su
+  propio valor (57g/11g). Verificado directamente contra `images/10.jpg`: las cinco filas
+  (Carbohidratos totales, Fibra dietaria, Polialcoholes, Azúcares totales, Azúcares añadidos) son
+  legibles y estaban corridas una posición. Corregido en `cases.jsonl`.
+
+  Dado que el reviewer encontró este error en 1 de 5 fotos muestreadas al azar, se hizo una
+  re-verificación sistemática de `fiber_g`/`sugar_g`/`carbs_g` en las **47 fotos** (4 subagentes en
+  paralelo, mismo split que la transcripción original) buscando el mismo patrón de desalineo. Solo
+  `label_10` tenía el bug (las otras 46 fotos, incluidas las que sí tienen fila `Polialcoholes`,
+  estaban correctas). Los subagentes reportaron además, fuera de su alcance asignado, dos campos más
+  con el mismo tipo de error (marcados no legibles cuando en realidad sí estaban impresos): verificado
+  directamente contra las fotos —
+  - `label_24.per_100/per_serving.protein_g`: la fila "Proteína" (22g/3.3g) es legible, justo encima
+    de "Sodio" (29mg/4.3mg, que ya coincidía). Corregido.
+  - `label_38.per_100.fat_g`: la etiqueta (texto rotado 90°) dice explícitamente "Calorías 315,
+    Grasa 35 g" para la sección por 100g. Corregido a 35.
+
+  Baseline regenerado por segunda vez con el `cases.jsonl` corregido (ver números finales abajo).
+
   **Resultados reales (no supuestos)**: `parse_meal.v1` contra `ollama`/`gemma4:e4b` (gratis) — 50
   frases, validez de esquema 100%, detección de alimentos 91.2% (83/91), exactitud de
   cantidad/unidad 92.8% (77/83), latencia p50 3.0s/p95 4.4s. `extract_label.v1` contra el mismo
-  modelo (baseline regenerado con el fix de marcador de grupo, 2026-09-28T21:23Z) — 47 fotos
-  reales, validez de esquema 100% (47/47), exactitud de campo 73.1% (539/737) sobre los campos con
-  ground truth confirmado, latencia p50 5.8s/p95 6.3s, avgTokensInput 1566/avgTokensOutput 248.
+  modelo (baseline final, `cases.jsonl` corregido, 2026-09-28T21:41Z) — 47 fotos reales, validez de
+  esquema 100% (47/47), exactitud de campo 73.0% (542/742) sobre los campos con ground truth
+  confirmado, latencia p50 5.8s/p95 6.4s, avgTokensInput 1566/avgTokensOutput 248.
   **0 alucinaciones entre los campos puntuados** (ningún campo con valor esperado `null` confirmado
-  recibió un valor inventado). Aparte de eso, en 8 `fieldChecks` (5 de las 47 fotos: label_10 ×2,
-  label_19, label_24, label_39 ×3, label_51) el modelo devolvió un valor no nulo en un campo que ni
-  el transcriptor humano pudo confirmar como impreso o no — estos quedan fuera de la puntuación (ni
-  humano ni IA tienen certeza) y no se cuentan como alucinación ni como acierto; se documentan
-  aparte para no ocultar el caso. Vertex AI queda pendiente aceptado (AC4) por no existir todavía un
-  proyecto GCP real — no bloquea. El usuario decide los umbrales de aceptación con estos números
-  reales delante (R6); no se fijó ninguno de antemano.
+  recibió un valor inventado). Aparte de eso, en 5 `fieldChecks` (3 de las 47 fotos: label_19,
+  label_39 ×3, label_51) el modelo devolvió un valor no nulo en un campo que ni el transcriptor
+  humano pudo confirmar como impreso o no — estos quedan fuera de la puntuación (ni humano ni IA
+  tienen certeza) y no se cuentan como alucinación ni como acierto; se documentan aparte para no
+  ocultar el caso. Vertex AI queda pendiente aceptado (AC4) por no existir todavía un proyecto GCP
+  real — no bloquea. El usuario decide los umbrales de aceptación con estos números reales delante
+  (R6); no se fijó ninguno de antemano.
 
 ## Review
 Informe del reviewer:
