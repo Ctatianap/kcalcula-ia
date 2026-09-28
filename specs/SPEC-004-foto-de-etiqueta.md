@@ -1,7 +1,7 @@
 # SPEC-004: Foto de tabla nutricional
 
 ## Status
-Implementing
+Review
 Path: Strict (toca `nutrition_core`, un esquema/prompt de IA nuevo y datos que salen del
 dispositivo — skill `ai-pipeline`)
 
@@ -226,6 +226,26 @@ Ninguna pendiente — las tres de la primera versión de esta SPEC quedaron resu
 el 2026-09-27 (búsqueda integrada, sí usar paquete Flutter de cámara/galería, 1600 px/JPEG 85 %
 como default). Ver Change Log.
 
+## Evidencia de Acceptance Criteria
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/features/capture/capture_screen_photo_test.dart` — "AC1: tomar foto con éxito navega a la pantalla de confirmación" |
+| AC2 | ✅ | `app/test/features/capture/label_confirmation_controller_test.dart` — "AC2: valores dentro de Atwater…"; `functions/src/ai/fake.test.ts` — fixture `fixture:etiqueta-30g-140kcal` |
+| AC3 | ✅ | `label_confirmation_controller_test.dart` + `label_confirmation_screen_test.dart` — "AC3: …" (bloquea hasta tildar el checkbox) |
+| AC4 | ✅ | `label_confirmation_controller_test.dart` + `label_confirmation_screen_test.dart` — campo `fat_g` no legible, nunca inventado |
+| AC5 | ✅ | `packages/nutrition_core/test/nutrient_calculation_test.dart` (cálculo puro) + `label_confirmation_controller_test.dart` (normalización a por-100g) + `app/test/integration/label_to_review_flow_test.dart` (flujo real completo: foto → 210 kcal → Alta precisión → registrar) |
+| AC6 | ✅ | `label_to_review_flow_test.dart` — "AC6: un producto personal ya guardado se reutiliza por nombre, sin repetir la foto" (280 kcal, vía `food_query_resolver.dart`) |
+| AC7 | ✅ | `capture_screen_photo_test.dart` — "AC7: sin permiso de cámara…" |
+| AC8 | ✅ | `capture_screen_photo_test.dart` — "AC8: error del proveedor de IA…"; `functions/src/ai/extract_label_handler.test.ts` |
+| AC9 | ✅ | `functions/src/ai/schemas.test.ts` — 6 tests de `labelExtractionSchema` (campo extra, enum inválido, `schema_version` inválido) |
+| AC10 | ✅ | `app/test/features/capture/image_picker_service_test.dart` — verifica que `PluginImagePickerService` pide `maxWidth`/`maxHeight`/`imageQuality` = 1600/1600/85 al plugin real (vía `ImagePickerPlatform` fake, no mock de canal). Tamaño de archivo decodificado real: ver AC12 |
+| AC11 | ✅ | `docs/privacy.md` — fila "Foto de etiqueta" actualizada (depende del proveedor configurado, cita PV-03 ya verificado para Vertex, no inventa nada nuevo) |
+| AC12 | ⏳ pendiente aceptado | Requiere fotos reales de etiquetas y (para Vertex) un proyecto GCP real — mismo criterio que AC11 de SPEC-001/AC8 de SPEC-002. El smoke manual contra el modelo local real (`ollama`, `gemma4:e4b`) con una imagen sin tabla nutricional sí se hizo durante la implementación (ver Change Log) y confirmó que el pipeline funciona de punta a punta |
+
+Verificado: `packages/nutrition_core` → `dart analyze` sin issues, `dart test` 37/37 verdes. `functions`
+→ `tsc` sin errores, `node --test` 35/35 verdes. `app` → `flutter analyze` sin issues, `flutter test`
+55/55 verdes (30 antes de SPEC-004 + 25 nuevos).
+
 ## Definition of Done
 - AC1–AC12 con evidencia enlazada en esta SPEC (AC12 puede quedar "pendiente aceptado").
 - `dart analyze`/`flutter analyze`/`tsc` sin warnings y tests verdes en los paquetes tocados.
@@ -241,6 +261,16 @@ como default). Ver Change Log.
   exacta a verificar al implementar); (3) mantener 1600 px / JPEG 85 % tras aclarar que la
   motivación es legibilidad de letra pequeña, no costo (el costo es una fracción de centavo en
   cualquiera de los dos casos).
+- 2026-09-28: implementación completa (AC1-AC11, AC12 pendiente aceptado). Paquete de cámara
+  elegido: `image_picker` 1.2.3 (verificado en pub.dev). Dos correcciones reales encontradas
+  escribiendo tests (no cosméticas): `consumedQuantity` podía quedar atascado en 0 si la porción
+  llegaba vacía y se completaba después (arreglado con una bandera "tocado por el usuario"); el
+  `CheckboxListTile` de la advertencia de Atwater estaba dentro de un contenedor con color de
+  fondo, lo que el propio framework de Flutter señala como fondo/ink splashes invisibles (movido
+  fuera). Verificado manualmente contra el modelo local real (`ollama show gemma4:e4b` confirma
+  capacidad `vision`; una llamada real a `extractLabel` con una imagen sin tabla nutricional
+  devolvió el esquema correcto, todo `null`, sin marcar `unreadable_fields` — distinción correcta
+  entre "no impreso" e "ilegible").
 
 ## Review
 Informe del reviewer:

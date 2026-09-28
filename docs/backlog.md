@@ -61,7 +61,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   title: Foto de tabla nutricional (Strict)
   objective: extractLabel + validación Atwater + confirmación + cantidad consumida + producto personal reutilizable.
   dependencies: [T-002]
-  spec_required: true    # specs/SPEC-004-foto-de-etiqueta.md (Implementing)
+  spec_required: true    # specs/SPEC-004-foto-de-etiqueta.md (Review — reviewer pendiente)
   assigned_agent: sesión principal (skill ai-pipeline) → reviewer
   acceptance_summary: "30 g = 140 kcal; comí 45 g → 210 kcal" y confianza Alta precisión.
 
