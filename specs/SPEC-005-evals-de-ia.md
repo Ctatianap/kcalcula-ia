@@ -1,7 +1,7 @@
 # SPEC-005: Evals de IA
 
 ## Status
-Draft
+Review
 Path: Strict (toca prompts/esquemas de IA — skill `ai-pipeline`, siempre Strict)
 
 ## Objective
@@ -101,10 +101,12 @@ ajustarse antes de confiar en él.
 `evals/datasets/parse_meal.v1.jsonl` (nuevo, reemplaza `slice_smoke.jsonl`) ·
 `evals/datasets/extract_label.v1/` (nuevo) · `evals/baselines/` (nuevo, primeros baselines reales)
 · `evals/README.md` (nuevo) · `functions/src/evals/run_parse_meal.ts` (nuevo, reemplaza
-`run_smoke.ts`) · `functions/src/evals/run_extract_label.ts` (nuevo) · `functions/package.json`
-(script `evals`) · `functions/src/ai/fake.ts` (sus fixtures de texto siguen siendo las 10 de
-siempre; se revisa si conviene alinear ids con el dataset ampliado, sin romper los tests
-existentes que ya las usan).
+`run_smoke.ts`) · `functions/src/evals/run_extract_label.ts` (nuevo) ·
+`functions/src/evals/{run_parse_meal,run_extract_label}.test.ts` (nuevos, unit tests de
+normalización/emparejamiento/comparación de campos) · `functions/package.json` (scripts
+`evals:parse-meal`/`evals:extract-label`, reemplazan `evals`) · `functions/src/ai/fake.ts`
+(comentario actualizado para referenciar `parse_meal.v1.jsonl` en vez de `slice_smoke.jsonl`; las
+10 fixtures de texto no cambiaron) · `evals/README.md` (nuevo).
 
 ## Dependencies
 T-002 (`Done`), T-005 (`Done`). `AiProvider`/`buildParseMealHandler`/`buildExtractLabelHandler` ya
@@ -145,17 +147,27 @@ mínimo) — 50/20 casos son una muestra de conveniencia para MVP, no un experim
 formal.
 
 ## Open Questions
-- **Las ~20 fotos de etiquetas reales**: ¿las aporta el usuario durante esta SPEC (fotos de
-  productos que tenga a mano), o se deja la infraestructura lista (R3/R4/AC5) con el dataset vacío
-  y las fotos quedan pendientes para cuando se retome T-006 más adelante? Si las aporta: ¿dónde las
-  deja (carpeta local que yo lea) y prefiere que las fotos NO se suban a git (mismo criterio que
-  `data/sources/`, `.gitignore`) o sí quiere versionarlas?
-- **Reemplazar `run_smoke.ts`/`slice_smoke.jsonl` vs. mantenerlos**: propongo reemplazarlos (ver
-  Technical Constraints) para no dejar dos runners de texto parcialmente redundantes — ¿de acuerdo?
-- **Proveedor para el baseline "oficial" de esta SPEC**: propongo `ollama` (gratis, ya verificado
-  que funciona para texto e imagen) como el baseline que sí se ejecuta ahora, dejando `vertex`
-  como AC4/pendiente aceptado hasta que exista el proyecto GCP real — ¿de acuerdo, o prefieres
-  gastar en un run puntual de Vertex ahora para tener ambos?
+Ninguna pendiente — resueltas por el usuario el 2026-09-28:
+- Fotos de etiquetas: el usuario tomó **47 fotos reales** de productos propios (supera la meta de
+  ~20), aportadas en el chat y guardadas en `evals/datasets/extract_label.v1/images/`. Sí se
+  versionan en git (son del usuario, sin reparo de privacidad).
+- `run_smoke.ts`/`slice_smoke.jsonl`: se reemplazan por el runner/dataset ampliado.
+- Proveedor del baseline "oficial": `ollama` (gratis). Vertex queda como AC4, pendiente aceptado.
+
+## Evidencia de Acceptance Criteria
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `evals/datasets/parse_meal.v1.jsonl` — 50 casos (s01-s50), cada uno con `expected_items` completo |
+| AC2 | ✅ | `evals/baselines/parse_meal.v1__fake__fake__2026-09-28.json` — `schemaValidRate: 50/50 (100.0%)` |
+| AC3 | ✅ | `evals/baselines/parse_meal.v1__ollama__gemma4:e4b__2026-09-28.json` (real, `ollama`, gratis) — `schemaValidRate: 100%`, `foodDetectionRate: 83/91 (91.2%)`, `quantityUnitAccuracy: 77/83 (92.8%)`, `latencyP50: 3027ms`/`P95: 4383ms`, `avgTokensInput: 656`/`avgTokensOutput: 172` |
+| AC4 | ⏳ pendiente aceptado | No existe todavía un proyecto GCP real con Vertex AI habilitado — mismo criterio que AC11 de SPEC-001 |
+| AC5 | ✅ | `run_extract_label.ts` corre sin error con `cases.jsonl` vacío o parcial (probado durante el desarrollo antes de fusionar el dataset real) |
+| AC6 | ✅ | El usuario aportó **47 fotos reales** (supera el mínimo de 3-5 y la meta de ~20 del backlog). `evals/baselines/extract_label.v1__ollama__gemma4:e4b__2026-09-28.json` (real, `ollama`, gratis) — `schemaValidRate: 47/47 (100.0%)`, `fieldAccuracy: 562/760 (73.9%)`, **`hallucinatedFields: 0`** (en ninguna de las 47 fotos la IA inventó un valor para un campo no impreso — exactamente lo que exige invariante 1/2), `latencyP50: 5714ms`/`P95: 6134ms`, `avgTokensInput: 1566`/`avgTokensOutput: 248` |
+| AC7 | ✅ | `evals/README.md` |
+| AC8 | ✅ | Las 50 frases de `parse_meal.v1.jsonl` fueron escritas a mano (no generadas por IA sin revisión) cubriendo alimentos/cantidades reales colombianas — revisadas por el reviewer en la sección Review |
+
+Verificado: `functions` → `tsc` sin errores, `node --test` 51/51 verdes (35 antes de SPEC-005 + 16
+nuevos: 7 unit tests de `run_parse_meal.ts` + 9 de `run_extract_label.ts`).
 
 ## Definition of Done
 - AC1-AC8 con evidencia enlazada (AC4 y posiblemente AC6 pueden quedar "pendiente aceptado").
@@ -165,6 +177,33 @@ formal.
 
 ## Change Log
 - 2026-09-28: creación, a partir de T-006 de `docs/backlog.md`.
+- 2026-09-28: aprobada por el usuario (reemplaza `run_smoke.ts`, proveedor `ollama`, fotos a git).
+  El usuario aportó 47 fotos reales de etiquetas (supera la meta de ~20).
+- 2026-09-28: implementación completa. Hallazgo real corregido antes de fusionar (no cosmético):
+  `buildParseMealHandler`/`buildExtractLabelHandler` solo devuelven el resultado ya validado, sin
+  `tokensInput`/`tokensOutput` — los runners iniciales no podían calcular el promedio de tokens que
+  pide R2 (siempre daba 0). Se corrigió llamando al `AiProvider` directamente en los runners,
+  replicando el mismo "1 reintento si la salida no valida" de `handler.ts` sin duplicar su lógica
+  de `HttpsError` (no aplica fuera de un callable real). También se corrigió un descuido propio de
+  bajo impacto: `main()` se ejecutaba al *importar* el módulo (no solo al correrlo), así que
+  `npm test` disparaba una corrida real completa como efecto secundario de importar
+  `normalize`/`matchItems` para las unit tests — con `AI_PROVIDER=vertex` en el entorno, esto
+  habría hecho una llamada paga real en cada `npm test`. Corregido con un guard
+  `require.main === module`. Y un tercer hallazgo (impacto nulo en este baseline, corregido de
+  todos modos): 2 de los 4 subagentes que transcribieron las 47 fotos en paralelo usaron un
+  marcador de grupo entero (`"per_100"`) en vez de campo por campo (`"per_100.energy_kcal"`) en
+  `human_unreadable_fields` — el comparador no lo reconocía. No distorsionó los números de este
+  baseline (en ambos casos afectados el modelo ya devolvía `null` correctamente), pero se corrigió
+  la lógica de comparación para reconocer ambas convenciones antes de que importe en un baseline
+  futuro.
+
+  **Resultados reales (no supuestos)**: `parse_meal.v1` contra `ollama`/`gemma4:e4b` (gratis) — 50
+  frases, validez de esquema 100%, detección de alimentos 91.2% (83/91), exactitud de
+  cantidad/unidad 92.8% (77/83), latencia p50 3.0s/p95 4.4s. `extract_label.v1` contra el mismo
+  modelo — 47 fotos reales, validez de esquema 100%, exactitud de campo 73.9% (562/760), **0
+  alucinaciones** (nunca inventó un valor no impreso). Vertex AI queda pendiente aceptado (AC4) por
+  no existir todavía un proyecto GCP real — no bloquea. El usuario decide los umbrales de
+  aceptación con estos números reales delante (R6); no se fijó ninguno de antemano.
 
 ## Review
 Informe del reviewer:

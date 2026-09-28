@@ -69,7 +69,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   title: Evals de IA (Strict)
   objective: Dataset de ~50 frases colombianas y ~20 etiquetas reales, runner, métricas y baseline.
   dependencies: [T-002, T-005]
-  spec_required: true    # specs/SPEC-005-evals-de-ia.md (Draft)
+  spec_required: true    # specs/SPEC-005-evals-de-ia.md (Implementing)
   assigned_agent: sesión principal (skill ai-pipeline) → reviewer
   acceptance_summary: Reporte reproducible; validez de esquema 100 %; umbrales fijados tras el baseline.
 

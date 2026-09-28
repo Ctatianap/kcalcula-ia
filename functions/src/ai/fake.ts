@@ -34,8 +34,8 @@ function meal(
 }
 
 /**
- * Fixtures deterministas: cubren AC1 y las 10 frases de
- * `evals/datasets/slice_smoke.jsonl`. La clave es el texto normalizado
+ * Fixtures deterministas: cubren AC1 y los primeros 10 casos (s01-s10) de
+ * `evals/datasets/parse_meal.v1.jsonl` (SPEC-005). La clave es el texto normalizado
  * (recortado y en minúsculas). Un texto sin fixture nunca se inventa:
  * devuelve `items: []` (ver `s10` — "hola, ¿cómo estás?").
  */
