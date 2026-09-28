@@ -1471,16 +1471,795 @@ class MealItemsCompanion extends UpdateCompanion<MealItem> {
   }
 }
 
+class $PersonalProductsTable extends PersonalProducts
+    with TableInfo<$PersonalProductsTable, PersonalProduct> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PersonalProductsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _nameEsMeta = const VerificationMeta('nameEs');
+  @override
+  late final GeneratedColumn<String> nameEs = GeneratedColumn<String>(
+    'name_es',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _energyKcal100Meta = const VerificationMeta(
+    'energyKcal100',
+  );
+  @override
+  late final GeneratedColumn<double> energyKcal100 = GeneratedColumn<double>(
+    'energy_kcal100',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _proteinG100Meta = const VerificationMeta(
+    'proteinG100',
+  );
+  @override
+  late final GeneratedColumn<double> proteinG100 = GeneratedColumn<double>(
+    'protein_g100',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _carbsG100Meta = const VerificationMeta(
+    'carbsG100',
+  );
+  @override
+  late final GeneratedColumn<double> carbsG100 = GeneratedColumn<double>(
+    'carbs_g100',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fatG100Meta = const VerificationMeta(
+    'fatG100',
+  );
+  @override
+  late final GeneratedColumn<double> fatG100 = GeneratedColumn<double>(
+    'fat_g100',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fiberG100Meta = const VerificationMeta(
+    'fiberG100',
+  );
+  @override
+  late final GeneratedColumn<double> fiberG100 = GeneratedColumn<double>(
+    'fiber_g100',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sugarG100Meta = const VerificationMeta(
+    'sugarG100',
+  );
+  @override
+  late final GeneratedColumn<double> sugarG100 = GeneratedColumn<double>(
+    'sugar_g100',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sodiumMg100Meta = const VerificationMeta(
+    'sodiumMg100',
+  );
+  @override
+  late final GeneratedColumn<double> sodiumMg100 = GeneratedColumn<double>(
+    'sodium_mg100',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _servingGramsMeta = const VerificationMeta(
+    'servingGrams',
+  );
+  @override
+  late final GeneratedColumn<double> servingGrams = GeneratedColumn<double>(
+    'serving_grams',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _densityGPerMlMeta = const VerificationMeta(
+    'densityGPerMl',
+  );
+  @override
+  late final GeneratedColumn<double> densityGPerMl = GeneratedColumn<double>(
+    'density_g_per_ml',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourceRefMeta = const VerificationMeta(
+    'sourceRef',
+  );
+  @override
+  late final GeneratedColumn<String> sourceRef = GeneratedColumn<String>(
+    'source_ref',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    nameEs,
+    energyKcal100,
+    proteinG100,
+    carbsG100,
+    fatG100,
+    fiberG100,
+    sugarG100,
+    sodiumMg100,
+    servingGrams,
+    densityGPerMl,
+    sourceRef,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'personal_products';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PersonalProduct> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name_es')) {
+      context.handle(
+        _nameEsMeta,
+        nameEs.isAcceptableOrUnknown(data['name_es']!, _nameEsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameEsMeta);
+    }
+    if (data.containsKey('energy_kcal100')) {
+      context.handle(
+        _energyKcal100Meta,
+        energyKcal100.isAcceptableOrUnknown(
+          data['energy_kcal100']!,
+          _energyKcal100Meta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_energyKcal100Meta);
+    }
+    if (data.containsKey('protein_g100')) {
+      context.handle(
+        _proteinG100Meta,
+        proteinG100.isAcceptableOrUnknown(
+          data['protein_g100']!,
+          _proteinG100Meta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_proteinG100Meta);
+    }
+    if (data.containsKey('carbs_g100')) {
+      context.handle(
+        _carbsG100Meta,
+        carbsG100.isAcceptableOrUnknown(data['carbs_g100']!, _carbsG100Meta),
+      );
+    } else if (isInserting) {
+      context.missing(_carbsG100Meta);
+    }
+    if (data.containsKey('fat_g100')) {
+      context.handle(
+        _fatG100Meta,
+        fatG100.isAcceptableOrUnknown(data['fat_g100']!, _fatG100Meta),
+      );
+    } else if (isInserting) {
+      context.missing(_fatG100Meta);
+    }
+    if (data.containsKey('fiber_g100')) {
+      context.handle(
+        _fiberG100Meta,
+        fiberG100.isAcceptableOrUnknown(data['fiber_g100']!, _fiberG100Meta),
+      );
+    }
+    if (data.containsKey('sugar_g100')) {
+      context.handle(
+        _sugarG100Meta,
+        sugarG100.isAcceptableOrUnknown(data['sugar_g100']!, _sugarG100Meta),
+      );
+    }
+    if (data.containsKey('sodium_mg100')) {
+      context.handle(
+        _sodiumMg100Meta,
+        sodiumMg100.isAcceptableOrUnknown(
+          data['sodium_mg100']!,
+          _sodiumMg100Meta,
+        ),
+      );
+    }
+    if (data.containsKey('serving_grams')) {
+      context.handle(
+        _servingGramsMeta,
+        servingGrams.isAcceptableOrUnknown(
+          data['serving_grams']!,
+          _servingGramsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_servingGramsMeta);
+    }
+    if (data.containsKey('density_g_per_ml')) {
+      context.handle(
+        _densityGPerMlMeta,
+        densityGPerMl.isAcceptableOrUnknown(
+          data['density_g_per_ml']!,
+          _densityGPerMlMeta,
+        ),
+      );
+    }
+    if (data.containsKey('source_ref')) {
+      context.handle(
+        _sourceRefMeta,
+        sourceRef.isAcceptableOrUnknown(data['source_ref']!, _sourceRefMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceRefMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PersonalProduct map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PersonalProduct(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      nameEs: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_es'],
+      )!,
+      energyKcal100: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}energy_kcal100'],
+      )!,
+      proteinG100: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}protein_g100'],
+      )!,
+      carbsG100: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}carbs_g100'],
+      )!,
+      fatG100: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}fat_g100'],
+      )!,
+      fiberG100: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}fiber_g100'],
+      ),
+      sugarG100: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}sugar_g100'],
+      ),
+      sodiumMg100: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}sodium_mg100'],
+      ),
+      servingGrams: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}serving_grams'],
+      )!,
+      densityGPerMl: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}density_g_per_ml'],
+      ),
+      sourceRef: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_ref'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $PersonalProductsTable createAlias(String alias) {
+    return $PersonalProductsTable(attachedDatabase, alias);
+  }
+}
+
+class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
+  final int id;
+  final String nameEs;
+  final double energyKcal100;
+  final double proteinG100;
+  final double carbsG100;
+  final double fatG100;
+  final double? fiberG100;
+  final double? sugarG100;
+  final double? sodiumMg100;
+
+  /// Porción declarada en la etiqueta (R3: siempre > 0), usada como la
+  /// única `PortionOption` ("porcion") del producto.
+  final double servingGrams;
+  final double? densityGPerMl;
+  final String sourceRef;
+  final DateTime createdAt;
+  const PersonalProduct({
+    required this.id,
+    required this.nameEs,
+    required this.energyKcal100,
+    required this.proteinG100,
+    required this.carbsG100,
+    required this.fatG100,
+    this.fiberG100,
+    this.sugarG100,
+    this.sodiumMg100,
+    required this.servingGrams,
+    this.densityGPerMl,
+    required this.sourceRef,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name_es'] = Variable<String>(nameEs);
+    map['energy_kcal100'] = Variable<double>(energyKcal100);
+    map['protein_g100'] = Variable<double>(proteinG100);
+    map['carbs_g100'] = Variable<double>(carbsG100);
+    map['fat_g100'] = Variable<double>(fatG100);
+    if (!nullToAbsent || fiberG100 != null) {
+      map['fiber_g100'] = Variable<double>(fiberG100);
+    }
+    if (!nullToAbsent || sugarG100 != null) {
+      map['sugar_g100'] = Variable<double>(sugarG100);
+    }
+    if (!nullToAbsent || sodiumMg100 != null) {
+      map['sodium_mg100'] = Variable<double>(sodiumMg100);
+    }
+    map['serving_grams'] = Variable<double>(servingGrams);
+    if (!nullToAbsent || densityGPerMl != null) {
+      map['density_g_per_ml'] = Variable<double>(densityGPerMl);
+    }
+    map['source_ref'] = Variable<String>(sourceRef);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  PersonalProductsCompanion toCompanion(bool nullToAbsent) {
+    return PersonalProductsCompanion(
+      id: Value(id),
+      nameEs: Value(nameEs),
+      energyKcal100: Value(energyKcal100),
+      proteinG100: Value(proteinG100),
+      carbsG100: Value(carbsG100),
+      fatG100: Value(fatG100),
+      fiberG100: fiberG100 == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fiberG100),
+      sugarG100: sugarG100 == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sugarG100),
+      sodiumMg100: sodiumMg100 == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sodiumMg100),
+      servingGrams: Value(servingGrams),
+      densityGPerMl: densityGPerMl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(densityGPerMl),
+      sourceRef: Value(sourceRef),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory PersonalProduct.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PersonalProduct(
+      id: serializer.fromJson<int>(json['id']),
+      nameEs: serializer.fromJson<String>(json['nameEs']),
+      energyKcal100: serializer.fromJson<double>(json['energyKcal100']),
+      proteinG100: serializer.fromJson<double>(json['proteinG100']),
+      carbsG100: serializer.fromJson<double>(json['carbsG100']),
+      fatG100: serializer.fromJson<double>(json['fatG100']),
+      fiberG100: serializer.fromJson<double?>(json['fiberG100']),
+      sugarG100: serializer.fromJson<double?>(json['sugarG100']),
+      sodiumMg100: serializer.fromJson<double?>(json['sodiumMg100']),
+      servingGrams: serializer.fromJson<double>(json['servingGrams']),
+      densityGPerMl: serializer.fromJson<double?>(json['densityGPerMl']),
+      sourceRef: serializer.fromJson<String>(json['sourceRef']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'nameEs': serializer.toJson<String>(nameEs),
+      'energyKcal100': serializer.toJson<double>(energyKcal100),
+      'proteinG100': serializer.toJson<double>(proteinG100),
+      'carbsG100': serializer.toJson<double>(carbsG100),
+      'fatG100': serializer.toJson<double>(fatG100),
+      'fiberG100': serializer.toJson<double?>(fiberG100),
+      'sugarG100': serializer.toJson<double?>(sugarG100),
+      'sodiumMg100': serializer.toJson<double?>(sodiumMg100),
+      'servingGrams': serializer.toJson<double>(servingGrams),
+      'densityGPerMl': serializer.toJson<double?>(densityGPerMl),
+      'sourceRef': serializer.toJson<String>(sourceRef),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  PersonalProduct copyWith({
+    int? id,
+    String? nameEs,
+    double? energyKcal100,
+    double? proteinG100,
+    double? carbsG100,
+    double? fatG100,
+    Value<double?> fiberG100 = const Value.absent(),
+    Value<double?> sugarG100 = const Value.absent(),
+    Value<double?> sodiumMg100 = const Value.absent(),
+    double? servingGrams,
+    Value<double?> densityGPerMl = const Value.absent(),
+    String? sourceRef,
+    DateTime? createdAt,
+  }) => PersonalProduct(
+    id: id ?? this.id,
+    nameEs: nameEs ?? this.nameEs,
+    energyKcal100: energyKcal100 ?? this.energyKcal100,
+    proteinG100: proteinG100 ?? this.proteinG100,
+    carbsG100: carbsG100 ?? this.carbsG100,
+    fatG100: fatG100 ?? this.fatG100,
+    fiberG100: fiberG100.present ? fiberG100.value : this.fiberG100,
+    sugarG100: sugarG100.present ? sugarG100.value : this.sugarG100,
+    sodiumMg100: sodiumMg100.present ? sodiumMg100.value : this.sodiumMg100,
+    servingGrams: servingGrams ?? this.servingGrams,
+    densityGPerMl: densityGPerMl.present
+        ? densityGPerMl.value
+        : this.densityGPerMl,
+    sourceRef: sourceRef ?? this.sourceRef,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  PersonalProduct copyWithCompanion(PersonalProductsCompanion data) {
+    return PersonalProduct(
+      id: data.id.present ? data.id.value : this.id,
+      nameEs: data.nameEs.present ? data.nameEs.value : this.nameEs,
+      energyKcal100: data.energyKcal100.present
+          ? data.energyKcal100.value
+          : this.energyKcal100,
+      proteinG100: data.proteinG100.present
+          ? data.proteinG100.value
+          : this.proteinG100,
+      carbsG100: data.carbsG100.present ? data.carbsG100.value : this.carbsG100,
+      fatG100: data.fatG100.present ? data.fatG100.value : this.fatG100,
+      fiberG100: data.fiberG100.present ? data.fiberG100.value : this.fiberG100,
+      sugarG100: data.sugarG100.present ? data.sugarG100.value : this.sugarG100,
+      sodiumMg100: data.sodiumMg100.present
+          ? data.sodiumMg100.value
+          : this.sodiumMg100,
+      servingGrams: data.servingGrams.present
+          ? data.servingGrams.value
+          : this.servingGrams,
+      densityGPerMl: data.densityGPerMl.present
+          ? data.densityGPerMl.value
+          : this.densityGPerMl,
+      sourceRef: data.sourceRef.present ? data.sourceRef.value : this.sourceRef,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PersonalProduct(')
+          ..write('id: $id, ')
+          ..write('nameEs: $nameEs, ')
+          ..write('energyKcal100: $energyKcal100, ')
+          ..write('proteinG100: $proteinG100, ')
+          ..write('carbsG100: $carbsG100, ')
+          ..write('fatG100: $fatG100, ')
+          ..write('fiberG100: $fiberG100, ')
+          ..write('sugarG100: $sugarG100, ')
+          ..write('sodiumMg100: $sodiumMg100, ')
+          ..write('servingGrams: $servingGrams, ')
+          ..write('densityGPerMl: $densityGPerMl, ')
+          ..write('sourceRef: $sourceRef, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    nameEs,
+    energyKcal100,
+    proteinG100,
+    carbsG100,
+    fatG100,
+    fiberG100,
+    sugarG100,
+    sodiumMg100,
+    servingGrams,
+    densityGPerMl,
+    sourceRef,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PersonalProduct &&
+          other.id == this.id &&
+          other.nameEs == this.nameEs &&
+          other.energyKcal100 == this.energyKcal100 &&
+          other.proteinG100 == this.proteinG100 &&
+          other.carbsG100 == this.carbsG100 &&
+          other.fatG100 == this.fatG100 &&
+          other.fiberG100 == this.fiberG100 &&
+          other.sugarG100 == this.sugarG100 &&
+          other.sodiumMg100 == this.sodiumMg100 &&
+          other.servingGrams == this.servingGrams &&
+          other.densityGPerMl == this.densityGPerMl &&
+          other.sourceRef == this.sourceRef &&
+          other.createdAt == this.createdAt);
+}
+
+class PersonalProductsCompanion extends UpdateCompanion<PersonalProduct> {
+  final Value<int> id;
+  final Value<String> nameEs;
+  final Value<double> energyKcal100;
+  final Value<double> proteinG100;
+  final Value<double> carbsG100;
+  final Value<double> fatG100;
+  final Value<double?> fiberG100;
+  final Value<double?> sugarG100;
+  final Value<double?> sodiumMg100;
+  final Value<double> servingGrams;
+  final Value<double?> densityGPerMl;
+  final Value<String> sourceRef;
+  final Value<DateTime> createdAt;
+  const PersonalProductsCompanion({
+    this.id = const Value.absent(),
+    this.nameEs = const Value.absent(),
+    this.energyKcal100 = const Value.absent(),
+    this.proteinG100 = const Value.absent(),
+    this.carbsG100 = const Value.absent(),
+    this.fatG100 = const Value.absent(),
+    this.fiberG100 = const Value.absent(),
+    this.sugarG100 = const Value.absent(),
+    this.sodiumMg100 = const Value.absent(),
+    this.servingGrams = const Value.absent(),
+    this.densityGPerMl = const Value.absent(),
+    this.sourceRef = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  PersonalProductsCompanion.insert({
+    this.id = const Value.absent(),
+    required String nameEs,
+    required double energyKcal100,
+    required double proteinG100,
+    required double carbsG100,
+    required double fatG100,
+    this.fiberG100 = const Value.absent(),
+    this.sugarG100 = const Value.absent(),
+    this.sodiumMg100 = const Value.absent(),
+    required double servingGrams,
+    this.densityGPerMl = const Value.absent(),
+    required String sourceRef,
+    this.createdAt = const Value.absent(),
+  }) : nameEs = Value(nameEs),
+       energyKcal100 = Value(energyKcal100),
+       proteinG100 = Value(proteinG100),
+       carbsG100 = Value(carbsG100),
+       fatG100 = Value(fatG100),
+       servingGrams = Value(servingGrams),
+       sourceRef = Value(sourceRef);
+  static Insertable<PersonalProduct> custom({
+    Expression<int>? id,
+    Expression<String>? nameEs,
+    Expression<double>? energyKcal100,
+    Expression<double>? proteinG100,
+    Expression<double>? carbsG100,
+    Expression<double>? fatG100,
+    Expression<double>? fiberG100,
+    Expression<double>? sugarG100,
+    Expression<double>? sodiumMg100,
+    Expression<double>? servingGrams,
+    Expression<double>? densityGPerMl,
+    Expression<String>? sourceRef,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (nameEs != null) 'name_es': nameEs,
+      if (energyKcal100 != null) 'energy_kcal100': energyKcal100,
+      if (proteinG100 != null) 'protein_g100': proteinG100,
+      if (carbsG100 != null) 'carbs_g100': carbsG100,
+      if (fatG100 != null) 'fat_g100': fatG100,
+      if (fiberG100 != null) 'fiber_g100': fiberG100,
+      if (sugarG100 != null) 'sugar_g100': sugarG100,
+      if (sodiumMg100 != null) 'sodium_mg100': sodiumMg100,
+      if (servingGrams != null) 'serving_grams': servingGrams,
+      if (densityGPerMl != null) 'density_g_per_ml': densityGPerMl,
+      if (sourceRef != null) 'source_ref': sourceRef,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  PersonalProductsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? nameEs,
+    Value<double>? energyKcal100,
+    Value<double>? proteinG100,
+    Value<double>? carbsG100,
+    Value<double>? fatG100,
+    Value<double?>? fiberG100,
+    Value<double?>? sugarG100,
+    Value<double?>? sodiumMg100,
+    Value<double>? servingGrams,
+    Value<double?>? densityGPerMl,
+    Value<String>? sourceRef,
+    Value<DateTime>? createdAt,
+  }) {
+    return PersonalProductsCompanion(
+      id: id ?? this.id,
+      nameEs: nameEs ?? this.nameEs,
+      energyKcal100: energyKcal100 ?? this.energyKcal100,
+      proteinG100: proteinG100 ?? this.proteinG100,
+      carbsG100: carbsG100 ?? this.carbsG100,
+      fatG100: fatG100 ?? this.fatG100,
+      fiberG100: fiberG100 ?? this.fiberG100,
+      sugarG100: sugarG100 ?? this.sugarG100,
+      sodiumMg100: sodiumMg100 ?? this.sodiumMg100,
+      servingGrams: servingGrams ?? this.servingGrams,
+      densityGPerMl: densityGPerMl ?? this.densityGPerMl,
+      sourceRef: sourceRef ?? this.sourceRef,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (nameEs.present) {
+      map['name_es'] = Variable<String>(nameEs.value);
+    }
+    if (energyKcal100.present) {
+      map['energy_kcal100'] = Variable<double>(energyKcal100.value);
+    }
+    if (proteinG100.present) {
+      map['protein_g100'] = Variable<double>(proteinG100.value);
+    }
+    if (carbsG100.present) {
+      map['carbs_g100'] = Variable<double>(carbsG100.value);
+    }
+    if (fatG100.present) {
+      map['fat_g100'] = Variable<double>(fatG100.value);
+    }
+    if (fiberG100.present) {
+      map['fiber_g100'] = Variable<double>(fiberG100.value);
+    }
+    if (sugarG100.present) {
+      map['sugar_g100'] = Variable<double>(sugarG100.value);
+    }
+    if (sodiumMg100.present) {
+      map['sodium_mg100'] = Variable<double>(sodiumMg100.value);
+    }
+    if (servingGrams.present) {
+      map['serving_grams'] = Variable<double>(servingGrams.value);
+    }
+    if (densityGPerMl.present) {
+      map['density_g_per_ml'] = Variable<double>(densityGPerMl.value);
+    }
+    if (sourceRef.present) {
+      map['source_ref'] = Variable<String>(sourceRef.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PersonalProductsCompanion(')
+          ..write('id: $id, ')
+          ..write('nameEs: $nameEs, ')
+          ..write('energyKcal100: $energyKcal100, ')
+          ..write('proteinG100: $proteinG100, ')
+          ..write('carbsG100: $carbsG100, ')
+          ..write('fatG100: $fatG100, ')
+          ..write('fiberG100: $fiberG100, ')
+          ..write('sugarG100: $sugarG100, ')
+          ..write('sodiumMg100: $sodiumMg100, ')
+          ..write('servingGrams: $servingGrams, ')
+          ..write('densityGPerMl: $densityGPerMl, ')
+          ..write('sourceRef: $sourceRef, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $MealsTable meals = $MealsTable(this);
   late final $MealItemsTable mealItems = $MealItemsTable(this);
+  late final $PersonalProductsTable personalProducts = $PersonalProductsTable(
+    this,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [meals, mealItems];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    meals,
+    mealItems,
+    personalProducts,
+  ];
 }
 
 typedef $$MealsTableCreateCompanionBuilder = MealsCompanion Function({
@@ -2375,6 +3154,377 @@ typedef $$MealItemsTableProcessedTableManager =
       MealItem,
       PrefetchHooks Function({bool mealId})
     >;
+typedef $$PersonalProductsTableCreateCompanionBuilder =
+    PersonalProductsCompanion Function({
+      Value<int> id,
+      required String nameEs,
+      required double energyKcal100,
+      required double proteinG100,
+      required double carbsG100,
+      required double fatG100,
+      Value<double?> fiberG100,
+      Value<double?> sugarG100,
+      Value<double?> sodiumMg100,
+      required double servingGrams,
+      Value<double?> densityGPerMl,
+      required String sourceRef,
+      Value<DateTime> createdAt,
+    });
+typedef $$PersonalProductsTableUpdateCompanionBuilder =
+    PersonalProductsCompanion Function({
+      Value<int> id,
+      Value<String> nameEs,
+      Value<double> energyKcal100,
+      Value<double> proteinG100,
+      Value<double> carbsG100,
+      Value<double> fatG100,
+      Value<double?> fiberG100,
+      Value<double?> sugarG100,
+      Value<double?> sodiumMg100,
+      Value<double> servingGrams,
+      Value<double?> densityGPerMl,
+      Value<String> sourceRef,
+      Value<DateTime> createdAt,
+    });
+
+class $$PersonalProductsTableFilterComposer
+    extends Composer<_$AppDatabase, $PersonalProductsTable> {
+  $$PersonalProductsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nameEs => $composableBuilder(
+    column: $table.nameEs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get energyKcal100 => $composableBuilder(
+    column: $table.energyKcal100,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get proteinG100 => $composableBuilder(
+    column: $table.proteinG100,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get carbsG100 => $composableBuilder(
+    column: $table.carbsG100,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get fatG100 => $composableBuilder(
+    column: $table.fatG100,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get fiberG100 => $composableBuilder(
+    column: $table.fiberG100,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get sugarG100 => $composableBuilder(
+    column: $table.sugarG100,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get sodiumMg100 => $composableBuilder(
+    column: $table.sodiumMg100,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get servingGrams => $composableBuilder(
+    column: $table.servingGrams,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get densityGPerMl => $composableBuilder(
+    column: $table.densityGPerMl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceRef => $composableBuilder(
+    column: $table.sourceRef,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$PersonalProductsTableOrderingComposer
+    extends Composer<_$AppDatabase, $PersonalProductsTable> {
+  $$PersonalProductsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nameEs => $composableBuilder(
+    column: $table.nameEs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get energyKcal100 => $composableBuilder(
+    column: $table.energyKcal100,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get proteinG100 => $composableBuilder(
+    column: $table.proteinG100,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get carbsG100 => $composableBuilder(
+    column: $table.carbsG100,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get fatG100 => $composableBuilder(
+    column: $table.fatG100,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get fiberG100 => $composableBuilder(
+    column: $table.fiberG100,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get sugarG100 => $composableBuilder(
+    column: $table.sugarG100,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get sodiumMg100 => $composableBuilder(
+    column: $table.sodiumMg100,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get servingGrams => $composableBuilder(
+    column: $table.servingGrams,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get densityGPerMl => $composableBuilder(
+    column: $table.densityGPerMl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceRef => $composableBuilder(
+    column: $table.sourceRef,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PersonalProductsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PersonalProductsTable> {
+  $$PersonalProductsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get nameEs =>
+      $composableBuilder(column: $table.nameEs, builder: (column) => column);
+
+  GeneratedColumn<double> get energyKcal100 => $composableBuilder(
+    column: $table.energyKcal100,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get proteinG100 => $composableBuilder(
+    column: $table.proteinG100,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get carbsG100 =>
+      $composableBuilder(column: $table.carbsG100, builder: (column) => column);
+
+  GeneratedColumn<double> get fatG100 =>
+      $composableBuilder(column: $table.fatG100, builder: (column) => column);
+
+  GeneratedColumn<double> get fiberG100 =>
+      $composableBuilder(column: $table.fiberG100, builder: (column) => column);
+
+  GeneratedColumn<double> get sugarG100 =>
+      $composableBuilder(column: $table.sugarG100, builder: (column) => column);
+
+  GeneratedColumn<double> get sodiumMg100 => $composableBuilder(
+    column: $table.sodiumMg100,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get servingGrams => $composableBuilder(
+    column: $table.servingGrams,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get densityGPerMl => $composableBuilder(
+    column: $table.densityGPerMl,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get sourceRef =>
+      $composableBuilder(column: $table.sourceRef, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$PersonalProductsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PersonalProductsTable,
+          PersonalProduct,
+          $$PersonalProductsTableFilterComposer,
+          $$PersonalProductsTableOrderingComposer,
+          $$PersonalProductsTableAnnotationComposer,
+          $$PersonalProductsTableCreateCompanionBuilder,
+          $$PersonalProductsTableUpdateCompanionBuilder,
+          (
+            PersonalProduct,
+            BaseReferences<
+              _$AppDatabase,
+              $PersonalProductsTable,
+              PersonalProduct
+            >,
+          ),
+          PersonalProduct,
+          PrefetchHooks Function()
+        > {
+  $$PersonalProductsTableTableManager(
+    _$AppDatabase db,
+    $PersonalProductsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PersonalProductsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PersonalProductsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PersonalProductsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> nameEs = const Value.absent(),
+                Value<double> energyKcal100 = const Value.absent(),
+                Value<double> proteinG100 = const Value.absent(),
+                Value<double> carbsG100 = const Value.absent(),
+                Value<double> fatG100 = const Value.absent(),
+                Value<double?> fiberG100 = const Value.absent(),
+                Value<double?> sugarG100 = const Value.absent(),
+                Value<double?> sodiumMg100 = const Value.absent(),
+                Value<double> servingGrams = const Value.absent(),
+                Value<double?> densityGPerMl = const Value.absent(),
+                Value<String> sourceRef = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => PersonalProductsCompanion(
+                id: id,
+                nameEs: nameEs,
+                energyKcal100: energyKcal100,
+                proteinG100: proteinG100,
+                carbsG100: carbsG100,
+                fatG100: fatG100,
+                fiberG100: fiberG100,
+                sugarG100: sugarG100,
+                sodiumMg100: sodiumMg100,
+                servingGrams: servingGrams,
+                densityGPerMl: densityGPerMl,
+                sourceRef: sourceRef,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String nameEs,
+                required double energyKcal100,
+                required double proteinG100,
+                required double carbsG100,
+                required double fatG100,
+                Value<double?> fiberG100 = const Value.absent(),
+                Value<double?> sugarG100 = const Value.absent(),
+                Value<double?> sodiumMg100 = const Value.absent(),
+                required double servingGrams,
+                Value<double?> densityGPerMl = const Value.absent(),
+                required String sourceRef,
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => PersonalProductsCompanion.insert(
+                id: id,
+                nameEs: nameEs,
+                energyKcal100: energyKcal100,
+                proteinG100: proteinG100,
+                carbsG100: carbsG100,
+                fatG100: fatG100,
+                fiberG100: fiberG100,
+                sugarG100: sugarG100,
+                sodiumMg100: sodiumMg100,
+                servingGrams: servingGrams,
+                densityGPerMl: densityGPerMl,
+                sourceRef: sourceRef,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$PersonalProductsTable, PersonalProduct>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $PersonalProductsTable,
+                    PersonalProduct
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$PersonalProductsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PersonalProductsTable,
+      PersonalProduct,
+      $$PersonalProductsTableFilterComposer,
+      $$PersonalProductsTableOrderingComposer,
+      $$PersonalProductsTableAnnotationComposer,
+      $$PersonalProductsTableCreateCompanionBuilder,
+      $$PersonalProductsTableUpdateCompanionBuilder,
+      (
+        PersonalProduct,
+        BaseReferences<_$AppDatabase, $PersonalProductsTable, PersonalProduct>,
+      ),
+      PersonalProduct,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2383,4 +3533,6 @@ class $AppDatabaseManager {
       $$MealsTableTableManager(_db, _db.meals);
   $$MealItemsTableTableManager get mealItems =>
       $$MealItemsTableTableManager(_db, _db.mealItems);
+  $$PersonalProductsTableTableManager get personalProducts =>
+      $$PersonalProductsTableTableManager(_db, _db.personalProducts);
 }

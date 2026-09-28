@@ -5,6 +5,7 @@ import 'package:nutrition_core/nutrition_core.dart';
 import '../../app_routes.dart';
 import '../../infra/ai_client/parsed_meal_dto.dart';
 import '../../infra/catalog/catalog_providers.dart';
+import '../../infra/food_resolution/food_query_resolver.dart';
 import '../../infra/storage/storage_providers.dart';
 import 'review_controller.dart';
 import 'review_item.dart';
@@ -34,26 +35,42 @@ class ReviewScreen extends ConsumerStatefulWidget {
 }
 
 class _ReviewScreenState extends ConsumerState<ReviewScreen> {
-  late ReviewController _controller;
+  ReviewController? _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = ReviewController(
-      parsedMeal: widget.parsedMeal,
-      catalog: ref.read(catalogRepositoryProvider),
-      storage: ref.read(storageRepositoryProvider),
-    );
+    _loadController();
+  }
+
+  /// SPEC-004 R7 (búsqueda integrada): los productos personales viven en
+  /// `user.db` (Drift, async) — se cargan una vez aquí como una lista en
+  /// memoria para que el resto de `ReviewController`/`FoodQueryResolver`
+  /// siga siendo síncrono, igual que antes de esta SPEC.
+  Future<void> _loadController() async {
+    final storage = ref.read(storageRepositoryProvider);
+    final personalProducts = await storage.getAllPersonalProducts();
+    if (!mounted) return;
+    setState(() {
+      _controller = ReviewController(
+        parsedMeal: widget.parsedMeal,
+        resolver: FoodQueryResolver(
+          catalog: ref.read(catalogRepositoryProvider),
+          personalProducts: personalProducts,
+        ),
+        storage: storage,
+      );
+    });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
   Future<void> _register() async {
-    await _controller.register();
+    await _controller!.register();
     // Vuelve al diario (no solo a capturar): captura y revisión son un
     // flujo de una sola pasada, no una pila que el usuario recorra hacia
     // atrás ítem por ítem.
@@ -65,40 +82,45 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final controller = _controller;
     return Scaffold(
       appBar: AppBar(title: const Text('Revisar')),
-      body: ListenableBuilder(
-        listenable: _controller,
-        builder: (context, _) {
-          final items = _controller.items;
-          if (items.isEmpty) {
-            return const Center(
-              child: Text('No encontré alimentos en lo que escribiste'),
-            );
-          }
-          return Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  itemCount: items.length,
-                  itemBuilder: (context, index) => _ReviewItemTile(
-                    item: items[index],
-                    onSelectCandidate: (foodId) =>
-                        _controller.selectCandidate(index, foodId),
-                    onRemove: () => _controller.removeItem(index),
-                    onAdjustGrams: (delta) =>
-                        _controller.setGrams(index, items[index].grams + delta),
-                  ),
-                ),
-              ),
-              _ReviewSummary(
-                controller: _controller,
-                onRegister: _controller.canRegister ? _register : null,
-              ),
-            ],
-          );
-        },
-      ),
+      body: controller == null
+          ? const Center(child: CircularProgressIndicator())
+          : ListenableBuilder(
+              listenable: controller,
+              builder: (context, _) {
+                final items = controller.items;
+                if (items.isEmpty) {
+                  return const Center(
+                    child: Text('No encontré alimentos en lo que escribiste'),
+                  );
+                }
+                return Column(
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: items.length,
+                        itemBuilder: (context, index) => _ReviewItemTile(
+                          item: items[index],
+                          onSelectCandidate: (foodId) =>
+                              controller.selectCandidate(index, foodId),
+                          onRemove: () => controller.removeItem(index),
+                          onAdjustGrams: (delta) => controller.setGrams(
+                            index,
+                            items[index].grams + delta,
+                          ),
+                        ),
+                      ),
+                    ),
+                    _ReviewSummary(
+                      controller: controller,
+                      onRegister: controller.canRegister ? _register : null,
+                    ),
+                  ],
+                );
+              },
+            ),
     );
   }
 }
