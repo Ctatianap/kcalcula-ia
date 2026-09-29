@@ -221,13 +221,13 @@ Ninguna abierta. Las dos preguntas de diseño de este Draft ya se resolvieron:
 | AC7 | ✅ | `settings_screen_test.dart`: "AC7, AC9: exportar entrega un JSON válido..." |
 | AC8 | ✅ | `storage_repository_test.dart`: "exportUserData con el diario vacío da arreglos vacíos, sin error (AC8)" |
 | AC9 | ✅ | `storage_repository_test.dart` ("exportUserData con datos existentes produce la estructura documentada (AC7, AC9)") y `settings_screen_test.dart` (mismo test que AC7, verifica ausencia de `token`/`appCheck` en el JSON escrito a disco) |
-| AC10 | ✅ | `settings_screen_test.dart`: "el enlace a la política completa navega a esa pantalla" |
+| AC10 | ✅ | `settings_screen_test.dart` ("el enlace a la política completa navega a esa pantalla" — la navegación) + `legal/privacy_policy_screen_test.dart` ("AC10/AC11: carga y muestra el texto real del asset de política" — monta `PrivacyPolicyScreen` real, sin stub, y verifica contenido real del asset) |
 | AC11 | ✅ manual | `app/assets/legal/privacy_policy_draft_es.md` leído completo: cubre proveedor de IA, sin cuentas, dónde viven los datos, borrar/exportar/revocar, dato sensible de salud, canal de contacto, y encabezado "BORRADOR: pendiente de revisión legal humana" |
 | AC12 | ✅ | `onboarding_screen_test.dart`: "AC12: la casilla de consentimiento nombra el dato de salud, el destino y el propósito" |
 | AC13 | ✅ | `settings_screen_test.dart`: "AC13: cancelar el diálogo de revocar no cambia nada" |
 | AC14 | ✅ | `settings_screen_test.dart`: "AC14: confirmar revocar limpia el consentimiento, navega al gate, y no toca meals" |
 
-Verificado: `app` → `flutter analyze` sin issues, `flutter test` 77/77 verdes (incluye las 3
+Verificado: `app` → `flutter analyze` sin issues, `flutter test` 79/79 verdes (incluye las 3
 integraciones existentes de SPEC-001/002/004 ajustadas para sembrar consentimiento antes de pumpear
 `MyApp`, ya que ahora el gate de onboarding es lo primero que se ve sin él).
 
@@ -252,6 +252,25 @@ integraciones existentes de SPEC-001/002/004 ajustadas para sembrar consentimien
 - 2026-09-29: implementación completa (tabla `ConsentRecord`, onboarding, Ajustes, exportación,
   borrador de política, `docs/privacy.md` actualizado). 77/77 tests de `app` verdes, `flutter
   analyze` sin issues. Status → `Review`.
+- 2026-09-29: primera pasada del reviewer — `CHANGES_REQUESTED`, 2 MAJOR reales:
+  1. "Exportar mis datos" no manejaba errores del share sheet/E·S de archivo — quedaban sin capturar
+     en un callback `async void`, contradiciendo el Edge Case ya documentado en esta SPEC y el
+     invariante de errores visibles en español de CLAUDE.md. Corregido: `try/catch` en las tres
+     acciones de Ajustes (exportar, borrar todo, revocar), con el mismo mensaje genérico que ya usa
+     `ai_client_errors.dart` ("Ocurrió un error. Intenta de nuevo."). Nuevo test en
+     `settings_screen_test.dart` con `FakeSharingService(shouldThrow: true)` que confirma el mensaje
+     y que la pantalla no se cae.
+  2. La evidencia citada para AC10 solo probaba que ocurre una navegación (ruta *stub*), no que
+     `PrivacyPolicyScreen` realmente carga y muestra el texto del asset — un typo futuro en la ruta
+     del asset no se habría detectado. Corregido: nuevo test
+     `test/features/legal/privacy_policy_screen_test.dart` que monta `PrivacyPolicyScreen` real
+     (sin stub) y verifica contenido real del markdown.
+  También se corrigió el MINOR relacionado: `PrivacyPolicyScreen` no manejaba `snapshot.hasError` en
+  su `FutureBuilder` (quedaría en spinner infinito si el asset fallara al cargar) — ahora muestra el
+  mismo mensaje genérico en español. El MINOR sobre `SettingsController` escribiendo `dart:io File`
+  directamente (en vez de una interfaz de `infra/`) se dejó como está — no bloquea, y crear una
+  abstracción para un solo call site de escritura sería sobre-ingeniería para lo que hace.
+  `flutter test` → 79/79 verdes tras los fixes.
 
 ## Review
 Informe del reviewer:

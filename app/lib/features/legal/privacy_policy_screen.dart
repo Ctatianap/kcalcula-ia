@@ -16,6 +16,14 @@ class PrivacyPolicyScreen extends StatelessWidget {
       body: FutureBuilder<String>(
         future: loadPrivacyPolicyDraft(),
         builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Text('Ocurrió un error. Intenta de nuevo.'),
+              ),
+            );
+          }
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }

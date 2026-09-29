@@ -36,10 +36,13 @@ class _Harness {
   _Harness({required this.db, required this.exportDir, required this.sharing});
 }
 
-Future<_Harness> _pump(WidgetTester tester) async {
+Future<_Harness> _pump(
+  WidgetTester tester, {
+  bool sharingShouldThrow = false,
+}) async {
   final db = AppDatabase(NativeDatabase.memory());
   final exportDir = Directory.systemTemp.createTempSync('calorias_ia_export');
-  final sharing = FakeSharingService();
+  final sharing = FakeSharingService(shouldThrow: sharingShouldThrow);
 
   await tester.pumpWidget(
     ProviderScope(
@@ -150,6 +153,33 @@ void main() {
       final flat = file.readAsStringSync();
       expect(flat.contains('token'), isFalse);
       expect(flat.contains('appCheck'), isFalse);
+
+      await h.db.close();
+      h.exportDir.deleteSync(recursive: true);
+    },
+  );
+
+  testWidgets(
+    'Edge case: si el share sheet falla, muestra un error en español (no revienta)',
+    (tester) async {
+      final h = await _pump(tester, sharingShouldThrow: true);
+      await StorageRepository(h.db).registerMeal(
+        eatenAt: DateTime(2026, 9, 27, 8),
+        mealType: 'desayuno',
+        confidence: 'buenaEstimacion',
+        catalogVersion: 'test-1',
+        items: [_egg()],
+      );
+
+      await tester.runAsync(() async {
+        await tester.tap(find.text('Exportar mis datos'));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      });
+      await tester.pump();
+
+      expect(find.text('Ocurrió un error. Intenta de nuevo.'), findsOneWidget);
+      // Sigue en Ajustes, no se cayó la pantalla.
+      expect(find.text('Ajustes'), findsOneWidget);
 
       await h.db.close();
       h.exportDir.deleteSync(recursive: true);

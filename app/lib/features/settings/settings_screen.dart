@@ -65,6 +65,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         .showSnackBar(SnackBar(content: Text(message)));
   }
 
+  /// Mensaje en español, accionable, sin trazas técnicas (convención de
+  /// CLAUDE.md, misma redacción genérica que `ai_client_errors.dart`) —
+  /// ningún camino de las tres acciones de Ajustes queda sin manejar si
+  /// falla (Edge Cases de la SPEC: E/S de archivo, el share sheet del SO
+  /// cancelado o sin apps disponibles, error de Drift).
+  static const _genericErrorMessage = 'Ocurrió un error. Intenta de nuevo.';
+
   /// R5/AC5-AC6.
   Future<void> _deleteAllData() async {
     final confirmed = await _confirm(
@@ -75,14 +82,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       confirmLabel: 'Borrar todo',
     );
     if (!confirmed) return;
-    await _controller.deleteAllData();
+    try {
+      await _controller.deleteAllData();
+    } catch (_) {
+      if (mounted) _showSnackBar(_genericErrorMessage);
+      return;
+    }
     if (!mounted) return;
     _showSnackBar('Tus datos se borraron.');
   }
 
   /// R7/AC7-AC9.
   Future<void> _exportData() async {
-    await _controller.exportData();
+    try {
+      await _controller.exportData();
+    } catch (_) {
+      if (mounted) _showSnackBar(_genericErrorMessage);
+      return;
+    }
     if (!mounted) return;
     _showSnackBar('Exportación lista.');
   }
@@ -98,7 +115,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       confirmLabel: 'Revocar',
     );
     if (!confirmed) return;
-    await _controller.revokeConsent();
+    try {
+      await _controller.revokeConsent();
+    } catch (_) {
+      if (mounted) _showSnackBar(_genericErrorMessage);
+      return;
+    }
     if (!mounted) return;
     Navigator.of(context)
         .pushNamedAndRemoveUntil(AppRoutes.diary, (route) => false);
