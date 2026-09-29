@@ -1,7 +1,7 @@
 # SPEC-006: Privacidad y consentimiento
 
 ## Status
-Review
+Done
 Path: Strict (consentimiento y control de datos que salen del dispositivo — CLAUDE.md)
 
 ## Objective
@@ -271,6 +271,26 @@ integraciones existentes de SPEC-001/002/004 ajustadas para sembrar consentimien
   directamente (en vez de una interfaz de `infra/`) se dejó como está — no bloquea, y crear una
   abstracción para un solo call site de escritura sería sobre-ingeniería para lo que hace.
   `flutter test` → 79/79 verdes tras los fixes.
+- 2026-09-29: reviewer `PASS` en la segunda pasada (ver sección Review). Status → `Done`. Pendiente
+  la aprobación explícita del usuario para fusionar `spec-006-privacidad-consentimiento` a
+  `develop` (CLAUDE.md, Strict Path).
 
 ## Review
-Informe del reviewer:
+Dos pasadas del subagente `reviewer` (independiente, solo lectura) sobre `spec-006-privacidad-consentimiento`:
+
+1. **Primera pasada — CHANGES_REQUESTED.** 2 MAJOR: las tres acciones de Ajustes no manejaban
+   errores (sin mensaje visible, contradiciendo el Edge Case ya documentado); la evidencia de AC10
+   usaba una ruta stub en vez de montar `PrivacyPolicyScreen` real. 2 MINOR: `FutureBuilder` sin
+   manejar `snapshot.hasError`; `SettingsController` escribe `File` directo en vez de una interfaz
+   de `infra/`.
+2. **Segunda pasada — PASS.** Verificó ambos MAJOR resueltos con evidencia real (no solo el mensaje
+   del commit): confirmó línea por línea que el nuevo test de `PrivacyPolicyScreen` usa el asset
+   real y que las cadenas verificadas existen en el archivo; confirmó el `try/catch` + mensaje
+   genérico en las tres acciones y el test de fallo del share sheet. Aceptó dejar el MINOR de `File`
+   directo sin cambios (sobreingeniería real para un solo call site). `flutter analyze` sin issues,
+   `flutter test` 79/79 verdes.
+
+**Veredicto final: PASS.** Sin BLOCKER ni MAJOR pendientes. Quedan 2 MINOR no bloqueantes (cobertura
+de test más directa para AC14 vía `MyApp` completo en vez de ruta stub; test de fallo dedicado para
+`deleteAllData`/`revokeConsent` además del ya existente para `exportData`) — no requieren acción
+antes de fusionar.
