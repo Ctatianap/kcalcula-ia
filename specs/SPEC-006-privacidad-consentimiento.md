@@ -1,7 +1,7 @@
 # SPEC-006: Privacidad y consentimiento
 
 ## Status
-Draft
+Implementing
 Path: Strict (consentimiento y control de datos que salen del dispositivo — CLAUDE.md)
 
 ## Objective
@@ -224,6 +224,7 @@ Ninguna abierta. Las dos preguntas de diseño de este Draft ya se resolvieron:
 - 2026-09-29: el usuario aprobó sumar R8 "Revocar consentimiento" (AC13/AC14), separado de "Borrar
   todos mis datos" — cierra el gap de Ley 1581 Art. 8 (derecho a revocar la autorización en cualquier
   momento) que señaló PV-07. Ya no quedan Open Questions.
+- 2026-09-29: el usuario aprobó la SPEC ("aprobada"). Status → `Implementing`.
 
 ## Review
 Informe del reviewer:
