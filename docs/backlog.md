@@ -77,7 +77,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   title: Privacidad y consentimiento (Strict)
   objective: Onboarding con consentimiento, declaración de edad, borrar todo, exportar, borrador de política.
   dependencies: [T-002]
-  spec_required: true
+  spec_required: true    # specs/SPEC-006-privacidad-consentimiento.md (Done — reviewer PASS)
   assigned_agent: sesión principal → reviewer; revisión legal humana
   acceptance_summary: No se puede usar la IA sin consentimiento; borrar todo deja user.db vacío.
 

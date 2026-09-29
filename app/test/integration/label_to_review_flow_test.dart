@@ -36,6 +36,8 @@ void main() {
     'AC5: foto -> confirmar -> "comí 45 g" -> 210 kcal, Alta precisión -> registrar',
     (tester) async {
       final db = AppDatabase(NativeDatabase.memory());
+      // SPEC-006: sin esto, MyApp muestra el onboarding en vez del diario.
+      await StorageRepository(db).saveConsent(policyVersion: 'test');
       final catalog = buildFixtureCatalog();
       final aiClient = AiClient((data) async => {}, (data) async {
         expect(data['mime_type'], 'image/jpeg');
@@ -105,6 +107,8 @@ void main() {
     'AC6: un producto personal ya guardado se reutiliza por nombre, sin repetir la foto',
     (tester) async {
       final db = AppDatabase(NativeDatabase.memory());
+      // SPEC-006: sin esto, MyApp muestra el onboarding en vez del diario.
+      await StorageRepository(db).saveConsent(policyVersion: 'test');
       final catalog = buildFixtureCatalog();
 
       // Producto ya guardado en una sesión anterior (no se repite la foto).
