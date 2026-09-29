@@ -146,6 +146,100 @@ class StorageRepository {
     _db.personalProducts,
   )..where((p) => p.id.equals(id))).getSingleOrNull();
 
+  /// SPEC-006: fila única (id 0). `null` significa "sin consentimiento
+  /// registrado" — cubre tanto el primer lanzamiento (AC1) como después de
+  /// revocar (AC14), a propósito no son estados distintos.
+  Future<ConsentRecordData?> getConsentState() =>
+      (_db.select(_db.consentRecord)).getSingleOrNull();
+
+  /// R3: guarda (o reemplaza) la fila única de consentimiento con la marca
+  /// de tiempo actual y la versión del texto de política aceptado.
+  Future<void> saveConsent({required String policyVersion}) {
+    return _db
+        .into(_db.consentRecord)
+        .insertOnConflictUpdate(
+          ConsentRecordCompanion.insert(
+            id: const Value(0),
+            ageConfirmed: true,
+            consentGiven: true,
+            policyVersion: policyVersion,
+            consentedAt: DateTime.now(),
+          ),
+        );
+  }
+
+  /// R8: revoca el consentimiento sin tocar `meals`/`meal_items`/
+  /// `personal_products` — borrar la fila (no solo marcarla `false`) hace que
+  /// `getConsentState()` vuelva a devolver `null`, el mismo estado que
+  /// "primer lanzamiento".
+  Future<void> revokeConsent() => (_db.delete(_db.consentRecord)).go();
+
+  /// R5: borra todo el contenido nutricional del usuario. No toca
+  /// `ConsentRecord` — borrar los datos no es lo mismo que revocar el
+  /// consentimiento (R8/AC14 son la acción separada para eso).
+  Future<void> deleteAllUserData() {
+    return _db.transaction(() async {
+      await _db.delete(_db.mealItems).go();
+      await _db.delete(_db.meals).go();
+      await _db.delete(_db.personalProducts).go();
+    });
+  }
+
+  /// R7/AC7-AC9: instantánea completa en una forma directamente serializable
+  /// a JSON (solo tipos primitivos y `DateTime`, que quien llame convierte
+  /// con `toIso8601String()`) — ni tokens de red ni metadatos del backend,
+  /// porque esos nunca se guardaron aquí (invariante 5 de CLAUDE.md).
+  Future<Map<String, Object?>> exportUserData() async {
+    final meals = await _db.select(_db.meals).get();
+    final mealsJson = <Map<String, Object?>>[];
+    for (final meal in meals) {
+      final items =
+          await (_db.select(_db.mealItems)
+                ..where((i) => i.mealId.equals(meal.id))
+                ..orderBy([(i) => OrderingTerm.asc(i.position)]))
+              .get();
+      mealsJson.add({
+        'id': meal.id,
+        'eatenAt': meal.eatenAt.toIso8601String(),
+        'mealType': meal.mealType,
+        'confidence': meal.confidence,
+        'items': items
+            .map(
+              (i) => {
+                'mention': i.mention,
+                'nameSnapshot': i.nameSnapshot,
+                'grams': i.grams,
+                'energyKcal': i.energyKcal,
+                'proteinG': i.proteinG,
+                'carbsG': i.carbsG,
+                'fatG': i.fatG,
+                'confidence': i.confidence,
+                'sourceRef': i.sourceRef,
+              },
+            )
+            .toList(),
+      });
+    }
+
+    final personalProducts = await getAllPersonalProducts();
+
+    return {
+      'exportedAt': DateTime.now().toIso8601String(),
+      'meals': mealsJson,
+      'personalProducts': personalProducts
+          .map(
+            (p) => {
+              'id': p.id,
+              'nameEs': p.nameEs,
+              'energyKcal100': p.energyKcal100,
+              'servingGrams': p.servingGrams,
+              'sourceRef': p.sourceRef,
+            },
+          )
+          .toList(),
+    };
+  }
+
   /// R12: comidas de un día local (por rango, no por igualdad de fecha, ya
   /// que `eatenAt` incluye hora).
   Future<List<MealWithItems>> mealsForDay(DateTime day) async {

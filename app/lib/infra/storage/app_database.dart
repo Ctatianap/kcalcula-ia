@@ -64,12 +64,28 @@ class PersonalProducts extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-@DriftDatabase(tables: [Meals, MealItems, PersonalProducts])
+/// SPEC-006 R3/R8: fila única (id fijo en 0) con el consentimiento y la
+/// declaración de edad dados por el usuario. Su ausencia (tabla vacía) es la
+/// misma señal para "primer lanzamiento" (AC1) y "consentimiento revocado"
+/// (AC14) — no son estados distintos, así que `revokeConsent()` simplemente
+/// borra la fila en vez de marcar un campo `false`.
+class ConsentRecord extends Table {
+  IntColumn get id => integer()();
+  BoolColumn get ageConfirmed => boolean()();
+  BoolColumn get consentGiven => boolean()();
+  TextColumn get policyVersion => text()();
+  DateTimeColumn get consentedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DriftDatabase(tables: [Meals, MealItems, PersonalProducts, ConsentRecord])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -77,6 +93,9 @@ class AppDatabase extends _$AppDatabase {
     onUpgrade: (m, from, to) async {
       if (from < 2) {
         await m.createTable(personalProducts);
+      }
+      if (from < 3) {
+        await m.createTable(consentRecord);
       }
     },
   );

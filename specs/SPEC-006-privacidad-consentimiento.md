@@ -1,7 +1,7 @@
 # SPEC-006: Privacidad y consentimiento
 
 ## Status
-Implementing
+Review
 Path: Strict (consentimiento y control de datos que salen del dispositivo — CLAUDE.md)
 
 ## Objective
@@ -187,11 +187,13 @@ cuando quiera, y confiar en que nada sale de mi teléfono sin que yo lo haya ace
   `docs/research/2026-09-28-ley-1581-consentimiento.md`. No es una acción técnica de esta SPEC.
 
 ## Tests Required
-- Unit: `storage_repository_test.dart` (exportUserData con diario vacío y con datos; deleteAllUserData)
-- Widget / Integration: `onboarding_screen_test.dart` (AC1-AC4), `settings_screen_test.dart`
-  (AC5-AC7, AC10, AC13-AC14), integración de `app.dart` con el gate de onboarding
+- Unit: `storage_repository_test.dart` (grupos "SPEC-006: consentimiento" y "SPEC-006: borrar todo y
+  exportar" — `getConsentState`/`saveConsent`/`revokeConsent`/`deleteAllUserData`/`exportUserData`)
+- Widget / Integration: `onboarding_screen_test.dart` (AC2, AC3, AC12), `settings_screen_test.dart`
+  (AC5-AC7, AC9, AC10, AC13-AC14), `integration/onboarding_gate_flow_test.dart` (AC1, AC4 — el gate
+  de `app.dart`)
 - Eval: no aplica (sin cambios de prompt/esquema de IA)
-- Manual: AC11 (lectura del texto de política completo)
+- Manual: AC11 (lectura completa del texto de política contra R6)
 
 ## Out of Scope
 - Verificación real de edad (solo declaración, sin documento de identidad).
@@ -206,6 +208,28 @@ Ninguna abierta. Las dos preguntas de diseño de este Draft ya se resolvieron:
 - ¿Basta un checkbox in-app como forma de autorización para datos sensibles? Sí — PV-07, ver R2.
 - ¿Se incluye "revocar consentimiento" separado de "borrar mis datos"? Sí — el usuario lo aprobó,
   ver R8/AC13/AC14.
+
+## Evidencia de Acceptance Criteria
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `integration/onboarding_gate_flow_test.dart`: "AC1: primer lanzamiento sin consentimiento muestra el onboarding, no el diario" |
+| AC2 | ✅ | `onboarding_screen_test.dart`: "AC2: con solo una casilla marcada..." y "AC2: desmarcar una casilla ya marcada..." |
+| AC3 | ✅ | `onboarding_screen_test.dart`: "AC3: marcar ambas y Continuar persiste el consentimiento y navega al diario" |
+| AC4 | ✅ | `integration/onboarding_gate_flow_test.dart`: "AC4: con consentimiento ya guardado entra directo al diario..." |
+| AC5 | ✅ | `settings_screen_test.dart`: "AC5: cancelar el diálogo de borrar no borra nada" |
+| AC6 | ✅ | `settings_screen_test.dart`: "AC6: confirmar borra todos los datos del usuario" |
+| AC7 | ✅ | `settings_screen_test.dart`: "AC7, AC9: exportar entrega un JSON válido..." |
+| AC8 | ✅ | `storage_repository_test.dart`: "exportUserData con el diario vacío da arreglos vacíos, sin error (AC8)" |
+| AC9 | ✅ | `storage_repository_test.dart` ("exportUserData con datos existentes produce la estructura documentada (AC7, AC9)") y `settings_screen_test.dart` (mismo test que AC7, verifica ausencia de `token`/`appCheck` en el JSON escrito a disco) |
+| AC10 | ✅ | `settings_screen_test.dart`: "el enlace a la política completa navega a esa pantalla" |
+| AC11 | ✅ manual | `app/assets/legal/privacy_policy_draft_es.md` leído completo: cubre proveedor de IA, sin cuentas, dónde viven los datos, borrar/exportar/revocar, dato sensible de salud, canal de contacto, y encabezado "BORRADOR: pendiente de revisión legal humana" |
+| AC12 | ✅ | `onboarding_screen_test.dart`: "AC12: la casilla de consentimiento nombra el dato de salud, el destino y el propósito" |
+| AC13 | ✅ | `settings_screen_test.dart`: "AC13: cancelar el diálogo de revocar no cambia nada" |
+| AC14 | ✅ | `settings_screen_test.dart`: "AC14: confirmar revocar limpia el consentimiento, navega al gate, y no toca meals" |
+
+Verificado: `app` → `flutter analyze` sin issues, `flutter test` 77/77 verdes (incluye las 3
+integraciones existentes de SPEC-001/002/004 ajustadas para sembrar consentimiento antes de pumpear
+`MyApp`, ya que ahora el gate de onboarding es lo primero que se ve sin él).
 
 ## Definition of Done
 - Todos los AC con evidencia · `flutter analyze` y `flutter test` verdes · reviewer PASS enlazado ·
@@ -225,6 +249,9 @@ Ninguna abierta. Las dos preguntas de diseño de este Draft ya se resolvieron:
   todos mis datos" — cierra el gap de Ley 1581 Art. 8 (derecho a revocar la autorización en cualquier
   momento) que señaló PV-07. Ya no quedan Open Questions.
 - 2026-09-29: el usuario aprobó la SPEC ("aprobada"). Status → `Implementing`.
+- 2026-09-29: implementación completa (tabla `ConsentRecord`, onboarding, Ajustes, exportación,
+  borrador de política, `docs/privacy.md` actualizado). 77/77 tests de `app` verdes, `flutter
+  analyze` sin issues. Status → `Review`.
 
 ## Review
 Informe del reviewer:

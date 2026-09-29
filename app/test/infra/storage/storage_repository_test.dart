@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:calorias_ia/infra/storage/app_database.dart';
@@ -82,6 +83,210 @@ void main() {
     expect(day1, hasLength(1));
 
     await db.close();
+  });
+
+  group('SPEC-006: consentimiento', () {
+    test('getConsentState sin fila guardada devuelve null (AC1)', () async {
+      final dir = Directory.systemTemp.createTempSync('calorias_ia_test');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final db = AppDatabase(AppDatabase.openFile('${dir.path}/user_test.db'));
+      final repo = StorageRepository(db);
+
+      expect(await repo.getConsentState(), isNull);
+
+      await db.close();
+    });
+
+    test(
+      'saveConsent persiste y sobrevive a cerrar/reabrir la base (AC3, AC4)',
+      () async {
+        final dir = Directory.systemTemp.createTempSync('calorias_ia_test');
+        final dbPath = '${dir.path}/user_test.db';
+        addTearDown(() => dir.deleteSync(recursive: true));
+
+        final db1 = AppDatabase(AppDatabase.openFile(dbPath));
+        await StorageRepository(db1).saveConsent(policyVersion: 'v1');
+        await db1.close();
+
+        final db2 = AppDatabase(AppDatabase.openFile(dbPath));
+        final state = await StorageRepository(db2).getConsentState();
+        await db2.close();
+
+        expect(state, isNotNull);
+        expect(state!.ageConfirmed, isTrue);
+        expect(state.consentGiven, isTrue);
+        expect(state.policyVersion, 'v1');
+      },
+    );
+
+    test('saveConsent llamado dos veces reemplaza la fila única', () async {
+      final dir = Directory.systemTemp.createTempSync('calorias_ia_test');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final db = AppDatabase(AppDatabase.openFile('${dir.path}/user_test.db'));
+      final repo = StorageRepository(db);
+
+      await repo.saveConsent(policyVersion: 'v1');
+      await repo.saveConsent(policyVersion: 'v2');
+      final state = await repo.getConsentState();
+
+      expect(state!.policyVersion, 'v2');
+
+      await db.close();
+    });
+
+    test('revokeConsent borra la fila sin tocar meals/meal_items/personal_products (AC14)', () async {
+      final dir = Directory.systemTemp.createTempSync('calorias_ia_test');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final db = AppDatabase(AppDatabase.openFile('${dir.path}/user_test.db'));
+      final repo = StorageRepository(db);
+
+      await repo.saveConsent(policyVersion: 'v1');
+      await repo.registerMeal(
+        eatenAt: DateTime(2026, 9, 27, 8),
+        mealType: 'desayuno',
+        confidence: 'buenaEstimacion',
+        catalogVersion: 'test-1',
+        items: [_egg()],
+      );
+
+      await repo.revokeConsent();
+
+      expect(await repo.getConsentState(), isNull);
+      final meals = await repo.mealsForDay(DateTime(2026, 9, 27));
+      expect(meals, hasLength(1));
+
+      await db.close();
+    });
+
+    test('revokeConsent sin consentimiento guardado no falla', () async {
+      final dir = Directory.systemTemp.createTempSync('calorias_ia_test');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final db = AppDatabase(AppDatabase.openFile('${dir.path}/user_test.db'));
+      final repo = StorageRepository(db);
+
+      await repo.revokeConsent();
+      expect(await repo.getConsentState(), isNull);
+
+      await db.close();
+    });
+  });
+
+  group('SPEC-006: borrar todo y exportar', () {
+    test(
+      'deleteAllUserData deja meals/meal_items/personal_products vacíos (AC6)',
+      () async {
+        final dir = Directory.systemTemp.createTempSync('calorias_ia_test');
+        addTearDown(() => dir.deleteSync(recursive: true));
+        final db = AppDatabase(
+          AppDatabase.openFile('${dir.path}/user_test.db'),
+        );
+        final repo = StorageRepository(db);
+
+        await repo.registerMeal(
+          eatenAt: DateTime(2026, 9, 27, 8),
+          mealType: 'desayuno',
+          confidence: 'buenaEstimacion',
+          catalogVersion: 'test-1',
+          items: [_egg()],
+        );
+        await repo.savePersonalProduct(
+          nameEs: 'Producto de prueba',
+          energyKcal100: 466.7,
+          proteinG100: 6.7,
+          carbsG100: 66.7,
+          fatG100: 20,
+          servingGrams: 30,
+          sourceRef: 'fixture de prueba',
+        );
+
+        await repo.deleteAllUserData();
+
+        expect(await repo.mealsForDay(DateTime(2026, 9, 27)), isEmpty);
+        expect(await repo.getAllPersonalProducts(), isEmpty);
+
+        await db.close();
+      },
+    );
+
+    test('deleteAllUserData con la base ya vacía no falla', () async {
+      final dir = Directory.systemTemp.createTempSync('calorias_ia_test');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final db = AppDatabase(AppDatabase.openFile('${dir.path}/user_test.db'));
+      final repo = StorageRepository(db);
+
+      await repo.deleteAllUserData();
+      expect(await repo.mealsForDay(DateTime(2026, 9, 27)), isEmpty);
+
+      await db.close();
+    });
+
+    test(
+      'exportUserData con el diario vacío da arreglos vacíos, sin error (AC8)',
+      () async {
+        final dir = Directory.systemTemp.createTempSync('calorias_ia_test');
+        addTearDown(() => dir.deleteSync(recursive: true));
+        final db = AppDatabase(
+          AppDatabase.openFile('${dir.path}/user_test.db'),
+        );
+        final repo = StorageRepository(db);
+
+        final json = await repo.exportUserData();
+
+        expect(json['meals'], isEmpty);
+        expect(json['personalProducts'], isEmpty);
+        expect(json['exportedAt'], isNotNull);
+
+        await db.close();
+      },
+    );
+
+    test('exportUserData con datos existentes produce la estructura documentada (AC7, AC9)', () async {
+      final dir = Directory.systemTemp.createTempSync('calorias_ia_test');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final db = AppDatabase(AppDatabase.openFile('${dir.path}/user_test.db'));
+      final repo = StorageRepository(db);
+
+      await repo.registerMeal(
+        eatenAt: DateTime(2026, 9, 27, 8),
+        mealType: 'desayuno',
+        confidence: 'buenaEstimacion',
+        catalogVersion: 'test-1',
+        items: [_egg()],
+      );
+      await repo.savePersonalProduct(
+        nameEs: 'Producto de prueba con tildes: ñoño',
+        energyKcal100: 466.7,
+        proteinG100: 6.7,
+        carbsG100: 66.7,
+        fatG100: 20,
+        servingGrams: 30,
+        sourceRef: 'fixture de prueba',
+      );
+
+      final json = await repo.exportUserData();
+
+      final meals = json['meals'] as List;
+      expect(meals, hasLength(1));
+      final meal = meals.first as Map<String, Object?>;
+      expect(meal['mealType'], 'desayuno');
+      final items = meal['items'] as List;
+      expect(items, hasLength(1));
+      expect((items.first as Map)['energyKcal'], 143);
+
+      final personalProducts = json['personalProducts'] as List;
+      expect(personalProducts, hasLength(1));
+      expect(
+        (personalProducts.first as Map)['nameEs'],
+        'Producto de prueba con tildes: ñoño',
+      );
+
+      // AC9: no debe llevar tokens de App Check ni metadatos de red.
+      final flat = jsonEncode(json);
+      expect(flat.contains('token'), isFalse);
+      expect(flat.contains('appCheck'), isFalse);
+
+      await db.close();
+    });
   });
 
   group('SPEC-004: personal_products', () {

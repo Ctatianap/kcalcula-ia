@@ -4,6 +4,7 @@ import 'package:calorias_ia/infra/ai_client/ai_client_providers.dart';
 import 'package:calorias_ia/infra/catalog/catalog_providers.dart';
 import 'package:calorias_ia/infra/storage/app_database.dart';
 import 'package:calorias_ia/infra/storage/storage_providers.dart';
+import 'package:calorias_ia/infra/storage/storage_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,6 +17,8 @@ void main() {
     'AC1: "dos huevos y una arepa" -> 2 ítems en revisión, registrar -> aparece en Hoy',
     (tester) async {
       final db = AppDatabase(NativeDatabase.memory());
+      // SPEC-006: sin esto, MyApp muestra el onboarding en vez del diario.
+      await StorageRepository(db).saveConsent(policyVersion: 'test');
       final catalog = buildFixtureCatalog();
       final aiClient = AiClient((data) async {
         expect(data['text'], 'dos huevos y una arepa');

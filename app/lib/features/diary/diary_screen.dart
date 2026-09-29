@@ -41,10 +41,24 @@ class _DiaryScreenState extends ConsumerState<DiaryScreen> {
     setState(_reload);
   }
 
+  Future<void> _openSettings() async {
+    await Navigator.of(context).pushNamed(AppRoutes.settings);
+    setState(_reload);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Hoy')),
+      appBar: AppBar(
+        title: const Text('Hoy'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: 'Ajustes',
+            onPressed: _openSettings,
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _openCapture,
         child: const Icon(Icons.add),

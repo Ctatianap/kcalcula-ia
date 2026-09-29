@@ -6,4 +6,7 @@ abstract class AppRoutes {
   static const capture = '/capture';
   static const review = '/review';
   static const labelConfirmation = '/label-confirmation';
+  static const onboarding = '/onboarding';
+  static const settings = '/settings';
+  static const privacyPolicy = '/privacy-policy';
 }
