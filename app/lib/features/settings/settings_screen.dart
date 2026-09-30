@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_routes.dart';
+import '../../infra/crash_reporting/crash_reporting_providers.dart';
 import '../../infra/sharing/sharing_providers.dart';
 import '../../infra/storage/storage_providers.dart';
 import 'settings_controller.dart';
@@ -25,6 +26,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     _controller = SettingsController(
       storage: ref.read(storageRepositoryProvider),
       sharing: ref.read(sharingServiceProvider),
+      crashReporter: ref.read(crashReporterProvider),
       exportDirectoryPath: ref.read(exportDirectoryPathProvider),
     );
   }
@@ -110,8 +112,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final confirmed = await _confirm(
       title: 'Revocar consentimiento',
       message:
-          'Dejarás de poder usar el análisis con IA hasta que vuelvas a '
-          'aceptar. Tus datos ya guardados no se borran.',
+          'Dejarás de poder usar la app (análisis con IA y reporte de '
+          'fallos) hasta que vuelvas a aceptar. Tus datos ya guardados no '
+          'se borran.',
       confirmLabel: 'Revocar',
     );
     if (!confirmed) return;

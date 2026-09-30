@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 
+import '../../infra/crash_reporting/crash_reporter.dart';
 import '../../infra/sharing/sharing_service.dart';
 import '../../infra/storage/storage_repository.dart';
 
@@ -12,6 +13,7 @@ import '../../infra/storage/storage_repository.dart';
 class SettingsController extends ChangeNotifier {
   final StorageRepository _storage;
   final SharingService _sharing;
+  final CrashReporter _crashReporter;
   final String _exportDirectoryPath;
 
   bool busy = false;
@@ -19,6 +21,7 @@ class SettingsController extends ChangeNotifier {
   SettingsController({
     required StorageRepository storage,
     required SharingService sharing,
+    required CrashReporter crashReporter,
     required String exportDirectoryPath,
   })
     // ignore: prefer_initializing_formals
@@ -26,11 +29,26 @@ class SettingsController extends ChangeNotifier {
        // ignore: prefer_initializing_formals
        _sharing = sharing,
        // ignore: prefer_initializing_formals
+       _crashReporter = crashReporter,
+       // ignore: prefer_initializing_formals
        _exportDirectoryPath = exportDirectoryPath;
 
   Future<void> deleteAllData() => _run(_storage.deleteAllUserData);
 
-  Future<void> revokeConsent() => _run(_storage.revokeConsent);
+  /// SPEC-007 R5: revocar también detiene el reporte de fallos — invariante
+  /// 6 de CLAUDE.md no distingue entre tipos de dato, "nada sale del
+  /// dispositivo sin consentimiento vigente" aplica a Crashlytics igual que
+  /// a la IA. AC12: si desactivar el crash reporter falla (p. ej. sin red),
+  /// no debe hacer parecer que la revocación misma falló — el consentimiento
+  /// ya se borró, que es lo que le importa al usuario.
+  Future<void> revokeConsent() => _run(() async {
+    await _storage.revokeConsent();
+    try {
+      await _crashReporter.setCollectionEnabled(false);
+    } catch (_) {
+      // Ver comentario arriba: no hace fallar la revocación.
+    }
+  });
 
   /// R7/AC7-AC9: arma el JSON, lo escribe a un archivo local (no
   /// permanente, vive en el directorio de exportación) y lo entrega al

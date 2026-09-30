@@ -19,9 +19,16 @@ Estado: borrador técnico. **Requiere revisión legal antes de publicar** (no es
 | Token de App Check | Dispositivo | Sí | Firebase | Gestionado por Google |
 | Metadatos técnicos (latencia, tokens, códigos de error) | Cloud Logging | — | Google Cloud | Retención por defecto de Cloud Logging, POR VERIFICAR |
 | Exportación de datos del usuario (SPEC-006, JSON de comidas/productos personales) | Archivo temporal en el dispositivo | Solo si el usuario decide compartirlo | El usuario elige el destino en el share sheet del sistema operativo — la app arma el archivo localmente y nunca lo transmite por su cuenta a ningún servidor propio ni de terceros | Archivo temporal; no es `user.db` ni un backup automático |
+| Reporte de fallos (SPEC-007, Firebase Crashlytics) | Memoria, solo cuando ocurre un error no controlado | Sí, si el usuario aceptó la versión vigente de la política | Firebase Crashlytics (Google), fuera de Colombia | Retención por defecto de Crashlytics, POR VERIFICAR. **Nunca** incluye texto de comidas, nombres de producto, fotos ni rutas de archivos exportados — solo stack trace, versión de la app y metadata técnica del dispositivo. La recolección arranca desactivada y solo se activa tras confirmar consentimiento vigente (`ConsentRecord.policyVersion` == versión actual); se desactiva de nuevo al revocar el consentimiento |
 
 ## Controles
-Implementados en SPEC-006 (T-007) — antes solo estaban previstos aquí, ahora existen en la app:
+Implementados en SPEC-006 (T-007) y SPEC-007 (T-008) — antes solo estaban previstos aquí, ahora
+existen en la app:
+- Reporte de fallos (Crashlytics) gateado por consentimiento vigente: nunca empieza antes de que el
+  usuario acepte la versión de la política que lo menciona explícitamente, y se apaga al revocar —
+  ver fila nueva del inventario arriba. Un cambio de política (como este) hace que
+  `_RootGate` vuelva a mostrar el onboarding a usuarios que ya habían aceptado una versión anterior,
+  aunque no hayan revocado nada — no es un re-consentimiento silencioso.
 - Consentimiento explícito e informado antes del primer uso, en un onboarding que bloquea el resto
   de la app hasta aceptar. El texto nombra explícitamente que es dato sensible de salud/nutrición,
   qué se envía, a quién (Vertex AI/Google, fuera de Colombia) y para qué — ver PV-07

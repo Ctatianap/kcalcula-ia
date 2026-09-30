@@ -3,6 +3,8 @@ import 'package:calorias_ia/features/capture/voice_input_controller.dart';
 import 'package:calorias_ia/infra/ai_client/ai_client.dart';
 import 'package:calorias_ia/infra/ai_client/ai_client_providers.dart';
 import 'package:calorias_ia/infra/catalog/catalog_providers.dart';
+import 'package:calorias_ia/infra/crash_reporting/crash_reporting_providers.dart';
+import 'package:calorias_ia/infra/legal/privacy_policy.dart';
 import 'package:calorias_ia/infra/storage/app_database.dart';
 import 'package:calorias_ia/infra/storage/storage_providers.dart';
 import 'package:calorias_ia/infra/storage/storage_repository.dart';
@@ -12,6 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../features/capture/fake_voice_input.dart';
+import '../support/fake_crash_reporter.dart';
 import '../support/fixture_catalog.dart';
 
 void main() {
@@ -20,7 +23,8 @@ void main() {
     (tester) async {
       final db = AppDatabase(NativeDatabase.memory());
       // SPEC-006: sin esto, MyApp muestra el onboarding en vez del diario.
-      await StorageRepository(db).saveConsent(policyVersion: 'test');
+      await StorageRepository(db)
+          .saveConsent(policyVersion: privacyPolicyVersion);
       final catalog = buildFixtureCatalog();
       final recognizer = FakeSpeechRecognizer();
       final aiClient = AiClient((data) async {
@@ -63,6 +67,7 @@ void main() {
               FakeMicrophonePermission(granted: true),
             ),
             speechRecognizerProvider.overrideWithValue(recognizer),
+            crashReporterProvider.overrideWithValue(FakeCrashReporter()),
           ],
           child: const MyApp(),
         ),

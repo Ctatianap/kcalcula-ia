@@ -192,13 +192,16 @@ sus comidas a ningún sitio, y sin que empiece a pasar antes de que la persona l
   se versiona a mano por mí; lo genera el usuario con su propia sesión de `flutterfire configure`.
 
 ## Tests Required
-- Unit: `crash_reporter_test.dart` (si aplica lógica propia más allá de delegar a Firebase);
-  `privacy_policy_version_test.dart` o equivalente para la comparación de versión.
-- Widget / Integration: extender `onboarding_gate_flow_test.dart` (AC7/AC8, con
-  `FakeCrashReporter`), extender `settings_screen_test.dart` (AC6 — revocar desactiva el
-  crash reporter).
+- Unit: no hay lógica propia en `FirebaseCrashReporter` más allá de delegar a Firebase (sin test
+  dedicado, igual que `PluginSharingService`/`PluginImagePickerService`) — la comparación de
+  `policyVersion` vive en `_RootGate` y se prueba a nivel de integración (abajo), es demasiado
+  simple (igualdad de strings) para justificar un archivo de test propio.
+- Widget / Integration: `onboarding_gate_flow_test.dart` (AC1, AC5, AC7, AC8, AC12 — con
+  `FakeCrashReporter`), `settings_screen_test.dart` (AC6, AC12 — revocar desactiva el crash
+  reporter y sobrevive a que falle).
 - Eval: no aplica.
-- Manual: AC1-AC3, AC9-AC11 (Checklist de beta, texto de política).
+- Manual: AC1-AC3, AC9-AC11, AC14 (Checklist de beta, texto de política, revisión de código del
+  proveedor de App Check).
 
 ## Out of Scope
 - Configurar `kcalcula-ia` (prod) — sigue diferido.
@@ -238,10 +241,31 @@ En orden — dime cuando completes cada bloque y sigo con la implementación que
    entonces, cualquier build no-release sigue usando el proveedor de depuración. Cuota gratuita de
    Play Integrity: 10.000 solicitudes/día, de sobra para una beta cerrada.
 
+## Evidencia de Acceptance Criteria
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ⏳ pendiente aceptado | Bloqueado por el Checklist de beta (`flutterfire configure`) — no existe `firebase_options.dart` todavía |
+| AC2 | ⏳ pendiente aceptado | Mismo bloqueo — `aiClientProvider` sigue siendo el placeholder hasta que exista Firebase real |
+| AC3 | ⏳ pendiente aceptado | Mismo bloqueo |
+| AC4 | ✅ parcial | `CrashReporter`/`FirebaseCrashReporter` implementados (`infra/crash_reporting/`); grep dirigido confirma que ningún call site le pasa contenido de usuario. La línea real `main()` que lo activa con recolección desactivada queda en el mismo bloqueo que AC1-AC3 (necesita Firebase inicializado) |
+| AC5 | ✅ | `onboarding_gate_flow_test.dart`: "AC4/AC8: con consentimiento vigente entra directo al diario y activa el reporte de fallos" (la reentrada a `_RootGate` tras aceptar es el mismo camino) |
+| AC6 | ✅ | `settings_screen_test.dart`: "AC14: confirmar revocar limpia el consentimiento..." verifica `crashReporter.collectionEnabled == false` |
+| AC7 | ✅ | `onboarding_gate_flow_test.dart`: "AC7: policyVersion desactualizado vuelve a mostrar el onboarding..." |
+| AC8 | ✅ | `onboarding_gate_flow_test.dart`: "AC4/AC8: con consentimiento vigente..." |
+| AC9 | ✅ | `docs/privacy.md`, fila nueva "Reporte de fallos (SPEC-007, Firebase Crashlytics)" |
+| AC10 | ✅ | `privacy_policy_draft_es.md` (sección "Si la app falla") y la casilla de consentimiento en `onboarding_screen.dart` mencionan Crashlytics explícitamente |
+| AC11 | ✅ | Sección "Checklist de beta" de esta SPEC |
+| AC12 | ✅ | `onboarding_gate_flow_test.dart`: "AC12: si activar el reporte de fallos falla, la app igual entra al diario"; `settings_screen_test.dart`: "AC12: si desactivar el reporte de fallos falla, la revocación igual se completa" |
+| AC13 | ✅ | `flutter test` → 82/82 verdes (35 previos a este cambio del lado de SPEC-006 + los nuevos) |
+| AC14 | ⏳ pendiente aceptado | Mismo bloqueo que AC1-AC3 — el código que decide el proveedor por `kDebugMode` vive en el bloque de `main()` que activa App Check |
+
+Verificado: `app` → `flutter analyze` sin issues, `flutter test` 82/82 verdes. `functions` → `tsc`
+sin errores, `node --test` 51/51 verdes (sin cambios de lógica, solo el comentario de R9).
+
 ## Definition of Done
-- Todos los AC con evidencia (AC1-AC3 pueden quedar "pendiente aceptado" si el Checklist de beta no
-  se completa en esta sesión — no bloquea `Done` de esta SPEC, igual que AC11 de SPEC-001 con
-  Vertex AI real) · `flutter analyze` y `flutter test` verdes en `app` · reviewer PASS enlazado ·
+- Todos los AC con evidencia (AC1-AC3 y AC14 quedan "pendiente aceptado" hasta completar el
+  Checklist de beta — no bloquea `Done` de esta SPEC, igual que AC11 de SPEC-001 con Vertex AI
+  real) · `flutter analyze` y `flutter test` verdes en `app` · reviewer PASS enlazado ·
   `docs/privacy.md` y `docs/backlog.md` actualizados.
 
 ## Change Log
@@ -254,6 +278,16 @@ En orden — dime cuando completes cada bloque y sigo con la implementación que
   depuración no pueda quedar activo en una build de release.
 - 2026-09-30: el usuario aprobó implementar lo que no depende del Checklist de beta ("implementa lo
   que puedas"). Status → `Implementing`.
+- 2026-09-30: implementación de la parte no bloqueada: `CrashReporter` (interfaz +
+  `FirebaseCrashReporter`, recolección gateada por consentimiento vigente), `_RootGate` compara
+  `policyVersion` y activa/desactiva el reporte de fallos, `SettingsController.revokeConsent()` lo
+  desactiva, ambos caminos toleran que el crash reporter falle (AC12) sin romper el resto de la
+  app. `privacyPolicyVersion` v1→v2, texto de política y de la casilla de consentimiento
+  actualizados, `docs/privacy.md` con la fila de Crashlytics, comentario de decisión sobre
+  `maxInstances` en `functions/src/index.ts`. Las 3 integraciones de SPEC-001/002/004 y
+  `onboarding_gate_flow_test.dart` ajustadas para el nuevo criterio de `policyVersion` y para
+  sobrescribir `crashReporterProvider`. `flutter test` → 82/82 verdes. AC1-AC3 y AC14 quedan
+  "pendiente aceptado", bloqueados por el Checklist de beta (`flutterfire configure`).
 
 ## Review
 Informe del reviewer:

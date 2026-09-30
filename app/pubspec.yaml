@@ -58,6 +58,11 @@ dependencies:
   speech_to_text: ^7.5.0
   permission_handler: ^13.0.2
 
+  # SPEC-007: reporte de fallos, con la recolección desactivada hasta que
+  # el usuario consienta (ver infra/crash_reporting). Versión estable
+  # verificada en pub.dev al momento de escribir (2026-09-29).
+  firebase_crashlytics: ^5.4.0
+
   # SPEC-004: foto de tabla nutricional (cámara/galería). Versión estable
   # verificada en pub.dev al momento de escribir (2026-09-27).
   image_picker: ^1.2.3

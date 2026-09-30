@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:calorias_ia/app_routes.dart';
 import 'package:calorias_ia/features/settings/settings_screen.dart';
+import 'package:calorias_ia/infra/crash_reporting/crash_reporting_providers.dart';
 import 'package:calorias_ia/infra/sharing/sharing_providers.dart';
 import 'package:calorias_ia/infra/storage/app_database.dart';
 import 'package:calorias_ia/infra/storage/storage_providers.dart';
@@ -12,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../support/fake_crash_reporter.dart';
 import 'fake_sharing_service.dart';
 
 MealItemRecord _egg() => const MealItemRecord(
@@ -32,17 +34,27 @@ class _Harness {
   final AppDatabase db;
   final Directory exportDir;
   final FakeSharingService sharing;
+  final FakeCrashReporter crashReporter;
 
-  _Harness({required this.db, required this.exportDir, required this.sharing});
+  _Harness({
+    required this.db,
+    required this.exportDir,
+    required this.sharing,
+    required this.crashReporter,
+  });
 }
 
 Future<_Harness> _pump(
   WidgetTester tester, {
   bool sharingShouldThrow = false,
+  bool crashReporterShouldThrow = false,
 }) async {
   final db = AppDatabase(NativeDatabase.memory());
   final exportDir = Directory.systemTemp.createTempSync('calorias_ia_export');
   final sharing = FakeSharingService(shouldThrow: sharingShouldThrow);
+  final crashReporter = FakeCrashReporter(
+    shouldThrow: crashReporterShouldThrow,
+  );
 
   await tester.pumpWidget(
     ProviderScope(
@@ -50,6 +62,7 @@ Future<_Harness> _pump(
         appDatabaseProvider.overrideWithValue(db),
         exportDirectoryPathProvider.overrideWithValue(exportDir.path),
         sharingServiceProvider.overrideWithValue(sharing),
+        crashReporterProvider.overrideWithValue(crashReporter),
       ],
       child: MaterialApp(
         initialRoute: AppRoutes.settings,
@@ -65,7 +78,12 @@ Future<_Harness> _pump(
   );
   await tester.pumpAndSettle();
 
-  return _Harness(db: db, exportDir: exportDir, sharing: sharing);
+  return _Harness(
+    db: db,
+    exportDir: exportDir,
+    sharing: sharing,
+    crashReporter: crashReporter,
+  );
 }
 
 void main() {
@@ -227,6 +245,30 @@ void main() {
       final meals = await StorageRepository(h.db)
           .mealsForDay(DateTime(2026, 9, 27));
       expect(meals, hasLength(1));
+      // SPEC-007 AC6: revocar también apaga el reporte de fallos.
+      expect(h.crashReporter.collectionEnabled, isFalse);
+
+      await h.db.close();
+      h.exportDir.deleteSync(recursive: true);
+    },
+  );
+
+  testWidgets(
+    'AC12: si desactivar el reporte de fallos falla, la revocación igual se completa',
+    (tester) async {
+      final h = await _pump(tester, crashReporterShouldThrow: true);
+      await StorageRepository(h.db).saveConsent(policyVersion: 'v1');
+
+      await tester.tap(find.text('Revocar consentimiento'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Revocar'));
+      await tester.pumpAndSettle();
+
+      // El consentimiento se borró de verdad y navegó al gate, pese a que
+      // el crash reporter lanzó una excepción al desactivarse.
+      expect(await StorageRepository(h.db).getConsentState(), isNull);
+      expect(find.text('Pantalla del diario'), findsOneWidget);
+      expect(find.text('Ocurrió un error. Intenta de nuevo.'), findsNothing);
 
       await h.db.close();
       h.exportDir.deleteSync(recursive: true);
