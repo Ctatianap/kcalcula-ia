@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "21657152152",
+    "project_id": "kcalcula-ia-dev",
+    "storage_bucket": "kcalcula-ia-dev.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:21657152152:android:21e98b9ed4ad7ea6343eed",
+        "android_client_info": {
+          "package_name": "com.caloriasia.calorias_ia"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVMjKkWzJIE8oF7YGow6xMRSXLBSE8IvU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
