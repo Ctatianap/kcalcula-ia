@@ -72,6 +72,18 @@ dependencies:
   # (2026-09-29).
   share_plus: ^13.3.0
 
+# `permission_handler_android` 14.0.0/14.1.0 fijan `compileSdk = 37` en su
+# propio build.gradle.kts, pero la API 37 de Android ya no se publica en
+# forma "plana" (solo 37.0/37.1/37.2) y el Android Gradle Plugin 9.1.0 que
+# usa este proyecto (el que trae Flutter 3.47.5 por defecto) solo soporta
+# oficialmente hasta compileSdk 36 — build real de Android roto sin esto.
+# 13.0.1 (anterior a ese cambio) usa compileSdk 35, compatible con el resto
+# del toolchain. Revisar y quitar este pin cuando el ecosistema (Flutter/AGP)
+# se ponga al día con la nueva numeración de SDK, o cuando
+# permission_handler publique una versión que no arrastre el 14.x roto.
+dependency_overrides:
+  permission_handler_android: 13.0.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

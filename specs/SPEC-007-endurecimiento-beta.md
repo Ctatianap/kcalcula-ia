@@ -264,17 +264,25 @@ En orden — dime cuando completes cada bloque y sigo con la implementación que
 
 Verificado: `app` → `flutter analyze` sin issues, `flutter test` 82/82 verdes. `functions` → `tsc`
 sin errores, `node --test` 51/51 verdes (sin cambios de lógica, solo el comentario de R9).
-`flutter build ios --no-codesign --debug` real → build exitoso (confirma que la cadena completa
-Firebase + App Check + Crashlytics + AiClient real compila y enlaza).
+`flutter build ios --no-codesign --debug` y `flutter build apk --debug` reales → ambos exitosos
+(confirma que la cadena completa Firebase + App Check + Crashlytics + AiClient real compila y
+enlaza en los dos sistemas operativos).
 
-**Hallazgo nuevo, fuera de alcance de esta SPEC**: `flutter build apk --debug` falla por un
-desajuste de plataformas del SDK de Android en esta máquina (Gradle busca `android-37`, el SDK
-instalado solo tiene `android-37.0`/`android-37.1`) — parece un cambio reciente de versionado de
-Android que las herramientas de línea de comandos instaladas todavía no resuelven bien. No es un
-problema de este código (el build de iOS equivalente sí funciona, y `flutter analyze`/`flutter
-test` están limpios) ni algo introducido por esta SPEC — es un problema de entorno local, pendiente
-de que el usuario decida cómo resolverlo (instalar la plataforma exacta, u otra vía). No bloquea
-`Done` de esta SPEC.
+**Hallazgo investigado y resuelto (fuera de los Requirements de esta SPEC, documentado aquí por
+trazabilidad)**: `flutter build apk --debug` falló inicialmente porque `permission_handler_android`
+14.0.0/14.1.0 fijan `compileSdk = 37` en su propio `build.gradle.kts`, pero Android dejó de publicar
+la API 37 en forma "plana" (solo existen `37.0`/`37.1`/`37.2` — confirmado contra todos los canales
+de `sdkmanager`, no es un problema de esta máquina) y el Android Gradle Plugin 9.1.0 (el que trae
+Flutter 3.47.5 por defecto) solo soporta oficialmente hasta `compileSdk 36`. Es un problema real de
+desfase entre `permission_handler_android` y el resto del ecosistema Flutter/AGP, no algo
+introducido por esta SPEC. El usuario eligió fijar `permission_handler_android` a `13.0.1`
+(`compileSdk 35`, anterior al cambio) vía `dependency_overrides` en `app/pubspec.yaml`, en vez de
+subir todo el AGP del proyecto a una versión más nueva y menos probada. También quedó un symlink
+local `android-37 → android-37.1` en el SDK de esta máquina (fuera del repo, reversible) que ayuda a
+que Gradle resuelva rutas de plataforma durante la instalación de herramientas — no es necesario
+para el fix en sí, pero no estorba. `flutter analyze`/`flutter test` (82/82) y ambos builds reales
+se reverificaron después del cambio, sin regresiones. Revisar y quitar el `dependency_overrides`
+cuando el ecosistema se ponga al día.
 
 ## Definition of Done
 - Todos los AC con evidencia · `flutter analyze` y `flutter test` verdes en `app` · reviewer PASS enlazado ·
