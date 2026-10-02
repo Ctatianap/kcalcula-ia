@@ -1,4 +1,4 @@
-<!-- Versión: v2 — SPEC-007. BORRADOR: pendiente de revisión legal humana antes de publicar. -->
+<!-- Versión: v3 — SPEC-008 (antes v2, SPEC-007). BORRADOR: pendiente de revisión legal humana antes de publicar. -->
 
 # Política de privacidad (borrador)
 
@@ -30,7 +30,20 @@ quedar registrado, para poder detectar fallas técnicas, son datos como cuánto 
 si hubo un error — nunca el contenido de lo que enviaste.
 
 Ni tu voz (se transcribe en tu propio teléfono, sin pasar por nuestro servidor) ni tus datos ya
-registrados (comidas, productos guardados) salen jamás de tu dispositivo por decisión de la app.
+registrados (comidas, productos guardados, tu meta diaria y los datos para calcularla) salen jamás
+de tu dispositivo por decisión de la app.
+
+## Tu meta diaria (opcional)
+
+Si fijas una meta diaria de calorías, proteína, carbohidratos o grasa, se guarda solo en tu
+teléfono. Si le pides a la app que te **sugiera** una meta, te pediremos tu peso, estatura, edad,
+sexo y nivel de actividad física. Los usamos únicamente para hacer ese cálculo, en tu propio
+teléfono, y los guardamos ahí para que no tengas que volver a escribirlos. **Nunca salen de tu
+dispositivo**: ni a nuestro servidor ni a la inteligencia artificial.
+
+Solo se guardan si pides una sugerencia. Puedes borrarlos cuando quieras desde "Mi meta diaria"
+("Borrar mis datos para la sugerencia") sin perder tu meta, y "Borrar todos mis datos" también los
+elimina. La sugerencia es una estimación general, no una recomendación médica.
 
 ## Si la app falla
 

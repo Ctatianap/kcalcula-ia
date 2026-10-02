@@ -125,4 +125,29 @@ void main() {
       await db.close();
     },
   );
+
+  testWidgets(
+    'SPEC-008 AC13: quien aceptó la v2 vuelve a ver el onboarding con la v3',
+    (tester) async {
+      final db = AppDatabase(NativeDatabase.memory());
+      await StorageRepository(db).saveConsent(policyVersion: 'v2');
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            appDatabaseProvider.overrideWithValue(db),
+            crashReporterProvider.overrideWithValue(FakeCrashReporter()),
+          ],
+          child: const MyApp(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(privacyPolicyVersion, 'v3');
+      expect(find.text('Antes de empezar'), findsOneWidget);
+      expect(find.text('Hoy'), findsNothing);
+
+      await db.close();
+    },
+  );
 }

@@ -93,6 +93,18 @@ kcal enteras (redondeo half-up) y macros con 1 decimal. Los valores estimados se
   grams, quantity_input, unit_input, size_input, quantity_basis, energy_kcal, protein_g, carbs_g, fat_g,
   confidence, source_ref)`
 - `personal_products(...)`: se define en la SPEC de etiquetas.
+- `nutrition_goals(id=0, energy_kcal, protein_g NULL, carbs_g NULL, fat_g NULL, updated_at)`: meta
+  diaria vigente, fila única, sin historial (SPEC-008).
+- `goal_estimation_inputs(id=0, weight_kg, height_cm, age_years, sex, activity_level, updated_at)`:
+  datos de la última sugerencia; solo existe si el usuario pidió una (SPEC-008).
+
+## Objetivos (SPEC-008)
+- El progreso del día (`GoalProgress` en `nutrition_core`) resta sin redondear y redondea al
+  presentar. Por encima de la meta se muestra "N por encima de la meta", sin colores de alarma.
+- La sugerencia (opcional) estima las kcal de mantenimiento con las ecuaciones de gasto energético
+  total de las DRI 2023 de NASEM y reparte los macros con los rangos de la Res. 3803 de 2016; ver
+  `docs/research/2026-10-02-formula-gasto-energetico.md`. Todo se calcula en el dispositivo; nada
+  de esto sale de él.
 
 ## Errores
 | Situación | Comportamiento |

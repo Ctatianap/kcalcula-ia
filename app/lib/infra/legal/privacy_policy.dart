@@ -8,8 +8,10 @@ import 'package:flutter/services.dart' show rootBundle;
 /// SPEC-007 R5: `_RootGate` compara este valor contra el guardado — si no
 /// coincide, vuelve a mostrar el onboarding aunque ya exista un
 /// `ConsentRecord`. `'v2'` (2026-09-30) añade el reporte de fallos
-/// (Crashlytics).
-const privacyPolicyVersion = 'v2';
+/// (Crashlytics). `'v3'` (2026-10-02, SPEC-008 R12) añade la meta diaria y
+/// los datos personales para la sugerencia, que se guardan solo en el
+/// teléfono.
+const privacyPolicyVersion = 'v3';
 
 const _privacyPolicyAssetPath = 'assets/legal/privacy_policy_draft_es.md';
 
