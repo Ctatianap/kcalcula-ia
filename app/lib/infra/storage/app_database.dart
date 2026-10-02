@@ -80,12 +80,53 @@ class ConsentRecord extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-@DriftDatabase(tables: [Meals, MealItems, PersonalProducts, ConsentRecord])
+/// SPEC-008 R1/R8: fila única (id fijo en 0) con la meta diaria vigente.
+/// kcal obligatoria; macros opcionales (`null` = sin meta para ese macro).
+/// Sin historial: cambiar la meta cambia la referencia de todos los días.
+class NutritionGoals extends Table {
+  IntColumn get id => integer()();
+  RealColumn get energyKcal => real()();
+  RealColumn get proteinG => real().nullable()();
+  RealColumn get carbsG => real().nullable()();
+  RealColumn get fatG => real().nullable()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// SPEC-008 R2/R9: datos con los que se calculó la sugerencia. Fila única
+/// (id 0), solo existe si el usuario pidió una sugerencia; se puede borrar
+/// sin tocar la meta. Datos personales de salud: nunca salen del
+/// dispositivo (R11).
+class GoalEstimationInputs extends Table {
+  IntColumn get id => integer()();
+  RealColumn get weightKg => real()();
+  RealColumn get heightCm => real()();
+  IntColumn get ageYears => integer()();
+  TextColumn get sex => text()();
+  TextColumn get activityLevel => text()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DriftDatabase(
+  tables: [
+    Meals,
+    MealItems,
+    PersonalProducts,
+    ConsentRecord,
+    NutritionGoals,
+    GoalEstimationInputs,
+  ],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -96,6 +137,10 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 3) {
         await m.createTable(consentRecord);
+      }
+      if (from < 4) {
+        await m.createTable(nutritionGoals);
+        await m.createTable(goalEstimationInputs);
       }
     },
   );

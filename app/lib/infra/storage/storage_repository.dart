@@ -177,13 +177,72 @@ class StorageRepository {
   /// R5: borra todo el contenido nutricional del usuario. No toca
   /// `ConsentRecord` — borrar los datos no es lo mismo que revocar el
   /// consentimiento (R8/AC14 son la acción separada para eso).
+  /// SPEC-008 R10: también la meta y los datos de la sugerencia.
   Future<void> deleteAllUserData() {
     return _db.transaction(() async {
       await _db.delete(_db.mealItems).go();
       await _db.delete(_db.meals).go();
       await _db.delete(_db.personalProducts).go();
+      await _db.delete(_db.nutritionGoals).go();
+      await _db.delete(_db.goalEstimationInputs).go();
     });
   }
+
+  /// SPEC-008 R1/R8: meta diaria vigente, o `null` si no hay.
+  Future<NutritionGoal?> getNutritionGoal() =>
+      _db.select(_db.nutritionGoals).getSingleOrNull();
+
+  /// SPEC-008 R1: guarda (o reemplaza) la meta única.
+  Future<void> saveNutritionGoal({
+    required double energyKcal,
+    double? proteinG,
+    double? carbsG,
+    double? fatG,
+  }) {
+    return _db
+        .into(_db.nutritionGoals)
+        .insertOnConflictUpdate(
+          NutritionGoalsCompanion.insert(
+            id: const Value(0),
+            energyKcal: energyKcal,
+            proteinG: Value(proteinG),
+            carbsG: Value(carbsG),
+            fatG: Value(fatG),
+            updatedAt: DateTime.now(),
+          ),
+        );
+  }
+
+  /// SPEC-008 R2/R9: datos de la última sugerencia, o `null`.
+  Future<GoalEstimationInput?> getGoalEstimationInputs() =>
+      _db.select(_db.goalEstimationInputs).getSingleOrNull();
+
+  /// SPEC-008 R8: solo se llama si el usuario usó la sugerencia.
+  Future<void> saveGoalEstimationInputs({
+    required double weightKg,
+    required double heightCm,
+    required int ageYears,
+    required String sex,
+    required String activityLevel,
+  }) {
+    return _db
+        .into(_db.goalEstimationInputs)
+        .insertOnConflictUpdate(
+          GoalEstimationInputsCompanion.insert(
+            id: const Value(0),
+            weightKg: weightKg,
+            heightCm: heightCm,
+            ageYears: ageYears,
+            sex: sex,
+            activityLevel: activityLevel,
+            updatedAt: DateTime.now(),
+          ),
+        );
+  }
+
+  /// SPEC-008 R9: borra los datos de la sugerencia sin tocar la meta.
+  Future<void> deleteGoalEstimationInputs() =>
+      _db.delete(_db.goalEstimationInputs).go();
 
   /// R7/AC7-AC9: instantánea completa en una forma directamente serializable
   /// a JSON (solo tipos primitivos y `DateTime`, que quien llame convierte
@@ -222,10 +281,32 @@ class StorageRepository {
     }
 
     final personalProducts = await getAllPersonalProducts();
+    final goal = await getNutritionGoal();
+    final estimationInputs = await getGoalEstimationInputs();
 
     return {
       'exportedAt': DateTime.now().toIso8601String(),
       'meals': mealsJson,
+      // SPEC-008 R10.
+      'nutritionGoal': goal == null
+          ? null
+          : {
+              'energyKcal': goal.energyKcal,
+              'proteinG': goal.proteinG,
+              'carbsG': goal.carbsG,
+              'fatG': goal.fatG,
+              'updatedAt': goal.updatedAt.toIso8601String(),
+            },
+      'goalEstimationInputs': estimationInputs == null
+          ? null
+          : {
+              'weightKg': estimationInputs.weightKg,
+              'heightCm': estimationInputs.heightCm,
+              'ageYears': estimationInputs.ageYears,
+              'sex': estimationInputs.sex,
+              'activityLevel': estimationInputs.activityLevel,
+              'updatedAt': estimationInputs.updatedAt.toIso8601String(),
+            },
       'personalProducts': personalProducts
           .map(
             (p) => {

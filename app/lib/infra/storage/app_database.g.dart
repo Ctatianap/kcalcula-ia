@@ -2619,6 +2619,856 @@ class ConsentRecordCompanion extends UpdateCompanion<ConsentRecordData> {
   }
 }
 
+class $NutritionGoalsTable extends NutritionGoals
+    with TableInfo<$NutritionGoalsTable, NutritionGoal> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NutritionGoalsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _energyKcalMeta = const VerificationMeta(
+    'energyKcal',
+  );
+  @override
+  late final GeneratedColumn<double> energyKcal = GeneratedColumn<double>(
+    'energy_kcal',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _proteinGMeta = const VerificationMeta(
+    'proteinG',
+  );
+  @override
+  late final GeneratedColumn<double> proteinG = GeneratedColumn<double>(
+    'protein_g',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _carbsGMeta = const VerificationMeta('carbsG');
+  @override
+  late final GeneratedColumn<double> carbsG = GeneratedColumn<double>(
+    'carbs_g',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fatGMeta = const VerificationMeta('fatG');
+  @override
+  late final GeneratedColumn<double> fatG = GeneratedColumn<double>(
+    'fat_g',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    energyKcal,
+    proteinG,
+    carbsG,
+    fatG,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'nutrition_goals';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<NutritionGoal> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('energy_kcal')) {
+      context.handle(
+        _energyKcalMeta,
+        energyKcal.isAcceptableOrUnknown(data['energy_kcal']!, _energyKcalMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_energyKcalMeta);
+    }
+    if (data.containsKey('protein_g')) {
+      context.handle(
+        _proteinGMeta,
+        proteinG.isAcceptableOrUnknown(data['protein_g']!, _proteinGMeta),
+      );
+    }
+    if (data.containsKey('carbs_g')) {
+      context.handle(
+        _carbsGMeta,
+        carbsG.isAcceptableOrUnknown(data['carbs_g']!, _carbsGMeta),
+      );
+    }
+    if (data.containsKey('fat_g')) {
+      context.handle(
+        _fatGMeta,
+        fatG.isAcceptableOrUnknown(data['fat_g']!, _fatGMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  NutritionGoal map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return NutritionGoal(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      energyKcal: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}energy_kcal'],
+      )!,
+      proteinG: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}protein_g'],
+      ),
+      carbsG: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}carbs_g'],
+      ),
+      fatG: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}fat_g'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $NutritionGoalsTable createAlias(String alias) {
+    return $NutritionGoalsTable(attachedDatabase, alias);
+  }
+}
+
+class NutritionGoal extends DataClass implements Insertable<NutritionGoal> {
+  final int id;
+  final double energyKcal;
+  final double? proteinG;
+  final double? carbsG;
+  final double? fatG;
+  final DateTime updatedAt;
+  const NutritionGoal({
+    required this.id,
+    required this.energyKcal,
+    this.proteinG,
+    this.carbsG,
+    this.fatG,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['energy_kcal'] = Variable<double>(energyKcal);
+    if (!nullToAbsent || proteinG != null) {
+      map['protein_g'] = Variable<double>(proteinG);
+    }
+    if (!nullToAbsent || carbsG != null) {
+      map['carbs_g'] = Variable<double>(carbsG);
+    }
+    if (!nullToAbsent || fatG != null) {
+      map['fat_g'] = Variable<double>(fatG);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  NutritionGoalsCompanion toCompanion(bool nullToAbsent) {
+    return NutritionGoalsCompanion(
+      id: Value(id),
+      energyKcal: Value(energyKcal),
+      proteinG: proteinG == null && nullToAbsent
+          ? const Value.absent()
+          : Value(proteinG),
+      carbsG: carbsG == null && nullToAbsent
+          ? const Value.absent()
+          : Value(carbsG),
+      fatG: fatG == null && nullToAbsent ? const Value.absent() : Value(fatG),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory NutritionGoal.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NutritionGoal(
+      id: serializer.fromJson<int>(json['id']),
+      energyKcal: serializer.fromJson<double>(json['energyKcal']),
+      proteinG: serializer.fromJson<double?>(json['proteinG']),
+      carbsG: serializer.fromJson<double?>(json['carbsG']),
+      fatG: serializer.fromJson<double?>(json['fatG']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'energyKcal': serializer.toJson<double>(energyKcal),
+      'proteinG': serializer.toJson<double?>(proteinG),
+      'carbsG': serializer.toJson<double?>(carbsG),
+      'fatG': serializer.toJson<double?>(fatG),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  NutritionGoal copyWith({
+    int? id,
+    double? energyKcal,
+    Value<double?> proteinG = const Value.absent(),
+    Value<double?> carbsG = const Value.absent(),
+    Value<double?> fatG = const Value.absent(),
+    DateTime? updatedAt,
+  }) => NutritionGoal(
+    id: id ?? this.id,
+    energyKcal: energyKcal ?? this.energyKcal,
+    proteinG: proteinG.present ? proteinG.value : this.proteinG,
+    carbsG: carbsG.present ? carbsG.value : this.carbsG,
+    fatG: fatG.present ? fatG.value : this.fatG,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  NutritionGoal copyWithCompanion(NutritionGoalsCompanion data) {
+    return NutritionGoal(
+      id: data.id.present ? data.id.value : this.id,
+      energyKcal: data.energyKcal.present
+          ? data.energyKcal.value
+          : this.energyKcal,
+      proteinG: data.proteinG.present ? data.proteinG.value : this.proteinG,
+      carbsG: data.carbsG.present ? data.carbsG.value : this.carbsG,
+      fatG: data.fatG.present ? data.fatG.value : this.fatG,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NutritionGoal(')
+          ..write('id: $id, ')
+          ..write('energyKcal: $energyKcal, ')
+          ..write('proteinG: $proteinG, ')
+          ..write('carbsG: $carbsG, ')
+          ..write('fatG: $fatG, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, energyKcal, proteinG, carbsG, fatG, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NutritionGoal &&
+          other.id == this.id &&
+          other.energyKcal == this.energyKcal &&
+          other.proteinG == this.proteinG &&
+          other.carbsG == this.carbsG &&
+          other.fatG == this.fatG &&
+          other.updatedAt == this.updatedAt);
+}
+
+class NutritionGoalsCompanion extends UpdateCompanion<NutritionGoal> {
+  final Value<int> id;
+  final Value<double> energyKcal;
+  final Value<double?> proteinG;
+  final Value<double?> carbsG;
+  final Value<double?> fatG;
+  final Value<DateTime> updatedAt;
+  const NutritionGoalsCompanion({
+    this.id = const Value.absent(),
+    this.energyKcal = const Value.absent(),
+    this.proteinG = const Value.absent(),
+    this.carbsG = const Value.absent(),
+    this.fatG = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  NutritionGoalsCompanion.insert({
+    this.id = const Value.absent(),
+    required double energyKcal,
+    this.proteinG = const Value.absent(),
+    this.carbsG = const Value.absent(),
+    this.fatG = const Value.absent(),
+    required DateTime updatedAt,
+  }) : energyKcal = Value(energyKcal),
+       updatedAt = Value(updatedAt);
+  static Insertable<NutritionGoal> custom({
+    Expression<int>? id,
+    Expression<double>? energyKcal,
+    Expression<double>? proteinG,
+    Expression<double>? carbsG,
+    Expression<double>? fatG,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (energyKcal != null) 'energy_kcal': energyKcal,
+      if (proteinG != null) 'protein_g': proteinG,
+      if (carbsG != null) 'carbs_g': carbsG,
+      if (fatG != null) 'fat_g': fatG,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  NutritionGoalsCompanion copyWith({
+    Value<int>? id,
+    Value<double>? energyKcal,
+    Value<double?>? proteinG,
+    Value<double?>? carbsG,
+    Value<double?>? fatG,
+    Value<DateTime>? updatedAt,
+  }) {
+    return NutritionGoalsCompanion(
+      id: id ?? this.id,
+      energyKcal: energyKcal ?? this.energyKcal,
+      proteinG: proteinG ?? this.proteinG,
+      carbsG: carbsG ?? this.carbsG,
+      fatG: fatG ?? this.fatG,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (energyKcal.present) {
+      map['energy_kcal'] = Variable<double>(energyKcal.value);
+    }
+    if (proteinG.present) {
+      map['protein_g'] = Variable<double>(proteinG.value);
+    }
+    if (carbsG.present) {
+      map['carbs_g'] = Variable<double>(carbsG.value);
+    }
+    if (fatG.present) {
+      map['fat_g'] = Variable<double>(fatG.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NutritionGoalsCompanion(')
+          ..write('id: $id, ')
+          ..write('energyKcal: $energyKcal, ')
+          ..write('proteinG: $proteinG, ')
+          ..write('carbsG: $carbsG, ')
+          ..write('fatG: $fatG, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $GoalEstimationInputsTable extends GoalEstimationInputs
+    with TableInfo<$GoalEstimationInputsTable, GoalEstimationInput> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GoalEstimationInputsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _weightKgMeta = const VerificationMeta(
+    'weightKg',
+  );
+  @override
+  late final GeneratedColumn<double> weightKg = GeneratedColumn<double>(
+    'weight_kg',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _heightCmMeta = const VerificationMeta(
+    'heightCm',
+  );
+  @override
+  late final GeneratedColumn<double> heightCm = GeneratedColumn<double>(
+    'height_cm',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ageYearsMeta = const VerificationMeta(
+    'ageYears',
+  );
+  @override
+  late final GeneratedColumn<int> ageYears = GeneratedColumn<int>(
+    'age_years',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sexMeta = const VerificationMeta('sex');
+  @override
+  late final GeneratedColumn<String> sex = GeneratedColumn<String>(
+    'sex',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _activityLevelMeta = const VerificationMeta(
+    'activityLevel',
+  );
+  @override
+  late final GeneratedColumn<String> activityLevel = GeneratedColumn<String>(
+    'activity_level',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    weightKg,
+    heightCm,
+    ageYears,
+    sex,
+    activityLevel,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'goal_estimation_inputs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GoalEstimationInput> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('weight_kg')) {
+      context.handle(
+        _weightKgMeta,
+        weightKg.isAcceptableOrUnknown(data['weight_kg']!, _weightKgMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_weightKgMeta);
+    }
+    if (data.containsKey('height_cm')) {
+      context.handle(
+        _heightCmMeta,
+        heightCm.isAcceptableOrUnknown(data['height_cm']!, _heightCmMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_heightCmMeta);
+    }
+    if (data.containsKey('age_years')) {
+      context.handle(
+        _ageYearsMeta,
+        ageYears.isAcceptableOrUnknown(data['age_years']!, _ageYearsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ageYearsMeta);
+    }
+    if (data.containsKey('sex')) {
+      context.handle(
+        _sexMeta,
+        sex.isAcceptableOrUnknown(data['sex']!, _sexMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sexMeta);
+    }
+    if (data.containsKey('activity_level')) {
+      context.handle(
+        _activityLevelMeta,
+        activityLevel.isAcceptableOrUnknown(
+          data['activity_level']!,
+          _activityLevelMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_activityLevelMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  GoalEstimationInput map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GoalEstimationInput(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      weightKg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}weight_kg'],
+      )!,
+      heightCm: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}height_cm'],
+      )!,
+      ageYears: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}age_years'],
+      )!,
+      sex: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sex'],
+      )!,
+      activityLevel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}activity_level'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $GoalEstimationInputsTable createAlias(String alias) {
+    return $GoalEstimationInputsTable(attachedDatabase, alias);
+  }
+}
+
+class GoalEstimationInput extends DataClass
+    implements Insertable<GoalEstimationInput> {
+  final int id;
+  final double weightKg;
+  final double heightCm;
+  final int ageYears;
+  final String sex;
+  final String activityLevel;
+  final DateTime updatedAt;
+  const GoalEstimationInput({
+    required this.id,
+    required this.weightKg,
+    required this.heightCm,
+    required this.ageYears,
+    required this.sex,
+    required this.activityLevel,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['weight_kg'] = Variable<double>(weightKg);
+    map['height_cm'] = Variable<double>(heightCm);
+    map['age_years'] = Variable<int>(ageYears);
+    map['sex'] = Variable<String>(sex);
+    map['activity_level'] = Variable<String>(activityLevel);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  GoalEstimationInputsCompanion toCompanion(bool nullToAbsent) {
+    return GoalEstimationInputsCompanion(
+      id: Value(id),
+      weightKg: Value(weightKg),
+      heightCm: Value(heightCm),
+      ageYears: Value(ageYears),
+      sex: Value(sex),
+      activityLevel: Value(activityLevel),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory GoalEstimationInput.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GoalEstimationInput(
+      id: serializer.fromJson<int>(json['id']),
+      weightKg: serializer.fromJson<double>(json['weightKg']),
+      heightCm: serializer.fromJson<double>(json['heightCm']),
+      ageYears: serializer.fromJson<int>(json['ageYears']),
+      sex: serializer.fromJson<String>(json['sex']),
+      activityLevel: serializer.fromJson<String>(json['activityLevel']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'weightKg': serializer.toJson<double>(weightKg),
+      'heightCm': serializer.toJson<double>(heightCm),
+      'ageYears': serializer.toJson<int>(ageYears),
+      'sex': serializer.toJson<String>(sex),
+      'activityLevel': serializer.toJson<String>(activityLevel),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  GoalEstimationInput copyWith({
+    int? id,
+    double? weightKg,
+    double? heightCm,
+    int? ageYears,
+    String? sex,
+    String? activityLevel,
+    DateTime? updatedAt,
+  }) => GoalEstimationInput(
+    id: id ?? this.id,
+    weightKg: weightKg ?? this.weightKg,
+    heightCm: heightCm ?? this.heightCm,
+    ageYears: ageYears ?? this.ageYears,
+    sex: sex ?? this.sex,
+    activityLevel: activityLevel ?? this.activityLevel,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  GoalEstimationInput copyWithCompanion(GoalEstimationInputsCompanion data) {
+    return GoalEstimationInput(
+      id: data.id.present ? data.id.value : this.id,
+      weightKg: data.weightKg.present ? data.weightKg.value : this.weightKg,
+      heightCm: data.heightCm.present ? data.heightCm.value : this.heightCm,
+      ageYears: data.ageYears.present ? data.ageYears.value : this.ageYears,
+      sex: data.sex.present ? data.sex.value : this.sex,
+      activityLevel: data.activityLevel.present
+          ? data.activityLevel.value
+          : this.activityLevel,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalEstimationInput(')
+          ..write('id: $id, ')
+          ..write('weightKg: $weightKg, ')
+          ..write('heightCm: $heightCm, ')
+          ..write('ageYears: $ageYears, ')
+          ..write('sex: $sex, ')
+          ..write('activityLevel: $activityLevel, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    weightKg,
+    heightCm,
+    ageYears,
+    sex,
+    activityLevel,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GoalEstimationInput &&
+          other.id == this.id &&
+          other.weightKg == this.weightKg &&
+          other.heightCm == this.heightCm &&
+          other.ageYears == this.ageYears &&
+          other.sex == this.sex &&
+          other.activityLevel == this.activityLevel &&
+          other.updatedAt == this.updatedAt);
+}
+
+class GoalEstimationInputsCompanion
+    extends UpdateCompanion<GoalEstimationInput> {
+  final Value<int> id;
+  final Value<double> weightKg;
+  final Value<double> heightCm;
+  final Value<int> ageYears;
+  final Value<String> sex;
+  final Value<String> activityLevel;
+  final Value<DateTime> updatedAt;
+  const GoalEstimationInputsCompanion({
+    this.id = const Value.absent(),
+    this.weightKg = const Value.absent(),
+    this.heightCm = const Value.absent(),
+    this.ageYears = const Value.absent(),
+    this.sex = const Value.absent(),
+    this.activityLevel = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  GoalEstimationInputsCompanion.insert({
+    this.id = const Value.absent(),
+    required double weightKg,
+    required double heightCm,
+    required int ageYears,
+    required String sex,
+    required String activityLevel,
+    required DateTime updatedAt,
+  }) : weightKg = Value(weightKg),
+       heightCm = Value(heightCm),
+       ageYears = Value(ageYears),
+       sex = Value(sex),
+       activityLevel = Value(activityLevel),
+       updatedAt = Value(updatedAt);
+  static Insertable<GoalEstimationInput> custom({
+    Expression<int>? id,
+    Expression<double>? weightKg,
+    Expression<double>? heightCm,
+    Expression<int>? ageYears,
+    Expression<String>? sex,
+    Expression<String>? activityLevel,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (weightKg != null) 'weight_kg': weightKg,
+      if (heightCm != null) 'height_cm': heightCm,
+      if (ageYears != null) 'age_years': ageYears,
+      if (sex != null) 'sex': sex,
+      if (activityLevel != null) 'activity_level': activityLevel,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  GoalEstimationInputsCompanion copyWith({
+    Value<int>? id,
+    Value<double>? weightKg,
+    Value<double>? heightCm,
+    Value<int>? ageYears,
+    Value<String>? sex,
+    Value<String>? activityLevel,
+    Value<DateTime>? updatedAt,
+  }) {
+    return GoalEstimationInputsCompanion(
+      id: id ?? this.id,
+      weightKg: weightKg ?? this.weightKg,
+      heightCm: heightCm ?? this.heightCm,
+      ageYears: ageYears ?? this.ageYears,
+      sex: sex ?? this.sex,
+      activityLevel: activityLevel ?? this.activityLevel,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (weightKg.present) {
+      map['weight_kg'] = Variable<double>(weightKg.value);
+    }
+    if (heightCm.present) {
+      map['height_cm'] = Variable<double>(heightCm.value);
+    }
+    if (ageYears.present) {
+      map['age_years'] = Variable<int>(ageYears.value);
+    }
+    if (sex.present) {
+      map['sex'] = Variable<String>(sex.value);
+    }
+    if (activityLevel.present) {
+      map['activity_level'] = Variable<String>(activityLevel.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalEstimationInputsCompanion(')
+          ..write('id: $id, ')
+          ..write('weightKg: $weightKg, ')
+          ..write('heightCm: $heightCm, ')
+          ..write('ageYears: $ageYears, ')
+          ..write('sex: $sex, ')
+          ..write('activityLevel: $activityLevel, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2628,6 +3478,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $ConsentRecordTable consentRecord = $ConsentRecordTable(this);
+  late final $NutritionGoalsTable nutritionGoals = $NutritionGoalsTable(this);
+  late final $GoalEstimationInputsTable goalEstimationInputs =
+      $GoalEstimationInputsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2637,6 +3490,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     mealItems,
     personalProducts,
     consentRecord,
+    nutritionGoals,
+    goalEstimationInputs,
   ];
 }
 
@@ -4118,6 +4973,493 @@ typedef $$ConsentRecordTableProcessedTableManager =
       ConsentRecordData,
       PrefetchHooks Function()
     >;
+typedef $$NutritionGoalsTableCreateCompanionBuilder =
+    NutritionGoalsCompanion Function({
+      Value<int> id,
+      required double energyKcal,
+      Value<double?> proteinG,
+      Value<double?> carbsG,
+      Value<double?> fatG,
+      required DateTime updatedAt,
+    });
+typedef $$NutritionGoalsTableUpdateCompanionBuilder =
+    NutritionGoalsCompanion Function({
+      Value<int> id,
+      Value<double> energyKcal,
+      Value<double?> proteinG,
+      Value<double?> carbsG,
+      Value<double?> fatG,
+      Value<DateTime> updatedAt,
+    });
+
+class $$NutritionGoalsTableFilterComposer
+    extends Composer<_$AppDatabase, $NutritionGoalsTable> {
+  $$NutritionGoalsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get energyKcal => $composableBuilder(
+    column: $table.energyKcal,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get proteinG => $composableBuilder(
+    column: $table.proteinG,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get carbsG => $composableBuilder(
+    column: $table.carbsG,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get fatG => $composableBuilder(
+    column: $table.fatG,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$NutritionGoalsTableOrderingComposer
+    extends Composer<_$AppDatabase, $NutritionGoalsTable> {
+  $$NutritionGoalsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get energyKcal => $composableBuilder(
+    column: $table.energyKcal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get proteinG => $composableBuilder(
+    column: $table.proteinG,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get carbsG => $composableBuilder(
+    column: $table.carbsG,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get fatG => $composableBuilder(
+    column: $table.fatG,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$NutritionGoalsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $NutritionGoalsTable> {
+  $$NutritionGoalsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<double> get energyKcal => $composableBuilder(
+    column: $table.energyKcal,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get proteinG =>
+      $composableBuilder(column: $table.proteinG, builder: (column) => column);
+
+  GeneratedColumn<double> get carbsG =>
+      $composableBuilder(column: $table.carbsG, builder: (column) => column);
+
+  GeneratedColumn<double> get fatG =>
+      $composableBuilder(column: $table.fatG, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$NutritionGoalsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $NutritionGoalsTable,
+          NutritionGoal,
+          $$NutritionGoalsTableFilterComposer,
+          $$NutritionGoalsTableOrderingComposer,
+          $$NutritionGoalsTableAnnotationComposer,
+          $$NutritionGoalsTableCreateCompanionBuilder,
+          $$NutritionGoalsTableUpdateCompanionBuilder,
+          (
+            NutritionGoal,
+            BaseReferences<_$AppDatabase, $NutritionGoalsTable, NutritionGoal>,
+          ),
+          NutritionGoal,
+          PrefetchHooks Function()
+        > {
+  $$NutritionGoalsTableTableManager(
+    _$AppDatabase db,
+    $NutritionGoalsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$NutritionGoalsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$NutritionGoalsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$NutritionGoalsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<double> energyKcal = const Value.absent(),
+                Value<double?> proteinG = const Value.absent(),
+                Value<double?> carbsG = const Value.absent(),
+                Value<double?> fatG = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => NutritionGoalsCompanion(
+                id: id,
+                energyKcal: energyKcal,
+                proteinG: proteinG,
+                carbsG: carbsG,
+                fatG: fatG,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required double energyKcal,
+                Value<double?> proteinG = const Value.absent(),
+                Value<double?> carbsG = const Value.absent(),
+                Value<double?> fatG = const Value.absent(),
+                required DateTime updatedAt,
+              }) => NutritionGoalsCompanion.insert(
+                id: id,
+                energyKcal: energyKcal,
+                proteinG: proteinG,
+                carbsG: carbsG,
+                fatG: fatG,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$NutritionGoalsTable, NutritionGoal>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $NutritionGoalsTable,
+                    NutritionGoal
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$NutritionGoalsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $NutritionGoalsTable,
+      NutritionGoal,
+      $$NutritionGoalsTableFilterComposer,
+      $$NutritionGoalsTableOrderingComposer,
+      $$NutritionGoalsTableAnnotationComposer,
+      $$NutritionGoalsTableCreateCompanionBuilder,
+      $$NutritionGoalsTableUpdateCompanionBuilder,
+      (
+        NutritionGoal,
+        BaseReferences<_$AppDatabase, $NutritionGoalsTable, NutritionGoal>,
+      ),
+      NutritionGoal,
+      PrefetchHooks Function()
+    >;
+typedef $$GoalEstimationInputsTableCreateCompanionBuilder =
+    GoalEstimationInputsCompanion Function({
+      Value<int> id,
+      required double weightKg,
+      required double heightCm,
+      required int ageYears,
+      required String sex,
+      required String activityLevel,
+      required DateTime updatedAt,
+    });
+typedef $$GoalEstimationInputsTableUpdateCompanionBuilder =
+    GoalEstimationInputsCompanion Function({
+      Value<int> id,
+      Value<double> weightKg,
+      Value<double> heightCm,
+      Value<int> ageYears,
+      Value<String> sex,
+      Value<String> activityLevel,
+      Value<DateTime> updatedAt,
+    });
+
+class $$GoalEstimationInputsTableFilterComposer
+    extends Composer<_$AppDatabase, $GoalEstimationInputsTable> {
+  $$GoalEstimationInputsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get weightKg => $composableBuilder(
+    column: $table.weightKg,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get heightCm => $composableBuilder(
+    column: $table.heightCm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get ageYears => $composableBuilder(
+    column: $table.ageYears,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sex => $composableBuilder(
+    column: $table.sex,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get activityLevel => $composableBuilder(
+    column: $table.activityLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$GoalEstimationInputsTableOrderingComposer
+    extends Composer<_$AppDatabase, $GoalEstimationInputsTable> {
+  $$GoalEstimationInputsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get weightKg => $composableBuilder(
+    column: $table.weightKg,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get heightCm => $composableBuilder(
+    column: $table.heightCm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get ageYears => $composableBuilder(
+    column: $table.ageYears,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sex => $composableBuilder(
+    column: $table.sex,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get activityLevel => $composableBuilder(
+    column: $table.activityLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$GoalEstimationInputsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $GoalEstimationInputsTable> {
+  $$GoalEstimationInputsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<double> get weightKg =>
+      $composableBuilder(column: $table.weightKg, builder: (column) => column);
+
+  GeneratedColumn<double> get heightCm =>
+      $composableBuilder(column: $table.heightCm, builder: (column) => column);
+
+  GeneratedColumn<int> get ageYears =>
+      $composableBuilder(column: $table.ageYears, builder: (column) => column);
+
+  GeneratedColumn<String> get sex =>
+      $composableBuilder(column: $table.sex, builder: (column) => column);
+
+  GeneratedColumn<String> get activityLevel => $composableBuilder(
+    column: $table.activityLevel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$GoalEstimationInputsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $GoalEstimationInputsTable,
+          GoalEstimationInput,
+          $$GoalEstimationInputsTableFilterComposer,
+          $$GoalEstimationInputsTableOrderingComposer,
+          $$GoalEstimationInputsTableAnnotationComposer,
+          $$GoalEstimationInputsTableCreateCompanionBuilder,
+          $$GoalEstimationInputsTableUpdateCompanionBuilder,
+          (
+            GoalEstimationInput,
+            BaseReferences<
+              _$AppDatabase,
+              $GoalEstimationInputsTable,
+              GoalEstimationInput
+            >,
+          ),
+          GoalEstimationInput,
+          PrefetchHooks Function()
+        > {
+  $$GoalEstimationInputsTableTableManager(
+    _$AppDatabase db,
+    $GoalEstimationInputsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$GoalEstimationInputsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GoalEstimationInputsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$GoalEstimationInputsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<double> weightKg = const Value.absent(),
+                Value<double> heightCm = const Value.absent(),
+                Value<int> ageYears = const Value.absent(),
+                Value<String> sex = const Value.absent(),
+                Value<String> activityLevel = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => GoalEstimationInputsCompanion(
+                id: id,
+                weightKg: weightKg,
+                heightCm: heightCm,
+                ageYears: ageYears,
+                sex: sex,
+                activityLevel: activityLevel,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required double weightKg,
+                required double heightCm,
+                required int ageYears,
+                required String sex,
+                required String activityLevel,
+                required DateTime updatedAt,
+              }) => GoalEstimationInputsCompanion.insert(
+                id: id,
+                weightKg: weightKg,
+                heightCm: heightCm,
+                ageYears: ageYears,
+                sex: sex,
+                activityLevel: activityLevel,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$GoalEstimationInputsTable, GoalEstimationInput>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $GoalEstimationInputsTable,
+                    GoalEstimationInput
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$GoalEstimationInputsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $GoalEstimationInputsTable,
+      GoalEstimationInput,
+      $$GoalEstimationInputsTableFilterComposer,
+      $$GoalEstimationInputsTableOrderingComposer,
+      $$GoalEstimationInputsTableAnnotationComposer,
+      $$GoalEstimationInputsTableCreateCompanionBuilder,
+      $$GoalEstimationInputsTableUpdateCompanionBuilder,
+      (
+        GoalEstimationInput,
+        BaseReferences<
+          _$AppDatabase,
+          $GoalEstimationInputsTable,
+          GoalEstimationInput
+        >,
+      ),
+      GoalEstimationInput,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -4130,4 +5472,8 @@ class $AppDatabaseManager {
       $$PersonalProductsTableTableManager(_db, _db.personalProducts);
   $$ConsentRecordTableTableManager get consentRecord =>
       $$ConsentRecordTableTableManager(_db, _db.consentRecord);
+  $$NutritionGoalsTableTableManager get nutritionGoals =>
+      $$NutritionGoalsTableTableManager(_db, _db.nutritionGoals);
+  $$GoalEstimationInputsTableTableManager get goalEstimationInputs =>
+      $$GoalEstimationInputsTableTableManager(_db, _db.goalEstimationInputs);
 }
