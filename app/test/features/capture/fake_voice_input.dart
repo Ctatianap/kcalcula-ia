@@ -17,6 +17,7 @@ class FakeSpeechRecognizer implements SpeechRecognizer {
 
   bool _available = false;
   void Function(String message)? _onError;
+  void Function()? _onDone;
   void Function(String text, bool isFinal)? _onResult;
 
   @override
@@ -25,8 +26,10 @@ class FakeSpeechRecognizer implements SpeechRecognizer {
   @override
   Future<bool> initialize({
     required void Function(String message) onError,
+    required void Function() onDone,
   }) async {
     _onError = onError;
+    _onDone = onDone;
     _available = availableOnInit;
     return availableOnInit;
   }
@@ -47,6 +50,12 @@ class FakeSpeechRecognizer implements SpeechRecognizer {
   /// (parcial o final).
   void emitResult(String text, {bool isFinal = false}) {
     _onResult?.call(text, isFinal);
+  }
+
+  /// Helper de test: simula que el reconocedor cerró la escucha por su
+  /// cuenta (status `done`), sin que el usuario tocara "Detener".
+  void emitDone() {
+    _onDone?.call();
   }
 
   /// Helper de test: simula un error del plugin durante la escucha.

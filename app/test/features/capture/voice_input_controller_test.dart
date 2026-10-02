@@ -131,4 +131,91 @@ void main() {
 
     expect(container.read(voiceInputControllerProvider), isA<VoiceInputIdle>());
   });
+
+  test(
+    'AC9: el reconocedor termina solo -> VoiceInputIdle con la transcripción',
+    () async {
+      final recognizer = FakeSpeechRecognizer();
+      final container = _buildContainer(
+        permission: FakeMicrophonePermission(granted: true),
+        recognizer: recognizer,
+      );
+      addTearDown(container.dispose);
+
+      await container
+          .read(voiceInputControllerProvider.notifier)
+          .startListening();
+      recognizer.emitResult('almorcé 180 gramos de arroz');
+      recognizer.emitDone();
+
+      final state = container.read(voiceInputControllerProvider);
+      expect(state, isA<VoiceInputIdle>());
+      expect((state as VoiceInputIdle).text, 'almorcé 180 gramos de arroz');
+
+      // Un segundo `done` no cambia nada.
+      recognizer.emitDone();
+      expect(
+        (container.read(voiceInputControllerProvider) as VoiceInputIdle).text,
+        'almorcé 180 gramos de arroz',
+      );
+    },
+  );
+
+  test(
+    'AC9: un resultado final que llega después de done queda en el estado',
+    () async {
+      final recognizer = FakeSpeechRecognizer();
+      final container = _buildContainer(
+        permission: FakeMicrophonePermission(granted: true),
+        recognizer: recognizer,
+      );
+      addTearDown(container.dispose);
+
+      await container
+          .read(voiceInputControllerProvider.notifier)
+          .startListening();
+      recognizer.emitResult('una manzana');
+      recognizer.emitDone();
+      recognizer.emitResult('una manzana verde', isFinal: true);
+
+      final state = container.read(voiceInputControllerProvider);
+      expect(state, isA<VoiceInputIdle>());
+      expect((state as VoiceInputIdle).text, 'una manzana verde');
+    },
+  );
+
+  test('AC10: la transcripción nueva se agrega al texto existente', () async {
+    final recognizer = FakeSpeechRecognizer();
+    final container = _buildContainer(
+      permission: FakeMicrophonePermission(granted: true),
+      recognizer: recognizer,
+    );
+    addTearDown(container.dispose);
+
+    await container
+        .read(voiceInputControllerProvider.notifier)
+        .startListening(existingText: 'dos huevos ');
+    expect(
+      (container.read(
+        voiceInputControllerProvider,
+      ) as VoiceInputListening).text,
+      'dos huevos',
+    );
+
+    recognizer.emitResult('');
+    expect(
+      (container.read(
+        voiceInputControllerProvider,
+      ) as VoiceInputListening).text,
+      'dos huevos',
+    );
+
+    recognizer.emitResult('y una arepa');
+    expect(
+      (container.read(
+        voiceInputControllerProvider,
+      ) as VoiceInputListening).text,
+      'dos huevos y una arepa',
+    );
+  });
 }

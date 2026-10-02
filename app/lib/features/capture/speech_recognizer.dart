@@ -8,7 +8,12 @@ abstract class SpeechRecognizer {
 
   /// `onError` reporta errores del plugin en cualquier momento (durante
   /// `initialize` o mientras escucha), no solo al inicializar.
-  Future<bool> initialize({required void Function(String message) onError});
+  /// `onDone` avisa que el reconocedor dejó de escuchar por su cuenta (R5):
+  /// puede llamarse más de una vez por sesión y antes del resultado final.
+  Future<bool> initialize({
+    required void Function(String message) onError,
+    required void Function() onDone,
+  });
 
   Future<void> listen({
     required void Function(String text, bool isFinal) onResult,
@@ -26,10 +31,15 @@ class PluginSpeechRecognizer implements SpeechRecognizer {
   bool get isAvailable => _speech.isAvailable;
 
   @override
-  Future<bool> initialize({required void Function(String message) onError}) {
+  Future<bool> initialize({
+    required void Function(String message) onError,
+    required void Function() onDone,
+  }) {
     return _speech.initialize(
       onError: (error) => onError(error.errorMsg),
-      onStatus: (_) {},
+      onStatus: (status) {
+        if (status == stt.SpeechToText.doneStatus) onDone();
+      },
     );
   }
 

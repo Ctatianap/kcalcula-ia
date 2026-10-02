@@ -1,7 +1,7 @@
 # SPEC-002: Entrada de una comida por voz
 
 ## Status
-Review
+Implementing
 Path: Strict (el audio puede salir del dispositivo hacia los servidores de reconocimiento de voz
 del sistema operativo — requiere actualizar `docs/privacy.md`, aunque nunca vaya a nuestro backend)
 
@@ -39,12 +39,19 @@ registrar sea más rápido cuando tengo las manos ocupadas o prefiero hablar.
   timeout de silencio automático (~2 segundos sin habla detectada). En cualquiera de los dos
   casos, la transcripción final queda en el campo de texto, editable, exactamente como si el
   usuario la hubiera escrito — reutiliza `CaptureController.analyze(text)` sin ningún cambio.
+  Si el sistema operativo cierra la escucha por su cuenta (en Android el reconocedor puede
+  decidir que la frase terminó aunque no haya pausa — medido en AC8), la app vuelve al estado
+  "listo" (botón de micrófono) y conserva el texto en el campo; nunca se queda mostrando
+  "escuchando" sin estar escuchando.
 - R6. El usuario puede editar la transcripción antes de presionar "Analizar" (ya existe el mismo
   `TextField`; esto solo lo prellena).
 - R7. Errores manejados con mensaje en español y vuelta a estado inicial (nunca una traza técnica):
   sin permiso, reconocimiento no disponible en el dispositivo, error del plugin durante la escucha.
 - R8. Sin telemetría nueva: no se envía a ningún backend si la transcripción fue editada o no. La
   medición de calidad (PV-05) es manual (ver AC8), no una función del producto.
+- R9. Volver a tocar el micrófono cuando el campo ya tiene texto **agrega** la nueva
+  transcripción al final de ese texto, separada por un espacio; no lo reemplaza. Así el usuario
+  puede dictar por partes si la escucha se cortó.
 
 ## Acceptance Criteria
 - AC1. Con permiso concedido, tocar el botón de micrófono muestra un indicador de "escuchando"
@@ -67,6 +74,12 @@ registrar sea más rápido cuando tengo las manos ocupadas o prefiero hablar.
   emulador, que no tienen micrófono real). Se documenta en una nota de investigación (actualiza
   PV-05) la transcripción real vs. el texto esperado por frase y el % de coincidencia,
   distinguiendo Android de iOS `[manual]`.
+- AC9. Si el reconocedor reporta que terminó de escuchar (`done`) sin que el usuario toque
+  "Detener", el estado vuelve a inactivo, el botón vuelve a ser el micrófono y la transcripción
+  sigue en el campo; un resultado final que llegue después del `done` también queda en el campo
+  `[unit + widget]`.
+- AC10. Con "dos huevos" en el campo, tocar el micrófono y dictar "y una arepa" deja
+  "dos huevos y una arepa" en el campo `[unit + widget]`.
 
 ## Technical Constraints
 - Invariantes 1, 3, 4 y 6 de `CLAUDE.md`: la voz no aporta nutrientes ni confianza (eso lo sigue
@@ -146,6 +159,13 @@ de esta SPEC más 0 regresiones).
 - 2026-09-28: creación, a partir de T-003 de `docs/backlog.md`.
 - 2026-09-28: resuelta la Open Question de detener la escucha — R5 confirma botón manual y
   timeout de silencio (~2s), ambos soportados.
+- 2026-10-01: la medición de AC8 en un motorola edge 50 pro (Android 16) mostró que el
+  reconocedor del SO cierra la escucha a mitad de frase sin pausa, y que la app no se enteraba
+  (seguía en "escuchando") y al reintentar borraba el texto. Log de diagnóstico: parciales
+  acumulativos correctos, luego `notListening` → `done` → resultado final. Aprobado por el usuario
+  (opción A): R5 ampliado (cierre por el SO → estado listo, texto conservado), R9 nuevo (agregar
+  en vez de reemplazar), AC9 y AC10 nuevos. La opción B (reanudar sola la escucha) se descartó por
+  ahora. Status Review → Implementing.
 
 ## Review
 Informe del reviewer (2026-09-28, subagente `reviewer`, rama `spec-002-entrada-por-voz`):

@@ -34,7 +34,7 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
     if (voiceState is VoiceInputListening) {
       controller.stopListening();
     } else {
-      controller.startListening();
+      controller.startListening(existingText: _textController.text);
     }
   }
 
@@ -104,13 +104,18 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
       }
     });
 
-    // R4/R5: la transcripción (parcial o final) rellena el mismo campo de
+    // R4/R5/R9: la transcripción (parcial o final) rellena el mismo campo de
     // texto que se usa para escribir; sigue siendo editable en todo momento.
     ref.listen<VoiceInputState>(voiceInputControllerProvider, (previous, next) {
-      if (next is VoiceInputListening) {
+      final text = switch (next) {
+        VoiceInputListening(:final text) => text,
+        VoiceInputIdle(:final text?) => text,
+        _ => null,
+      };
+      if (text != null) {
         _textController.value = TextEditingValue(
-          text: next.text,
-          selection: TextSelection.collapsed(offset: next.text.length),
+          text: text,
+          selection: TextSelection.collapsed(offset: text.length),
         );
         setState(() {});
       }

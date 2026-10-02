@@ -112,4 +112,48 @@ void main() {
       expect(tester.widget<TextField>(find.byType(TextField)).enabled, isTrue);
     },
   );
+
+  testWidgets(
+    'AC9: si el reconocedor termina solo, vuelve el micrófono y el texto queda',
+    (tester) async {
+      final recognizer = FakeSpeechRecognizer();
+      await _pump(
+        tester,
+        permission: FakeMicrophonePermission(granted: true),
+        recognizer: recognizer,
+      );
+
+      await tester.tap(find.byIcon(Icons.mic));
+      await tester.pumpAndSettle();
+      recognizer.emitResult('medio aguacate');
+      recognizer.emitDone();
+      await tester.pumpAndSettle();
+
+      expect(find.text('Escuchando…'), findsNothing);
+      expect(find.byIcon(Icons.mic), findsOneWidget);
+      expect(find.text('medio aguacate'), findsOneWidget);
+      final analizar = find.widgetWithText(FilledButton, 'Analizar');
+      expect(tester.widget<FilledButton>(analizar).onPressed, isNotNull);
+    },
+  );
+
+  testWidgets('AC10: dictar de nuevo agrega al final del texto del campo', (
+    tester,
+  ) async {
+    final recognizer = FakeSpeechRecognizer();
+    await _pump(
+      tester,
+      permission: FakeMicrophonePermission(granted: true),
+      recognizer: recognizer,
+    );
+
+    await tester.enterText(find.byType(TextField), 'dos huevos');
+    await tester.tap(find.byIcon(Icons.mic));
+    await tester.pumpAndSettle();
+    recognizer.emitResult('y una arepa');
+    recognizer.emitDone();
+    await tester.pumpAndSettle();
+
+    expect(find.text('dos huevos y una arepa'), findsOneWidget);
+  });
 }
