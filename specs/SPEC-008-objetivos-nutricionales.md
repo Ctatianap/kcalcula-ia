@@ -40,14 +40,23 @@ y cuánto me queda.
 - R2. **Sugerencia calculada (opcional).** En la misma pantalla, el botón "Calcular una
   sugerencia" pide peso (kg), estatura (cm), edad (años), sexo (para la fórmula: femenino o
   masculino) y nivel de actividad. Con esos datos `nutrition_core` estima las kcal diarias de
-  **mantenimiento** con la fórmula de OQ1, y a partir de ellas (y del peso, para la proteína) las
+  **mantenimiento** con las ecuaciones de gasto energético total de las DRI for Energy 2023 de
+  NASEM (Tabla 5-5: una ecuación por sexo y nivel de actividad, OQ1), y a partir de ellas (y del peso, para la proteína) las
   metas de proteína, carbohidratos y grasa en gramos (R3). La sugerencia rellena los cuatro
   campos, que siguen siendo editables. El usuario decide si la guarda.
-- R3. **La sugerencia incluye macros** (OQ3, decisión del usuario 2026-10-02). `nutrition_core`
-  reparte las kcal sugeridas en proteína, carbohidratos y grasa dentro de los rangos de
-  distribución de la fuente de PV-13 (OQ8) y convierte a gramos con los factores de energía de esa
-  misma fuente. Si la fuente solo da rangos, el punto elegido dentro de ellos es una decisión de
-  producto: se documenta como tal y se presenta como estimación, no como recomendación.
+- R3. **La sugerencia incluye macros** (OQ3 y OQ8, decisiones del usuario del 2026-10-02).
+  `nutrition_core` reparte las kcal sugeridas así:
+  - **Proteína:** 1,11 g/kg de peso (RDA de la Res. 3803 de 2016, Tabla 12). Si eso queda por
+    debajo del 14 % o por encima del 20 % de las kcal sugeridas, se ajusta a ese límite (rango de
+    la Res. 3803, Tabla 1).
+  - **Grasa:** 27,5 % de las kcal (la mitad del rango 20–35 % de la Res. 3803, Tabla 1).
+  - **Carbohidratos:** el resto de las kcal. Con las dos reglas anteriores queda entre el 52,5 % y
+    el 58,5 %, dentro del rango 50–65 %.
+
+  Para pasar de kcal a gramos se usan 4 kcal/g de proteína, 9 de grasa y 4 de carbohidratos (FAO
+  Food and Nutrition Paper 77, 2003). Las fuentes solo dan rangos, así que **el punto elegido dentro
+  de ellos es una decisión de producto**, y se documenta y presenta como estimación, no como
+  recomendación.
 - R4. **Presentación de la sugerencia.** Se muestra como estimación ("~2.150 kcal", "~110 g de
   proteína") junto con el
   texto fijo: "Es una estimación general, no una recomendación médica. Si tienes una condición de
@@ -78,10 +87,23 @@ y cuánto me queda.
   (qué son, que solo se guardan si el usuario pide la sugerencia, que no salen del dispositivo y
   cómo borrarlos) y sube de versión. El mecanismo existente de SPEC-006/007 vuelve a pedir el
   consentimiento a quien aceptó una versión anterior.
-- R13. **Meta de kcal baja (OQ7).** Si la meta de kcal guardada, escrita o sugerida, queda por
-  debajo del umbral de PV-13, la app **advierte pero no bloquea**: "Esta meta es más baja de lo que
-  se suele recomendar sin acompañamiento profesional." El valor del umbral sale de la fuente de
-  PV-13; si no hay fuente con consenso, no hay advertencia por umbral.
+- R13. **Meta de kcal baja (OQ7).** Si la meta de kcal que se va a guardar, escrita o sugerida, es
+  menor de **1.200 kcal**, la app **advierte pero no bloquea**: "Esta meta es más baja de lo que
+  se suele recomendar sin acompañamiento profesional." El 1.200 es una **decisión de producto**:
+  PV-13 no encontró un piso institucional; las cifras de 1.200/1.500 de NHLBI y AHA/ACC/TOS son
+  planes para bajar de peso. El mínimo aceptado de 800 kcal (OQ4) coincide con la frontera de las
+  dietas muy bajas en calorías, que requieren supervisión médica (NIH 1993, ver la nota de PV-13).
+- R14. **Niveles de actividad (OQ2).** Son los 4 de las DRI 2023, con textos en es-CO basados en
+  los ejemplos de la Tabla 7-1 (velocidades pasadas a km/h). Propuesta, que se ajusta al
+  implementar tras la verificación humana de la tabla:
+  - "Poco movimiento": solo las actividades del día a día.
+  - "Algo activo": el día a día y además unos 60–80 min de caminata (5–6 km/h).
+  - "Activo": el día a día, 30–50 min de caminata y 45 min de bicicleta moderada, o equivalente.
+  - "Muy activo": el día a día, 45 min de bicicleta moderada y unos 25 min de trote, o
+    equivalente.
+
+  Debajo, la nota: "Elige el que más se parezca a un día normal tuyo." La fuente advierte que no
+  hay una forma precisa de autoclasificarse; por eso el resultado es una estimación (R4).
 
 ## Acceptance Criteria
 - AC1. Escribir 2000 en kcal y guardar → la meta queda en `user.db` y el diario muestra "/ 2.000
@@ -89,19 +111,20 @@ y cuánto me queda.
   español en el campo y no se guarda `[widget]`.
 - AC2. Metas de macros opcionales: guardar solo kcal y proteína 100 → el diario muestra progreso
   de kcal y de proteína, y no de carbohidratos ni de grasa `[widget]`.
-- AC3. Estimación de energía: para cada caso de referencia (ver OQ1, al menos 4: dos por sexo y
-  con niveles de actividad distintos, tomados **de la fuente citada**, no calculados de memoria),
-  `estimateMaintenanceKcal(...)` devuelve el valor esperado de la fuente con tolerancia de ±1 kcal
-  sin redondear `[unit, nutrition_core]`.
+- AC3. Estimación de energía: para cada caso de referencia calculado **por la fuente** (DRI 2023:
+  mujer de 22 años, 165 cm, 63 kg, "Algo activo" → 2.275 kcal; mujer de 70 años, 157 cm, 70 kg,
+  "Poco movimiento" → 1.812 kcal; y al menos 8 filas de las Tablas 7-9 y 7-10 que cubran los dos
+  sexos y los 4 niveles), `estimateMaintenanceKcal(...)` devuelve el valor de la fuente con una
+  tolerancia de ±1 kcal `[unit, nutrition_core]`.
 - AC4. Validación de entradas de la estimación: valores fuera de los rangos de OQ4, o un nivel de
   actividad desconocido, → error tipado, nunca un número `[unit, nutrition_core]`.
 - AC5. "Calcular una sugerencia" con datos válidos rellena los campos de kcal, proteína,
   carbohidratos y grasa con "~" y los valores presentados (redondeo de `rounding.dart`), muestra
   el texto fijo de R4 y no guarda nada hasta que el usuario toca "Guardar" `[widget]`.
-- AC5b. Reparto de macros: para los casos de referencia de AC3, `suggestMacros(...)` devuelve
-  gramos que, convertidos con los factores de la fuente, suman las kcal sugeridas (±1 kcal sin
-  redondear), y cada macro queda dentro de su rango de la fuente (y la proteína, en la regla por kg
-  si la fuente la da) `[unit, nutrition_core]`.
+- AC5b. Reparto de macros (R3): 2.000 kcal y 63 kg → proteína 69,93 g (1,11 × 63; 13,99 % < 14 %,
+  así que se ajusta a 14 % = 70,0 g), grasa 61,11 g (27,5 %) y carbohidratos 292,5 g. Además, un
+  caso que active el tope del 20 % y uno sin ajuste. En todos, proteína × 4 + grasa × 9 +
+  carbohidratos × 4 = kcal sugeridas (±0,01, sin redondear) `[unit, nutrition_core]`.
 - AC6. Progreso: consumido 1.249,6 kcal y meta 2.000 → "1.250 / 2.000 kcal · quedan 750". La resta
   se hace sin redondear (750,4 → "750"). Consumido 2.150,2 y meta 2.000 → "150 por encima de la
   meta" y barra llena `[unit, nutrition_core]` + `[widget]`.
@@ -119,9 +142,10 @@ y cuánto me queda.
   las comidas en "Alta precisión" → sin "~" `[widget]`.
 - AC13. La versión de la política sube y un usuario con consentimiento de la versión anterior ve
   de nuevo el onboarding; el texto nuevo menciona los datos de R2 `[widget + integration]`.
-- AC14. Con el umbral de PV-13 (si existe): una meta por debajo muestra la advertencia de R13 y
-  permite guardar; una meta en el umbral o por encima no la muestra `[widget]`. Si PV-13 no da un
-  umbral con fuente, este AC se marca "no aplica" con la nota enlazada.
+- AC14. Meta de 1.199 kcal → se muestra la advertencia de R13 y "Guardar" sigue habilitado; meta de
+  1.200 → sin advertencia `[widget]`.
+- AC15. La pantalla de sugerencia muestra los 4 niveles de R14 con sus textos y la nota debajo
+  `[widget]`.
 
 ## Technical Constraints
 - Invariantes 3 (cálculo solo en `nutrition_core`, redondeo al presentar), 6 (nada nuevo sale del
@@ -133,8 +157,8 @@ y cuánto me queda.
   no se importan entre sí. La meta la leen `diary` y `settings` a través de `infra/storage`.
 
 ## Components / Files Affected
-- `packages/nutrition_core/lib/src/energy_estimation.dart` (nuevo): fórmula de R2 y factores de
-  actividad, con la fuente citada.
+- `packages/nutrition_core/lib/src/energy_estimation.dart` (nuevo): las 8 ecuaciones de la DRI
+  2023 (2 sexos × 4 niveles), con la fuente citada.
 - `packages/nutrition_core/lib/src/macro_suggestion.dart` (nuevo): reparto de macros (R3).
 - `packages/nutrition_core/lib/src/goal_progress.dart` (nuevo): consumido, meta, restante o exceso
   (R6).
@@ -151,8 +175,8 @@ y cuánto me queda.
 
 ## Dependencies
 - SPEC-001 (diario, totales del día), SPEC-006 (borrar todo y exportar).
-- Investigación previa (`researcher`): PV-13 (fórmula, factores de actividad y umbral de kcal
-  baja) antes de implementar R2, R13, AC3 y AC14.
+- PV-13 resuelto (`docs/research/2026-10-02-formula-gasto-energetico.md`). Antes de implementar
+  R2, R3 y AC3 falta la verificación humana de OQ9.
 
 ## Edge Cases
 - El usuario guarda una meta y luego borra todos sus datos → el diario vuelve al estado de R7.
@@ -196,12 +220,11 @@ y cuánto me queda.
 - Unidades imperiales.
 
 ## Open Questions
-- OQ1. **Fórmula de estimación** (PV-13, para el `researcher`): ¿qué ecuación usar para el gasto
-  energético en reposo (p. ej. Mifflin-St Jeor) y qué factores de actividad? Necesita una fuente
-  primaria o institucional citable, coeficientes exactos y al menos 4 casos de referencia
-  calculados **por la fuente**, para AC3.
-- OQ2. **Niveles de actividad:** ¿cuántos y con qué textos para el usuario en es-CO? Depende de
-  la fuente de OQ1.
+- OQ1. ✅ Resuelta (2026-10-02, decisión del usuario sobre PV-13): ecuaciones de gasto energético
+  total de las DRI 2023 de NASEM. Se descartaron Mifflin-St Jeor (sin factores de actividad con
+  fuente institucional ni casos resueltos) y FAO/OMS con la Res. 3803 (sin estatura y con la tabla
+  de adultos ilegible). Nota: `docs/research/2026-10-02-formula-gasto-energetico.md`.
+- OQ2. ✅ Resuelta: los 4 niveles de las DRI 2023 (R14).
 - OQ3. ✅ Resuelta (2026-10-02, decisión del usuario): la sugerencia incluye kcal, proteína,
   carbohidratos y grasa (R3).
 - OQ4. ✅ Resuelta (2026-10-02): kcal 800–6.000; proteína, carbohidratos y grasa 0–1.000 g; peso
@@ -211,15 +234,17 @@ y cuánto me queda.
   precisión" (R6, AC12).
 - OQ6. ✅ Resuelta (2026-10-02): se actualiza la política y sube su versión, lo que vuelve a pedir
   el consentimiento (R12, AC13). Sigue pendiente la revisión legal antes de publicar (PV-07).
-- OQ8. **Reparto de macros** (PV-13, ampliada): rangos de distribución (% de energía), proteína en
-  g/kg, factores de conversión y si alguna fuente da un reparto por defecto. Si solo hay rangos,
-  ¿qué punto elige el producto? Por ejemplo, la proteína por la regla de g/kg y el resto repartido
-  en la mitad de los rangos de carbohidratos y grasa. Se decide con la nota de PV-13.
-- OQ7. Parcialmente resuelta (2026-10-02): advertir, no bloquear (R13). **Abierto:** el valor del
-  umbral y su fuente (PV-13).
+- OQ8. ✅ Resuelta (2026-10-02, decisión del usuario): rangos colombianos de la Res. 3803 (R3).
+- OQ7. ✅ Resuelta (2026-10-02, decisión del usuario): advertir por debajo de 1.200 kcal, como
+  decisión de producto, sin bloquear (R13).
+- OQ9. **Verificación humana antes de implementar** (pendiente que dejó PV-13): comparar a ojo con
+  las páginas originales las Tablas 5-4, 5-5, 7-1, 7-9 y 7-10 de las DRI 2023 y las Tablas 1 y 12
+  de la Res. 3803. Las transcribió una herramienta que resume páginas, y los coeficientes y casos
+  de AC3 salen de ahí. Puede hacerlo el usuario o el reviewer con acceso a los documentos.
 
 ## Definition of Done
-- AC1–AC14 (incluido AC5b) con evidencia enlazada en esta SPEC.
+- AC1–AC15 (incluido AC5b) con evidencia enlazada en esta SPEC.
+- OQ9 hecha y registrada (quién comparó qué tablas y cuándo).
 - `dart analyze` y `dart test` (nutrition_core); `flutter analyze` y `flutter test` (app), todo
   verde.
 - Casos de referencia de AC3 con fuente citada.
@@ -240,6 +265,10 @@ y cuánto me queda.
 - 2026-10-02: el usuario cambia OQ3: la sugerencia incluye proteína, grasa y carbohidratos además
   de kcal. R2, R3, R4 y AC5 cambian; AC5b y OQ8 nuevos; PV-13 se amplía con el reparto de macros;
   los macros salen de Out of Scope.
+- 2026-10-02: con la nota de PV-13, el usuario elige la fórmula DRI 2023 de NASEM (OQ1), los
+  rangos colombianos de la Res. 3803 para los macros (OQ8) y la advertencia por debajo de 1.200
+  kcal como decisión de producto (OQ7). R14, AC15 y OQ9 (verificación humana de las tablas) nuevos;
+  AC3, AC5b y AC14 con valores concretos.
 
 ## Review
 Informe del reviewer: pendiente.
