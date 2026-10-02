@@ -1,7 +1,7 @@
 # SPEC-002: Entrada de una comida por voz
 
 ## Status
-Implementing
+Review
 Path: Strict (el audio puede salir del dispositivo hacia los servidores de reconocimiento de voz
 del sistema operativo — requiere actualizar `docs/privacy.md`, aunque nunca vaya a nuestro backend)
 
@@ -76,7 +76,8 @@ registrar sea más rápido cuando tengo las manos ocupadas o prefiero hablar.
   → Analizar → revisión → registro llega al mismo resultado que si se hubiera escrito el mismo
   texto directamente (reutiliza `CaptureController`/`ReviewController` sin cambios) `[integration]`.
 - AC8. Un humano dice en voz alta, en es-CO, las 10 frases de
-  `evals/datasets/slice_smoke.jsonl`, en un dispositivo Android y uno iOS reales (no simulador/
+  `evals/datasets/slice_smoke.jsonl` (hoy `s01`–`s10` de `evals/datasets/parse_meal.v1.jsonl`,
+  que lo reemplazó en SPEC-005), en un dispositivo Android y uno iOS reales (no simulador/
   emulador, que no tienen micrófono real). Se documenta en una nota de investigación (actualiza
   PV-05) la transcripción real vs. el texto esperado por frase y el % de coincidencia,
   distinguiendo Android de iOS `[manual]`.
@@ -152,13 +153,18 @@ otro propósito que no sea rellenar el campo de texto.
 | AC5 | ✅ | `voice_input_controller_test.dart` + `capture_screen_voice_test.dart` |
 | AC6 | ✅ | `app/test/features/capture/voice_input_controller_test.dart` |
 | AC7 | ✅ | `app/test/integration/voice_to_review_flow_test.dart` |
-| AC8 | ⏳ pendiente | Requiere un Android y un iPhone físicos (no simulable en este entorno). Paquete elegido: `speech_to_text` 7.5.0 (verificado en pub.dev, sin discontinuar, ~600k descargas/30 días). |
+| AC8 | ✅ Android · ⏳ iOS pendiente aceptado | Android (motorola edge 50 pro, Android 16, es-CO): 3 rondas documentadas en `docs/research/2026-10-01-voz-es-co-dispositivos.md`; versión final 8/10 exactas, 98 % de palabras correctas; sin red no hay reconocimiento (audio a servidores de Google). PV-05 y `docs/privacy.md` actualizados. **iOS: pendiente aceptado por el usuario (2026-10-02)** — no hay iPhone disponible para medir; queda abierto en PV-05 y en `docs/privacy.md`, y con él la validación de los ~2 s de silencio de R5 en iOS. Paquete: `speech_to_text` 7.5.0. |
+| AC9 | ✅ | `voice_input_controller_test.dart` (done → inactivo con texto; final tardío; doble `done`) + `capture_screen_voice_test.dart`. Verificado en el Motorola con log de diagnóstico temporal (ya retirado) |
+| AC10 | ✅ | `voice_input_controller_test.dart` + `capture_screen_voice_test.dart`. Verificado en el Motorola (prefijo "media ta" agregado al reintentar) |
+| AC11 | ✅ | `voice_input_controller_test.dart`, grupo "AC11" (`silencePauseFor` y `startListening` con `debugDefaultTargetPlatformOverride` en Android e iOS) |
+| AC12 | ✅ | `capture_screen_voice_test.dart`, grupo "AC12" (3 tests). Probado a mano en el Motorola por el usuario (2026-10-02) |
 
-Verificado: `flutter analyze` sin issues; `flutter test` 29/29 verdes (antes 19; suma las 10 nuevas
+Verificado (2026-10-02, tras R5/R9/R10): `flutter analyze` sin issues; `flutter test` 93/93 verdes.
+Verificado (2026-09-28, versión inicial): `flutter analyze` sin issues; `flutter test` 29/29 verdes (antes 19; suma las 10 nuevas
 de esta SPEC más 0 regresiones).
 
 ## Definition of Done
-- AC1–AC8 con evidencia enlazada en esta SPEC.
+- AC1–AC12 con evidencia enlazada en esta SPEC (AC8 en iOS: pendiente aceptado).
 - `flutter analyze` y todos los tests verdes.
 - Reviewer: PASS enlazado.
 - `docs/privacy.md` actualizado con el resultado real (no supuesto) de dónde procesa la voz cada
@@ -182,6 +188,9 @@ de esta SPEC más 0 regresiones).
   tiempo de silencio fijado por la app; iOS mantiene ~2 s hasta medirlo) y AC11 nuevo.
 - 2026-10-02: a pedido del usuario tras la ronda final de AC8 (con R9, dictar agrega al texto y
   hacía falta una forma de empezar de cero): R10 y AC12 nuevos, aprobados por el usuario.
+- 2026-10-02: AC8 en iOS queda como pendiente aceptado por decisión del usuario. AC8 corrige la
+  referencia a `slice_smoke.jsonl` (reemplazado en SPEC-005; mismas 10 frases). Status
+  Implementing → Review.
 
 ## Review
 Informe del reviewer (2026-09-28, subagente `reviewer`, rama `spec-002-entrada-por-voz`):
