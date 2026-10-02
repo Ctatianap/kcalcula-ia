@@ -1,7 +1,7 @@
 # SPEC-002: Entrada de una comida por voz
 
 ## Status
-Review
+Done
 Path: Strict (el audio puede salir del dispositivo hacia los servidores de reconocimiento de voz
 del sistema operativo — requiere actualizar `docs/privacy.md`, aunque nunca vaya a nuestro backend)
 
@@ -197,6 +197,8 @@ de esta SPEC más 0 regresiones).
 - 2026-10-02: AC8 en iOS queda como pendiente aceptado por decisión del usuario. AC8 corrige la
   referencia a `slice_smoke.jsonl` (reemplazado en SPEC-005; mismas 10 frases). Status
   Implementing → Review.
+- 2026-10-02: reviewer PASS (re-revisión). El usuario aprueba cerrar: Status Review → Done y
+  fusión en `develop`. AC8 en iOS sigue como pendiente aceptado (PV-05 abierto para iOS).
 
 ## Review
 Informe del reviewer (2026-09-28, subagente `reviewer`, rama `spec-002-entrada-por-voz`):
