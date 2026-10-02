@@ -6,8 +6,7 @@ un iPhone físicos? ¿El reconocimiento ocurre en el dispositivo o en servidores
 Decisión que desbloquea: AC8 de `specs/SPEC-002-entrada-por-voz.md` y la fila "Audio de voz" de
 `docs/privacy.md` (hoy `POR VERIFICAR`).
 
-Estado: **EN CURSO.** Android: primera ronda hecha (antes del arreglo de R5/R9) y prueba de modo
-avión hecha; falta repetir s02, s04 y s05 con el arreglo. iOS: pendiente.
+Estado: **Android completo** (ronda 3, versión final, commit `cca4a8b`). **iOS: pendiente.**
 
 ## Método
 
@@ -102,6 +101,31 @@ un temporizador en Dart que llama a `stop()` si el resultado no cambia durante e
 no distingue cuál de los dos causaba los cortes; para la decisión no hace falta, porque los dos
 salen con `pauseFor` nulo. POR VERIFICAR si pasa igual en otros equipos y versiones de Android.
 
+### Ronda 3 (2026-10-02, versión final: R5 sin tiempo de silencio en Android, R9) — las 10 frases
+
+Esta es la ronda que cuenta para AC8 en Android. Ningún corte a mitad de frase. La persona que
+dictó no reportó el número de toques por frase.
+
+| id | Esperado | Transcrito | Exacta | Palabras correctas | ¿Cambia el resultado? |
+|---|---|---|---|---|---|
+| s01 (intento 1) | dos huevos revueltos y una arepa pequeña con queso | dos huevos revueltos y una pequeña con queso | No | 8/9 (89 %) | Sí: se pierde "arepa" |
+| s01 (intento 2) | dos huevos revueltos y una arepa pequeña con queso | de huevo revuelto si una arepa pequeña con queso | No | 5/9 (56 %) | Sí: se pierde la cantidad ("dos" → "de") |
+| s02 | 150 gramos de pechuga de pollo a la plancha | 150 gramos de pechuga de pollo a la plancha | Sí | 8/8 | No |
+| s03 | un café con leche | un café con leche | Sí | 4/4 | No |
+| s04 | media taza de arroz blanco y un plátano maduro frito | media taza de arroz blanco y un plátano maduro frito | Sí | 10/10 | No |
+| s05 | almorcé 180 g de arroz, medio aguacate y ensalada con una cucharada de aceite de oliva | almorcé 150 gramos de arroz medio aguacate y ensalada con una cucharada de aceite de oliva | No | 14/15 (93 %) | **Sí: cantidad equivocada (180 → 150 g)** |
+| s06 | me comí un poquito de queso | Me comí un poquito de queso | Sí | 6/6 | No |
+| s07 | una manzana | una manzana | Sí | 2/2 | No |
+| s08 | dos tajadas de pan integral con mantequilla de maní | dos tajadas de pan integral con mantequilla de maní | Sí | 9/9 | No |
+| s09 | un vaso de jugo de naranja | un vaso de jugo de naranja | Sí | 6/6 | No |
+| s10 | hola, ¿cómo estás? | Hola cómo estás | Sí | 3/3 | No |
+
+Prueba libre adicional (la persona que dictó, sin guion, ~40 palabras), transcrita completa sin
+cortes: "desayuné una arepa con trocitos de carne un café con leche hecho con una cucharada de café
+instantáneo y dos de leche en polvo adicionalmente mi snack fue un yogurt griego con fruta y para
+el almuerzo arroz con atún y ensalada". No hay texto esperado con qué compararla; muestra que una
+comida larga y realista entra en una sola escucha.
+
 ## Resultados — iOS
 
 | id | Esperado | Transcrito | Exacta | Palabras correctas | ¿Cambia el resultado? |
@@ -121,7 +145,7 @@ salen con `pauseFor` nulo. POR VERIFICAR si pasa igual en otros equipos y versio
 
 | Plataforma | Exactas (de 10) | Palabras correctas (promedio) | Frases donde cambia el resultado |
 |---|---|---|---|
-| Android | | | |
+| Android (ronda 3; s01 = intento 1) | 8 | 98 % | 2 (s01: alimento perdido; s05: cantidad equivocada) |
 | iOS | | | |
 
 ## ¿Dónde se procesa el audio?
@@ -143,6 +167,18 @@ privacidad lo necesita.
 
 ## Conclusión
 
-_Se completa después de la medición._ Debe decir: si la calidad es suficiente para la beta (el
-usuario siempre puede editar la transcripción antes de enviar, SPEC-002), qué errores son
-recurrentes (números, tildes, palabras regionales) y qué cambia en `docs/privacy.md`.
+**Android (motorola edge 50 pro, Android 16, es-CO):**
+- Calidad suficiente para la beta: 8/10 exactas y 98 % de palabras correctas en la versión final.
+  El usuario siempre ve y puede editar la transcripción antes de analizar (R6), y las cantidades
+  se ven otra vez en la pantalla de revisión.
+- Errores que cambian el registro: una palabra de alimento omitida ("arepa") y un número mal
+  reconocido ("180" → "150"). Los números son el error más costoso: un número equivocado no se
+  nota como raro. No hubo errores de tildes ni de palabras regionales ("arepa", "plátano maduro",
+  "tajadas" se reconocieron bien cuando se oyeron).
+- La causa principal de los malos resultados iniciales no era el reconocimiento sino la app: el
+  bug de estado de R5/R9 y el tiempo de silencio de 2 s, que provocaba cortes. Ambos se arreglaron
+  (commits `c87f32a` y `cca4a8b`).
+- Privacidad: sin conexión no hay reconocimiento, así que con la configuración actual el audio se
+  procesa en servidores de Google. Nunca pasa por nuestro backend.
+
+**iOS:** pendiente.
