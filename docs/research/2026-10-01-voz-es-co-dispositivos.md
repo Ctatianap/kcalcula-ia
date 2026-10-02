@@ -6,8 +6,8 @@ un iPhone físicos? ¿El reconocimiento ocurre en el dispositivo o en servidores
 Decisión que desbloquea: AC8 de `specs/SPEC-002-entrada-por-voz.md` y la fila "Audio de voz" de
 `docs/privacy.md` (hoy `POR VERIFICAR`).
 
-Estado: **PLANTILLA — pendiente de la medición manual.** Ninguna cifra de este documento es real
-hasta que se llenen las tablas.
+Estado: **EN CURSO.** Android: primera ronda hecha (antes del arreglo de R5/R9) y prueba de modo
+avión hecha; falta repetir s02, s04 y s05 con el arreglo. iOS: pendiente.
 
 ## Método
 
@@ -38,23 +38,45 @@ hasta que se llenen las tablas.
 
 | Plataforma | Modelo | Versión del SO | Idioma del sistema | ¿Modo avión probado? |
 |---|---|---|---|---|
-| Android | | | | |
+| Android | motorola edge 50 pro | Android 16 | POR CONFIRMAR | Sí |
 | iOS | | | | |
 
 ## Resultados — Android
 
+### Ronda 1 (2026-10-01, antes del arreglo de R5/R9 — commit `c87f32a`)
+
+Sin pausas al hablar, según la persona que dictó. En esta ronda la app tenía un bug: cuando el
+reconocedor cerraba la escucha por su cuenta, la app seguía en "escuchando" y al reintentar
+borraba el texto. Por eso s02, s04 y s05 no miden solo la calidad del reconocimiento.
+
 | id | Esperado | Transcrito | Exacta | Palabras correctas | ¿Cambia el resultado? |
 |---|---|---|---|---|---|
-| s01 | dos huevos revueltos y una arepa pequeña con queso | | | | |
-| s02 | 150 gramos de pechuga de pollo a la plancha | | | | |
-| s03 | un café con leche | | | | |
-| s04 | media taza de arroz blanco y un plátano maduro frito | | | | |
-| s05 | almorcé 180 g de arroz, medio aguacate y ensalada con una cucharada de aceite de oliva | | | | |
-| s06 | me comí un poquito de queso | | | | |
-| s07 | una manzana | | | | |
-| s08 | dos tajadas de pan integral con mantequilla de maní | | | | |
-| s09 | un vaso de jugo de naranja | | | | |
-| s10 | hola, ¿cómo estás? | | | | |
+| s01 | dos huevos revueltos y una arepa pequeña con queso | dos huevos y una arepa pequeña con queso | No | 8/9 (89 %) | Sí, leve: se pierde la preparación "revueltos" |
+| s02 | 150 gramos de pechuga de pollo a la plancha | 150 | No | 1/8 (13 %) | Sí: se pierde el alimento (corte, ver nota) |
+| s03 | un café con leche | un café con leche | Sí | 4/4 (100 %) | No |
+| s04 | media taza de arroz blanco y un plátano maduro frito | media taza | No | 2/10 (20 %) | Sí: se pierden los alimentos (corte) |
+| s05 | almorcé 180 g de arroz, medio aguacate y ensalada con una cucharada de aceite de oliva | medio aguacate ensalada con | No | 4/15 (27 %) | Sí: se pierden arroz y aceite (corte y reintento que borró el texto) |
+| s06 | me comí un poquito de queso | comí un poquito de queso | No | 5/6 (83 %) | No ("me" no cambia el registro) |
+| s07 | una manzana | una manzana | Sí | 2/2 (100 %) | No |
+| s08 | dos tajadas de pan integral con mantequilla de maní | dos tajadas de pan integral con mantequilla de maní | Sí | 9/9 (100 %) | No |
+| s09 | un vaso de jugo de naranja | un vaso de jugo de naranja | Sí | 6/6 (100 %) | No |
+| s10 | hola, ¿cómo estás? | Hola cómo estás | Sí | 3/3 (100 %) | No |
+
+Diagnóstico de los cortes (log temporal de `speech_to_text`, dictando s05): los resultados parciales
+llegan acumulados y correctos ("almorcé 180 gramos de arroz media aguacate ensalada") y luego el
+reconocedor del SO emite `notListening` → `done` → resultado final **a mitad de frase, sin pausa**.
+La app pide `EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS = 2000`, pero en este equipo el
+reconocedor no lo respeta. POR VERIFICAR si es general de Android 16 o propio de este equipo.
+Arreglo aprobado: R5 ampliado y R9 nuevo de SPEC-002 (el texto se conserva y se puede seguir
+dictando con otro toque).
+
+### Ronda 2 (después del arreglo) — s02, s04, s05
+
+| id | Esperado | Transcrito | Toques | Exacta | Palabras correctas | ¿Cambia el resultado? |
+|---|---|---|---|---|---|---|
+| s02 | 150 gramos de pechuga de pollo a la plancha | | | | | |
+| s04 | media taza de arroz blanco y un plátano maduro frito | | | | | |
+| s05 | almorcé 180 g de arroz, medio aguacate y ensalada con una cucharada de aceite de oliva | | | | | |
 
 ## Resultados — iOS
 
@@ -88,7 +110,7 @@ transcribiendo?
 
 | Plataforma | ¿Transcribe en modo avión? | Conclusión para `docs/privacy.md` |
 |---|---|---|
-| Android | | |
+| Android | No: con modo avión la app no permite dictar | Con la configuración actual (sin `onDevice`), el audio se procesa en servidores de Google; nunca va a nuestro backend |
 | iOS | | |
 
 **POR VERIFICAR (documentación, no medición):** qué garantizan Google y Apple sobre retención del
