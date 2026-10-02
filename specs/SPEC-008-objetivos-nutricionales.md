@@ -1,7 +1,7 @@
 # SPEC-008: Objetivos nutricionales configurables
 
 ## Status
-Draft
+Implementing
 Path: Strict (agrega un cálculo nuevo a `packages/nutrition_core`, la estimación de energía
 diaria, y guarda en el dispositivo datos personales de salud nuevos: peso, estatura, edad, sexo y
 nivel de actividad)
@@ -269,6 +269,9 @@ y cuánto me queda.
   rangos colombianos de la Res. 3803 para los macros (OQ8) y la advertencia por debajo de 1.200
   kcal como decisión de producto (OQ7). R14, AC15 y OQ9 (verificación humana de las tablas) nuevos;
   AC3, AC5b y AC14 con valores concretos.
+- 2026-10-02: **Approved por el usuario** ("aprobada", en el chat). Status → Implementing. La
+  verificación humana de OQ9 sigue pendiente: los coeficientes de la DRI 2023 y los valores de la
+  Res. 3803 no se escriben en el código hasta que esté hecha.
 
 ## Review
 Informe del reviewer: pendiente.
