@@ -17,3 +17,4 @@ Estado: `abierto` | `resuelto` (con enlace a la nota) | `descartado`.
 | PV-10 | ¿Aportan valor los servidores MCP de Dart/Flutter y de Firebase frente a sus CLI? | Opcional | abierto |
 | PV-11 | Cifrado de SQLite en Flutter (SQLCipher con Drift): madurez y coste | Opcional | abierto |
 | PV-12 | Samsung Health: qué datos nutricionales permite leer/escribir, permisos, requisitos de publicación | F4 | abierto |
+| PV-13 | Fórmula de gasto energético de mantenimiento para adultos (p. ej. Mifflin-St Jeor): coeficientes exactos, factores de actividad, fuente primaria o institucional citable y casos de referencia calculados por la fuente; ¿existe un umbral mínimo de kcal recomendado con fuente? | T-009 (SPEC-008, OQ1/OQ2/OQ7) | abierto |

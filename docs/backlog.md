@@ -93,7 +93,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
 - id: T-009
   title: Objetivos nutricionales configurables
   dependencies: [T-002]
-  spec_required: true
+  spec_required: true    # specs/SPEC-008-objetivos-nutricionales.md
 - id: F2
   title: Fase 2 — foto del plato, comidas frecuentes, confianza visual
 - id: F3
