@@ -38,7 +38,7 @@ avión hecha; falta repetir s02, s04 y s05 con el arreglo. iOS: pendiente.
 
 | Plataforma | Modelo | Versión del SO | Idioma del sistema | ¿Modo avión probado? |
 |---|---|---|---|---|
-| Android | motorola edge 50 pro | Android 16 | POR CONFIRMAR | Sí |
+| Android | motorola edge 50 pro | Android 16 | español (Colombia) | Sí |
 | iOS | | | | |
 
 ## Resultados — Android
