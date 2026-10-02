@@ -1,7 +1,7 @@
 # SPEC-001: Registro de una comida por texto, de extremo a extremo
 
 ## Status
-Review
+Done
 Path: Strict (crea `nutrition_core`, el primer prompt y esquema de IA, el catálogo semilla y el primer dato que sale del dispositivo)
 
 ## Objective
@@ -145,7 +145,7 @@ comidas frecuentes, consentimiento y onboarding, despliegue a producción, catá
 | AC8 | ✅ | `app/test/features/review/review_screen_test.dart` |
 | AC9 | ✅ | `app/test/infra/storage/storage_repository_test.dart` |
 | AC10 | ✅ | `functions/src/ai/parse_meal_handler.test.ts` |
-| AC11 | ✅ (ver desviación) | 2026-10-02, `kcalcula-ia-dev`, `gemini-2.5-flash`, `us-east1`: las 10 frases (`s01`–`s10` de `evals/datasets/parse_meal.v1.jsonl`, que reemplazó a `slice_smoke.jsonl` en SPEC-005) dan esquema válido 10/10; la frase sin comida (`s10`) devuelve `items: []`; alimentos esperados detectados 16/16; latencia p50 2,5 s. Baseline: `evals/baselines/parse_meal.v1__vertex__gemini-2.5-flash__2026-10-02.json` (corrida de las 50 frases). **Desviación:** se corrió con el runner de evals (`npm run evals:parse-meal`, mismo adaptador `vertex.ts`, prompt y esquema), no a través de la Cloud Function en el emulador. |
+| AC11 | ✅ (desviación aceptada por el usuario) | 2026-10-02, `kcalcula-ia-dev`, `gemini-2.5-flash`, `us-east1`: las 10 frases (`s01`–`s10` de `evals/datasets/parse_meal.v1.jsonl`, que reemplazó a `slice_smoke.jsonl` en SPEC-005) dan esquema válido 10/10; la frase sin comida (`s10`) devuelve `items: []`; alimentos esperados detectados 16/16; latencia p50 2,5 s. Baseline: `evals/baselines/parse_meal.v1__vertex__gemini-2.5-flash__2026-10-02.json` (corrida de las 50 frases). **Desviación:** se corrió con el runner de evals (`npm run evals:parse-meal`, mismo adaptador `vertex.ts`, prompt y esquema), no a través de la Cloud Function en el emulador. |
 | AC12 | ⏳ pendiente | Corresponde al subagente `reviewer` o al usuario: comparar 5 filas al azar de `data/curated/foods.csv` contra su `source_ref` citado. |
 
 ## Decisiones de implementación (no cuantificadas en `docs/architecture.md`, tomadas durante la
@@ -178,6 +178,8 @@ construcción; documentadas aquí para que el reviewer y el usuario las puedan o
   → Review.
 - 2026-10-02: AC11 corrido contra Vertex real en `kcalcula-ia-dev` con el runner de evals de
   SPEC-005 (no por el emulador; ver desviación en la tabla de evidencia).
+- 2026-10-02: el usuario acepta la desviación de AC11 (runner de evals en vez del emulador; mismo
+  adaptador, prompt y esquema) y aprueba cerrar: reviewer PASS del 2026-09-27, Status Review → Done.
 
 ## Review
 Informe del reviewer (2026-09-27, subagente `reviewer`, rama `spec-001-registro-por-texto`):
