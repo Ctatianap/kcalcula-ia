@@ -16,6 +16,13 @@ import { ping } from "./ping.js";
 // running at the same time. This helps mitigate the impact of unexpected
 // traffic spikes by instead downgrading performance. This limit is a
 // per-function limit.
+//
+// SPEC-007 R9: revisado para una beta cerrada (cientos de usuarios, no
+// miles) — 10 instancias concurrentes por función es suficiente margen y
+// además acota el gasto máximo posible si `AI_PROVIDER=vertex` quedara
+// activo por error (cada instancia solo puede llamar a Vertex AI una vez
+// a la vez). Se sube si el checklist de beta muestra que el tráfico real
+// lo satura.
 setGlobalOptions({ maxInstances: 10 });
 
 /**

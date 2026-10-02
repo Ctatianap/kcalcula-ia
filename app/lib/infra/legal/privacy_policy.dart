@@ -4,7 +4,12 @@ import 'package:flutter/services.dart' show rootBundle;
 /// consentimiento (`ConsentRecord.policyVersion`). Cambiar el texto del
 /// asset sin subir esta constante no re-pide consentimiento; solo súbela
 /// cuando el cambio sea sustantivo (no una corrección de tipeo).
-const privacyPolicyVersion = 'v1';
+///
+/// SPEC-007 R5: `_RootGate` compara este valor contra el guardado — si no
+/// coincide, vuelve a mostrar el onboarding aunque ya exista un
+/// `ConsentRecord`. `'v2'` (2026-09-30) añade el reporte de fallos
+/// (Crashlytics).
+const privacyPolicyVersion = 'v2';
 
 const _privacyPolicyAssetPath = 'assets/legal/privacy_policy_draft_es.md';
 

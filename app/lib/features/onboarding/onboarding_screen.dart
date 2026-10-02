@@ -73,7 +73,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   'estructurados. La IA nunca calcula tus calorías ni '
                   'decide valores nutricionales — eso lo hace tu teléfono, '
                   'con una base de datos verificada. Tus comidas registradas '
-                  'nunca salen de tu dispositivo.',
+                  'nunca salen de tu dispositivo. Si la app falla, enviamos '
+                  'un reporte técnico (nunca el contenido de tu diario) para '
+                  'poder corregirlo.',
                 ),
                 const SizedBox(height: 8),
                 Align(
@@ -100,7 +102,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     'Autorizo el tratamiento de lo que escriba o fotografíe '
                     '(dato sensible de salud/nutrición) para que Vertex AI '
                     '(Google, fuera de Colombia) lo estructure — nunca para '
-                    'calcular valores nutricionales.',
+                    'calcular valores nutricionales — y el envío de reportes '
+                    'técnicos de fallos (Firebase Crashlytics, Google) si la '
+                    'app se cierra sola, sin incluir nunca el contenido de '
+                    'mi diario.',
                   ),
                 ),
                 const SizedBox(height: 16),

@@ -1,4 +1,4 @@
-<!-- Versión: v1 — SPEC-006. BORRADOR: pendiente de revisión legal humana antes de publicar. -->
+<!-- Versión: v2 — SPEC-007. BORRADOR: pendiente de revisión legal humana antes de publicar. -->
 
 # Política de privacidad (borrador)
 
@@ -32,6 +32,14 @@ si hubo un error — nunca el contenido de lo que enviaste.
 Ni tu voz (se transcribe en tu propio teléfono, sin pasar por nuestro servidor) ni tus datos ya
 registrados (comidas, productos guardados) salen jamás de tu dispositivo por decisión de la app.
 
+## Si la app falla
+
+Si la app se cierra sola o encuentra un error, enviamos un reporte técnico a Firebase Crashlytics
+(Google) para poder corregirlo: en qué parte del código pasó, la versión de la app, y datos técnicos
+del dispositivo (modelo, sistema operativo). **Nunca incluye el texto de lo que escribiste, fotos, ni
+nada de tu diario de comidas.** Este envío solo empieza después de que aceptes esta política — si
+revocas tu consentimiento (ver Ajustes), se detiene de inmediato.
+
 ## Tus derechos
 
 - **Ver y editar** todo lo que la app calculó antes de guardarlo — nada se guarda sin que lo
@@ -40,7 +48,8 @@ registrados (comidas, productos guardados) salen jamás de tu dispositivo por de
 - **Exportar tus datos** en un archivo que tú decides dónde guardar o a quién enviar — nosotros no
   elegimos el destino ni lo mandamos por nuestra cuenta.
 - **Revocar tu consentimiento** en cualquier momento, desde Ajustes, sin que eso borre tus datos ya
-  guardados — simplemente dejarás de poder usar el análisis con IA hasta que vuelvas a aceptar.
+  guardados — simplemente dejarás de poder usar la app (incluido el análisis con IA y el reporte de
+  fallos) hasta que vuelvas a aceptar.
 
 ## Menores de edad
 
@@ -60,4 +69,4 @@ quedar incluidos ahí, cifrados y bajo tu control, igual que el resto de tus apl
 
 ---
 
-*Última actualización de este borrador: 2026-09-29. Versión: v1.*
+*Última actualización de este borrador: 2026-09-30. Versión: v2.*
