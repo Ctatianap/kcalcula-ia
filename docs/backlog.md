@@ -37,7 +37,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   title: SPEC-001 — Registro por texto de extremo a extremo (vertical slice)
   objective: texto → parseMeal → resolución → cálculo → revisión → registro → diario
   dependencies: [T-000, T-001]
-  spec_required: true    # specs/SPEC-001-registro-por-texto.md (Review — reviewer PASS, AC11 pendiente del proyecto real de Vertex AI)
+  spec_required: true    # specs/SPEC-001-registro-por-texto.md (Done — reviewer PASS; AC11 corrido contra Vertex real el 2026-10-02)
   assigned_agent: sesión principal → reviewer
   acceptance_summary: Ver AC1–AC12 de SPEC-001.
 
