@@ -40,11 +40,16 @@ y cuánto me queda.
 - R2. **Sugerencia calculada (opcional).** En la misma pantalla, el botón "Calcular una
   sugerencia" pide peso (kg), estatura (cm), edad (años), sexo (para la fórmula: femenino o
   masculino) y nivel de actividad. Con esos datos `nutrition_core` estima las kcal diarias de
-  **mantenimiento** con la fórmula de OQ1. La sugerencia rellena el campo de kcal, que sigue
-  siendo editable. El usuario decide si la guarda.
-- R3. **La sugerencia no calcula macros.** Solo sugiere kcal; las metas de macros las escribe el
-  usuario (OQ3, resuelta).
-- R4. **Presentación de la sugerencia.** Se muestra como estimación ("~2.150 kcal") junto con el
+  **mantenimiento** con la fórmula de OQ1, y a partir de ellas (y del peso, para la proteína) las
+  metas de proteína, carbohidratos y grasa en gramos (R3). La sugerencia rellena los cuatro
+  campos, que siguen siendo editables. El usuario decide si la guarda.
+- R3. **La sugerencia incluye macros** (OQ3, decisión del usuario 2026-10-02). `nutrition_core`
+  reparte las kcal sugeridas en proteína, carbohidratos y grasa dentro de los rangos de
+  distribución de la fuente de PV-13 (OQ8) y convierte a gramos con los factores de energía de esa
+  misma fuente. Si la fuente solo da rangos, el punto elegido dentro de ellos es una decisión de
+  producto: se documenta como tal y se presenta como estimación, no como recomendación.
+- R4. **Presentación de la sugerencia.** Se muestra como estimación ("~2.150 kcal", "~110 g de
+  proteína") junto con el
   texto fijo: "Es una estimación general, no una recomendación médica. Si tienes una condición de
   salud, consulta a un profesional." No aparece ningún mensaje de juicio sobre el peso.
 - R5. **Todo el cálculo vive en `nutrition_core`:** la estimación de energía (R2) y el progreso
@@ -90,9 +95,13 @@ y cuánto me queda.
   sin redondear `[unit, nutrition_core]`.
 - AC4. Validación de entradas de la estimación: valores fuera de los rangos de OQ4, o un nivel de
   actividad desconocido, → error tipado, nunca un número `[unit, nutrition_core]`.
-- AC5. "Calcular una sugerencia" con datos válidos rellena el campo de kcal con "~" + el valor
-  presentado (redondeo half-up de `rounding.dart`), deja intactos los campos de macros (R3),
-  muestra el texto fijo de R4 y no guarda nada hasta que el usuario toca "Guardar" `[widget]`.
+- AC5. "Calcular una sugerencia" con datos válidos rellena los campos de kcal, proteína,
+  carbohidratos y grasa con "~" y los valores presentados (redondeo de `rounding.dart`), muestra
+  el texto fijo de R4 y no guarda nada hasta que el usuario toca "Guardar" `[widget]`.
+- AC5b. Reparto de macros: para los casos de referencia de AC3, `suggestMacros(...)` devuelve
+  gramos que, convertidos con los factores de la fuente, suman las kcal sugeridas (±1 kcal sin
+  redondear), y cada macro queda dentro de su rango de la fuente (y la proteína, en la regla por kg
+  si la fuente la da) `[unit, nutrition_core]`.
 - AC6. Progreso: consumido 1.249,6 kcal y meta 2.000 → "1.250 / 2.000 kcal · quedan 750". La resta
   se hace sin redondear (750,4 → "750"). Consumido 2.150,2 y meta 2.000 → "150 por encima de la
   meta" y barra llena `[unit, nutrition_core]` + `[widget]`.
@@ -126,6 +135,7 @@ y cuánto me queda.
 ## Components / Files Affected
 - `packages/nutrition_core/lib/src/energy_estimation.dart` (nuevo): fórmula de R2 y factores de
   actividad, con la fuente citada.
+- `packages/nutrition_core/lib/src/macro_suggestion.dart` (nuevo): reparto de macros (R3).
 - `packages/nutrition_core/lib/src/goal_progress.dart` (nuevo): consumido, meta, restante o exceso
   (R6).
 - `packages/nutrition_core/test/` (nuevos casos de referencia).
@@ -169,7 +179,7 @@ y cuánto me queda.
   volver a pedir consentimiento, ver OQ6.
 
 ## Tests Required
-- Unit (`nutrition_core`): AC3, AC4, AC6 con casos de referencia de la fuente citada.
+- Unit (`nutrition_core`): AC3, AC4, AC5b, AC6 con casos de referencia de la fuente citada.
 - Widget: AC1, AC2, AC5, AC6 (presentación), AC7.
 - Integration: AC8, AC9, AC10.
 - Revisión de código y grep: AC11.
@@ -178,7 +188,7 @@ y cuánto me queda.
 ## Out of Scope
 - Metas por objetivo (bajar o subir de peso, déficit o superávit calórico) y planes con fecha.
   R2 solo estima el **mantenimiento**.
-- Sugerencia de macros (R3), metas de fibra, sodio u otros nutrientes.
+- Metas de fibra, sodio u otros nutrientes.
 - Historial de metas: cambiar la meta cambia la referencia de todos los días que se miren.
 - Notificaciones, recordatorios, rachas, alertas o colores de "te pasaste".
 - Reportes, tendencias o gráficos de varios días (F5).
@@ -192,7 +202,8 @@ y cuánto me queda.
   calculados **por la fuente**, para AC3.
 - OQ2. **Niveles de actividad:** ¿cuántos y con qué textos para el usuario en es-CO? Depende de
   la fuente de OQ1.
-- OQ3. ✅ Resuelta (2026-10-02): la sugerencia es solo de kcal; los macros los escribe el usuario (R3).
+- OQ3. ✅ Resuelta (2026-10-02, decisión del usuario): la sugerencia incluye kcal, proteína,
+  carbohidratos y grasa (R3).
 - OQ4. ✅ Resuelta (2026-10-02): kcal 800–6.000; proteína, carbohidratos y grasa 0–1.000 g; peso
   30–300 kg; estatura 120–230 cm; edad 18–100 años. Son validaciones de entrada (que el valor sea
   plausible), no recomendaciones. El aviso de meta baja es R13, aparte.
@@ -200,11 +211,15 @@ y cuánto me queda.
   precisión" (R6, AC12).
 - OQ6. ✅ Resuelta (2026-10-02): se actualiza la política y sube su versión, lo que vuelve a pedir
   el consentimiento (R12, AC13). Sigue pendiente la revisión legal antes de publicar (PV-07).
+- OQ8. **Reparto de macros** (PV-13, ampliada): rangos de distribución (% de energía), proteína en
+  g/kg, factores de conversión y si alguna fuente da un reparto por defecto. Si solo hay rangos,
+  ¿qué punto elige el producto? Por ejemplo, la proteína por la regla de g/kg y el resto repartido
+  en la mitad de los rangos de carbohidratos y grasa. Se decide con la nota de PV-13.
 - OQ7. Parcialmente resuelta (2026-10-02): advertir, no bloquear (R13). **Abierto:** el valor del
   umbral y su fuente (PV-13).
 
 ## Definition of Done
-- AC1–AC14 con evidencia enlazada en esta SPEC.
+- AC1–AC14 (incluido AC5b) con evidencia enlazada en esta SPEC.
 - `dart analyze` y `dart test` (nutrition_core); `flutter analyze` y `flutter test` (app), todo
   verde.
 - Casos de referencia de AC3 con fuente citada.
@@ -222,6 +237,9 @@ y cuánto me queda.
   OQ2 y el umbral de OQ7). El usuario confirma que la meta debe poder calcularse a partir de peso,
   edad, sexo y actividad física. La estatura queda incluida porque las ecuaciones candidatas la
   usan; lo confirma PV-13.
+- 2026-10-02: el usuario cambia OQ3: la sugerencia incluye proteína, grasa y carbohidratos además
+  de kcal. R2, R3, R4 y AC5 cambian; AC5b y OQ8 nuevos; PV-13 se amplía con el reparto de macros;
+  los macros salen de Out of Scope.
 
 ## Review
 Informe del reviewer: pendiente.
