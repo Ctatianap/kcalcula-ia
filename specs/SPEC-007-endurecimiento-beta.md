@@ -1,7 +1,7 @@
 # SPEC-007: Endurecimiento para beta
 
 ## Status
-Review
+Done
 Path: Strict (App Check real, nuevo dato que sale del dispositivo con Crashlytics — CLAUDE.md)
 
 ## Objective
@@ -338,6 +338,27 @@ cuando el ecosistema se ponga al día.
   de Android e iOS, ambos exitosos. Queda pendiente, no bloqueante: confirmar Crashlytics en Android
   real (sin emulador en esta máquina) y el paso 7 (Play Console/Apple Developer, para cuando haya
   una build de release real).
+- 2026-10-01: reviewer `PASS` en la primera pasada (ver sección Review). Status → `Done`. El
+  usuario aprobó explícitamente fusionar `spec-007-endurecimiento-beta` a `develop`.
 
 ## Review
-Informe del reviewer:
+Primera pasada del subagente `reviewer` (independiente, solo lectura) sobre
+`spec-007-endurecimiento-beta` — **PASS**.
+
+- Tests reales ejecutados por el reviewer: `cd app && flutter analyze` → sin issues; `flutter test`
+  → 82/82 verdes; `cd functions && npm run build` → sin errores; `npm test` → 51/51 verdes.
+- Las 14 AC con evidencia verificada independientemente (no solo citando la SPEC): confirmó en el
+  código fuente de `firebase_app_check` que `providerAndroid`/`providerApple` son los parámetros no
+  deprecados; confirmó por grep que ningún call site de `CrashReporter` pasa contenido de usuario;
+  confirmó que `google-services.json`/`GoogleService-Info.plist`/`firebase_options.dart` solo
+  contienen identificadores públicos, no secretos; confirmó que el pin de `permission_handler_android`
+  a `13.0.1` no esconde una dependencia real de una API de 14.x (el único uso en `app/lib/` es
+  `Permission.camera`/`Permission.microphone`, estable desde mucho antes); confirmó fronteras
+  correctas entre `app/features` y `app/infra`.
+- 2 hallazgos MINOR, ninguno bloqueante: (1) `PlatformDispatcher.instance.onError` en `main.dart`
+  llama `crashReporter.recordError(...)` sin `try/catch` (a diferencia de `setCollectionEnabled`,
+  que sí lo tiene) — riesgo bajo, no lo exige AC12; (2) `docs/architecture.md` no menciona
+  Crashlytics — no es un incumplimiento, la SPEC solo listó `docs/privacy.md`/`docs/backlog.md`
+  como documentos a actualizar.
+
+**Veredicto: PASS.** Sin BLOCKER ni MAJOR.

@@ -85,7 +85,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   title: Endurecimiento para beta
   objective: App Check con proveedores reales, alertas de presupuesto, maxInstances, estados de error, decisión sobre reporte de fallos.
   dependencies: [T-003, T-004, T-005, T-006, T-007]
-  spec_required: true    # specs/SPEC-007-endurecimiento-beta.md (Implementing — parcial, bloqueado por Checklist de beta)
+  spec_required: true    # specs/SPEC-007-endurecimiento-beta.md (Done — reviewer PASS)
   assigned_agent: sesión principal → reviewer
   acceptance_summary: Checklist de beta completo; despliegue con confirmación humana.
 
