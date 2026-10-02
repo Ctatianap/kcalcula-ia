@@ -13,11 +13,20 @@ class FakeMicrophonePermission implements MicrophonePermission {
 class FakeSpeechRecognizer implements SpeechRecognizer {
   final bool availableOnInit;
 
-  FakeSpeechRecognizer({this.availableOnInit = true});
+  /// Si no es nulo, `listen` lanza esta excepción (el reconocedor no logró
+  /// empezar).
+  final Object? listenThrows;
+
+  FakeSpeechRecognizer({this.availableOnInit = true, this.listenThrows});
 
   bool _available = false;
   void Function(String message)? _onError;
+  void Function()? _onDone;
   void Function(String text, bool isFinal)? _onResult;
+
+  /// Último `pauseFor` recibido en `listen` (AC11).
+  Duration? lastPauseFor;
+  int listenCalls = 0;
 
   @override
   bool get isAvailable => _available;
@@ -25,8 +34,10 @@ class FakeSpeechRecognizer implements SpeechRecognizer {
   @override
   Future<bool> initialize({
     required void Function(String message) onError,
+    required void Function() onDone,
   }) async {
     _onError = onError;
+    _onDone = onDone;
     _available = availableOnInit;
     return availableOnInit;
   }
@@ -34,10 +45,13 @@ class FakeSpeechRecognizer implements SpeechRecognizer {
   @override
   Future<void> listen({
     required void Function(String text, bool isFinal) onResult,
-    Duration pauseFor = const Duration(seconds: 2),
+    Duration? pauseFor,
     String localeId = 'es_CO',
   }) async {
+    listenCalls++;
     _onResult = onResult;
+    lastPauseFor = pauseFor;
+    if (listenThrows != null) throw listenThrows!;
   }
 
   @override
@@ -47,6 +61,12 @@ class FakeSpeechRecognizer implements SpeechRecognizer {
   /// (parcial o final).
   void emitResult(String text, {bool isFinal = false}) {
     _onResult?.call(text, isFinal);
+  }
+
+  /// Helper de test: simula que el reconocedor cerró la escucha por su
+  /// cuenta (status `done`), sin que el usuario tocara "Detener".
+  void emitDone() {
+    _onDone?.call();
   }
 
   /// Helper de test: simula un error del plugin durante la escucha.

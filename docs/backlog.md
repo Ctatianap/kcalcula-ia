@@ -45,7 +45,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   title: Entrada por voz
   objective: Micrófono → STT del sistema operativo (es-CO) → mismo pipeline que el texto; medir calidad (PV-05).
   dependencies: [T-002]
-  spec_required: true    # specs/SPEC-002-entrada-por-voz.md (Review — reviewer PASS, AC8 pendiente de dispositivos físicos)
+  spec_required: true    # specs/SPEC-002-entrada-por-voz.md (Done — reviewer PASS; AC8 medido en Android, iOS pendiente aceptado)
   assigned_agent: sesión principal → reviewer
   acceptance_summary: Transcripción editable antes de enviar; permisos de micrófono manejados; fallback a texto.
 
