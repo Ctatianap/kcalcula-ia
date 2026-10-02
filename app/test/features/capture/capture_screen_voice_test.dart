@@ -156,4 +156,72 @@ void main() {
 
     expect(find.text('dos huevos y una arepa'), findsOneWidget);
   });
+
+  group('AC12: botón para borrar el texto', () {
+    testWidgets('con texto, ✕ vacía el campo y deshabilita Analizar', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        permission: FakeMicrophonePermission(granted: true),
+        recognizer: FakeSpeechRecognizer(),
+      );
+
+      expect(find.byIcon(Icons.clear), findsNothing);
+      await tester.enterText(find.byType(TextField), 'una manzana');
+      await tester.pump();
+
+      await tester.tap(find.byIcon(Icons.clear));
+      await tester.pump();
+
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).controller!.text,
+        isEmpty,
+      );
+      expect(find.byIcon(Icons.clear), findsNothing);
+      final analizar = find.widgetWithText(FilledButton, 'Analizar');
+      expect(tester.widget<FilledButton>(analizar).onPressed, isNull);
+    });
+
+    testWidgets('mientras escucha, ✕ no aparece', (tester) async {
+      final recognizer = FakeSpeechRecognizer();
+      await _pump(
+        tester,
+        permission: FakeMicrophonePermission(granted: true),
+        recognizer: recognizer,
+      );
+
+      await tester.tap(find.byIcon(Icons.mic));
+      await tester.pumpAndSettle();
+      recognizer.emitResult('dos huevos');
+      await tester.pumpAndSettle();
+
+      expect(find.text('dos huevos'), findsOneWidget);
+      expect(find.byIcon(Icons.clear), findsNothing);
+    });
+
+    testWidgets('después de limpiar, dictar empieza desde cero', (
+      tester,
+    ) async {
+      final recognizer = FakeSpeechRecognizer();
+      await _pump(
+        tester,
+        permission: FakeMicrophonePermission(granted: true),
+        recognizer: recognizer,
+      );
+
+      await tester.enterText(find.byType(TextField), 'dos huevos');
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.clear));
+      await tester.pump();
+
+      await tester.tap(find.byIcon(Icons.mic));
+      await tester.pumpAndSettle();
+      recognizer.emitResult('una arepa');
+      recognizer.emitDone();
+      await tester.pumpAndSettle();
+
+      expect(find.text('una arepa'), findsOneWidget);
+    });
+  });
 }

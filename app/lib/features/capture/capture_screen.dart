@@ -148,6 +148,15 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
                 suffixIcon: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // R10: vaciar el campo para empezar de cero.
+                    if (_textController.text.isNotEmpty && !isListening)
+                      IconButton(
+                        icon: const Icon(Icons.clear),
+                        tooltip: 'Borrar texto',
+                        onPressed: isLoading
+                            ? null
+                            : () => setState(_textController.clear),
+                      ),
                     IconButton(
                       icon: const Icon(Icons.camera_alt),
                       tooltip: 'Foto de etiqueta',

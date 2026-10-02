@@ -55,6 +55,9 @@ registrar sea más rápido cuando tengo las manos ocupadas o prefiero hablar.
 - R9. Volver a tocar el micrófono cuando el campo ya tiene texto **agrega** la nueva
   transcripción al final de ese texto, separada por un espacio; no lo reemplaza. Así el usuario
   puede dictar por partes si la escucha se cortó.
+- R10. El campo de captura tiene un botón ✕ ("Borrar texto"), antes de los botones de cámara y
+  micrófono, que vacía el campo. Solo se muestra cuando hay texto y la app no está escuchando. No
+  pide confirmación y no cambia el comportamiento del micrófono ni de la cámara.
 
 ## Acceptance Criteria
 - AC1. Con permiso concedido, tocar el botón de micrófono muestra un indicador de "escuchando"
@@ -85,6 +88,8 @@ registrar sea más rápido cuando tengo las manos ocupadas o prefiero hablar.
   "dos huevos y una arepa" en el campo `[unit + widget]`.
 - AC11. En Android, `listen` se llama sin tiempo de silencio (`pauseFor` nulo); en iOS, con 2 s
   `[unit]`.
+- AC12. Con texto en el campo, tocar ✕ lo deja vacío y deshabilita "Analizar"; con el campo vacío
+  o mientras escucha, el ✕ no aparece; después de limpiar, dictar empieza desde cero `[widget]`.
 
 ## Technical Constraints
 - Invariantes 1, 3, 4 y 6 de `CLAUDE.md`: la voz no aporta nutrientes ni confianza (eso lo sigue
@@ -175,6 +180,8 @@ de esta SPEC más 0 regresiones).
   (s04 cortada en "media ta"). Experimento sin `pauseFor` en Android: 0 cortes en 5 intentos con
   voz, s05 exacta 2 de 2 (ver la nota de PV-05). Aprobado por el usuario: R5 cambia (Android sin
   tiempo de silencio fijado por la app; iOS mantiene ~2 s hasta medirlo) y AC11 nuevo.
+- 2026-10-02: a pedido del usuario tras la ronda final de AC8 (con R9, dictar agrega al texto y
+  hacía falta una forma de empezar de cero): R10 y AC12 nuevos, aprobados por el usuario.
 
 ## Review
 Informe del reviewer (2026-09-28, subagente `reviewer`, rama `spec-002-entrada-por-voz`):
