@@ -43,7 +43,7 @@ y cuánto me queda.
   **mantenimiento** con la fórmula de OQ1. La sugerencia rellena el campo de kcal, que sigue
   siendo editable. El usuario decide si la guarda.
 - R3. **La sugerencia no calcula macros.** Solo sugiere kcal; las metas de macros las escribe el
-  usuario (ver OQ3).
+  usuario (OQ3, resuelta).
 - R4. **Presentación de la sugerencia.** Se muestra como estimación ("~2.150 kcal") junto con el
   texto fijo: "Es una estimación general, no una recomendación médica. Si tienes una condición de
   salud, consulta a un profesional." No aparece ningún mensaje de juicio sobre el peso.
@@ -55,7 +55,8 @@ y cuánto me queda.
   "{consumido} / {meta} kcal", una barra de progreso y "quedan {restante}". Si el consumido supera
   la meta, muestra "{exceso} por encima de la meta" y la barra queda llena, en el mismo color, sin
   rojo. Lo mismo para cada macro que tenga meta, en gramos con un decimal. Los macros sin meta no
-  se muestran como progreso.
+  se muestran como progreso. El consumido lleva "~" si alguna comida del día tiene confianza
+  distinta de "Alta precisión" (OQ5, resuelta), igual que los demás valores estimados.
 - R7. **Sin meta guardada**, el diario se ve como hoy ("Total del día: N kcal") más un enlace
   discreto, "Fijar una meta diaria", que abre la pantalla de R1.
 - R8. **Persistencia local.** La meta y, si se usó la sugerencia, los datos de R2 se guardan en
@@ -68,6 +69,14 @@ y cuánto me queda.
   los datos de R2. "Exportar mis datos" los incluye en el JSON.
 - R11. **Nada sale del dispositivo.** La meta y los datos de R2 no se envían a ningún backend, ni
   al nuestro ni a la IA, y no aparecen en reportes de fallos ni en logs.
+- R12. **Política de privacidad (OQ6, resuelta).** El texto de la política menciona los datos de R2
+  (qué son, que solo se guardan si el usuario pide la sugerencia, que no salen del dispositivo y
+  cómo borrarlos) y sube de versión. El mecanismo existente de SPEC-006/007 vuelve a pedir el
+  consentimiento a quien aceptó una versión anterior.
+- R13. **Meta de kcal baja (OQ7).** Si la meta de kcal guardada, escrita o sugerida, queda por
+  debajo del umbral de PV-13, la app **advierte pero no bloquea**: "Esta meta es más baja de lo que
+  se suele recomendar sin acompañamiento profesional." El valor del umbral sale de la fuente de
+  PV-13; si no hay fuente con consenso, no hay advertencia por umbral.
 
 ## Acceptance Criteria
 - AC1. Escribir 2000 en kcal y guardar → la meta queda en `user.db` y el diario muestra "/ 2.000
@@ -97,6 +106,13 @@ y cuánto me queda.
   consentimiento, y crea las tablas nuevas vacías `[integration]`.
 - AC11. Ninguna llamada a `infra/ai_client`, a Crashlytics ni a logs recibe la meta ni los datos de
   R2 `[unit + revisión de código, grep dirigido]`.
+- AC12. Consumido con una comida "Estimación" → el progreso muestra "~1.250 / 2.000 kcal"; con todas
+  las comidas en "Alta precisión" → sin "~" `[widget]`.
+- AC13. La versión de la política sube y un usuario con consentimiento de la versión anterior ve
+  de nuevo el onboarding; el texto nuevo menciona los datos de R2 `[widget + integration]`.
+- AC14. Con el umbral de PV-13 (si existe): una meta por debajo muestra la advertencia de R13 y
+  permite guardar; una meta en el umbral o por encima no la muestra `[widget]`. Si PV-13 no da un
+  umbral con fuente, este AC se marca "no aplica" con la nota enlazada.
 
 ## Technical Constraints
 - Invariantes 3 (cálculo solo en `nutrition_core`, redondeo al presentar), 6 (nada nuevo sale del
@@ -124,8 +140,8 @@ y cuánto me queda.
 
 ## Dependencies
 - SPEC-001 (diario, totales del día), SPEC-006 (borrar todo y exportar).
-- Investigación previa (`researcher`): PV-13 (fórmula y factores de actividad) antes de
-  implementar R2, R3 y AC3.
+- Investigación previa (`researcher`): PV-13 (fórmula, factores de actividad y umbral de kcal
+  baja) antes de implementar R2, R13, AC3 y AC14.
 
 ## Edge Cases
 - El usuario guarda una meta y luego borra todos sus datos → el diario vuelve al estado de R7.
@@ -175,24 +191,19 @@ y cuánto me queda.
   calculados **por la fuente**, para AC3.
 - OQ2. **Niveles de actividad:** ¿cuántos y con qué textos para el usuario en es-CO? Depende de
   la fuente de OQ1.
-- OQ3. ¿Confirmas que la sugerencia es solo de kcal y los macros siempre los escribe el usuario?
-  Sugerir macros exigiría otra fuente (rangos de distribución de macronutrientes) y más alcance.
-- OQ4. **Rangos válidos:** meta de kcal, metas de macros, peso, estatura y edad. Propuesta para
-  discutir: kcal 800–6.000; proteína, carbohidratos y grasa 0–1.000 g; peso 30–300 kg; estatura
-  120–230 cm; edad 18–100 años (la app es solo para adultos, SPEC-006). Algún mínimo de kcal
-  podría necesitar fuente y no ser solo una validación de entrada (ver OQ7).
-- OQ5. ¿El consumido del progreso lleva "~" cuando alguna comida del día es estimación? Hoy
-  "Total del día" no lo lleva.
-- OQ6. ¿Guardar peso, estatura, edad y sexo exige cambiar la política de privacidad y volver a
-  pedir consentimiento (SPEC-006, versión de la política)? Siguen sin salir del dispositivo, pero
-  son datos de salud nuevos. Requiere decisión del usuario y, para publicar, revisión legal
-  (PV-07).
-- OQ7. **Seguridad:** ¿la app debe negarse a guardar una meta de kcal muy baja, o solo advertir?
-  Hay riesgo en usuarios con trastornos alimentarios. Si se fija un umbral, necesita fuente
-  (`researcher`); no se inventa.
+- OQ3. ✅ Resuelta (2026-10-02): la sugerencia es solo de kcal; los macros los escribe el usuario (R3).
+- OQ4. ✅ Resuelta (2026-10-02): kcal 800–6.000; proteína, carbohidratos y grasa 0–1.000 g; peso
+  30–300 kg; estatura 120–230 cm; edad 18–100 años. Son validaciones de entrada (que el valor sea
+  plausible), no recomendaciones. El aviso de meta baja es R13, aparte.
+- OQ5. ✅ Resuelta (2026-10-02): sí, "~" en el consumido si alguna comida del día no es "Alta
+  precisión" (R6, AC12).
+- OQ6. ✅ Resuelta (2026-10-02): se actualiza la política y sube su versión, lo que vuelve a pedir
+  el consentimiento (R12, AC13). Sigue pendiente la revisión legal antes de publicar (PV-07).
+- OQ7. Parcialmente resuelta (2026-10-02): advertir, no bloquear (R13). **Abierto:** el valor del
+  umbral y su fuente (PV-13).
 
 ## Definition of Done
-- AC1–AC11 con evidencia enlazada en esta SPEC.
+- AC1–AC14 con evidencia enlazada en esta SPEC.
 - `dart analyze` y `dart test` (nutrition_core); `flutter analyze` y `flutter test` (app), todo
   verde.
 - Casos de referencia de AC3 con fuente citada.
@@ -205,6 +216,11 @@ y cuánto me queda.
 - 2026-10-02: creación a partir de T-009 de `docs/backlog.md`, con las decisiones del usuario sobre
   el origen de la meta (ambos), los nutrientes (kcal y macros opcionales) y el progreso (consumido /
   meta y restante, en tono neutro).
+- 2026-10-02: el usuario delega en las respuestas recomendadas: OQ3–OQ6 resueltas y OQ7 a medias
+  (advertir, no bloquear). R12, R13 y AC12–AC14 nuevos. Se lanza `researcher` para PV-13 (OQ1,
+  OQ2 y el umbral de OQ7). El usuario confirma que la meta debe poder calcularse a partir de peso,
+  edad, sexo y actividad física. La estatura queda incluida porque las ecuaciones candidatas la
+  usan; lo confirma PV-13.
 
 ## Review
 Informe del reviewer: pendiente.
