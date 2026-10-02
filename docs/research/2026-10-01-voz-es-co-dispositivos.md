@@ -70,13 +70,37 @@ reconocedor no lo respeta. POR VERIFICAR si es general de Android 16 o propio de
 Arreglo aprobado: R5 ampliado y R9 nuevo de SPEC-002 (el texto se conserva y se puede seguir
 dictando con otro toque).
 
-### Ronda 2 (después del arreglo) — s02, s04, s05
+### Ronda 2 (2026-10-02, con el arreglo de R5/R9) — s02, s04, s05
 
-| id | Esperado | Transcrito | Toques | Exacta | Palabras correctas | ¿Cambia el resultado? |
+**2a. Con `pauseFor: 2 s`** (la app pasa a Android `EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS
+= 2000`, como en la ronda 1):
+
+| id | Transcrito | Toques | Qué pasó |
+|---|---|---|---|
+| s02 | 150 g de pechuga de pollo a la plancha | 1 | Exacta ("g" = "gramos") |
+| s04 | media ta | 1 | **Corte prematuro**: el SO emite `notListening`/`done` antes de los resultados, a la 2.ª palabra. El reintento (R9 agregó al texto, correcto) terminó en `error_no_match` |
+
+La persona que dictó reportó además intentos previos en que "no escuchaba nada, se cortaba".
+
+**2b. Experimento sin `pauseFor`** (no se pasa el extra a Android; el reconocedor usa su propio
+criterio para cerrar):
+
+| id | Intento | Transcrito | Toques | Exacta | Palabras correctas | ¿Cambia el resultado? |
 |---|---|---|---|---|---|---|
-| s02 | 150 gramos de pechuga de pollo a la plancha | | | | | |
-| s04 | media taza de arroz blanco y un plátano maduro frito | | | | | |
-| s05 | almorcé 180 g de arroz, medio aguacate y ensalada con una cucharada de aceite de oliva | | | | | |
+| s04 | 1 | media taza de arroz y un plátano maduro frito | 1 | Sí respecto a lo dicho (la persona omitió "blanco") | 9/9 | No |
+| s04 | 2 | media taza de arroz blanco y un plátano frito | 1 | No (se dijo "maduro", no se reconoció) | 9/10 (90 %) | Sí, leve: "plátano" en vez de "plátano maduro" |
+| s04 | 3 | media taza de arroz blanco y maduro frito | 1 | No (faltó "un plátano") | 8/10 (80 %) | No en la práctica ("maduro" es plátano maduro en es-CO) |
+| s05 | 1 | almorcé 180 G de arroz medio aguacate y ensalada con una cucharada de aceite de oliva | 1 | Sí | 15/15 | No |
+| s05 | 2 | — | 1 | — | — | `error_speech_timeout`: el SO no detectó voz (probablemente la persona no alcanzó a empezar a hablar) |
+| s05 | 3 | almorcé 180 gramos de arroz medio aguacate y ensalada con una cucharada de aceite de oliva | 1 | Sí | 15/15 | No |
+
+Conclusión del experimento: **0 cortes a mitad de frase en 5 intentos con voz sin el extra de
+silencio**, frente a cortes repetidos con él. En `speech_to_text` 7.5.0, `pauseFor` hace dos cosas:
+pasa el extra `EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS` al reconocedor de Android y arma
+un temporizador en Dart que llama a `stop()` si el resultado no cambia durante ese tiempo
+(`lib/speech_to_text.dart`, `_setupListenAndPause`). El experimento quitó ambos a la vez, así que
+no distingue cuál de los dos causaba los cortes; para la decisión no hace falta, porque los dos
+salen con `pauseFor` nulo. POR VERIFICAR si pasa igual en otros equipos y versiones de Android.
 
 ## Resultados — iOS
 
