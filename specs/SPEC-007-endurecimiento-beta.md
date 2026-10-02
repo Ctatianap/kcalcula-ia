@@ -1,7 +1,7 @@
 # SPEC-007: Endurecimiento para beta
 
 ## Status
-Implementing
+Review
 Path: Strict (App Check real, nuevo dato que sale del dispositivo con Crashlytics — CLAUDE.md)
 
 ## Objective
@@ -159,10 +159,10 @@ sus comidas a ningún sitio, y sin que empiece a pasar antes de que la persona l
 
 ## Dependencies
 - T-003, T-004, T-005, T-006, T-007 (todos `Done`).
-- **Dependencia dura de una acción humana en medio de la implementación**: R1-R3 (y por lo tanto
-  AC1-AC3) no se pueden escribir hasta que el usuario complete el primer bloque del Checklist de
-  beta (`flutterfire configure`). R4-R10 (Crashlytics, re-consentimiento, docs, checklist) no
-  dependen de eso y se implementan primero.
+- **Dependencia de una acción humana en medio de la implementación — ya resuelta**: R1-R3 (y por lo
+  tanto AC1-AC3) necesitaban que el usuario completara el primer bloque del Checklist de beta
+  (`flutterfire configure`), hecho el 2026-09-30. R4-R10 se implementaron primero, sin depender de
+  eso.
 
 ## Edge Cases
 - Usuario con `ConsentRecord` de la versión anterior (`'v1'`) → ve el onboarding de nuevo con el
