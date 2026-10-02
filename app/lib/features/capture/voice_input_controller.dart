@@ -63,11 +63,27 @@ class VoiceInputController extends Notifier<VoiceInputState> {
   String _prefix = '';
   String _transcript = '';
   bool _sessionActive = false;
+  bool _starting = false;
+
+  /// Identifica la sesión de escucha vigente; los resultados de una sesión
+  /// descartada (ver [discardPendingResult]) se ignoran.
+  int _session = 0;
 
   @override
   VoiceInputState build() => const VoiceInputIdle();
 
   Future<void> startListening({String existingText = ''}) async {
+    // Doble toque mientras se piden permisos o se inicializa: se ignora.
+    if (_starting || _sessionActive) return;
+    _starting = true;
+    try {
+      await _start(existingText);
+    } finally {
+      _starting = false;
+    }
+  }
+
+  Future<void> _start(String existingText) async {
     final hasPermission = await ref
         .read(microphonePermissionProvider)
         .ensureGranted();
@@ -89,28 +105,48 @@ class VoiceInputController extends Notifier<VoiceInputState> {
       return;
     }
 
+    final session = ++_session;
     _prefix = existingText.trim();
     _transcript = _prefix;
     _sessionActive = true;
     state = VoiceInputListening(_transcript);
-    await recognizer.listen(
-      onResult: _onResult,
-      pauseFor: silencePauseFor(defaultTargetPlatform),
-      localeId: 'es_CO',
-    );
+    try {
+      await recognizer.listen(
+        onResult: (text, isFinal) => _onResult(session, text, isFinal),
+        pauseFor: silencePauseFor(defaultTargetPlatform),
+        localeId: 'es_CO',
+      );
+    } catch (_) {
+      // R5/R7: si no logra empezar, nunca se queda en "escuchando".
+      if (session == _session) {
+        _sessionActive = false;
+        state = const VoiceInputError(_genericErrorMessage);
+      }
+    }
   }
 
-  void _onResult(String text, bool isFinal) {
+  void _onResult(int session, String text, bool isFinal) {
+    if (session != _session) return;
     final words = text.trim();
     _transcript = words.isEmpty || _prefix.isEmpty
         ? '$_prefix$words'
         : '$_prefix $words';
     if (_sessionActive) {
       state = VoiceInputListening(_transcript);
-    } else if (isFinal) {
-      // Android puede mandar el resultado final después de `done`.
+    } else if (isFinal && state is! VoiceInputError) {
+      // Android puede mandar el resultado final después de `done` o de
+      // detener a mano. Tras un error se conserva el mensaje: el campo ya
+      // tiene los parciales.
       state = VoiceInputIdle(text: _transcript);
     }
+  }
+
+  /// R10: el usuario borró el campo; un resultado tardío de la escucha
+  /// anterior no debe volver a llenarlo.
+  void discardPendingResult() {
+    if (_sessionActive) return;
+    _session++;
+    state = const VoiceInputIdle();
   }
 
   /// R5: el reconocedor cerró la escucha por su cuenta (silencio o decisión

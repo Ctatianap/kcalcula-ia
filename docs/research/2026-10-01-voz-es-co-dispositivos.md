@@ -15,11 +15,16 @@ Estado: **Android completo** (ronda 3, versión final, commit `cca4a8b`). **iOS:
 - Build: `flutter run` (debug) con el teléfono conectado por USB o depuración inalámbrica. En
   Android, la pantalla se puede manejar desde el Mac con `scrcpy`, pero **el micrófono es el del
   teléfono**: se dicta hablándole al teléfono.
-- Configuración de la app (`app/lib/features/capture/speech_recognizer.dart`): `localeId: es_CO`,
-  `partialResults: true`, `pauseFor: 2 s`, sin `onDevice` (default del plugin: el SO decide si
-  usa servidores).
-- Procedimiento por frase: tocar el micrófono, leer la frase una vez a ritmo normal, detener y
-  copiar **exactamente** lo que quedó en el campo de texto, antes de editar o enviar nada.
+- Configuración de la app (`app/lib/features/capture/speech_recognizer.dart` y
+  `silencePauseFor` en `voice_input_controller.dart`): `localeId: es_CO`, `partialResults: true`,
+  sin `onDevice` (default del plugin: el SO decide si usa servidores). El tiempo de silencio
+  **cambia según la ronda**: rondas 1 y 2a con `pauseFor: 2 s`; ronda 2b y ronda 3 (la que cuenta
+  para AC8) **sin `pauseFor` en Android**. Para la medición en iOS, la versión vigente usa
+  `pauseFor: 2 s` (R5 de SPEC-002).
+- Procedimiento por frase: tocar el micrófono, leer la frase una vez a ritmo normal y esperar a
+  que la escucha se cierre sola (o tocar "Detener"); copiar **exactamente** lo que quedó en el
+  campo de texto, antes de editar o enviar nada. Si se cortó, anotar cuántos toques hicieron
+  falta (con R9 el texto nuevo se agrega al anterior).
 - Ambiente: anotar si es silencioso o con ruido, y la distancia aproximada al teléfono.
 
 ### Cómo se cuenta la coincidencia

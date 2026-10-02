@@ -13,7 +13,11 @@ class FakeMicrophonePermission implements MicrophonePermission {
 class FakeSpeechRecognizer implements SpeechRecognizer {
   final bool availableOnInit;
 
-  FakeSpeechRecognizer({this.availableOnInit = true});
+  /// Si no es nulo, `listen` lanza esta excepción (el reconocedor no logró
+  /// empezar).
+  final Object? listenThrows;
+
+  FakeSpeechRecognizer({this.availableOnInit = true, this.listenThrows});
 
   bool _available = false;
   void Function(String message)? _onError;
@@ -22,6 +26,7 @@ class FakeSpeechRecognizer implements SpeechRecognizer {
 
   /// Último `pauseFor` recibido en `listen` (AC11).
   Duration? lastPauseFor;
+  int listenCalls = 0;
 
   @override
   bool get isAvailable => _available;
@@ -43,8 +48,10 @@ class FakeSpeechRecognizer implements SpeechRecognizer {
     Duration? pauseFor,
     String localeId = 'es_CO',
   }) async {
+    listenCalls++;
     _onResult = onResult;
     lastPauseFor = pauseFor;
+    if (listenThrows != null) throw listenThrows!;
   }
 
   @override

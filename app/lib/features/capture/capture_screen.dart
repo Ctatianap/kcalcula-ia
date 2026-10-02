@@ -155,7 +155,12 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
                         tooltip: 'Borrar texto',
                         onPressed: isLoading
                             ? null
-                            : () => setState(_textController.clear),
+                            : () {
+                                ref
+                                    .read(voiceInputControllerProvider.notifier)
+                                    .discardPendingResult();
+                                setState(_textController.clear);
+                              },
                       ),
                     IconButton(
                       icon: const Icon(Icons.camera_alt),

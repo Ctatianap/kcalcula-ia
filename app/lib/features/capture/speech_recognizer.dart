@@ -10,6 +10,8 @@ abstract class SpeechRecognizer {
   /// `initialize` o mientras escucha), no solo al inicializar.
   /// `onDone` avisa que el reconocedor dejó de escuchar por su cuenta (R5):
   /// puede llamarse más de una vez por sesión y antes del resultado final.
+  /// Se puede llamar varias veces: los callbacks de la última llamada son
+  /// los que reciben los avisos.
   Future<bool> initialize({
     required void Function(String message) onError,
     required void Function() onDone,
@@ -17,6 +19,7 @@ abstract class SpeechRecognizer {
 
   /// `pauseFor` nulo: no se fija un tiempo de silencio y el reconocedor del
   /// sistema operativo decide cuándo terminó la frase (R5, Android).
+  /// Puede lanzar una excepción si el reconocedor no logra empezar (R7).
   Future<void> listen({
     required void Function(String text, bool isFinal) onResult,
     Duration? pauseFor,
@@ -29,6 +32,11 @@ abstract class SpeechRecognizer {
 class PluginSpeechRecognizer implements SpeechRecognizer {
   final stt.SpeechToText _speech = stt.SpeechToText();
 
+  // `SpeechToText.initialize` solo registra sus listeners la primera vez;
+  // se registran estos reenvíos una vez y apuntan a los callbacks vigentes.
+  void Function(String message) _onError = (_) {};
+  void Function() _onDone = () {};
+
   @override
   bool get isAvailable => _speech.isAvailable;
 
@@ -37,10 +45,12 @@ class PluginSpeechRecognizer implements SpeechRecognizer {
     required void Function(String message) onError,
     required void Function() onDone,
   }) {
+    _onError = onError;
+    _onDone = onDone;
     return _speech.initialize(
-      onError: (error) => onError(error.errorMsg),
+      onError: (error) => _onError(error.errorMsg),
       onStatus: (status) {
-        if (status == stt.SpeechToText.doneStatus) onDone();
+        if (status == stt.SpeechToText.doneStatus) _onDone();
       },
     );
   }

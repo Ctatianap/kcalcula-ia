@@ -248,4 +248,107 @@ void main() {
       });
     }
   });
+
+  group('robustez de la sesión (revisión 2026-10-02)', () {
+    test(
+      'R5/R7: si listen falla al empezar -> VoiceInputError, no escuchando',
+      () async {
+        final container = _buildContainer(
+          permission: FakeMicrophonePermission(granted: true),
+          recognizer: FakeSpeechRecognizer(listenThrows: Exception('busy')),
+        );
+        addTearDown(container.dispose);
+
+        await container
+            .read(voiceInputControllerProvider.notifier)
+            .startListening();
+
+        final state = container.read(voiceInputControllerProvider);
+        expect(state, isA<VoiceInputError>());
+        expect((state as VoiceInputError).message, isNot(contains('busy')));
+      },
+    );
+
+    test('un resultado final después de un error conserva el error', () async {
+      final recognizer = FakeSpeechRecognizer();
+      final container = _buildContainer(
+        permission: FakeMicrophonePermission(granted: true),
+        recognizer: recognizer,
+      );
+      addTearDown(container.dispose);
+
+      await container
+          .read(voiceInputControllerProvider.notifier)
+          .startListening();
+      recognizer.emitResult('una');
+      recognizer.emitError('network');
+      recognizer.emitResult('una manzana', isFinal: true);
+
+      expect(
+        container.read(voiceInputControllerProvider),
+        isA<VoiceInputError>(),
+      );
+    });
+
+    test(
+      'detener a mano y luego resultado final -> VoiceInputIdle con texto',
+      () async {
+        final recognizer = FakeSpeechRecognizer();
+        final container = _buildContainer(
+          permission: FakeMicrophonePermission(granted: true),
+          recognizer: recognizer,
+        );
+        addTearDown(container.dispose);
+        final controller = container.read(
+          voiceInputControllerProvider.notifier,
+        );
+
+        await controller.startListening();
+        recognizer.emitResult('un café');
+        await controller.stopListening();
+        recognizer.emitResult('un café con leche', isFinal: true);
+
+        final state = container.read(voiceInputControllerProvider);
+        expect(state, isA<VoiceInputIdle>());
+        expect((state as VoiceInputIdle).text, 'un café con leche');
+      },
+    );
+
+    test('R10: tras descartar, un resultado tardío se ignora', () async {
+      final recognizer = FakeSpeechRecognizer();
+      final container = _buildContainer(
+        permission: FakeMicrophonePermission(granted: true),
+        recognizer: recognizer,
+      );
+      addTearDown(container.dispose);
+      final controller = container.read(voiceInputControllerProvider.notifier);
+
+      await controller.startListening();
+      recognizer.emitResult('un café');
+      await controller.stopListening();
+      controller.discardPendingResult();
+      recognizer.emitResult('un café con leche', isFinal: true);
+
+      final state = container.read(voiceInputControllerProvider);
+      expect(state, isA<VoiceInputIdle>());
+      expect((state as VoiceInputIdle).text, isNull);
+    });
+
+    test('doble toque mientras inicia -> una sola llamada a listen', () async {
+      final recognizer = FakeSpeechRecognizer();
+      final container = _buildContainer(
+        permission: FakeMicrophonePermission(granted: true),
+        recognizer: recognizer,
+      );
+      addTearDown(container.dispose);
+      final controller = container.read(voiceInputControllerProvider.notifier);
+
+      await Future.wait([
+        controller.startListening(),
+        controller.startListening(),
+      ]);
+
+      expect(recognizer.listenCalls, 1);
+    });
+  });
 }
