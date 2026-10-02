@@ -20,6 +20,9 @@ class FakeSpeechRecognizer implements SpeechRecognizer {
   void Function()? _onDone;
   void Function(String text, bool isFinal)? _onResult;
 
+  /// Último `pauseFor` recibido en `listen` (AC11).
+  Duration? lastPauseFor;
+
   @override
   bool get isAvailable => _available;
 
@@ -37,10 +40,11 @@ class FakeSpeechRecognizer implements SpeechRecognizer {
   @override
   Future<void> listen({
     required void Function(String text, bool isFinal) onResult,
-    Duration pauseFor = const Duration(seconds: 2),
+    Duration? pauseFor,
     String localeId = 'es_CO',
   }) async {
     _onResult = onResult;
+    lastPauseFor = pauseFor;
   }
 
   @override

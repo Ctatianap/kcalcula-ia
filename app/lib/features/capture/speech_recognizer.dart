@@ -15,9 +15,11 @@ abstract class SpeechRecognizer {
     required void Function() onDone,
   });
 
+  /// `pauseFor` nulo: no se fija un tiempo de silencio y el reconocedor del
+  /// sistema operativo decide cuándo terminó la frase (R5, Android).
   Future<void> listen({
     required void Function(String text, bool isFinal) onResult,
-    Duration pauseFor = const Duration(seconds: 2),
+    Duration? pauseFor,
     String localeId = 'es_CO',
   });
 
@@ -46,7 +48,7 @@ class PluginSpeechRecognizer implements SpeechRecognizer {
   @override
   Future<void> listen({
     required void Function(String text, bool isFinal) onResult,
-    Duration pauseFor = const Duration(seconds: 2),
+    Duration? pauseFor,
     String localeId = 'es_CO',
   }) {
     return _speech.listen(

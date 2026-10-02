@@ -1,6 +1,7 @@
 import 'package:calorias_ia/features/capture/microphone_permission.dart';
 import 'package:calorias_ia/features/capture/speech_recognizer.dart';
 import 'package:calorias_ia/features/capture/voice_input_controller.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -217,5 +218,34 @@ void main() {
       ) as VoiceInputListening).text,
       'dos huevos y una arepa',
     );
+  });
+
+  group('AC11: tiempo de silencio por plataforma', () {
+    test('Android no fija tiempo de silencio; iOS usa 2 s', () {
+      expect(silencePauseFor(TargetPlatform.android), isNull);
+      expect(silencePauseFor(TargetPlatform.iOS), const Duration(seconds: 2));
+    });
+
+    for (final (platform, expected) in [
+      (TargetPlatform.android, null),
+      (TargetPlatform.iOS, const Duration(seconds: 2)),
+    ]) {
+      test('startListening en $platform pasa pauseFor=$expected', () async {
+        debugDefaultTargetPlatformOverride = platform;
+        addTearDown(() => debugDefaultTargetPlatformOverride = null);
+        final recognizer = FakeSpeechRecognizer();
+        final container = _buildContainer(
+          permission: FakeMicrophonePermission(granted: true),
+          recognizer: recognizer,
+        );
+        addTearDown(container.dispose);
+
+        await container
+            .read(voiceInputControllerProvider.notifier)
+            .startListening();
+
+        expect(recognizer.lastPauseFor, expected);
+      });
+    }
   });
 }

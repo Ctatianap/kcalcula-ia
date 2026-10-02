@@ -35,8 +35,11 @@ registrar sea más rápido cuando tengo las manos ocupadas o prefiero hablar.
   ocurre en cualquier app que use STT del SO, no es un dato nuevo que este proyecto envíe).
 - R4. Mientras escucha, muestra la transcripción parcial en vivo en el mismo campo de texto de
   captura (no un campo separado).
-- R5. Se puede detener de dos formas, ambas soportadas: (a) botón manual de "detener", y (b) un
-  timeout de silencio automático (~2 segundos sin habla detectada). En cualquiera de los dos
+- R5. Se puede detener de dos formas, ambas soportadas: (a) botón manual de "detener", y (b) el
+  fin automático por silencio: en **Android** la app no fija un tiempo de silencio y deja que el
+  reconocedor del sistema operativo decida cuándo terminó la frase (con 2 s fijados por la app,
+  el reconocedor cortaba a mitad de frase — medido en AC8); en **iOS**, ~2 segundos sin habla
+  detectada (pendiente de revisar con la medición de AC8 en iPhone). En cualquiera de los dos
   casos, la transcripción final queda en el campo de texto, editable, exactamente como si el
   usuario la hubiera escrito — reutiliza `CaptureController.analyze(text)` sin ningún cambio.
   Si el sistema operativo cierra la escucha por su cuenta (en Android el reconocedor puede
@@ -80,6 +83,8 @@ registrar sea más rápido cuando tengo las manos ocupadas o prefiero hablar.
   `[unit + widget]`.
 - AC10. Con "dos huevos" en el campo, tocar el micrófono y dictar "y una arepa" deja
   "dos huevos y una arepa" en el campo `[unit + widget]`.
+- AC11. En Android, `listen` se llama sin tiempo de silencio (`pauseFor` nulo); en iOS, con 2 s
+  `[unit]`.
 
 ## Technical Constraints
 - Invariantes 1, 3, 4 y 6 de `CLAUDE.md`: la voz no aporta nutrientes ni confianza (eso lo sigue
@@ -166,6 +171,10 @@ de esta SPEC más 0 regresiones).
   (opción A): R5 ampliado (cierre por el SO → estado listo, texto conservado), R9 nuevo (agregar
   en vez de reemplazar), AC9 y AC10 nuevos. La opción B (reanudar sola la escucha) se descartó por
   ahora. Status Review → Implementing.
+- 2026-10-02: la ronda 2 de AC8 mostró que con el arreglo anterior seguían los cortes prematuros
+  (s04 cortada en "media ta"). Experimento sin `pauseFor` en Android: 0 cortes en 5 intentos con
+  voz, s05 exacta 2 de 2 (ver la nota de PV-05). Aprobado por el usuario: R5 cambia (Android sin
+  tiempo de silencio fijado por la app; iOS mantiene ~2 s hasta medirlo) y AC11 nuevo.
 
 ## Review
 Informe del reviewer (2026-09-28, subagente `reviewer`, rama `spec-002-entrada-por-voz`):

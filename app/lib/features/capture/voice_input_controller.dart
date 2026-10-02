@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'microphone_permission.dart';
@@ -7,6 +8,14 @@ const _noMicrophonePermissionMessage =
     'Necesito permiso del micrófono para esto. Puedes escribir en su lugar.';
 const _notAvailableMessage =
     'El reconocimiento de voz no está disponible en este dispositivo. Puedes escribir en su lugar.';
+
+/// R5: en Android no se fija tiempo de silencio — con 2 s el reconocedor
+/// cortaba a mitad de frase (medición de AC8,
+/// `docs/research/2026-10-01-voz-es-co-dispositivos.md`). En iOS el
+/// reconocedor no cierra solo, así que se mantiene el corte de ~2 s.
+Duration? silencePauseFor(TargetPlatform platform) =>
+    platform == TargetPlatform.android ? null : const Duration(seconds: 2);
+
 const _genericErrorMessage =
     'No pude escuchar bien. Intenta de nuevo o escribe directamente.';
 
@@ -86,7 +95,7 @@ class VoiceInputController extends Notifier<VoiceInputState> {
     state = VoiceInputListening(_transcript);
     await recognizer.listen(
       onResult: _onResult,
-      pauseFor: const Duration(seconds: 2),
+      pauseFor: silencePauseFor(defaultTargetPlatform),
       localeId: 'es_CO',
     );
   }
