@@ -46,6 +46,11 @@ class _DiaryScreenState extends ConsumerState<DiaryScreen> {
     setState(_reload);
   }
 
+  Future<void> _openNutritionGoal() async {
+    await Navigator.of(context).pushNamed(AppRoutes.nutritionGoal);
+    setState(_reload);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,24 +75,28 @@ class _DiaryScreenState extends ConsumerState<DiaryScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           final summary = snapshot.data!;
-          if (summary.meals.isEmpty) {
-            return const Center(child: Text('Todavía no registras nada hoy.'));
-          }
           return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
                 padding: const EdgeInsets.all(16),
-                child: Text(
-                  'Total del día: ${presentKcal(summary.dayTotals.energyKcal)} kcal',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+                child: summary.goal == null
+                    ? _NoGoalHeader(
+                        summary: summary,
+                        onSetGoal: _openNutritionGoal,
+                      )
+                    : _GoalHeader(summary: summary),
               ),
               Expanded(
-                child: ListView(
-                  children: summary.meals
-                      .map((m) => _MealTile(summary: m))
-                      .toList(),
-                ),
+                child: summary.meals.isEmpty
+                    ? const Center(
+                        child: Text('Todavía no registras nada hoy.'),
+                      )
+                    : ListView(
+                        children: summary.meals
+                            .map((m) => _MealTile(summary: m))
+                            .toList(),
+                      ),
               ),
             ],
           );
@@ -95,6 +104,123 @@ class _DiaryScreenState extends ConsumerState<DiaryScreen> {
       ),
     );
   }
+}
+
+/// SPEC-008 R7: sin meta, el diario se ve como antes, más un enlace discreto.
+class _NoGoalHeader extends StatelessWidget {
+  final DiarySummary summary;
+  final VoidCallback onSetGoal;
+
+  const _NoGoalHeader({required this.summary, required this.onSetGoal});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (summary.meals.isNotEmpty)
+          Text(
+            'Total del día: ${presentKcal(summary.dayTotals.energyKcal)} kcal',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+        TextButton(
+          onPressed: onSetGoal,
+          child: const Text('Fijar una meta diaria'),
+        ),
+      ],
+    );
+  }
+}
+
+/// SPEC-008 R6: consumido / meta y lo que queda, en tono neutro (sin rojo).
+class _GoalHeader extends StatelessWidget {
+  final DiarySummary summary;
+
+  const _GoalHeader({required this.summary});
+
+  @override
+  Widget build(BuildContext context) {
+    final goal = summary.goal!;
+    final totals = summary.dayTotals;
+    final approx = summary.isApproximate;
+    final macros = [
+      ('Proteína', totals.proteinG, goal.proteinG),
+      ('Carbohidratos', totals.carbsG, goal.carbsG),
+      ('Grasa', totals.fatG, goal.fatG),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _ProgressLine(
+          text: kcalProgressText(
+            GoalProgress(consumed: totals.energyKcal, goal: goal.energyKcal),
+            approximate: approx,
+          ),
+          progress: GoalProgress(
+            consumed: totals.energyKcal,
+            goal: goal.energyKcal,
+          ),
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        for (final (label, consumed, target) in macros)
+          if (target != null)
+            _ProgressLine(
+              text: macroProgressText(
+                label,
+                GoalProgress(consumed: consumed, goal: target),
+                approximate: approx,
+              ),
+              progress: GoalProgress(consumed: consumed, goal: target),
+            ),
+      ],
+    );
+  }
+}
+
+class _ProgressLine extends StatelessWidget {
+  final String text;
+  final GoalProgress progress;
+  final TextStyle? style;
+
+  const _ProgressLine({required this.text, required this.progress, this.style});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(text, style: style),
+          const SizedBox(height: 4),
+          LinearProgressIndicator(value: progress.fraction),
+        ],
+      ),
+    );
+  }
+}
+
+/// SPEC-008 R6/AC6: "1.250 / 2.000 kcal · quedan 750".
+String kcalProgressText(GoalProgress p, {required bool approximate}) {
+  String k(double v) => formatThousandsEs(presentKcal(v));
+  final head = '${approximate ? '~' : ''}${k(p.consumed)} / ${k(p.goal)} kcal';
+  return p.isOverGoal
+      ? '$head · ${k(p.excess)} por encima de la meta'
+      : '$head · quedan ${k(p.remaining)}';
+}
+
+/// SPEC-008 R6: "Proteína: 45,3 / 100,0 g · quedan 54,7 g".
+String macroProgressText(
+  String label,
+  GoalProgress p, {
+  required bool approximate,
+}) {
+  final head =
+      '$label: ${approximate ? '~' : ''}${formatMacroEs(p.consumed)} / '
+      '${formatMacroEs(p.goal)} g';
+  return p.isOverGoal
+      ? '$head · ${formatMacroEs(p.excess)} g por encima de la meta'
+      : '$head · quedan ${formatMacroEs(p.remaining)} g';
 }
 
 class _MealTile extends StatelessWidget {

@@ -9,4 +9,5 @@ abstract class AppRoutes {
   static const onboarding = '/onboarding';
   static const settings = '/settings';
   static const privacyPolicy = '/privacy-policy';
+  static const nutritionGoal = '/nutrition-goal';
 }

@@ -52,4 +52,12 @@ void main() {
       expect(formatThousandsEs(1234567), '1.234.567');
     });
   });
+
+  group('formatMacroEs', () {
+    test('un decimal con coma, half-up', () {
+      expect(formatMacroEs(45.26), '45,3');
+      expect(formatMacroEs(100), '100,0');
+      expect(formatMacroEs(0.04), '0,0');
+    });
+  });
 }

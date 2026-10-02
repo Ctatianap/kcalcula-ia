@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_routes.dart';
+import 'features/goals/nutrition_goal_screen.dart';
 import 'features/capture/capture_screen.dart';
 import 'features/diary/diary_screen.dart';
 import 'features/legal/privacy_policy_screen.dart';
@@ -49,6 +50,11 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(
               settings: settings,
               builder: (_) => const SettingsScreen(),
+            );
+          case AppRoutes.nutritionGoal:
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (_) => const NutritionGoalScreen(),
             );
           case AppRoutes.privacyPolicy:
             return MaterialPageRoute(

@@ -15,3 +15,7 @@ String formatThousandsEs(int value) {
   }
   return buffer.toString();
 }
+
+/// Macro presentado (1 decimal, half-up) con coma decimal de es-CO ("45,3").
+String formatMacroEs(double grams) =>
+    presentMacro(grams).toStringAsFixed(1).replaceAll('.', ',');

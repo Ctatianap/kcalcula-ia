@@ -3,6 +3,7 @@
 library;
 
 export 'src/confidence.dart';
+export 'src/goal_limits.dart';
 export 'src/goal_progress.dart';
 export 'src/label_validation.dart';
 export 'src/models/confidence_level.dart';

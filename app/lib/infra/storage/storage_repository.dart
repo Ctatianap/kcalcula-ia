@@ -2,6 +2,9 @@ import 'package:drift/drift.dart';
 
 import 'app_database.dart';
 
+// SPEC-008: las features leen la meta sin depender de Drift directamente.
+export 'app_database.dart' show NutritionGoal, GoalEstimationInput;
+
 /// Ítem ya calculado y confirmado por el usuario, listo para registrar
 /// (R11). Exactamente uno de `foodId`/`personalProductId` no es `null`
 /// (SPEC-004 R7) — nunca ambos, nunca ninguno (no debería llegar aquí: la
