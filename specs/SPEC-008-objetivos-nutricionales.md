@@ -135,6 +135,7 @@ y cuánto me queda.
   `exportUserData` (R10).
 - `app/lib/features/settings/`: pantalla "Mi meta diaria" y entrada en Ajustes.
 - `app/lib/features/diary/`: progreso (R6) y enlace (R7).
+- `app/lib/infra/legal/privacy_policy.dart`: texto de la política y `privacyPolicyVersion` v2 → v3 (R12).
 - `docs/privacy.md`: filas nuevas del inventario. `docs/architecture.md`: sección de objetivos y
   tablas nuevas del modelo de datos.
 
