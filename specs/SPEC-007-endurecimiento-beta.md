@@ -232,10 +232,20 @@ En orden — dime cuando completes cada bloque y sigo con la implementación que
    (`com.caloriasia.calorias_ia`) e iOS (`com.caloriasia.caloriasIa`) registradas en
    `kcalcula-ia-dev`.
 4. ✅ Continué con R1-R3 (Firebase real, App Check, `aiClientProvider`) — ver Evidencia de AC.
-5. ⏳ Pendiente: en la consola de GCP Billing de `kcalcula-ia-dev`, crear una alerta de presupuesto
-   (bajo, coherente con minimizar costo — un umbral pequeño como aviso temprano, no un límite duro).
-6. ⏳ Pendiente: en la consola de Firebase de `kcalcula-ia-dev`, confirmar que Crashlytics aparece
-   habilitado tras el primer evento de prueba (normalmente se activa solo).
+5. ✅ Alerta de presupuesto creada (2026-10-01) en GCP Billing para `kcalcula-ia-dev`: "Solo
+   alertas" (no aplicación de límite — no corta el servicio), monto bajo, ajustable según el
+   volumen real de alertas que lleguen. También se renombraron los apodos de las apps en la
+   consola de Firebase de `calorias_ia (android/ios)` a `kcalcula-ia (android/ios)` — cambio
+   cosmético, no afecta el paquete ni el código.
+6. ✅ Confirmado (2026-10-01): corrí la app de verdad en el Simulador de iPhone (`flutter run`),
+   completé el onboarding real (consentimiento aceptado), y la consola de Firebase Crashlytics
+   para la app iOS pasó de "Agregar SDK" a **"Detectamos la app y estamos a la espera de que se
+   produzca una falla"** — confirma que el SDK quedó bien registrado y que la recolección se activó
+   tras el consentimiento, tal como lo diseña R4/R5. La vista de Android sigue en "Agregar SDK" sin
+   confirmar — no hay emulador de Android en esta máquina para probarlo; el código es idéntico en
+   ambas plataformas (mismo `main.dart`/`CrashReporter`), así que no hay motivo técnico para dudar
+   de que se comporte igual — queda como verificación pendiente en un dispositivo/emulador Android
+   real, no bloqueante.
 7. Más adelante, no bloquea esta SPEC: cuando exista una build de release real, vincular el proyecto
    de GCP a Play Console (App integrity → Link Cloud project — quien lo haga debe ser Owner directo
    del proyecto, no basta un rol heredado por grupo; la app puede quedarse en pista interna, no hace
@@ -250,7 +260,7 @@ En orden — dime cuando completes cada bloque y sigo con la implementación que
 | AC1 | ✅ | Checklist de beta completado por el usuario (`firebase login` + `flutterfire configure --project=kcalcula-ia-dev`): `app/lib/firebase_options.dart` generado, apps Android/iOS registradas en `kcalcula-ia-dev`. `main.dart` llama `Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)`. Verificado con `flutter build ios --no-codesign --debug` real (build exitoso) |
 | AC2 | ✅ | `aiClientProvider` overridden en `main()` con `AiClient.firebase(FirebaseFunctions.instanceFor(region: 'us-east1'))`; mismo build de iOS confirma que compila y enlaza |
 | AC3 | ✅ | `main.dart` activa App Check con `providerAndroid`/`providerApple` condicionados por `kDebugMode` (API no deprecada de `firebase_app_check` 0.4.8). Veredictos reales de Play Integrity/App Attest en un dispositivo siguen Out of Scope (requieren Play Console/Apple Developer, ver Checklist) |
-| AC4 | ✅ | `CrashReporter`/`FirebaseCrashReporter` implementados (`infra/crash_reporting/`); grep dirigido confirma que ningún call site le pasa contenido de usuario. `main()` lo activa con `setCollectionEnabled(false)` apenas arranca, con manejo de error (AC12) |
+| AC4 | ✅ | `CrashReporter`/`FirebaseCrashReporter` implementados (`infra/crash_reporting/`); grep dirigido confirma que ningún call site le pasa contenido de usuario. `main()` lo activa con `setCollectionEnabled(false)` apenas arranca, con manejo de error (AC12). **Verificado en vivo** (2026-10-01): corrida real en Simulador de iOS con consentimiento aceptado → la consola de Firebase Crashlytics (app iOS) pasó de "Agregar SDK" a "Detectamos la app y estamos a la espera de que se produzca una falla", confirmando que el SDK se activó de verdad tras el consentimiento. Android sin confirmar en esta máquina (sin emulador disponible) — mismo código, no bloqueante |
 | AC5 | ✅ | `onboarding_gate_flow_test.dart`: "AC4/AC8: con consentimiento vigente entra directo al diario y activa el reporte de fallos" (la reentrada a `_RootGate` tras aceptar es el mismo camino) |
 | AC6 | ✅ | `settings_screen_test.dart`: "AC14: confirmar revocar limpia el consentimiento..." verifica `crashReporter.collectionEnabled == false` |
 | AC7 | ✅ | `onboarding_gate_flow_test.dart`: "AC7: policyVersion desactualizado vuelve a mostrar el onboarding..." |
@@ -317,6 +327,17 @@ cuando el ecosistema se ponga al día.
   (desajuste de plataformas del SDK de Android en esta máquina) — documentado como hallazgo fuera de
   alcance, no bloquea esta SPEC. AC1-AC3 y AC14 pasan de "pendiente aceptado" a `✅`. `flutter test`
   sigue en 82/82.
+- 2026-10-01: completado el resto del Checklist de beta con el usuario. Pasos 5-6: alerta de
+  presupuesto creada en GCP Billing (`kcalcula-ia-dev`, "solo alertas", monto bajo ajustable);
+  apodos de las apps renombrados en la consola de Firebase; corrida real de la app en el Simulador
+  de iOS (dos veces — la segunda en "frío" con el consentimiento ya guardado) para validar
+  Crashlytics de extremo a extremo: la consola pasó de "Agregar SDK" a "esperando una falla",
+  confirmando que R4/R5 funcionan de verdad, no solo en tests. También se arregló en el camino el
+  problema real de `permission_handler_android`/`compileSdk 37` (ver Evidencia de AC4/hallazgo más
+  abajo): se fijó la versión a `13.0.1` vía `dependency_overrides`, y se verificaron builds reales
+  de Android e iOS, ambos exitosos. Queda pendiente, no bloqueante: confirmar Crashlytics en Android
+  real (sin emulador en esta máquina) y el paso 7 (Play Console/Apple Developer, para cuando haya
+  una build de release real).
 
 ## Review
 Informe del reviewer:
