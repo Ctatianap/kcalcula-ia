@@ -118,6 +118,12 @@ T-002 (`CaptureScreen`/`CaptureController` ya existen y no cambian su contrato p
 - Silencio total, no se detecta habla: mismo fallback que "no disponible", con mensaje claro.
 - El usuario detiene la escucha con el campo vacío: no habilita "Analizar" (mismo comportamiento
   que un campo de texto vacío hoy).
+- Limitación conocida (aceptada en la revisión del 2026-10-02): si el SO no arranca la escucha
+  sin reportar error, la UI puede mostrar "Escuchando…" hasta que el usuario toque "Detener";
+  `speech_to_text` 7.5.0 no expone si la escucha arrancó. Si `listen` lanza una excepción, sí se
+  muestra el mensaje de error (R7).
+- Un error del reconocedor que llega después de que la escucha ya se cerró (`done`, "Detener" o
+  ✕) se ignora: no hay nada que el usuario pueda reintentar.
 
 ## Security & Privacy
 - Sale del dispositivo: el audio, hacia los servidores de reconocimiento de voz del sistema
@@ -223,3 +229,26 @@ Hallazgos:
   estar fuera del alcance de esta SPEC.
 - Sin BLOCKER ni MAJOR.
 ```
+
+### Re-revisión (2026-10-02, subagente `reviewer`, rama `spec-002-entrada-por-voz`)
+
+Primera pasada sobre los cambios de R5/R9/R10 y AC9–AC12: **CHANGES_REQUESTED**.
+- [MAJOR] Si `listen` fallaba al empezar, la UI quedaba en "Escuchando…" sin escuchar (contradice R5/R7).
+- [MINOR] Un final después de un error borraba el mensaje de error.
+- [MINOR] Un resultado tardío podía volver a llenar el campo recién borrado con ✕.
+- [MINOR] Un doble toque mientras inicia abría dos sesiones.
+- [MINOR] La nota de PV-05 describía una sola configuración para todas las rondas.
+- [MINOR] Los callbacks de `initialize` solo quedaban registrados en la primera llamada.
+
+Corregidos en `f98a206`, con 5 tests nuevos.
+
+Segunda pasada sobre `f98a206`: **PASS**.
+- `flutter analyze` sin issues; `flutter test` 98/98.
+- AC1–AC12 cumplen; AC8 en iOS como pendiente aceptado por el usuario.
+- Sin cambios en `functions/`, `packages/`, `data/` ni `evals/`; ningún dato nuevo hacia el backend; sin restos de diagnóstico.
+
+MINOR de la segunda pasada:
+- Limitación de `started == false`: documentada en Edge Cases.
+- Errores tardíos de una escucha ya cerrada: ahora se ignoran, con test (99/99).
+- ✕ con un error visible lo limpia: comportamiento aceptado, sin test.
+- `ensureGranted` o `initialize` que lancen una excepción: preexistente; la UI no queda en "escuchando".

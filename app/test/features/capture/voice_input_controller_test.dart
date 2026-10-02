@@ -350,5 +350,25 @@ void main() {
 
       expect(recognizer.listenCalls, 1);
     });
+
+    test('un error que llega después de done se ignora', () async {
+      final recognizer = FakeSpeechRecognizer();
+      final container = _buildContainer(
+        permission: FakeMicrophonePermission(granted: true),
+        recognizer: recognizer,
+      );
+      addTearDown(container.dispose);
+
+      await container
+          .read(voiceInputControllerProvider.notifier)
+          .startListening();
+      recognizer.emitResult('una manzana');
+      recognizer.emitDone();
+      recognizer.emitError('no-match');
+
+      final state = container.read(voiceInputControllerProvider);
+      expect(state, isA<VoiceInputIdle>());
+      expect((state as VoiceInputIdle).text, 'una manzana');
+    });
   });
 }

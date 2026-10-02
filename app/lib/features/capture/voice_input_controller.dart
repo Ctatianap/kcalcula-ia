@@ -95,6 +95,8 @@ class VoiceInputController extends Notifier<VoiceInputState> {
     final recognizer = ref.read(speechRecognizerProvider);
     final available = await recognizer.initialize(
       onError: (_) {
+        // Un error de una escucha que ya terminó no tiene nada que reintentar.
+        if (!_sessionActive) return;
         _sessionActive = false;
         state = const VoiceInputError(_genericErrorMessage);
       },
