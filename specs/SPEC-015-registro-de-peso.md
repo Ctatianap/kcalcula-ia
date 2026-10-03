@@ -1,7 +1,7 @@
 # SPEC-015: Registro de peso y tendencia
 
 ## Status
-Approved
+Review
 Path: Strict (dato personal de salud nuevo, con historial, guardado en el dispositivo)
 
 ## Objective
@@ -84,9 +84,67 @@ o se mantiene.
 - AC1–AC7 con evidencia; analyze y tests verdes; reviewer PASS; docs y política actualizados;
   recorrido manual; aprobación de la usuaria antes de fusionar (Strict).
 
+## Evidencia
+| AC | Evidencia |
+|----|-----------|
+| AC1 | `packages/nutrition_core/test/weight_trend_test.dart` › "SPEC-015 AC1: cambio de la semana" (unit); `app/test/features/progress/weight_card_test.dart` › "AC1: 62,0 hoy y 62,4 hace 7 días…" y "AC1: un solo registro → sin cambio" (widget) |
+| AC2 | `app/test/infra/storage/weight_log_storage_test.dart` › "AC2: anotar dos veces el mismo día deja un registro con el último valor" |
+| AC3 | mismo archivo › "AC3: anotar peso actualiza el perfil y recalcula la meta de objetivo", "AC3: la meta manual no se recalcula", "AC3: todo en una transacción…" |
+| AC4 | mismo archivo › "AC4: guardar el perfil con otro peso crea el registro de hoy" (con `ProfileController` real) |
+| AC5 | mismo archivo › "AC5: borrar todo vacía weight_log y exportar lo incluye" y "AC5: migrar desde la v6 conserva todo y crea weight_log vacía" |
+| AC6 | `weight_card_test.dart` › "AC6: \"29,9\" / \"300,1\" (y \"62,55\", \"abc\") fuera de rango → mensaje y no se guarda" |
+| AC7 | `test/features/legal/privacy_policy_text_test.dart` › "SPEC-015 AC7: la política v4 menciona el historial de peso…"; `test/integration/onboarding_gate_flow_test.dart` › "…quien aceptó la v2/v3 vuelve a ver el onboarding con la v4" |
+
+Edge cases: borrar el más reciente (perfil al anterior; sin registros conserva su peso), sin perfil,
+borrar con confirmación, fallo de escritura sin relanzar, texto ×2 en 360 px. Manual: anotar peso en
+el teléfono y ver la tendencia (usuaria).
+
 ## Change Log
 - 2026-10-03: creación a partir de T-016 y del diseño "kcalcula ia UI".
 - 2026-10-03: **Approved por la usuaria** ("aprobadas", junto con SPEC-011 a SPEC-019). Los recorridos manuales en el teléfono se agrupan al final del lote.
+- 2026-10-03: implementada (autorización única de la usuaria para el lote, incluidas las Strict).
+  Detalles menores:
+  - `weight_log` con la fecha local (00:00) como clave primaria: un registro por día por diseño.
+    `user.db` pasa a v7.
+  - "Registro más cercano a 7 días antes": se buscan registros entre 1 y 14 días antes del último;
+    gana el más cercano a 7 días y, en empate, el más antiguo. Más de 14 días ya no es "esta
+    semana": sin cambio. "Sin cambios" si el cambio redondeado a un decimal es 0.
+  - El primer guardado de "Mi perfil" también crea el registro de hoy (no hay peso anterior con el
+    que comparar); guardar sin cambiar el peso no crea otro.
+  - El recálculo de la meta (`maintenanceForProfile`, `recalculatedGoal`, `goalValuesFor`) pasó de
+    `features/goals` a `infra/storage/goal_sync.dart` para que Progreso lo use sin importar otra
+    feature; `goal_calculation.dart` lo reexporta. `parseDecimal` y `weightRangeMessage` pasaron a
+    `ui/number_input_es.dart` por la misma razón.
+  - Si la meta de objetivo no se puede recalcular (fuera de 800–6.000), el peso se guarda y se avisa
+    con un mensaje, como en SPEC-008.
+  - La tarjeta de Peso se muestra siempre en Progreso (también sin comidas en el periodo); el
+    gráfico aparece con 2 o más registros en el periodo; la lista de registros del periodo va de
+    más reciente a más antiguo, cada uno con "Borrar".
+  - Política v4 (nueva sección "Tu historial de peso") y el texto de confirmación de "Borrar todos
+    mis datos" ahora nombra perfil, meta e historial de peso.
+  Status → Review.
+- 2026-10-03: reviewer **PASS** (commit 8a84ba8; nutrition_core 91/91, app 248/248), sin BLOCKER ni
+  MAJOR. MINOR atendidos antes de fusionar:
+  - si el último registro tiene más de 7 días frente a hoy, la tarjeta muestra "Último registro:
+    <fecha>" en lugar de "… esta semana" (test);
+  - accesibilidad: "Peso" es encabezado, el cambio se lee con palabras ("Bajaste 0,4 kg esta
+    semana") y el gráfico con un resumen (registros, primero, último, mínimo y máximo); el detalle
+    queda en la lista accesible (test);
+  - diálogos con contenido desplazable: con texto ×2 el de "Anotar peso" se desbordaba 8 px; el test
+    de texto grande ahora cubre el gráfico en "Mes", el diálogo y la confirmación de borrado;
+  - `mounted` antes de cada mensaje que sigue a un `await`;
+  - `docs/privacy.md`: la fila de exportación nombra perfil, meta e historial de peso.
+  - **Decisión de producto para que la usuaria la confirme en el recorrido:** la referencia del
+    cambio se busca solo entre 1 y 14 días antes del último registro (más atrás no es "esta
+    semana").
+  - Aceptado: el recálculo de la meta vive en `infra/storage/goal_sync.dart`; si crece, irá a un
+    módulo de dominio compartido.
+  Fusionada en `develop` por la autorización única de la usuaria (incluidas las Strict). Sigue en
+  Review hasta el recorrido manual en el teléfono.
 
 ## Review
-Informe del reviewer: pendiente.
+Informe del reviewer (2026-10-03, commit 8a84ba8): **PASS**. AC1–AC7 con evidencia
+(`weight_trend_test.dart`, `weight_log_storage_test.dart`, `weight_card_test.dart`, política y
+onboarding); AC3 verificado como una sola transacción con rollback real; migración v6→v7 aditiva;
+privacidad y política v4 actualizadas, sin datos nuevos fuera del dispositivo. MINOR atendidos (ver
+Change Log).

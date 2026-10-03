@@ -127,28 +127,31 @@ void main() {
     },
   );
 
-  testWidgets(
-    'SPEC-008 AC13: quien aceptó la v2 vuelve a ver el onboarding con la v3',
-    (tester) async {
-      final db = AppDatabase(NativeDatabase.memory());
-      await StorageRepository(db).saveConsent(policyVersion: 'v2');
+  for (final old in ['v2', 'v3']) {
+    testWidgets(
+      'SPEC-008 AC13 / SPEC-015 AC7: quien aceptó la $old vuelve a ver el '
+      'onboarding con la v4',
+      (tester) async {
+        final db = AppDatabase(NativeDatabase.memory());
+        await StorageRepository(db).saveConsent(policyVersion: old);
 
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            appDatabaseProvider.overrideWithValue(db),
-            crashReporterProvider.overrideWithValue(FakeCrashReporter()),
-          ],
-          child: const MyApp(),
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              appDatabaseProvider.overrideWithValue(db),
+              crashReporterProvider.overrideWithValue(FakeCrashReporter()),
+            ],
+            child: const MyApp(),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(privacyPolicyVersion, 'v3');
-      expect(find.text('Antes de empezar'), findsOneWidget);
-      expect(find.text('Hoy'), findsNothing);
+        expect(privacyPolicyVersion, 'v4');
+        expect(find.text('Antes de empezar'), findsOneWidget);
+        expect(find.text('Hoy'), findsNothing);
 
-      await db.close();
-    },
-  );
+        await db.close();
+      },
+    );
+  }
 }

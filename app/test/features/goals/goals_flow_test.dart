@@ -42,6 +42,7 @@ class _FailingRepository extends StorageRepository {
     required String activityLevel,
     double? measuredMaintenanceKcal,
     NutritionGoalValues? recalculatedGoal,
+    DateTime? weightLogDay,
   }) => Future.error(StateError('SqliteException: parameters: 63, 165'));
 
   @override

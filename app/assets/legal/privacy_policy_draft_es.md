@@ -1,4 +1,4 @@
-<!-- Versión: v3 — SPEC-008 (antes v2, SPEC-007). BORRADOR: pendiente de revisión legal humana antes de publicar. -->
+<!-- Versión: v4 — SPEC-015 (antes v3, SPEC-008; v2, SPEC-007). BORRADOR: pendiente de revisión legal humana antes de publicar. -->
 
 # Política de privacidad (borrador)
 
@@ -34,8 +34,8 @@ sistema operativo de tu teléfono. En Android ese servicio puede procesar el aud
 Google (sin conexión a internet no funciona); en iPhone puede procesarse en servidores de Apple.
 Eso depende del sistema operativo, no de esta app, y la app no guarda el audio.
 
-Tus datos ya registrados (comidas, productos guardados, tu perfil y tu meta diaria)
-nunca salen de tu dispositivo por decisión de la app.
+Tus datos ya registrados (comidas, productos guardados, tu perfil, tu historial de peso y tu meta
+diaria) nunca salen de tu dispositivo por decisión de la app.
 
 ## Tu perfil y tu meta diaria (opcional)
 
@@ -48,6 +48,14 @@ reportes de fallos.
 
 Puedes cambiarlos cuando quieras desde "Mi perfil", y "Borrar todos mis datos" los elimina junto con
 tu meta. Los cálculos son estimaciones generales, no una recomendación médica.
+
+## Tu historial de peso (opcional)
+
+Si anotas tu peso en "Progreso" (o lo cambias en "Mi perfil"), la app guarda en tu teléfono un
+registro por día con la fecha y los kilos, para mostrarte cómo cambia y para que tu perfil use
+siempre el último peso. **Este historial nunca sale de tu dispositivo**: ni a nuestro servidor, ni a
+la inteligencia artificial, ni en los reportes de fallos. Puedes borrar cualquier registro desde
+"Progreso"; "Borrar todos mis datos" lo elimina completo y "Exportar mis datos" lo incluye.
 
 ## Si la app falla
 

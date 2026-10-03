@@ -10,6 +10,7 @@ import '../../ui/components/main_nav_bar.dart';
 import '../../ui/date_format_es.dart';
 import '../../ui/theme.dart';
 import 'progress_controller.dart';
+import 'weight_card.dart';
 
 const noRecordsInPeriodMessage = 'Todavía no hay registros en este periodo.';
 
@@ -48,6 +49,73 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
       _period,
       ref.read(clockProvider)(),
     );
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  /// SPEC-015 R2/R3: anota el peso de hoy; el perfil y la meta se actualizan
+  /// en la misma transacción.
+  Future<void> _logWeight(List<WeightEntry> weights) async {
+    final kg = await showLogWeightDialog(
+      context,
+      initial: latestWeight(weights)?.kg,
+    );
+    if (kg == null || !mounted) return;
+    try {
+      final goalNotRecalculated = await ref
+          .read(storageRepositoryProvider)
+          .logWeight(day: ref.read(clockProvider)(), kg: kg);
+      if (goalNotRecalculated && mounted) {
+        _showMessage(weightGoalNotRecalculatedMessage);
+      }
+    } catch (_) {
+      // SPEC-009: sin relanzar (el texto de SQLite trae el peso).
+      if (mounted) _showMessage(weightSaveErrorMessage);
+      return;
+    }
+    if (mounted) setState(_load);
+  }
+
+  /// SPEC-015 R5: borrar con confirmación.
+  Future<void> _deleteWeight(WeightEntry entry) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        scrollable: true,
+        title: const Text('Borrar registro'),
+        content: Text(
+          '¿Borrar el peso del ${longDateEs(entry.date)} '
+          '(${formatKg(entry.kg)})?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Borrar'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      final goalNotRecalculated = await ref
+          .read(storageRepositoryProvider)
+          .deleteWeight(day: entry.date, today: ref.read(clockProvider)());
+      if (goalNotRecalculated && mounted) {
+        _showMessage(weightGoalNotRecalculatedMessage);
+      }
+    } catch (_) {
+      if (mounted) _showMessage(weightDeleteErrorMessage);
+      return;
+    }
+    if (mounted) setState(_load);
   }
 
   @override
@@ -106,7 +174,20 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                       child: Center(child: CircularProgressIndicator()),
                     );
                   }
-                  return _ProgressBody(data: data);
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _ProgressBody(data: data),
+                      const SizedBox(height: 16),
+                      WeightCard(
+                        allWeights: data.weights,
+                        periodWeights: data.periodWeights,
+                        today: data.today,
+                        onLogWeight: () => _logWeight(data.weights),
+                        onDelete: _deleteWeight,
+                      ),
+                    ],
+                  );
                 },
               ),
             ],

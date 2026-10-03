@@ -39,6 +39,14 @@ class ProgressData {
   /// "~" si alguna comida del periodo no es "Alta precisión" (SPEC-008 R6).
   final bool isApproximate;
 
+  /// SPEC-015: todos los registros de peso, del más antiguo al más reciente
+  /// (el cambio de la semana puede mirar antes del periodo).
+  final List<WeightEntry> weights;
+
+  /// Registros de peso dentro del periodo (gráfico y lista).
+  List<WeightEntry> get periodWeights =>
+      weights.where((w) => !w.date.isBefore(from)).toList();
+
   const ProgressData({
     required this.period,
     required this.from,
@@ -47,6 +55,7 @@ class ProgressData {
     required this.summary,
     required this.bars,
     required this.isApproximate,
+    this.weights = const [],
   });
 }
 
@@ -65,6 +74,10 @@ Future<ProgressData> loadProgress(
   final meals = await storage.mealsBetween(from, tomorrow);
   final goal = await storage.getNutritionGoal();
   final goalKcal = goal?.energyKcal;
+  final weights = [
+    for (final w in await storage.weightEntries())
+      (date: w.day, kg: w.weightKg),
+  ];
 
   final byDate = <DateTime, List<NutrientTotals>>{};
   for (final meal in meals) {
@@ -110,5 +123,6 @@ Future<ProgressData> loadProgress(
     isApproximate: meals.any(
       (m) => m.meal.confidence != ConfidenceLevel.altaPrecision.name,
     ),
+    weights: weights,
   );
 }

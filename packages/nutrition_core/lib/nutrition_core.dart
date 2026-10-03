@@ -18,3 +18,4 @@ export 'src/nutrient_calculation.dart';
 export 'src/period_summary.dart';
 export 'src/quantity_resolution.dart';
 export 'src/rounding.dart';
+export 'src/weight_trend.dart';

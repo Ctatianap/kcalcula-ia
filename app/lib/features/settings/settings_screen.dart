@@ -79,8 +79,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final confirmed = await _confirm(
       title: 'Borrar todos mis datos',
       message:
-          'Esto elimina todas tus comidas registradas y productos guardados. '
-          'No se puede deshacer.',
+          'Esto elimina tus comidas registradas, productos guardados, tu '
+          'perfil, tu meta y tu historial de peso. No se puede deshacer.',
       confirmLabel: 'Borrar todo',
     );
     if (!confirmed) return;

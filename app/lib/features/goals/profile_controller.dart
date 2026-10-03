@@ -2,11 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../infra/storage/storage_repository.dart';
+import '../../ui/number_input_es.dart';
 import 'goal_calculation.dart';
+
+// SPEC-015: compartidos con la tarjeta de Peso de Progreso.
+export '../../ui/number_input_es.dart';
 
 const birthDateFormatMessage = 'Escribe la fecha como dd/mm/aaaa.';
 const ageRangeMessage = 'La app es para personas de 18 a 100 años.';
-const weightRangeMessage = 'Escribe tu peso en kg, entre 30 y 300.';
 const heightRangeMessage = 'Escribe tu estatura en cm, entre 120 y 230.';
 const measuredRangeMessage =
     'Escribe un número entero entre 800 y 6.000, o déjalo vacío.';
@@ -47,6 +50,9 @@ class ProfileController extends ChangeNotifier {
   /// R9/Edge Cases: se guardó el perfil pero la meta no se pudo recalcular.
   String? infoMessage;
 
+  /// SPEC-015 R2: peso guardado, para saber si cambió al guardar.
+  double? _savedWeightKg;
+
   ProfileController({
     required StorageRepository storage,
     DateTime Function()? now,
@@ -73,6 +79,7 @@ class ProfileController extends ChangeNotifier {
       birthDateText = formatBirthDate(profile.birthDate);
       heightText = _numberToText(profile.heightCm);
       weightText = _numberToText(profile.weightKg);
+      _savedWeightKg = profile.weightKg;
       activityLevel = ActivityLevel.values.asNameMap()[profile.activityLevel];
       final measured = profile.measuredMaintenanceKcal;
       measuredText = measured == null
@@ -240,8 +247,12 @@ class ProfileController extends ChangeNotifier {
         activityLevel: activityLevel!.name,
         measuredMaintenanceKcal: usesMeasured ? _measured : null,
         recalculatedGoal: recalculated,
+        // SPEC-015 R2: un peso distinto (o el primero) crea el registro de
+        // hoy en el historial de peso.
+        weightLogDay: _weight != _savedWeightKg ? _now() : null,
       );
       hasSavedProfile = true;
+      _savedWeightKg = _weight;
       if (goal != null && !goal.isManual && recalculated == null) {
         infoMessage = goalNotRecalculatedMessage;
       }
@@ -276,10 +287,3 @@ DateTime? parseBirthDate(String text) {
 
 String formatBirthDate(DateTime d) =>
     '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
-
-/// Número con máximo un decimal, con coma o punto ("63,5"); `null` si no.
-double? parseDecimal(String text) {
-  final normalized = text.trim().replaceAll(',', '.');
-  if (!RegExp(r'^\d+(\.\d)?$').hasMatch(normalized)) return null;
-  return double.parse(normalized);
-}
