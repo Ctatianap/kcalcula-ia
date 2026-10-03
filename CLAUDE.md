@@ -66,7 +66,6 @@ Reglas:
   (pegado en el campo "Setup script") y el hook SessionStart corre `scripts/cloud-session-start.sh`
   (dependencias y `catalog.db`). Las autorizaciones puntuales llegan en el mensaje de la usuaria,
   no en el repo.
-  dale los pasos exactos y espera su confirmación.
 
 ## Agentes y skills
 - **reviewer** (subagente, solo lectura): antes de mover cualquier SPEC a `Done`.
