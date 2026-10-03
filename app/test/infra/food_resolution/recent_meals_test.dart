@@ -120,4 +120,65 @@ void main() {
   test('R5: sin comidas previas, no hay recientes', () async {
     expect(await load(), isEmpty);
   });
+
+  test(
+    'R1: con 8 comidas distintas solo se muestran las 5 más recientes',
+    () async {
+      for (var i = 0; i < 8; i++) {
+        await recentMeal(repo, DateTime(2026, 9, 20 + i, 8), [
+          recentItem('huevo', 'Huevo', 10.0 + i),
+        ]);
+      }
+      final recents = await load();
+      expect(recents, hasLength(5));
+      expect(recents.map((r) => r.draft.items.single.grams), [
+        17,
+        16,
+        15,
+        14,
+        13,
+      ]);
+    },
+  );
+
+  test('edge case: la consulta lee solo las últimas 50 comidas', () async {
+    for (var i = 0; i < 52; i++) {
+      await recentMeal(repo, DateTime(2026, 8, 1).add(Duration(hours: i)), [
+        recentItem('huevo', 'Huevo', 100),
+      ]);
+    }
+    final meals = await repo.recentMeals(limit: recentMealsScanned);
+    expect(meals, hasLength(50));
+    expect(
+      meals.first.meal.eatenAt,
+      DateTime(2026, 8, 1).add(const Duration(hours: 51)),
+    );
+  });
+
+  test('la confianza de la tarjeta usa la regla del 15 % y la cantidad '
+      'original se conserva', () async {
+    await recentMeal(repo, DateTime(2026, 10, 1, 8), [
+      MealItemRecord(
+        mention: 'dos huevos',
+        foodId: 'huevo',
+        nameSnapshot: 'Huevo',
+        grams: 100,
+        quantityInput: 2,
+        unitInput: 'unidad',
+        quantityBasis: 'unitPortion',
+        energyKcal: 143,
+        proteinG: 1,
+        carbsG: 1,
+        fatG: 1,
+        confidence: 'altaPrecision',
+        sourceRef: 'fixture',
+      ),
+      // Menos del 15 % de las kcal: no baja la confianza de la comida.
+      recentItem('arepa', 'Arepa', 5, confidence: 'estimacion'),
+    ]);
+    final recent = (await load()).single;
+    expect(recent.confidence, ConfidenceLevel.altaPrecision);
+    final item = recent.draft.items.first;
+    expect((item.quantityInput, item.unitInput), (2.0, 'unidad'));
+  });
 }

@@ -266,7 +266,13 @@ class _RecentMeals extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 24),
-        Text('Recientes', style: Theme.of(context).textTheme.titleMedium),
+        Semantics(
+          header: true,
+          child: Text(
+            'Recientes',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ),
         const SizedBox(height: 8),
         for (final (i, recent) in recents.indexed) ...[
           KCard(
@@ -283,8 +289,9 @@ class _RecentMeals extends StatelessWidget {
                 leading: const Icon(Icons.history, color: KColors.accent),
                 title: Text(recent.name),
                 trailing: Text(
-                  // "~" salvo si todo es "Alta precisión", como en Hoy.
-                  '${recent.draft.items.every((i) => i.confidence == ConfidenceLevel.altaPrecision) ? '' : '~'}'
+                  // "~" salvo con "Alta precisión" (regla del 15 %, como el
+                  // detalle).
+                  '${recent.confidence == ConfidenceLevel.altaPrecision ? '' : '~'}'
                   '${formatThousandsEs(presentKcal(recent.kcal))} kcal',
                   key: Key('recent-meal-kcal-$i'),
                 ),

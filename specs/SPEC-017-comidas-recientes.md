@@ -96,6 +96,24 @@ Además: R5 sin comidas previas (unit y widget), texto ×2 en 360 px.
     lectura falla, la sección no aparece y escribir sigue funcionando.
   - `joinNamesEs` pasó a `format/text_es.dart` (lo usan el detalle y Recientes).
   Status → Review.
+- 2026-10-03: reviewer **PASS** (commit c50775b; app 278/278), sin BLOCKER ni MAJOR. MINOR atendidos
+  antes de fusionar:
+  - el "~" de la tarjeta usa la confianza de la comida de `nutrition_core` (regla del 15 %), igual
+    que el detalle, en lugar de una regla propia;
+  - "Recientes" es encabezado para el lector de pantalla;
+  - la comida repetida guarda la cantidad tal como se dijo la primera vez ("2" "unidad"), no solo
+    los gramos;
+  - tests: tope de 5 con 8 comidas distintas, límite de 50 en la consulta, regla del 15 % y
+    cantidad original; el `AiClient` falso cuenta las llamadas (deben ser 0).
+  - Aceptado: si un alimento desaparece entre armar la lista y tocar la tarjeta (muy raro), se omite;
+    si no queda ninguno, el detalle muestra "Quitaste todos los alimentos…" con Guardar
+    deshabilitado. Una comida repetida conserva la confianza con la que se registró aunque las
+    reglas cambien después.
+  Fusionada en `develop` por la autorización única de la usuaria. Sigue en Review hasta el
+  recorrido manual en el teléfono.
 
 ## Review
-Informe del reviewer: pendiente.
+Informe del reviewer (2026-10-03, commit c50775b): **PASS**. AC1–AC5 con evidencia
+(`recent_meals_test.dart`, `recent_meals_flow_test.dart`); sin IA, kcal del catálogo actual con
+`nutrition_core`, confianza de reglas y `source_ref` del catálogo; fronteras respetadas. MINOR
+atendidos (ver Change Log).

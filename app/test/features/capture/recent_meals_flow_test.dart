@@ -6,8 +6,12 @@ import '../../support/fixture_catalog.dart';
 import '../../support/meal_flow_harness.dart';
 import '../../support/recent_fixtures.dart';
 
-/// `parseMeal` que hace fallar el test si se llama (AC2: sin IA).
+/// Llamadas a `parseMeal` (AC2: deben ser 0).
+var _aiCalls = 0;
+
+/// `parseMeal` que cuenta las llamadas y falla si se llama.
 AiClient _noAi() => AiClient((data) async {
+  _aiCalls++;
   fail('No debe llamarse a la IA al repetir una comida reciente.');
 });
 
@@ -84,6 +88,7 @@ void main() {
   testWidgets('AC2 + AC5: tocar una abre el detalle con los mismos alimentos '
       'y gramos sin llamar a la IA; guardar crea una comida nueva con la hora '
       'actual', (tester) async {
+    _aiCalls = 0;
     final h = await MealFlowHarness.pump(
       tester,
       aiClient: _noAi(),
@@ -118,6 +123,7 @@ void main() {
       ('huevo', 50.0),
       ('arepa', 70.0),
     ]);
+    expect(_aiCalls, 0);
   });
 
   testWidgets('texto grande (×2) en 360 px: Recientes sin desbordes', (

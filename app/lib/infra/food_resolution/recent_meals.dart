@@ -16,10 +16,15 @@ class RecentMeal {
   final String name;
   final double kcal;
 
+  /// Confianza de la comida con la regla del 15 % de `nutrition_core`
+  /// (la misma que el detalle y Hoy).
+  final ConfidenceLevel confidence;
+
   const RecentMeal({
     required this.draft,
     required this.name,
     required this.kcal,
+    required this.confidence,
   });
 }
 
@@ -65,6 +70,9 @@ List<RecentMeal> buildRecentMeals(
           confidence:
               ConfidenceLevel.values.asNameMap()[item.confidence] ??
               ConfidenceLevel.estimacion,
+          quantityInput: item.quantityInput,
+          unitInput: item.unitInput,
+          sizeInput: item.sizeInput,
         ),
       );
     }
@@ -73,6 +81,10 @@ List<RecentMeal> buildRecentMeals(
         draft: MealDraft(items),
         name: joinNamesEs([for (final f in foods) f!.nameEs]),
         kcal: sumNutrients(nutrients).energyKcal,
+        confidence: mealConfidence([
+          for (final (i, n) in nutrients.indexed)
+            (energyKcal: n.energyKcal, confidence: items[i].confidence),
+        ]),
       ),
     );
   }

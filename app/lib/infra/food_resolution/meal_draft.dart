@@ -21,11 +21,20 @@ class MealDraftItem {
   final QuantityBasis basis;
   final ConfidenceLevel confidence;
 
+  /// Cantidad tal como se expresó ("2" "unidad"), para guardarla igual que
+  /// la original; sin ella se guardan los gramos.
+  final double? quantityInput;
+  final String? unitInput;
+  final String? sizeInput;
+
   const MealDraftItem({
     required this.foodId,
     required this.mention,
     required this.grams,
     required this.basis,
     required this.confidence,
+    this.quantityInput,
+    this.unitInput,
+    this.sizeInput,
   });
 }
