@@ -1,10 +1,31 @@
 # SPEC-008: Objetivos nutricionales configurables
 
 ## Status
-Review
+Draft
 Path: Strict (agrega un cálculo nuevo a `packages/nutrition_core`, la estimación de energía
 diaria, y guarda en el dispositivo datos personales de salud nuevos: peso, estatura, edad, sexo y
 nivel de actividad)
+
+## Cambio propuesto (2026-10-02) — pendiente de PV-14 y de la aprobación de la usuaria
+Tras probarla, la usuaria pidió que la sugerencia funcione como
+https://fitgeneration.es/calculadora/harris-benedict/. Propuesta:
+- **R2':** kcal = Harris-Benedict (gasto en reposo; ¿original de 1918/1919 o revisada por Roza y
+  Shizgal en 1984? Se decide con PV-14) × factor de actividad. Reemplaza las ecuaciones de la DRI
+  2023.
+- **R14':** 5 niveles de actividad por días de ejercicio a la semana (sedentario; ligera, 1–3 días;
+  moderada, 3–5 días; intensa, 6–7 días; muy intensa, a diario), con multiplicadores tomados de una
+  fuente citable (PV-14). Reemplaza los 4 niveles de la DRI 2023.
+- **R15 (nuevo):** objetivo "Bajar grasa" / "Mantener peso" / "Ganar masa muscular", que ajusta las
+  kcal sugeridas con un déficit o superávit con fuente (PV-14). Hoy está en Out of Scope; saldría
+  de ahí.
+- Se mantienen el reparto de macros de la Res. 3803 (R3), la meta manual, el progreso, la
+  privacidad, el aviso de meta baja, la edad mínima (por definir según la fórmula) y la
+  advertencia de estimación.
+- AC3 cambiaría a casos de referencia de la fuente de Harris-Benedict, si los hay (PV-14).
+
+Riesgo conocido: según PV-13, los multiplicadores típicos (1,2–1,9) solo aparecen en calculadoras y
+blogs, sin fuente institucional. Si PV-14 lo confirma, hay que decidir si se aceptan como decisión
+de producto documentada.
 
 ## Objective
 Que el usuario tenga una meta diaria de kcal, y si quiere de proteína, carbohidratos y grasa. La
@@ -335,6 +356,11 @@ Pendiente: recorrido manual en el Motorola (Tests Required → Manual).
   (el mensaje de error se limpia al editar; mensaje propio si la meta se guarda pero los datos de
   la sugerencia no). OQ9 registrada con la confirmación de la usuaria. Status → Review; falta el
   recorrido manual en el teléfono y la aprobación de la usuaria para fusionar (Strict Path).
+
+- 2026-10-02: la usuaria no quedó conforme con el cálculo y pide uno como el de fitgeneration
+  (Harris-Benedict, 5 niveles por días de ejercicio, objetivo bajar/mantener/ganar). Status Review →
+  Draft con el cambio propuesto arriba; se lanza `researcher` (PV-14). La implementación con la DRI
+  2023 queda en la rama hasta que se apruebe el cambio.
 
 ## Review
 Primera revisión (2026-10-02, subagente `reviewer`): **CHANGES_REQUESTED**.
