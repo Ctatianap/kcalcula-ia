@@ -1,7 +1,7 @@
 # SPEC-009: Errores de almacenamiento sin datos del usuario en Crashlytics
 
 ## Status
-Review
+Done
 Path: Strict (cambia qué datos salen del dispositivo: el contenido de los reportes de fallos de
 Crashlytics, SPEC-007)
 
@@ -156,6 +156,8 @@ fallos.
   - test de que se descartan `context` e `informationCollector`;
   - punto faltante en `docs/privacy.md`.
   Status sigue en Review: falta la aprobación de la usuaria para fusionar.
+
+- 2026-10-03: la usuaria aprueba fusionar ("aprobada"). Status Review → Done.
 
 ## Review
 Informe del reviewer (2026-10-03, rama `spec-009-errores-almacenamiento`, `d1f2e6f`): **PASS**.
