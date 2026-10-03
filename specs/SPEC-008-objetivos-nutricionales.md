@@ -219,7 +219,7 @@ peso o de temporada de actividad, todo se recalcula.
 | AC10 | ✅ | `goals_flow_test.dart` ("AC10…") + `packages/nutrition_core/test/goal_limits_test.dart` |
 | AC11 | ✅ | `goals_flow_test.dart` ("AC11: sin perfil…") + `diary_goal_test.dart` ("AC11: sin meta…") |
 | AC12 | ✅ | `diary_goal_test.dart` (textos, "~", por encima de la meta, barra con el color del tema) + `goal_progress_test.dart` |
-| AC13 | ✅ | `nutrition_goal_storage_test.dart` (borrar todo, exportar, migración v3 → v4) |
+| AC13 | ✅ | `nutrition_goal_storage_test.dart` (borrar todo, exportar, migración v3 → v5 y v4 de desarrollo → v5) |
 | AC14 | ✅ | `goals_flow_test.dart` ("AC14…" en perfil y en objetivo: `takeException()` nulo, sin "Sqlite") |
 | AC15 | ✅ | Grep (2026-10-02): `app/lib/infra/ai_client`, `app/lib/infra/crash_reporting` y `functions/src` no mencionan perfil ni meta; `features/goals` no tiene `print`/`debugPrint`/`log`; los fallos de escritura no se relanzan (AC14) |
 | AC16 | ✅ | `app/test/integration/onboarding_gate_flow_test.dart` ("SPEC-008 AC13…": v2 → onboarding con v3) + `app/test/features/legal/privacy_policy_text_test.dart` (sección del perfil) |
@@ -291,6 +291,11 @@ Verificado (2026-10-02, versión 2): `dart analyze` y `flutter analyze` sin issu
 - 2026-10-02: versión 2 implementada. Textos de actividad neutros en género ("Poca actividad",
   "Actividad ligera", "Actividad moderada", "Actividad alta") en vez de "Sedentaria"/"Activa", por
   delegación de la usuaria. Status → Review (falta el reviewer y el recorrido manual).
+
+- 2026-10-02: `user.db` pasa a **v5** (no v4). La v4 existió solo en builds de desarrollo de la
+  versión 1 (por ejemplo, el teléfono de pruebas), con otras tablas de meta. La migración desde la v4
+  las reemplaza y conserva comidas, productos y consentimiento. Desde la v3 se crean las dos tablas
+  nuevas.
 
 ## Review
 Primera revisión (2026-10-02, subagente `reviewer`): **CHANGES_REQUESTED**.

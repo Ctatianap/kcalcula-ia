@@ -127,7 +127,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -139,7 +139,17 @@ class AppDatabase extends _$AppDatabase {
       if (from < 3) {
         await m.createTable(consentRecord);
       }
-      if (from < 4) {
+      if (from == 4) {
+        // La v4 solo existió en builds de desarrollo de SPEC-008 v1, con
+        // otras tablas de meta (nunca se publicó). Se reemplazan.
+        await m.database.customStatement(
+          'DROP TABLE IF EXISTS goal_estimation_inputs',
+        );
+        await m.database.customStatement(
+          'DROP TABLE IF EXISTS nutrition_goals',
+        );
+      }
+      if (from < 5) {
         await m.createTable(userProfile);
         await m.createTable(nutritionGoals);
       }

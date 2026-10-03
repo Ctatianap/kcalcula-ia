@@ -162,7 +162,63 @@ void main() {
           .customSelect('PRAGMA user_version')
           .map((row) => row.read<int>('user_version'))
           .getSingle();
-      expect(version, 4);
+      expect(version, 5);
+    });
+
+    test('migrar desde la v4 de desarrollo (SPEC-008 v1) reemplaza las tablas de meta y conserva las comidas', () async {
+      final s = _open();
+      await s.repo.registerMeal(
+        eatenAt: DateTime(2026, 10, 2, 8),
+        mealType: 'desayuno',
+        confidence: 'buenaEstimacion',
+        catalogVersion: 'test-1',
+        items: const [
+          MealItemRecord(
+            mention: 'una manzana',
+            foodId: 'manzana',
+            nameSnapshot: 'Manzana',
+            grams: 150,
+            quantityBasis: 'unitPortion',
+            energyKcal: 78,
+            proteinG: 0.4,
+            carbsG: 20.7,
+            fatG: 0.3,
+            confidence: 'buenaEstimacion',
+            sourceRef: 'fixture de prueba',
+          ),
+        ],
+      );
+      // Esquema de la v4 de SPEC-008 v1.
+      await s.db.customStatement('DROP TABLE nutrition_goals');
+      await s.db.customStatement('DROP TABLE user_profile');
+      await s.db.customStatement(
+        'CREATE TABLE nutrition_goals (id INTEGER PRIMARY KEY, '
+        'energy_kcal REAL NOT NULL, protein_g REAL, carbs_g REAL, '
+        'fat_g REAL, updated_at INTEGER NOT NULL)',
+      );
+      await s.db.customStatement(
+        'CREATE TABLE goal_estimation_inputs (id INTEGER PRIMARY KEY, '
+        'weight_kg REAL NOT NULL)',
+      );
+      await s.db.customStatement(
+        'INSERT INTO nutrition_goals VALUES (0, 2000, NULL, NULL, NULL, 0)',
+      );
+      await s.db.customStatement('PRAGMA user_version = 4');
+      await s.db.close();
+
+      final db = AppDatabase(AppDatabase.openFile(s.path));
+      addTearDown(db.close);
+      final repo = StorageRepository(db);
+
+      expect(await repo.mealsForDay(DateTime(2026, 10, 2)), hasLength(1));
+      expect(await repo.getNutritionGoal(), isNull);
+      expect(await repo.getUserProfile(), isNull);
+      final tables = await db
+          .customSelect(
+            "SELECT name FROM sqlite_master WHERE name = 'goal_estimation_inputs'",
+          )
+          .get();
+      expect(tables, isEmpty);
     });
   });
 }
