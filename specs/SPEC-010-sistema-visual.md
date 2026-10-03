@@ -1,7 +1,7 @@
 # SPEC-010: Sistema visual y navegación
 
 ## Status
-Draft
+Implementing
 Path: Standard (solo presentación: no toca `nutrition_core`, la IA, el catálogo ni lo que sale del
 dispositivo. La fuente se embebe para no descargarla de internet; ver Security & Privacy).
 
@@ -138,6 +138,7 @@ Historial y Progreso y un botón para registrar, para usarla a diario sin esfuer
 
 ## Change Log
 - 2026-10-03: creación a partir de T-011 de `docs/backlog.md` y del diseño "kcalcula ia UI".
+- 2026-10-03: **Approved por la usuaria** ("aprobado"). Status → Implementing.
 
 ## Review
 Informe del reviewer: pendiente.
