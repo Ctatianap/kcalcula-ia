@@ -4,6 +4,7 @@ import 'package:calorias_ia/infra/legal/privacy_policy.dart';
 import 'package:calorias_ia/infra/storage/app_database.dart';
 import 'package:calorias_ia/infra/storage/storage_providers.dart';
 import 'package:calorias_ia/infra/storage/storage_repository.dart';
+import 'package:calorias_ia/ui/components/main_nav_bar.dart';
 import 'package:calorias_ia/ui/licenses.dart';
 import 'package:calorias_ia/ui/theme.dart';
 import 'package:drift/native.dart';
@@ -32,30 +33,32 @@ Future<void> _pumpApp(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('AC3: Hoy con barra; Historial y Progreso con su estado vacío', (
-    tester,
-  ) async {
-    await _pumpApp(tester);
+  testWidgets(
+    'AC3: Hoy con barra; Historial con su calendario y Progreso con su estado vacío',
+    (tester) async {
+      await _pumpApp(tester);
 
-    expect(find.byType(DiaryScreen), findsOneWidget);
-    expect(find.bySemanticsLabel('Historial'), findsOneWidget);
+      expect(find.byType(DiaryScreen), findsOneWidget);
+      expect(find.bySemanticsLabel('Historial'), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('nav-Historial')));
-    await tester.pumpAndSettle();
-    expect(find.widgetWithText(AppBar, 'Historial'), findsOneWidget);
-    expect(find.text('Aquí verás tu historial día por día.'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('nav-Historial')));
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(AppBar, 'Historial'), findsOneWidget);
+      // SPEC-013: el calendario reemplaza el estado vacío provisional.
+      expect(find.byKey(const Key('history-month')), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('nav-Progreso')));
-    await tester.pumpAndSettle();
-    expect(
-      find.text('Aquí verás tus promedios y tu progreso.'),
-      findsOneWidget,
-    );
+      await tester.tap(find.byKey(const Key('nav-Progreso')));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Aquí verás tus promedios y tu progreso.'),
+        findsOneWidget,
+      );
 
-    await tester.tap(find.byKey(const Key('nav-Hoy')));
-    await tester.pumpAndSettle();
-    expect(find.byType(DiaryScreen), findsOneWidget);
-  });
+      await tester.tap(find.byKey(const Key('nav-Hoy')));
+      await tester.pumpAndSettle();
+      expect(find.byType(DiaryScreen), findsOneWidget);
+    },
+  );
 
   testWidgets('AC3: + abre "¿Qué comiste?" desde Hoy y desde Progreso', (
     tester,
@@ -121,4 +124,27 @@ void main() {
       expect(find.bySemanticsLabel(label), findsOneWidget, reason: label);
     }
   });
+
+  for (final scale in [2.0, 3.0]) {
+    for (final tab in MainTab.values) {
+      testWidgets('T-021: la barra no se desborda con texto ×$scale en 360 px '
+          '(${tab.name})', (tester) async {
+        tester.view.physicalSize = const Size(360, 800);
+        tester.view.devicePixelRatio = 1;
+        tester.platformDispatcher.textScaleFactorTestValue = scale;
+        addTearDown(tester.view.reset);
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: buildAppTheme(),
+            home: Scaffold(
+              bottomNavigationBar: MainNavBar(current: tab, onAdd: () {}),
+            ),
+          ),
+        );
+        expect(tester.takeException(), isNull);
+        expect(find.byKey(const Key('nav-add')), findsOneWidget);
+      });
+    }
+  }
 }

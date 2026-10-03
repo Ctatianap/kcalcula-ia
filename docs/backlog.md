@@ -169,6 +169,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   objective: Que la barra Hoy/Historial/Progreso no se desborde con escala de texto 3,0 en 360 px (hallazgo del reviewer de SPEC-011; hoy se desborda 29 px).
   dependencies: [T-011]
   spec_required: false
+  status: done  # hecho en la rama de SPEC-013 (el Historial lo mostraba con texto ×2); test en main_nav_test.dart
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
 - id: F3
