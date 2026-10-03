@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:nutrition_core/nutrition_core.dart';
 
 import 'app_database.dart';
 
@@ -376,4 +377,17 @@ class MealWithItems {
   final List<MealItem> items;
 
   const MealWithItems({required this.meal, required this.items});
+
+  /// Suma de las instantáneas de sus ítems, sin redondear (la comparten Hoy,
+  /// Historial y Progreso).
+  NutrientTotals get totals => sumNutrients(
+    items.map(
+      (item) => (
+        energyKcal: item.energyKcal,
+        proteinG: item.proteinG,
+        carbsG: item.carbsG,
+        fatG: item.fatG,
+      ),
+    ),
+  );
 }

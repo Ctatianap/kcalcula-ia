@@ -15,7 +15,8 @@ class HistoryDay {
   final DayStatus? status;
 
   /// Totales por tipo de comida, con las cuatro claves de
-  /// [historyMealTypes].
+  /// [historyMealTypes]; una comida sin tipo cuenta como snack (como en su
+  /// tarjeta).
   final Map<String, NutrientTotals> byMealType;
 
   const HistoryDay({
@@ -48,17 +49,6 @@ class HistoryMonth {
   });
 }
 
-NutrientTotals mealTotals(MealWithItems meal) => sumNutrients(
-  meal.items.map(
-    (item) => (
-      energyKcal: item.energyKcal,
-      proteinG: item.proteinG,
-      carbsG: item.carbsG,
-      fatG: item.fatG,
-    ),
-  ),
-);
-
 /// R5: lee solo el mes pedido con `mealsBetween`.
 Future<HistoryMonth> loadHistoryMonth(
   StorageRepository storage,
@@ -76,7 +66,7 @@ Future<HistoryMonth> loadHistoryMonth(
   final days = <int, HistoryDay>{};
   for (final MapEntry(key: day, value: dayMeals) in byDay.entries) {
     dayMeals.sort((a, b) => a.meal.eatenAt.compareTo(b.meal.eatenAt));
-    final totals = sumNutrients(dayMeals.map(mealTotals));
+    final totals = sumNutrients(dayMeals.map((m) => m.totals));
     days[day] = HistoryDay(
       date: DateTime(first.year, first.month, day),
       meals: dayMeals,
@@ -88,7 +78,9 @@ Future<HistoryMonth> loadHistoryMonth(
       byMealType: {
         for (final type in historyMealTypes)
           type: sumNutrients(
-            dayMeals.where((m) => m.meal.mealType == type).map(mealTotals),
+            dayMeals
+                .where((m) => (m.meal.mealType ?? 'snack') == type)
+                .map((m) => m.totals),
           ),
       },
     );

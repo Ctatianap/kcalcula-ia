@@ -9,14 +9,16 @@ import 'k_card.dart';
 class MealCard extends StatelessWidget {
   final String label;
   final String time;
-  final String itemsText;
+
+  /// Nombre y gramos de cada ítem: "Huevo 100 g · Arepa 115 g".
+  final List<({String name, double grams})> items;
   final NutrientTotals totals;
 
   const MealCard({
     super.key,
     required this.label,
     required this.time,
-    required this.itemsText,
+    required this.items,
     required this.totals,
   });
 
@@ -44,7 +46,10 @@ class MealCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 2),
-          Text(itemsText, style: secondary),
+          Text(
+            items.map((i) => '${i.name} ${i.grams.round()} g').join(' · '),
+            style: secondary,
+          ),
           const SizedBox(height: 8),
           Wrap(
             spacing: 12,

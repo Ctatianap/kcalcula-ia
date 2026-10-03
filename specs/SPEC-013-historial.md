@@ -103,6 +103,20 @@ Edge cases: grilla desde el lunes, error de lectura con Reintentar, texto ×2 en
   - T-021 (Fast Path) resuelto aquí: la barra inferior se desbordaba con texto grande en el
     Historial; la pastilla ahora cede espacio y la etiqueta activa se reduce.
   Status → Review.
+- 2026-10-03: reviewer CHANGES_REQUESTED (commit 038c9c9). Corregido:
+  - [MAJOR] Los días del calendario y de la semana de Hoy se anunciaban como botón sin acción de
+    tocar para TalkBack/VoiceOver: la acción va ahora en el propio nodo semántico del día. Tests:
+    "accesibilidad: cada día del calendario expone la acción de tocar…" y "accesibilidad: un día de
+    la semana de Hoy expone la acción y abre el Historial".
+  - MINOR:
+    - celda del calendario de 48 px de alto tocable (antes 42), con test;
+    - la tarjeta del día muestra el estado en texto ("En tu meta"), así un "90 %" redondeado no
+      se confunde con el color "Por debajo";
+    - una comida sin tipo cuenta como snack en los totales, como en su tarjeta (test);
+    - la suma por comida pasó a `MealWithItems.totals` y el texto de ítems a `MealCard`, compartidos
+      por Hoy e Historial.
+  - Aceptado sin cambio: si la pantalla queda abierta pasada la medianoche, "hoy" se actualiza al
+    volver a abrir la pestaña.
 
 ## Review
 Informe del reviewer: pendiente.

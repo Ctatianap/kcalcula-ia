@@ -319,19 +319,24 @@ class _DayCell extends StatelessWidget {
         ),
       ),
     );
+    final tap = isFuture ? null : () => onTap(date);
+    // La acción va en el propio nodo semántico: con `excludeSemantics` la del
+    // InkWell no llegaría a TalkBack/VoiceOver.
     return Semantics(
       container: true,
       label: _semantics,
       selected: isSelected,
       button: !isFuture,
+      onTap: tap,
       excludeSemantics: true,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 3),
+        padding: const EdgeInsets.symmetric(vertical: 1),
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
-          onTap: isFuture ? null : () => onTap(date),
+          onTap: tap,
+          // 36 + 2 × 6 = 48 px de alto tocable (SPEC-010 R7).
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 3),
+            padding: const EdgeInsets.symmetric(vertical: 6),
             decoration: BoxDecoration(
               color: isSelected ? KColors.navSelected : null,
               borderRadius: BorderRadius.circular(14),
@@ -458,6 +463,14 @@ class _DayDetail extends StatelessWidget {
                   key: const Key('history-kcal'),
                   style: secondary,
                 ),
+                // El estado en texto, no solo en color (SPEC-010): evita leer
+                // un "90 %" redondeado como si fuera "en tu meta".
+                if (d.status != null)
+                  Text(
+                    _statusStyles[d.status]!.label,
+                    key: const Key('history-status'),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
               ] else
                 Text(
                   '$approx${k(consumed)} kcal',
@@ -492,10 +505,11 @@ class _DayDetail extends StatelessWidget {
           MealCard(
             label: mealTypeLabels[meal.meal.mealType] ?? 'Snack',
             time: timeEs(meal.meal.eatenAt),
-            itemsText: meal.items
-                .map((i) => '${i.nameSnapshot} ${i.grams.round()} g')
-                .join(' · '),
-            totals: mealTotals(meal),
+            items: [
+              for (final i in meal.items)
+                (name: i.nameSnapshot, grams: i.grams),
+            ],
+            totals: meal.totals,
           ),
           const SizedBox(height: 10),
         ],

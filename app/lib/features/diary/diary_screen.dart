@@ -247,11 +247,21 @@ class _WeekDay extends StatelessWidget {
       circle = SizedBox(width: 40, height: 40, child: Center(child: number));
     }
     // Un nodo por día: sin `container`, los siete se fusionaban en uno.
+    final tap = day.isFuture
+        ? null
+        : () => Navigator.of(context).pushNamedAndRemoveUntil(
+            AppRoutes.history,
+            (route) => false,
+            arguments: day.date,
+          );
+    // La acción va en el nodo semántico con la etiqueta del día; con
+    // `excludeSemantics` la del InkWell no llegaría al lector de pantalla.
     final column = Semantics(
       container: true,
       label: _semantics,
       excludeSemantics: true,
       button: !day.isFuture,
+      onTap: tap,
       child: Column(
         children: [
           Text(
@@ -273,11 +283,10 @@ class _WeekDay extends StatelessWidget {
     return InkWell(
       key: Key('week-day-${day.date.day}'),
       borderRadius: BorderRadius.circular(20),
-      onTap: () => Navigator.of(context).pushNamedAndRemoveUntil(
-        AppRoutes.history,
-        (route) => false,
-        arguments: day.date,
-      ),
+      // El nodo de arriba ya expone la acción: este no crea otro sin
+      // etiqueta.
+      excludeFromSemantics: true,
+      onTap: tap,
       child: column,
     );
   }
@@ -548,9 +557,10 @@ class _MealCard extends StatelessWidget {
     return MealCard(
       label: mealTypeLabels[meal.mealType] ?? 'Snack',
       time: timeEs(meal.eatenAt),
-      itemsText: summary.meal.items
-          .map((i) => '${i.nameSnapshot} ${i.grams.round()} g')
-          .join(' · '),
+      items: [
+        for (final i in summary.meal.items)
+          (name: i.nameSnapshot, grams: i.grams),
+      ],
       totals: summary.totals,
     );
   }

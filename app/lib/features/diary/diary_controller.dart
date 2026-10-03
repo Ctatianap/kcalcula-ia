@@ -57,17 +57,6 @@ class DiarySummary {
   );
 }
 
-NutrientTotals _totalsOf(MealWithItems meal) => sumNutrients(
-  meal.items.map(
-    (item) => (
-      energyKcal: item.energyKcal,
-      proteinG: item.proteinG,
-      carbsG: item.carbsG,
-      fatG: item.fatG,
-    ),
-  ),
-);
-
 DateTime _dayOf(DateTime d) => DateTime(d.year, d.month, d.day);
 
 Future<DiarySummary> loadDiarySummary(
@@ -88,7 +77,7 @@ Future<DiarySummary> loadDiarySummary(
   final todays =
       weekMeals
           .where((m) => _dayOf(m.meal.eatenAt) == today)
-          .map((m) => DiaryMealSummary(meal: m, totals: _totalsOf(m)))
+          .map((m) => DiaryMealSummary(meal: m, totals: m.totals))
           .toList()
         ..sort((a, b) => a.meal.meal.eatenAt.compareTo(b.meal.meal.eatenAt));
 
@@ -96,7 +85,7 @@ Future<DiarySummary> loadDiarySummary(
   for (var i = 0; i < 7; i++) {
     final date = DateTime(monday.year, monday.month, monday.day + i);
     final meals = weekMeals.where((m) => _dayOf(m.meal.eatenAt) == date);
-    final kcal = sumNutrients(meals.map(_totalsOf)).energyKcal;
+    final kcal = sumNutrients(meals.map((m) => m.totals)).energyKcal;
     final hasMeals = meals.isNotEmpty;
     week.add(
       WeekDaySummary(

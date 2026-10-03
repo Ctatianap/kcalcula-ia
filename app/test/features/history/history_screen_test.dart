@@ -1,3 +1,4 @@
+import 'package:calorias_ia/features/history/history_controller.dart';
 import 'package:calorias_ia/features/history/history_screen.dart';
 import 'package:calorias_ia/infra/clock.dart';
 import 'package:calorias_ia/infra/storage/app_database.dart';
@@ -6,6 +7,7 @@ import 'package:calorias_ia/infra/storage/storage_repository.dart';
 import 'package:calorias_ia/ui/theme.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -146,6 +148,11 @@ void main() {
     expect(find.text('sábado 26 de septiembre'), findsOneWidget);
     expect(find.text('94 % de tu meta'), findsOneWidget);
     expect(find.text('~1.538 de 1.640 kcal'), findsOneWidget);
+    // El estado también en texto, no solo en color.
+    expect(
+      tester.widget<Text>(find.byKey(const Key('history-status'))).data,
+      'En tu meta',
+    );
     String typeKcal(String type) =>
         tester.widget<Text>(find.byKey(Key('history-type-$type'))).data!;
     expect(typeKcal('desayuno'), '400 kcal');
@@ -262,5 +269,74 @@ void main() {
     await tester.tap(find.byKey(const Key('history-day-26')));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('accesibilidad: cada día del calendario expone la acción de '
+      'tocar y mide al menos 44 px de alto', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await _pump(tester);
+    final node = tester.getSemantics(
+      find.bySemanticsLabel('sábado 26 de septiembre, En tu meta'),
+    );
+    expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+    tester.semantics.tap(
+      find.semantics.byLabel('sábado 26 de septiembre, En tu meta'),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('sábado 26 de septiembre'), findsOneWidget);
+    final future = tester.getSemantics(
+      find.bySemanticsLabel('miércoles 30 de septiembre'),
+    );
+    expect(future.getSemanticsData().hasAction(SemanticsAction.tap), isFalse);
+    final cell = tester.getSize(
+      find.ancestor(
+        of: find.byKey(const Key('history-day-26')),
+        matching: find.byType(InkWell),
+      ),
+    );
+    expect(cell.height, greaterThanOrEqualTo(44));
+    semantics.dispose();
+  });
+
+  testWidgets('accesibilidad: un día de la semana de Hoy expone la acción y '
+      'abre el Historial', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await MealFlowHarness.pump(
+      tester,
+      aiClient: FakeParseMeal((_) => eggsAndArepa).client,
+      clock: () => _now,
+    );
+    final finder = find.bySemanticsLabel(
+      'lunes 28 de septiembre, sin registros',
+    );
+    expect(
+      tester
+          .getSemantics(finder)
+          .getSemanticsData()
+          .hasAction(SemanticsAction.tap),
+      isTrue,
+    );
+    tester.semantics.tap(
+      find.semantics.byLabel('lunes 28 de septiembre, sin registros'),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(HistoryScreen), findsOneWidget);
+    expect(find.text('lunes 28 de septiembre'), findsOneWidget);
+    semantics.dispose();
+  });
+
+  test('una comida sin tipo cuenta como snack en los totales', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repo = StorageRepository(db);
+    await repo.registerMeal(
+      eatenAt: DateTime(2026, 9, 26, 16),
+      mealType: null,
+      confidence: 'buenaEstimacion',
+      catalogVersion: 'test-1',
+      items: [_item(250)],
+    );
+    final month = await loadHistoryMonth(repo, DateTime(2026, 9));
+    expect(month.days[26]!.byMealType['snack']!.energyKcal, 250);
   });
 }
