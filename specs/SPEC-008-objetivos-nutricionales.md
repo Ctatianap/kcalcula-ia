@@ -6,26 +6,43 @@ Path: Strict (agrega un cálculo nuevo a `packages/nutrition_core`, la estimaci�
 diaria, y guarda en el dispositivo datos personales de salud nuevos: peso, estatura, edad, sexo y
 nivel de actividad)
 
-## Cambio propuesto (2026-10-02) — pendiente de PV-14 y de la aprobación de la usuaria
-Tras probarla, la usuaria pidió que la sugerencia funcione como
-https://fitgeneration.es/calculadora/harris-benedict/. Propuesta:
-- **R2':** kcal = Harris-Benedict (gasto en reposo; ¿original de 1918/1919 o revisada por Roza y
-  Shizgal en 1984? Se decide con PV-14) × factor de actividad. Reemplaza las ecuaciones de la DRI
-  2023.
-- **R14':** 5 niveles de actividad por días de ejercicio a la semana (sedentario; ligera, 1–3 días;
-  moderada, 3–5 días; intensa, 6–7 días; muy intensa, a diario), con multiplicadores tomados de una
-  fuente citable (PV-14). Reemplaza los 4 niveles de la DRI 2023.
-- **R15 (nuevo):** objetivo "Bajar grasa" / "Mantener peso" / "Ganar masa muscular", que ajusta las
-  kcal sugeridas con un déficit o superávit con fuente (PV-14). Hoy está en Out of Scope; saldría
-  de ahí.
-- Se mantienen el reparto de macros de la Res. 3803 (R3), la meta manual, el progreso, la
-  privacidad, el aviso de meta baja, la edad mínima (por definir según la fórmula) y la
-  advertencia de estimación.
-- AC3 cambiaría a casos de referencia de la fuente de Harris-Benedict, si los hay (PV-14).
+## Cambio propuesto (2026-10-02) — enfoque fitness; pendiente de la aprobación de la usuaria
+La usuaria pidió una sugerencia como la de https://fitgeneration.es/calculadora/harris-benedict/ y
+con macros orientados a fitness (proteína 1,5–2 g/kg, grasa 0,7 g/kg, carbohidratos 2–3 g/kg). Con
+las fuentes de PV-14 (`docs/research/2026-10-02-harris-benedict-actividad-objetivo.md`), propuesta:
 
-Riesgo conocido: según PV-13, los multiplicadores típicos (1,2–1,9) solo aparecen en calculadoras y
-blogs, sin fuente institucional. Si PV-14 lo confirma, hay que decidir si se aceptan como decisión
-de producto documentada.
+- **R2' — Gasto en reposo:** Harris-Benedict **original** (Harris y Benedict, PNAS 1918;4(12):373):
+  hombres 66,4730 + 13,7516·peso + 5,0033·estatura − 6,7550·edad; mujeres 655,0955 + 9,5634·peso
+  + 1,8496·estatura − 4,6756·edad. La revisada (Roza y Shizgal 1984) se descarta porque no se pudo
+  leer la fuente primaria. Reemplaza la DRI 2023.
+- **R14' — Actividad:** gasto total = gasto en reposo × factor de actividad. La escala de
+  fitgeneration (1,2 / 1,375 / 1,55 / 1,725 / 1,9) **no tiene fuente** institucional ni académica
+  (PV-14). Ver OQ10: opción A (esa escala como decisión de producto) u opción B (PAL de EFSA 2013:
+  1,4 / 1,6 / 1,8 / 2,0, con fuente). En las dos, los niveles se describen por días de ejercicio a
+  la semana; ese mapeo es una decisión de producto.
+- **R15 — Objetivo (nuevo):**
+  - "Bajar grasa": −500 kcal/día (AHA/ACC/TOS 2013; también es el tope del rango de 250–500 de
+    la posición conjunta DC/AND/ACSM 2016 para personas que entrenan).
+  - "Mantener peso": sin ajuste.
+  - "Ganar masa muscular": +10 % (límite inferior del 10–20 % de Iraki et al. 2019; revisión
+    narrativa, no guía institucional).
+  - El 10–25 % de déficit de fitgeneration no tiene fuente y no se usa.
+- **R3' — Macros, enfoque fitness** (reemplaza la Res. 3803; esquema descrito por Iraki 2019):
+  - **Proteína:** 1,8 g/kg; 2,0 g/kg con "Bajar grasa". Dentro de 1,5–2,0 (usuaria), 1,4–2,0
+    (ISSN 2017) y 1,2–2,0 (DC/AND/ACSM 2016).
+  - **Grasa:** 0,7 g/kg (dentro de 0,5–1,0 de Kerksick 2018), pero nunca por debajo del 20 % de
+    las kcal (DC/AND/ACSM 2016); si choca, gana el 20 %.
+  - **Carbohidratos:** las kcal que sobran, en gramos. Las fuentes dan 3–5 g/kg para entrenamiento
+    ligero; el 2–3 g/kg de la usuaria no tiene fuente, así que no se fuerza ningún rango y se
+    muestran los g/kg que resultan. Si quedan en 0 o menos, no se rellena nada y se avisa.
+  - Factores 4/9/4 kcal/g (FAO 2003).
+- **Edad:** 18–100 años, decisión de producto. La muestra de 1918 tabula 21–70 años; la ecuación se
+  usa fuera de ese rango, como hacen todas las calculadoras.
+- **AC3':** los 3 casos resueltos por la fuente (Harris y Benedict 1919, p. 230): hombre, 27 años,
+  172 cm, 77,2 kg → 1806; mujer, 22 años, 166 cm, 77,2 kg → 1597; mujer, 66 años, 162 cm, 62,3 kg →
+  1242, con ±1 kcal.
+- Se mantienen la meta manual, el progreso, la privacidad, el aviso de meta baja, la advertencia
+  de estimación y el resto de AC.
 
 ## Objective
 Que el usuario tenga una meta diaria de kcal, y si quiere de proteína, carbohidratos y grasa. La
@@ -271,6 +288,9 @@ y cuánto me queda.
 - OQ8. ✅ Resuelta (2026-10-02, decisión del usuario): rangos colombianos de la Res. 3803 (R3).
 - OQ7. ✅ Resuelta (2026-10-02, decisión del usuario): advertir por debajo de 1.200 kcal, como
   decisión de producto, sin bloquear (R13).
+- OQ10. **Factores de actividad (decisión de la usuaria):** A) escala de fitness 1,2–1,9 en 5
+  niveles, sin fuente, documentada como decisión de producto; B) PAL de EFSA 2013 (1,4 / 1,6 /
+  1,8 / 2,0) en 4 niveles, con fuente institucional. Recomendación: B.
 - OQ9. **Verificación humana antes de implementar** (pendiente que dejó PV-13): comparar a ojo con
   las páginas originales las Tablas 5-4, 5-5, 7-1, 7-9 y 7-10 de las DRI 2023 y las Tablas 1 y 12
   de la Res. 3803. Las transcribió una herramienta que resume páginas, y los coeficientes y casos
