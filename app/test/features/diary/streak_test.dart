@@ -166,4 +166,15 @@ void main() {
     }
     expect(offenders, isEmpty);
   });
+
+  testWidgets('texto grande (×2) en 360 px: el encabezado con la píldora no '
+      'se desborda', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await _pump(tester, [_daysAgo(0), _daysAgo(1)]);
+    tester.view.physicalSize = const Size(360, 800);
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.byKey(const Key('streak-pill')), findsOneWidget);
+  });
 }
