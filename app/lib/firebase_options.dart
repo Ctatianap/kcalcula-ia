@@ -51,18 +51,17 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDVMjKkWzJIE8oF7YGow6xMRSXLBSE8IvU',
-    appId: '1:21657152152:android:21e98b9ed4ad7ea6343eed',
+    appId: '1:21657152152:android:af5ba0dda23f1aa3343eed',
     messagingSenderId: '21657152152',
     projectId: 'kcalcula-ia-dev',
     storageBucket: 'kcalcula-ia-dev.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDqNSKFEUgtnG-CtMmtbpWXL1PC2wFN3dY',
-    appId: '1:21657152152:ios:c33ec3112ee94265343eed',
+    appId: '1:21657152152:ios:332bfb223ad57485343eed',
     messagingSenderId: '21657152152',
     projectId: 'kcalcula-ia-dev',
     storageBucket: 'kcalcula-ia-dev.firebasestorage.app',
-    iosBundleId: 'com.caloriasia.caloriasIa',
+    iosBundleId: 'com.kcalcula.app',
   );
 }

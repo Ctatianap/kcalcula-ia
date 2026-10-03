@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.caloriasia.caloriasIa</string>
+	<string>com.kcalcula.app</string>
 	<key>PROJECT_ID</key>
 	<string>kcalcula-ia-dev</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:21657152152:ios:c33ec3112ee94265343eed</string>
+	<string>1:21657152152:ios:332bfb223ad57485343eed</string>
 </dict>
 </plist>
