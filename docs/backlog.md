@@ -108,7 +108,10 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
 - id: F3
   title: Fase 3 — corrección conversacional, marcas, historial avanzado
 - id: F4
-  title: Fase 4 — Samsung Health y ecosistemas de salud (requiere investigación previa)
+  title: Fase 4 — Samsung Health y ecosistemas de salud
+  status: pospuesta  # decisión de la usuaria (2026-10-03): sin integraciones con otras apps en el
+                     # MVP; el mantenimiento medido sigue siendo manual (SPEC-008 R4). Investigación
+                     # hecha: docs/research/2026-10-03-samsung-health-health-connect.md (PV-12).
 - id: F5
   title: Fase 5 — análisis, tendencias, reportes
 ```
