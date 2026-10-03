@@ -232,8 +232,8 @@ peso o de temporada de actividad, todo se recalcula.
 | AC15 | ✅ | Grep (2026-10-02): `app/lib/infra/ai_client`, `app/lib/infra/crash_reporting` y `functions/src` no mencionan perfil ni meta; `features/goals` no tiene `print`/`debugPrint`/`log`; los fallos de escritura no se relanzan (AC14) |
 | AC16 | ✅ | `app/test/integration/onboarding_gate_flow_test.dart` ("SPEC-008 AC13…": v2 → onboarding con v3) + `app/test/features/legal/privacy_policy_text_test.dart` (sección del perfil) |
 
-Verificado (2026-10-02, versión 2): `dart analyze` y `flutter analyze` sin issues; `nutrition_core`
-62/62; app 124/124. Pendiente: recorrido manual en el teléfono.
+Verificado (2026-10-02, versión 2, tras la re-revisión): `dart analyze` y `flutter analyze` sin
+issues; `nutrition_core` 62/62; app 130/130. Pendiente: recorrido manual en el teléfono.
 
 ## Definition of Done
 - AC1–AC16 con evidencia enlazada en esta SPEC.
@@ -313,6 +313,10 @@ Verificado (2026-10-02, versión 2): `dart analyze` y `flutter analyze` sin issu
   actividad neutros en género se decidieron por delegación de la usuaria ("haz lo que
   recomiendes").
 
+- 2026-10-02: reviewer (v2) **PASS** en la re-revisión de `2143711`. Se aplicaron también sus 2
+  MINOR: la cifra de tests y que una lectura fallida desactive "Guardar perfil" y ofrezca
+  "Reintentar", con tests. Falta el recorrido manual y la aprobación de la usuaria para fusionar.
+
 ## Review
 Primera revisión (2026-10-02, subagente `reviewer`): **CHANGES_REQUESTED**.
 - [MAJOR] Fallos de escritura en `user.db` llegaban a Crashlytics con los parámetros de SQLite.
@@ -327,3 +331,19 @@ Re-revisión (2026-10-02, sobre `96d2837`): **PASS**. AC1–AC15 y AC5b cumplido
 mensaje de error no se limpiaba al editar; mensaje inexacto si fallaban solo los datos de la
 sugerencia), corregidos después (app 132/132). OQ9 quedaba pendiente de la confirmación de la
 usuaria, ya registrada.
+
+### Versión 2
+Primera revisión (2026-10-02): **CHANGES_REQUESTED**.
+- [MAJOR] El mantenimiento se calculaba en `ProfileController` (`basal * pal`), fuera de
+  `nutrition_core`.
+- 9 MINOR: textos de la SPEC, aviso de recálculo fuera de rango, paso del tiempo, errores de
+  lectura, numeración, PV-13, AC2 literal, AC9 hasta el diario y enlace al perfil.
+
+Todo se corrigió en `2143711`.
+
+Re-revisión (2026-10-02, sobre `2143711`): **PASS**.
+- AC1–AC16 cumplidos; `nutrition_core` 62/62, app 128/128.
+- El reviewer recalculó AC1, AC2 y los objetivos, y confirmó que no queda cálculo de mantenimiento
+  fuera de `nutrition_core`.
+- 2 MINOR (cifra de tests; lectura fallida que dejaba guardar un formulario vacío), corregidos
+  después: app 130/130.

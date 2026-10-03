@@ -142,6 +142,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   padding: const EdgeInsets.only(top: 12),
                   child: Text(c.infoMessage!),
                 ),
+              if (c.loadFailed)
+                TextButton(
+                  onPressed: () => c.load().then((_) {
+                    _birthDate.text = c.birthDateText;
+                    _height.text = c.heightText;
+                    _weight.text = c.weightText;
+                  }),
+                  child: const Text('Reintentar'),
+                ),
               if (c.errorMessage != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 12),

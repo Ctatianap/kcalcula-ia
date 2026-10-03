@@ -42,6 +42,7 @@ class ObjectiveController extends ChangeNotifier {
 
   Future<void> load() async {
     final UserProfileData? profile;
+    errorMessage = null;
     try {
       profile = await _storage.getUserProfile();
       currentGoal = await _storage.getNutritionGoal();

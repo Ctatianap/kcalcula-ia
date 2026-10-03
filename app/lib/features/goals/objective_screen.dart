@@ -66,7 +66,18 @@ class _ObjectiveScreenState extends ConsumerState<ObjectiveScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (c.errorMessage == goalLoadErrorMessage) {
-            return Center(child: Text(goalLoadErrorMessage));
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(goalLoadErrorMessage),
+                  TextButton(
+                    onPressed: c.load,
+                    child: const Text('Reintentar'),
+                  ),
+                ],
+              ),
+            );
           }
           if (!c.hasProfile || c.maintenance == null) {
             return _NeedsProfile(

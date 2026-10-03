@@ -30,6 +30,10 @@ class ProfileController extends ChangeNotifier {
   bool busy = false;
   bool hasSavedProfile = false;
 
+  /// La lectura falló: no se deja guardar un formulario vacío encima de un
+  /// perfil que existe pero no se pudo leer.
+  bool loadFailed = false;
+
   /// Mensaje en español si guardar falló. Nunca el texto de la excepción:
   /// el de SQLite incluye los parámetros (datos de salud) y no debe llegar a
   /// Crashlytics (R12).
@@ -48,10 +52,13 @@ class ProfileController extends ChangeNotifier {
 
   Future<void> load() async {
     final UserProfileData? profile;
+    loadFailed = false;
+    errorMessage = null;
     try {
       profile = await _storage.getUserProfile();
     } catch (_) {
       errorMessage = profileLoadErrorMessage;
+      loadFailed = true;
       loaded = true;
       notifyListeners();
       return;
@@ -178,7 +185,7 @@ class ProfileController extends ChangeNotifier {
     }
   }
 
-  bool get canSave => isComplete && !busy;
+  bool get canSave => isComplete && !busy && !loadFailed;
 
   /// R1/R9: guarda el perfil y, si la meta viene de un objetivo, la
   /// recalcula en la misma transacción. Devuelve `true` si guardó.

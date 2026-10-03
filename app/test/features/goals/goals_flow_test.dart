@@ -47,11 +47,21 @@ class _FailingRepository extends StorageRepository {
       Future.error(StateError('SqliteException: parameters: 2276'));
 }
 
+/// La lectura falla (p. ej. base bloqueada).
+class _UnreadableRepository extends StorageRepository {
+  _UnreadableRepository(super.db);
+
+  @override
+  Future<UserProfileData?> getUserProfile() =>
+      Future.error(StateError('SqliteException: database is locked'));
+}
+
 Future<AppDatabase> _pump(
   WidgetTester tester,
   String initialRoute, {
   AppDatabase? db,
   bool failing = false,
+  bool unreadable = false,
 }) async {
   tester.view.physicalSize = const Size(1080, 4000);
   tester.view.devicePixelRatio = 1;
@@ -64,6 +74,10 @@ Future<AppDatabase> _pump(
         if (failing)
           storageRepositoryProvider.overrideWithValue(
             _FailingRepository(database),
+          ),
+        if (unreadable)
+          storageRepositoryProvider.overrideWithValue(
+            _UnreadableRepository(database),
           ),
       ],
       child: MaterialApp(
@@ -386,6 +400,31 @@ void main() {
       final goal = await repo.getNutritionGoal();
       expect(goal!.isManual, isFalse);
       expect(goal.energyKcal, closeTo(1883.12, 0.01));
+    });
+  });
+
+  group('errores de lectura', () {
+    testWidgets('Mi perfil: mensaje, Reintentar y no deja guardar', (
+      tester,
+    ) async {
+      final db = await _pump(tester, AppRoutes.profile, unreadable: true);
+      addTearDown(db.close);
+
+      expect(tester.takeException(), isNull);
+      expect(find.text(profileLoadErrorMessage), findsOneWidget);
+      expect(find.text('Reintentar'), findsOneWidget);
+      await _fillProfile(tester);
+      final save = find.widgetWithText(FilledButton, 'Guardar perfil');
+      expect(tester.widget<FilledButton>(save).onPressed, isNull);
+    });
+
+    testWidgets('Mi objetivo: mensaje y Reintentar', (tester) async {
+      final db = await _pump(tester, AppRoutes.objective, unreadable: true);
+      addTearDown(db.close);
+
+      expect(tester.takeException(), isNull);
+      expect(find.text(goalLoadErrorMessage), findsOneWidget);
+      expect(find.text('Reintentar'), findsOneWidget);
     });
   });
 }
