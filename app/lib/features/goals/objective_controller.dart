@@ -3,7 +3,6 @@ import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../infra/storage/storage_repository.dart';
 import 'goal_calculation.dart';
-import 'profile_controller.dart' show parseKcal;
 
 const kcalRangeMessage = 'Escribe un número entero entre 800 y 6.000.';
 const lowGoalWarningMessage =

@@ -108,6 +108,24 @@ void main() {
       expect(profile['sex'], 'female');
       expect(profile['activityLevel'], 'lightlyActive');
       expect(profile['birthDate'], startsWith('1996-10-15'));
+      expect(profile['measuredMaintenanceKcal'], isNull);
+    });
+
+    test('AC17: exportar incluye el mantenimiento medido', () async {
+      final s = _open();
+      addTearDown(s.db.close);
+      await s.repo.saveUserProfile(
+        sex: 'female',
+        birthDate: DateTime(1996, 10, 15),
+        heightCm: 165,
+        weightKg: 63,
+        activityLevel: 'active',
+        measuredMaintenanceKcal: 1890,
+      );
+
+      final export = await s.repo.exportUserData();
+      final profile = export['userProfile']! as Map<String, Object?>;
+      expect(profile['measuredMaintenanceKcal'], 1890);
     });
 
     test('AC13: migrar desde la versión 3 conserva los datos y crea las tablas nuevas vacías', () async {

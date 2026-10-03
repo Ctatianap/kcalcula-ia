@@ -2,9 +2,10 @@ import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../infra/storage/storage_repository.dart';
 
-/// SPEC-008 R4: mantenimiento a partir del perfil guardado: el medido si
-/// existe; si no, el de la fórmula; `null` si los datos ya no son válidos
-/// (p. ej. pasó de 100 años). Todo el cálculo vive en `nutrition_core`;
+/// SPEC-008 R4: mantenimiento a partir del perfil guardado. Si hay un
+/// mantenimiento medido válido, se usa ese aunque los demás datos ya no
+/// sirvan para la fórmula (no los necesita). Si no, el de la fórmula, o
+/// `null` si los datos ya no son válidos (p. ej. pasó de 100 años). Todo el cálculo vive en `nutrition_core`;
 /// aquí solo se traduce el perfil guardado.
 double? maintenanceForProfile(UserProfileData profile, DateTime today) {
   final measured = profile.measuredMaintenanceKcal;
@@ -111,3 +112,10 @@ String macroSummary(MacroGrams m) =>
     'Proteína ${m.proteinG.round()} g · '
     'Grasa ${m.fatG.round()} g · '
     'Carbohidratos ${m.carbsG.round()} g';
+
+/// Entero, con o sin separador de miles de es-CO ("1890" o "1.890").
+double? parseKcal(String text) {
+  final trimmed = text.trim();
+  if (!RegExp(r'^(\d+|\d{1,3}(\.\d{3})+)$').hasMatch(trimmed)) return null;
+  return int.parse(trimmed.replaceAll('.', '')).toDouble();
+}

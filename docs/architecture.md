@@ -93,13 +93,17 @@ kcal enteras (redondeo half-up) y macros con 1 decimal. Los valores estimados se
   grams, quantity_input, unit_input, size_input, quantity_basis, energy_kcal, protein_g, carbs_g, fat_g,
   confidence, source_ref)`
 - `personal_products(...)`: se define en la SPEC de etiquetas.
-- `user_profile(id=0, sex, birth_date, height_cm, weight_kg, activity_level, updated_at)`: perfil
-  (SPEC-008).
+- `user_profile(id=0, sex, birth_date, height_cm, weight_kg, activity_level,
+  measured_maintenance_kcal NULL, updated_at)`: perfil (SPEC-008, `user.db` v6).
 - `nutrition_goals(id=0, objective, is_manual, energy_kcal, protein_g, carbs_g, fat_g, updated_at)`:
   meta diaria vigente, fila única, sin historial (SPEC-008).
 
 ## Objetivos (SPEC-008)
-- Metabolismo basal: Harris-Benedict 1918. Mantenimiento: basal × PAL de EFSA 2013 (4 niveles).
+- Metabolismo basal: Harris-Benedict 1918. Mantenimiento: basal × factor de actividad, con la escala
+  de las calculadoras de fitness (5 niveles: 1,2 / 1,375 / 1,55 / 1,725 / 1,9). **Esa escala no
+  tiene fuente institucional** (PV-14): es una decisión de producto validada con datos medidos por
+  reloj de la usuaria. Si la persona escribe su **mantenimiento medido**, ese manda sobre la
+  fórmula.
 - Objetivo: −250 / −500 kcal, mantener, +10 / +20 %. Macros en % de las kcal según el objetivo
   (decisión de producto dentro de los AMDR). Fuentes: `docs/research/2026-10-02-harris-benedict-actividad-objetivo.md`.
 - Todo en `nutrition_core`, en el dispositivo. La meta de un objetivo se recalcula al guardar el

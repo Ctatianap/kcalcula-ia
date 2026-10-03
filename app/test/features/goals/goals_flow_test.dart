@@ -487,5 +487,74 @@ void main() {
       final save = find.widgetWithText(FilledButton, 'Guardar perfil');
       expect(tester.widget<FilledButton>(save).onPressed, isNull);
     });
+
+    testWidgets('R9: la meta de un objetivo se recalcula con el medido', (
+      tester,
+    ) async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final repo = StorageRepository(db);
+      await _saveProfile(repo);
+      await repo.saveNutritionGoal(
+        goalValuesFor(
+          kcal: 1456,
+          objective: GoalObjective.loseFat,
+          isManual: false,
+        ),
+      );
+      await _pump(tester, AppRoutes.profile, db: db);
+
+      await tester.enterText(find.byKey(const Key('profile-measured')), '1890');
+      await tester.pump();
+      await tester.tap(find.widgetWithText(FilledButton, 'Guardar perfil'));
+      await tester.pumpAndSettle();
+
+      expect((await repo.getNutritionGoal())!.energyKcal, 1390);
+    });
+  });
+
+  group('maintenanceForProfile', () {
+    UserProfileData profile({double? measured, int yearsOld = 30}) =>
+        UserProfileData(
+          id: 0,
+          sex: 'female',
+          birthDate: DateTime(DateTime.now().year - yearsOld, 1, 1),
+          heightCm: 165,
+          weightKg: 63,
+          activityLevel: 'lightlyActive',
+          measuredMaintenanceKcal: measured,
+          updatedAt: DateTime(2026, 10, 3),
+        );
+
+    test('con medido válido usa el medido', () {
+      expect(
+        maintenanceForProfile(profile(measured: 1890), DateTime.now()),
+        1890,
+      );
+    });
+
+    test('con medido fuera de rango usa la fórmula', () {
+      expect(
+        maintenanceForProfile(profile(measured: 500), DateTime.now()),
+        closeTo(1955.95, 0.01),
+      );
+    });
+
+    test(
+      'perfil que ya no sirve para la fórmula: el medido sigue valiendo',
+      () {
+        expect(
+          maintenanceForProfile(
+            profile(measured: 1890, yearsOld: 101),
+            DateTime.now(),
+          ),
+          1890,
+        );
+        expect(
+          maintenanceForProfile(profile(yearsOld: 101), DateTime.now()),
+          isNull,
+        );
+      },
+    );
   });
 }

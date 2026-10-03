@@ -149,15 +149,16 @@ peso o de temporada de actividad, todo se recalcula.
 - AC12. Progreso del diario (texto, "~", por encima de la meta, barra sin color de alarma), como en
   la versión 1 `[unit + widget]`.
 - AC13. "Borrar todos mis datos" vacía el perfil y la meta; "Exportar" los incluye; la migración
-  a v5 (desde la v3 y desde la v4 de desarrollo) conserva comidas, productos y consentimiento
-  `[integration]`.
+  a v6 (desde la v3, y desde la v4 y la v5 de desarrollo) conserva comidas, productos y
+  consentimiento `[integration]`.
 - AC14. Un fallo al guardar el perfil o la meta muestra un mensaje en español; la excepción no se
   relanza ni llega a Crashlytics `[widget]`.
 - AC15. Ninguna llamada a `infra/ai_client`, a Crashlytics, a `functions/` ni a logs recibe datos
   del perfil o de la meta `[revisión de código + grep]`.
 - AC17. Con un mantenimiento medido de 1.890: "Mi perfil" lo muestra como medido junto a la
   referencia de la fórmula; "Mi objetivo" calcula con 1.890 ("Bajar grasa" ~1.390); se guarda y se
-  exporta; fuera de 800–6.000 → mensaje y no se guarda `[widget + integration]`.
+  exporta; la meta de un objetivo se recalcula con el medido (R9); fuera de 800–6.000 → mensaje y
+  no se guarda `[widget + unit]`.
 - AC16. La política v3 menciona el perfil y vuelve a pedir el consentimiento a quien aceptó la v2
   `[widget + integration]`.
 
@@ -169,11 +170,11 @@ peso o de temporada de actividad, todo se recalcula.
   ampliada: `features/goals/` (perfil, punto de partida, objetivo, meta).
 
 ## Components / Files Affected
-- `packages/nutrition_core/lib/src/`: `energy_estimation.dart` (Harris-Benedict y PAL),
+- `packages/nutrition_core/lib/src/`: `energy_estimation.dart` (Harris-Benedict y factores de actividad),
   `goal_planning.dart` (objetivos y % de macros), `goal_progress.dart` y `goal_limits.dart`. El
   `macro_suggestion.dart` de la versión 1 se eliminó.
 - `app/lib/infra/storage/`: tablas `user_profile` (fila única) y `nutrition_goals` (objetivo, kcal,
-  macros en g, `is_manual`); `user.db` v5.
+  macros en g, `is_manual`); `user_profile.measured_maintenance_kcal`; `user.db` v6.
 - `app/lib/features/goals/`: pantallas "Mi perfil" (con el punto de partida) y "Mi objetivo"
   (con la meta manual).
 - `app/lib/features/diary/`: el enlace "Calcular mi meta".
@@ -194,6 +195,9 @@ peso o de temporada de actividad, todo se recalcula.
   la meta guardada se actualiza la próxima vez que se guarde el perfil o se elija el objetivo. Si
   la edad sale de 18–100, "Mi objetivo" pide revisar el perfil.
 - Fallo al leer `user.db` → mensaje en español en vez de quedarse cargando.
+- Con un mantenimiento medido válido, "Mi objetivo" y el recálculo lo usan aunque los demás datos
+  del perfil ya no sirvan para la fórmula (por ejemplo, edad > 100): el medido no los necesita. Si
+  el medido guardado no es válido, se usa la fórmula.
 - Fallo de `user.db` → mensaje en español, sin relanzar (R12).
 
 ## Security & Privacy
@@ -230,20 +234,20 @@ peso o de temporada de actividad, todo se recalcula.
 | AC4 | ✅ | `packages/nutrition_core/test/goal_planning_test.dart` ("AC4…") |
 | AC5 | ✅ | `goal_planning_test.dart` (100 / 55,6 / 275 g; suma 4/9/4; repartos dentro de los AMDR) |
 | AC6 | ✅ | `app/test/features/goals/goals_flow_test.dart` ("AC6/AC7…", "AC6: fuera de rango…", "carga el perfil guardado…") |
-| AC7 | ✅ | `goals_flow_test.dart` ("AC6/AC7…": peso 63 → 70 y actividad ligera → alta, sin reiniciar la pantalla) |
-| AC8 | ✅ | `goals_flow_test.dart` ("AC8…": diario → "Calcular mi meta" → objetivo → meta → "0 / 1.776 kcal" y 4 barras) + `app/test/features/diary/diary_goal_test.dart` |
-| AC9 | ✅ | `goals_flow_test.dart`, grupo "AC9" (meta de un objetivo recalculada 1.776 → 1.883 y el diario muestra "/ 1.883 kcal"; meta manual fija, aviso y "Usar este valor"; recálculo fuera de rango → se conserva y se avisa) + `app/test/infra/storage/nutrition_goal_storage_test.dart` ("R9…") |
+| AC7 | ✅ | `goals_flow_test.dart` ("AC6/AC7…": peso 63 → 70 y actividad ligera → intensa: ~1.956 → ~2.048 → ~2.569, sin reiniciar la pantalla) |
+| AC8 | ✅ | `goals_flow_test.dart` ("AC8…": diario → "Calcular mi meta" → objetivo → meta → "0 / 1.456 kcal" y 4 barras) + `app/test/features/diary/diary_goal_test.dart` |
+| AC9 | ✅ | `goals_flow_test.dart`, grupo "AC9" (meta de un objetivo recalculada 1.456 → 1.548 y el diario muestra "/ 1.548 kcal"; meta manual fija, aviso y "Usar este valor"; recálculo fuera de rango → se conserva y se avisa) + `app/test/infra/storage/nutrition_goal_storage_test.dart` ("R9…") |
 | AC10 | ✅ | `goals_flow_test.dart` ("AC10…") + `packages/nutrition_core/test/goal_limits_test.dart` |
 | AC11 | ✅ | `goals_flow_test.dart` ("AC11: sin perfil…", "perfil que ya no es válido…", "R1: desde Mi objetivo se abre Mi perfil") + `diary_goal_test.dart` ("AC11: sin meta…") |
 | AC12 | ✅ | `diary_goal_test.dart` (textos, "~", por encima de la meta, barra con el color del tema) + `goal_progress_test.dart` |
-| AC13 | ✅ | `nutrition_goal_storage_test.dart` (borrar todo, exportar, migración v3 → v5 y v4 de desarrollo → v5) |
+| AC13 | ✅ | `nutrition_goal_storage_test.dart` (borrar todo, exportar, migraciones v3, v4 y v5 de desarrollo → v6) |
 | AC14 | ✅ | `goals_flow_test.dart` ("AC14…" en perfil y en objetivo: `takeException()` nulo, sin "Sqlite") |
 | AC15 | ✅ | Grep (2026-10-02): `app/lib/infra/ai_client`, `app/lib/infra/crash_reporting` y `functions/src` no mencionan perfil ni meta; `features/goals` no tiene `print`/`debugPrint`/`log`; los fallos de escritura no se relanzan (AC14) |
-| AC17 | ✅ | `goals_flow_test.dart`, grupo "R4: mantenimiento medido" (manda sobre la fórmula y se guarda; "Mi objetivo" con 1.890 → "Bajar grasa · ~1.390"; fuera de rango) + `nutrition_goal_storage_test.dart` (migración v5 → v6) |
+| AC17 | ✅ | `goals_flow_test.dart`, grupo "R4: mantenimiento medido" (manda sobre la fórmula y se guarda; "Mi objetivo" con 1.890 → "Bajar grasa · ~1.390"; fuera de rango; "R9: la meta de un objetivo se recalcula con el medido" → 1.390) y grupo "maintenanceForProfile" (medido inválido → fórmula; perfil inválido → el medido sigue valiendo) + `nutrition_goal_storage_test.dart` ("AC17: exportar incluye el mantenimiento medido", migración v5 → v6) |
 | AC16 | ✅ | `app/test/integration/onboarding_gate_flow_test.dart` ("SPEC-008 AC13…": v2 → onboarding con v3) + `app/test/features/legal/privacy_policy_text_test.dart` (sección del perfil) |
 
 Verificado (2026-10-02, versión 2, tras la re-revisión): `dart analyze` y `flutter analyze` sin
-issues; `nutrition_core` 63/63; app 134/134 (tras OQ10-A y el mantenimiento medido). Pendiente: recorrido manual en el teléfono.
+issues; `nutrition_core` 63/63; app 139/139 (tras OQ10-A, el mantenimiento medido y su revisión). Pendiente: recorrido manual en el teléfono.
 
 ## Definition of Done
 - AC1–AC17 con evidencia enlazada en esta SPEC.
@@ -332,6 +336,13 @@ issues; `nutrition_core` 63/63; app 134/134 (tras OQ10-A y el mantenimiento medi
   2 cambios"): R2 pasa a la escala de fitness de 5 niveles (OQ10-A, sin fuente, decisión de
   producto) y R4 suma el mantenimiento medido opcional, que manda sobre la fórmula. AC2 y AC17
   nuevos; `user.db` v6 (columna `measured_maintenance_kcal`). Status → Implementing → Review.
+
+- 2026-10-02: reviewer (incremental, fc05e53) CHANGES_REQUESTED. Corregido: [MAJOR]
+  `docs/architecture.md` aún atribuía la escala a EFSA y no mencionaba la columna nueva; [MAJOR]
+  faltaba evidencia de que el medido se exporta (test agregado; AC17 pasa a `[widget + unit]`).
+  MINOR: tests del recálculo con el medido y de `maintenanceForProfile`; contrato del medido con un
+  perfil inválido (Edge Cases); textos y cifras de la SPEC (v6, AC7, AC8, AC9); `parseKcal` movido a
+  `goal_calculation.dart`.
 
 ## Review
 Primera revisión (2026-10-02, subagente `reviewer`): **CHANGES_REQUESTED**.

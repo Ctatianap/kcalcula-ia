@@ -261,13 +261,6 @@ class ProfileController extends ChangeNotifier {
   }
 }
 
-/// Entero, con o sin separador de miles de es-CO ("1890" o "1.890").
-double? parseKcal(String text) {
-  final trimmed = text.trim();
-  if (!RegExp(r'^(\d+|\d{1,3}(\.\d{3})+)$').hasMatch(trimmed)) return null;
-  return int.parse(trimmed.replaceAll('.', '')).toDouble();
-}
-
 /// "15/10/1996" → fecha, o `null` si el formato o la fecha no son válidos.
 DateTime? parseBirthDate(String text) {
   final match = RegExp(r'^(\d{1,2})/(\d{1,2})/(\d{4})$')
