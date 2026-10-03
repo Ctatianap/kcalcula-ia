@@ -11,6 +11,20 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// Repositorio cuyo guardado falla como fallaría SQLite (con los
 /// parámetros en el mensaje), para comprobar que no se relanza (R11).
+/// La meta se guarda bien, pero los datos de la sugerencia fallan.
+class _FailingInputsRepository extends StorageRepository {
+  _FailingInputsRepository(super.db);
+
+  @override
+  Future<void> saveGoalEstimationInputs({
+    required double weightKg,
+    required double heightCm,
+    required int ageYears,
+    required String sex,
+    required String activityLevel,
+  }) => Future.error(StateError('SqliteException: parameters: 63, 165'));
+}
+
 class _FailingRepository extends StorageRepository {
   _FailingRepository(super.db);
 
@@ -406,5 +420,43 @@ void main() {
           .text,
       isEmpty,
     );
+  });
+
+  testWidgets(
+    'si la meta se guarda pero los datos de la sugerencia no, lo dice así',
+    (tester) async {
+      final db = await _pump(tester, repository: _FailingInputsRepository.new);
+      addTearDown(db.close);
+      await openSuggestion(tester);
+      await fillSuggestion(tester);
+      await tester.tap(find.widgetWithText(FilledButton, 'Calcular'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Guardar'));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text(inputsSaveErrorMessage), findsOneWidget);
+      expect(
+        (await StorageRepository(db).getNutritionGoal())!.energyKcal,
+        2275,
+      );
+    },
+  );
+
+  testWidgets('editar un campo quita el mensaje de error anterior', (
+    tester,
+  ) async {
+    final db = await _pump(tester, repository: _FailingRepository.new);
+    addTearDown(db.close);
+    await tester.enterText(find.byKey(const Key('goal-kcal')), '2000');
+    await tester.pump();
+    await tester.tap(find.text('Guardar'));
+    await tester.pumpAndSettle();
+    expect(find.text(saveErrorMessage), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('goal-kcal')), '2100');
+    await tester.pump();
+
+    expect(find.text(saveErrorMessage), findsNothing);
   });
 }

@@ -1,7 +1,7 @@
 # SPEC-008: Objetivos nutricionales configurables
 
 ## Status
-Implementing
+Review
 Path: Strict (agrega un cálculo nuevo a `packages/nutrition_core`, la estimación de energía
 diaria, y guarda en el dispositivo datos personales de salud nuevos: peso, estatura, edad, sexo y
 nivel de actividad)
@@ -259,7 +259,8 @@ y cuánto me queda.
   2 ejemplos resueltos del cap. 7 (2.275,37 y 1.811,94); ecuaciones y tablas vienen de capítulos
   distintos. (2) El usuario recibió los valores que la consistencia no cubre (Res. 3803: 1,11
   g/kg; 14–20 / 20–35 / 50–65 %; textos de la Tabla 7-1) con sus enlaces y respondió "listo,
-  continúa".
+  continúa". (3) Cuando el reviewer pidió confirmarlo explícitamente, la usuaria declaró haber
+  comparado esos valores a ojo con las páginas originales ("sí lo vi a ojo", 2026-10-02).
 
 ## Evidencia de Acceptance Criteria
 | AC | Estado | Evidencia |
@@ -281,8 +282,8 @@ y cuánto me queda.
 | AC14 | ✅ | `nutrition_goal_screen_test.dart` ("AC14…") + `packages/nutrition_core/test/goal_limits_test.dart` |
 | AC15 | ✅ | `nutrition_goal_screen_test.dart` ("AC15…") |
 
-Verificado (2026-10-02, tras la primera revisión): `dart analyze` y `flutter analyze` sin issues;
-`nutrition_core` 97/97; app 130/130.
+Verificado (2026-10-02, tras la segunda revisión): `dart analyze` y `flutter analyze` sin issues;
+`nutrition_core` 97/97; app 132/132.
 Pendiente: recorrido manual en el Motorola (Tests Required → Manual).
 
 ## Definition of Done
@@ -330,5 +331,22 @@ Pendiente: recorrido manual en el Motorola (Tests Required → Manual).
   riesgo de SQLite → Crashlytics en el flujo de revisión de comidas queda en `docs/backlog.md`
   (T-010), fuera de esta SPEC.
 
+- 2026-10-02: reviewer PASS (re-revisión de 96d2837). Se aplicaron también sus 2 MINOR nuevos
+  (el mensaje de error se limpia al editar; mensaje propio si la meta se guarda pero los datos de
+  la sugerencia no). OQ9 registrada con la confirmación de la usuaria. Status → Review; falta el
+  recorrido manual en el teléfono y la aprobación de la usuaria para fusionar (Strict Path).
+
 ## Review
-Informe del reviewer: pendiente.
+Primera revisión (2026-10-02, subagente `reviewer`): **CHANGES_REQUESTED**.
+- [MAJOR] Fallos de escritura en `user.db` llegaban a Crashlytics con los parámetros de SQLite.
+- MINOR: fila PV-13 desactualizada; registro de OQ9; NaN y sugerencia fuera de rango; borrar los
+  datos de la sugerencia no los quitaba de memoria; separador de miles; test de widget por encima
+  de la meta; la simulación de v3 en AC10 (aceptada); ubicación de la pantalla.
+
+Todo se corrigió en `96d2837`, salvo AC10, que se aceptó como está.
+
+Re-revisión (2026-10-02, sobre `96d2837`): **PASS**. AC1–AC15 y AC5b cumplidos; `nutrition_core`
+97/97 y app 130/130. Recalculó las 40 celdas de la DRI 2023 (≤ 0,5 kcal). Dos MINOR nuevos (el
+mensaje de error no se limpiaba al editar; mensaje inexacto si fallaban solo los datos de la
+sugerencia), corregidos después (app 132/132). OQ9 quedaba pendiente de la confirmación de la
+usuaria, ya registrada.

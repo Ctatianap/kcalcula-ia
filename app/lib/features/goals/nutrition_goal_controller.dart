@@ -22,6 +22,8 @@ const heightRangeMessage = 'Escribe tu estatura en cm, entre 120 y 230.';
 const ageRangeMessage = 'Escribe tu edad en años, hasta 100.';
 const saveErrorMessage = 'No pude guardar tu meta. Intenta de nuevo.';
 const deleteErrorMessage = 'No pude borrar tus datos. Intenta de nuevo.';
+const inputsSaveErrorMessage =
+    'Guardé tu meta, pero no pude guardar tus datos para la sugerencia.';
 const suggestionOutOfRangeMessage =
     'Con estos datos la estimación queda fuera del rango que maneja la app '
     '(800 a 6.000 kcal). Puedes escribir tu meta a mano; si tienes dudas, '
@@ -108,38 +110,45 @@ class NutritionGoalController extends ChangeNotifier {
   }
 
   void setKcal(String text) {
+    errorMessage = null;
     kcalText = text;
     suggestedFields.remove('kcal');
     notifyListeners();
   }
 
   void setMacro(MacroField field, String text) {
+    errorMessage = null;
     macroText[field] = text;
     suggestedFields.remove(field);
     notifyListeners();
   }
 
   void setWeight(String text) {
+    errorMessage = null;
     weightText = text;
     notifyListeners();
   }
 
   void setHeight(String text) {
+    errorMessage = null;
     heightText = text;
     notifyListeners();
   }
 
   void setAge(String text) {
+    errorMessage = null;
     ageText = text;
     notifyListeners();
   }
 
   void setSex(BiologicalSex value) {
+    errorMessage = null;
     sex = value;
     notifyListeners();
   }
 
   void setActivityLevel(ActivityLevel value) {
+    errorMessage = null;
     activityLevel = value;
     notifyListeners();
   }
@@ -264,13 +273,19 @@ class NutritionGoalController extends ChangeNotifier {
       );
       // R8/R9: los datos de la sugerencia solo se guardan si se usó.
       if (suggestionApplied && canEstimate) {
-        await _storage.saveGoalEstimationInputs(
-          weightKg: _weight!,
-          heightCm: _height!,
-          ageYears: _age!,
-          sex: sex!.name,
-          activityLevel: activityLevel!.name,
-        );
+        try {
+          await _storage.saveGoalEstimationInputs(
+            weightKg: _weight!,
+            heightCm: _height!,
+            ageYears: _age!,
+            sex: sex!.name,
+            activityLevel: activityLevel!.name,
+          );
+        } catch (_) {
+          // La meta sí quedó guardada; mismo criterio de R11 (no relanzar).
+          errorMessage = inputsSaveErrorMessage;
+          return false;
+        }
         hasEstimationInputs = true;
       }
       return true;
