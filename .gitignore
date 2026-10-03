@@ -38,3 +38,7 @@ CLAUDE.local.md
 .DS_Store
 .idea/
 .vscode/
+
+# Locales, no versionar
+calorias-ia-factory.zip
+.claude/scheduled_tasks.lock
