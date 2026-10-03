@@ -11,4 +11,6 @@ abstract class AppRoutes {
   static const privacyPolicy = '/privacy-policy';
   static const profile = '/profile';
   static const objective = '/objective';
+  static const history = '/history';
+  static const progress = '/progress';
 }

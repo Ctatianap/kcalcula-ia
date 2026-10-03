@@ -1,7 +1,7 @@
 # SPEC-010: Sistema visual y navegación
 
 ## Status
-Implementing
+Review
 Path: Standard (solo presentación: no toca `nutrition_core`, la IA, el catálogo ni lo que sale del
 dispositivo. La fuente se embebe para no descargarla de internet; ver Security & Privacy).
 
@@ -129,6 +129,23 @@ Historial y Progreso y un botón para registrar, para usarla a diario sin esfuer
 ## Open Questions
 - Ninguna. El modo oscuro queda fuera del MVP.
 
+## Evidencia de Acceptance Criteria
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/ui/theme_test.dart` ("AC1…") |
+| AC2 | ✅ | `app/pubspec.yaml` declara Outfit (200/300/400/500) desde `assets/fonts/`; grep (2026-10-03) sin `google_fonts`, `fonts.googleapis` ni `fonts.gstatic` en `lib/`, `pubspec.yaml` ni `pubspec.lock`. Licencia: SIL OFL 1.1, archivos de https://github.com/Outfitio/Outfit-Fonts en el commit `902773808eb372f70fb34e8946dd1ffe604efc79`, `app/assets/fonts/OFL.txt` |
+| AC3 | ✅ | `app/test/ui/main_nav_test.dart` (pestañas, estados vacíos, + desde Hoy y Progreso, Atrás en Historial vuelve a Hoy) + suites de integración que registran desde Hoy y vuelven al diario |
+| AC4 | ✅ | `app/test/ui/progress_ring_test.dart` |
+| AC5 | ✅ | `app/test/ui/theme_test.dart`, grupo "AC5" (7 pares, todos ≥ 4,5:1; el menor, 4,87) |
+| AC6 | ✅ | `main_nav_test.dart` ("AC6…") |
+| AC7 | ✅ | `flutter analyze` sin issues; `flutter test` 169/169 (2026-10-03, tres corridas) |
+| AC8 | ⏳ | Recorrido manual en el teléfono: se hace al final del lote (decisión de la usuaria) |
+
+Decisión de implementación: los botones primario y secundario de R3 son `FilledButton` y
+`OutlinedButton` con el estilo del tema (56 px, radio 28), no widgets nuevos; el encabezado usa el
+`AppBarTheme` (título en el acento, 26 px, peso 300). Los dos tests de integración que buscaban el
+texto "Hoy" ahora buscan el título de la pantalla, porque "Hoy" también está en la barra.
+
 ## Definition of Done
 - AC1–AC8 con evidencia enlazada en esta SPEC.
 - `flutter analyze` sin issues y `flutter test` verde.
@@ -139,6 +156,8 @@ Historial y Progreso y un botón para registrar, para usarla a diario sin esfuer
 ## Change Log
 - 2026-10-03: creación a partir de T-011 de `docs/backlog.md` y del diseño "kcalcula ia UI".
 - 2026-10-03: **Approved por la usuaria** ("aprobado"). Status → Implementing.
+
+- 2026-10-03: implementada (AC1–AC7); AC8 al final del lote. Status → Review.
 
 ## Review
 Informe del reviewer: pendiente.

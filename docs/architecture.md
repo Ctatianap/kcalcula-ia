@@ -109,6 +109,14 @@ kcal enteras (redondeo half-up) y macros con 1 decimal. Los valores estimados se
 - Todo en `nutrition_core`, en el dispositivo. La meta de un objetivo se recalcula al guardar el
   perfil (en la misma transacción); la meta manual queda fija.
 - El progreso del día (`GoalProgress`) resta sin redondear y redondea al presentar, en tono neutro.
+## Interfaz (SPEC-010)
+- Tokens y tema en `app/lib/ui/theme.dart` (`KColors`, `DayGoalStatus`, `buildAppTheme()`); ninguna
+  pantalla repite colores. Componentes en `app/lib/ui/components/` (tarjeta, anillo de progreso,
+  barra inferior, estado vacío). Los anillos solo dibujan fracciones calculadas en `nutrition_core`.
+- Tipografía Outfit embebida como asset (SIL OFL 1.1); nunca se descarga.
+- Pantallas principales Hoy / Historial / Progreso con `MainNavBar` (rutas sin animación); el resto
+  se abre encima, sin barra. Los estados del día frente a la meta nunca usan rojo ni verde de alarma.
+
 ## Errores
 | Situación | Comportamiento |
 |---|---|

@@ -1,0 +1,100 @@
+import 'package:calorias_ia/app.dart';
+import 'package:calorias_ia/infra/crash_reporting/crash_reporting_providers.dart';
+import 'package:calorias_ia/infra/legal/privacy_policy.dart';
+import 'package:calorias_ia/infra/storage/app_database.dart';
+import 'package:calorias_ia/infra/storage/storage_providers.dart';
+import 'package:calorias_ia/infra/storage/storage_repository.dart';
+import 'package:drift/native.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import '../support/fake_crash_reporter.dart';
+
+Future<void> _pumpApp(WidgetTester tester) async {
+  final db = AppDatabase(NativeDatabase.memory());
+  addTearDown(db.close);
+  await StorageRepository(db).saveConsent(policyVersion: privacyPolicyVersion);
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [
+        appDatabaseProvider.overrideWithValue(db),
+        crashReporterProvider.overrideWithValue(FakeCrashReporter()),
+      ],
+      child: const MyApp(),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
+void main() {
+  testWidgets('AC3: Hoy con barra; Historial y Progreso con su estado vacío', (
+    tester,
+  ) async {
+    await _pumpApp(tester);
+
+    expect(find.widgetWithText(AppBar, 'Hoy'), findsOneWidget);
+    expect(find.bySemanticsLabel('Historial'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('nav-Historial')));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(AppBar, 'Historial'), findsOneWidget);
+    expect(find.text('Aquí verás tu historial día por día.'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('nav-Progreso')));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Aquí verás tus promedios y tu progreso.'),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(const Key('nav-Hoy')));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(AppBar, 'Hoy'), findsOneWidget);
+  });
+
+  testWidgets('AC3: + abre "¿Qué comiste?" desde Hoy y desde Progreso', (
+    tester,
+  ) async {
+    await _pumpApp(tester);
+    await tester.tap(find.byKey(const Key('nav-add')));
+    await tester.pumpAndSettle();
+    expect(find.text('¿Qué comiste?'), findsWidgets);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('nav-Progreso')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('nav-add')));
+    await tester.pumpAndSettle();
+    expect(find.text('¿Qué comiste?'), findsWidgets);
+  });
+
+  testWidgets('Atrás en Historial vuelve a Hoy', (tester) async {
+    await _pumpApp(tester);
+    await tester.tap(find.byKey(const Key('nav-Historial')));
+    await tester.pumpAndSettle();
+
+    final dynamic widgetsAppState = tester.state(find.byType(WidgetsApp));
+    await widgetsAppState.didPopRoute();
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(AppBar, 'Hoy'), findsOneWidget);
+  });
+
+  testWidgets('AC6: botones de la barra ≥ 44 px con etiqueta en español', (
+    tester,
+  ) async {
+    await _pumpApp(tester);
+    for (final key in ['nav-Hoy', 'nav-Historial', 'nav-Progreso', 'nav-add']) {
+      final size = tester.getSize(find.byKey(Key(key)));
+      expect(size.width, greaterThanOrEqualTo(44), reason: key);
+      expect(size.height, greaterThanOrEqualTo(44), reason: key);
+    }
+    // "Hoy" también es el título de la pantalla.
+    expect(find.bySemanticsLabel('Hoy'), findsNWidgets(2));
+    for (final label in ['Historial', 'Progreso', 'Agregar comida']) {
+      expect(find.bySemanticsLabel(label), findsOneWidget, reason: label);
+    }
+  });
+}

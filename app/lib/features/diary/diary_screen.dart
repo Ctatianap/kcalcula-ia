@@ -4,6 +4,7 @@ import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../app_routes.dart';
 import '../../infra/storage/storage_providers.dart';
+import '../../ui/components/main_nav_bar.dart';
 import 'diary_controller.dart';
 
 const _mealTypeLabels = {
@@ -64,9 +65,10 @@ class _DiaryScreenState extends ConsumerState<DiaryScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _openCapture,
-        child: const Icon(Icons.add),
+      // SPEC-010 R4: barra inferior con Hoy / Historial / Progreso y +.
+      bottomNavigationBar: MainNavBar(
+        current: MainTab.today,
+        onAdd: _openCapture,
       ),
       body: FutureBuilder<DiarySummary>(
         future: _summaryFuture,
