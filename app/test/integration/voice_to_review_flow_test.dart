@@ -78,6 +78,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // En vez de escribir, se usa un resultado de voz simulado.
+      await tester.tap(find.text('Voz'));
+      await tester.pumpAndSettle();
       await tester.tap(find.byIcon(Icons.mic));
       await tester.pumpAndSettle();
       recognizer.emitResult('dos huevos y una arepa', isFinal: true);
@@ -91,9 +93,12 @@ void main() {
 
       expect(find.text('143 kcal'), findsOneWidget);
       expect(find.text('307 kcal'), findsOneWidget);
-      expect(find.text('Total: 450 kcal'), findsOneWidget);
+      expect(
+        tester.widget<Text>(find.byKey(const Key('meal-detail-kcal'))).data,
+        '~450 kcal',
+      );
 
-      await tester.tap(find.text('Registrar'));
+      await tester.tap(find.text('Guardar'));
       await tester.pumpAndSettle();
 
       expect(find.text('Todavía no registras nada hoy'), findsNothing);

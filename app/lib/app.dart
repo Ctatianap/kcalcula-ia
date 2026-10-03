@@ -10,6 +10,7 @@ import 'features/capture/capture_screen.dart';
 import 'features/diary/diary_screen.dart';
 import 'features/legal/privacy_policy_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
+import 'features/review/meal_analysis_screen.dart';
 import 'features/review/review_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'infra/ai_client/parsed_meal_dto.dart';
@@ -44,6 +45,12 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(
               settings: settings,
               builder: (_) => ReviewScreen(parsedMeal: parsedMeal),
+            );
+          case AppRoutes.analysis:
+            final text = settings.arguments as String;
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (_) => MealAnalysisScreen(text: text),
             );
           case AppRoutes.onboarding:
             return MaterialPageRoute(

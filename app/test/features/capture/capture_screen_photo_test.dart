@@ -50,7 +50,8 @@ Future<void> _pump(
 }
 
 Future<void> _openCameraOption(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.camera_alt));
+  // SPEC-012 R1: pestaña Foto -> "Tomar foto".
+  await tester.tap(find.text('Foto'));
   await tester.pumpAndSettle();
   await tester.tap(find.text('Tomar foto'));
   await tester.pumpAndSettle();
@@ -88,6 +89,9 @@ void main() {
       await _openCameraOption(tester);
 
       expect(find.textContaining('permiso de la cámara'), findsOneWidget);
+      // La pestaña Texto sigue disponible.
+      await tester.tap(find.text('Texto'));
+      await tester.pumpAndSettle();
       final textField = tester.widget<TextField>(find.byType(TextField));
       expect(textField.enabled, isTrue);
     },

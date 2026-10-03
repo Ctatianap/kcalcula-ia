@@ -79,13 +79,16 @@ void main() {
       await tester.pumpAndSettle();
 
       // Revisión: 2 ítems, ambos matched (huevo 100g -> 143 kcal, arepa 115g -> 307 kcal).
-      expect(find.text('dos huevos'), findsOneWidget);
-      expect(find.text('una arepa'), findsOneWidget);
+      expect(find.text('“dos huevos”'), findsOneWidget);
+      expect(find.text('“una arepa”'), findsOneWidget);
       expect(find.text('143 kcal'), findsOneWidget);
       expect(find.text('307 kcal'), findsOneWidget);
-      expect(find.text('Total: 450 kcal'), findsOneWidget);
+      expect(
+        tester.widget<Text>(find.byKey(const Key('meal-detail-kcal'))).data,
+        '~450 kcal',
+      );
 
-      await tester.tap(find.text('Registrar'));
+      await tester.tap(find.text('Guardar'));
       await tester.pumpAndSettle();
 
       // De vuelta en "Hoy": la comida registrada aparece con su total.
@@ -146,7 +149,7 @@ void main() {
         await tester.pump();
         await tester.tap(find.text('Analizar'));
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Registrar'));
+        await tester.tap(find.text('Guardar'));
         await tester.pumpAndSettle();
 
         expect(find.byType(DiaryScreen), findsOneWidget);

@@ -185,12 +185,12 @@ void main() {
         failRegister: true,
       );
 
-      await tester.tap(find.widgetWithText(FilledButton, 'Registrar'));
+      await tester.tap(find.widgetWithText(FilledButton, 'Guardar'));
       await tester.pumpAndSettle();
 
       expect(tester.takeException(), isNull);
       expect(find.text(registerErrorMessage), findsOneWidget);
-      expect(find.text('dos huevos'), findsOneWidget);
+      expect(find.text('“dos huevos”'), findsOneWidget);
       expect(find.textContaining('disk I/O'), findsNothing);
     },
   );
@@ -244,7 +244,7 @@ void main() {
     await tester.tap(find.text('Reintentar'));
     await tester.pumpAndSettle();
 
-    expect(find.text('dos huevos'), findsOneWidget);
+    expect(find.text('“dos huevos”'), findsOneWidget);
   });
 
   testWidgets('AC5: arranque con lectura fallida → mensaje y Reintentar', (

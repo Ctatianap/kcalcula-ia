@@ -5,6 +5,9 @@ abstract class AppRoutes {
   static const diary = '/';
   static const capture = '/capture';
   static const review = '/review';
+
+  /// SPEC-012: "Analizando" → detalle o error, para un texto (argumento).
+  static const analysis = '/analysis';
   static const labelConfirmation = '/label-confirmation';
   static const onboarding = '/onboarding';
   static const settings = '/settings';

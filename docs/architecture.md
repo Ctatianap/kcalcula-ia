@@ -33,7 +33,7 @@ flowchart TD
 | Componente | Responsabilidad | No hace |
 |---|---|---|
 | `app/features/capture` | Entrada por texto, voz y foto de etiqueta | Llamar directamente a Functions o a la base de datos |
-| `app/features/review` | Mostrar ítems, cantidades, kcal y confianza; editar; resolver ambigüedades; registrar | Calcular nutrientes |
+| `app/features/review` | "Analizando" (SPEC-012: `parseMeal` vía `infra/ai_client`, resolución y cálculo con pasos visibles), detalle de comida: ítems, cantidades, kcal y confianza; editar; resolver ambigüedades; registrar | Calcular nutrientes |
 | `app/features/diary` | Registro del día: comidas, kcal y macros | — |
 | `app/infra/ai_client` | Llamadas callable a `parseMeal` y `extractLabel` con App Check; mapeo de errores | Lógica de negocio |
 | `app/infra/catalog` | Consultas a `catalog.db` (FTS5), candidatos de alimentos y porciones | Calcular |
