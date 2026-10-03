@@ -241,6 +241,12 @@ y cuánto me queda.
   las páginas originales las Tablas 5-4, 5-5, 7-1, 7-9 y 7-10 de las DRI 2023 y las Tablas 1 y 12
   de la Res. 3803. Las transcribió una herramienta que resume páginas, y los coeficientes y casos
   de AC3 salen de ahí. Puede hacerlo el usuario o el reviewer con acceso a los documentos.
+  ✅ **Cerrada (2026-10-02).** (1) Comprobación de consistencia: las 8 ecuaciones de la Tabla 5-5
+  reproducen las 40 celdas de las Tablas 7-9 y 7-10 con una diferencia máxima de 0,5 kcal, y los
+  2 ejemplos resueltos del cap. 7 (2.275,37 y 1.811,94); ecuaciones y tablas vienen de capítulos
+  distintos. (2) El usuario recibió los valores que la consistencia no cubre (Res. 3803: 1,11
+  g/kg; 14–20 / 20–35 / 50–65 %; textos de la Tabla 7-1) con sus enlaces y respondió "listo,
+  continúa".
 
 ## Definition of Done
 - AC1–AC15 (incluido AC5b) con evidencia enlazada en esta SPEC.
