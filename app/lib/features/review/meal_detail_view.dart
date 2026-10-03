@@ -6,6 +6,7 @@ import '../../app_routes.dart';
 import '../../infra/clock.dart';
 import '../../ui/components/k_card.dart';
 import '../../format/date_format_es.dart';
+import '../../format/text_es.dart';
 import '../../ui/theme.dart';
 import 'review_controller.dart';
 import 'review_item.dart';
@@ -29,12 +30,6 @@ String quantitySourceLabel(QuantityBasis? basis) => switch (basis) {
   QuantityBasis.householdMeasure => 'Medida casera estimada · ajústala',
   QuantityBasis.defaultPortion || null => 'Porción estimada · ajústala',
 };
-
-/// "Huevo", "Huevo y arepa", "Huevo, arepa y queso".
-String joinNamesEs(List<String> names) {
-  if (names.length <= 1) return names.join();
-  return '${names.sublist(0, names.length - 1).join(', ')} y ${names.last}';
-}
 
 String _itemName(ReviewItem item) => item.food?.nameEs ?? item.mention;
 

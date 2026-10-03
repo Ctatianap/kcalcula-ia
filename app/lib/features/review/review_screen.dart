@@ -5,6 +5,7 @@ import '../../infra/ai_client/parsed_meal_dto.dart';
 import '../../infra/catalog/catalog_providers.dart';
 import '../../infra/clock.dart';
 import '../../infra/food_resolution/food_query_resolver.dart';
+import '../../infra/food_resolution/meal_draft.dart';
 import '../../infra/storage/app_database.dart' show PersonalProduct;
 import '../../infra/storage/storage_providers.dart';
 import 'meal_analysis_controller.dart' show readErrorMessage;
@@ -15,11 +16,14 @@ export 'meal_analysis_controller.dart' show readErrorMessage;
 export 'meal_detail_view.dart' show registerErrorMessage;
 
 /// Detalle de una comida que ya llega estructurada sin pasar por
-/// "Analizando" (la etiqueta confirmada de SPEC-004).
+/// "Analizando": la etiqueta confirmada de SPEC-004 ([parsedMeal]) o una
+/// comida reciente de SPEC-017 ([draft]).
 class ReviewScreen extends ConsumerStatefulWidget {
-  final ParsedMealDto parsedMeal;
+  final ParsedMealDto? parsedMeal;
+  final MealDraft? draft;
 
-  const ReviewScreen({super.key, required this.parsedMeal});
+  const ReviewScreen({super.key, this.parsedMeal, this.draft})
+    : assert((parsedMeal == null) != (draft == null));
 
   @override
   ConsumerState<ReviewScreen> createState() => _ReviewScreenState();
@@ -52,17 +56,27 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
       return;
     }
     if (!mounted) return;
+    final resolver = FoodQueryResolver(
+      catalog: ref.read(catalogRepositoryProvider),
+      personalProducts: personalProducts,
+    );
+    final now = ref.read(clockProvider)();
+    final draft = widget.draft;
     setState(() {
       _loadFailed = false;
-      _controller = ReviewController(
-        parsedMeal: widget.parsedMeal,
-        resolver: FoodQueryResolver(
-          catalog: ref.read(catalogRepositoryProvider),
-          personalProducts: personalProducts,
-        ),
-        storage: storage,
-        now: ref.read(clockProvider)(),
-      );
+      _controller = draft != null
+          ? ReviewController.fromDraft(
+              draft: draft,
+              resolver: resolver,
+              storage: storage,
+              now: now,
+            )
+          : ReviewController(
+              parsedMeal: widget.parsedMeal!,
+              resolver: resolver,
+              storage: storage,
+              now: now,
+            );
     });
   }
 

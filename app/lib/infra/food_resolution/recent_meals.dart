@@ -1,0 +1,92 @@
+import 'package:nutrition_core/nutrition_core.dart';
+
+import '../../format/text_es.dart';
+import '../storage/storage_repository.dart';
+import 'food_query_resolver.dart';
+import 'meal_draft.dart';
+
+/// SPEC-017 R1: cuántas comidas distintas se muestran y cuántas se leen.
+const recentMealsShown = 5;
+const recentMealsScanned = 50;
+
+/// Una comida reciente lista para repetir, con sus kcal recalculadas con el
+/// catálogo actual (R2).
+class RecentMeal {
+  final MealDraft draft;
+  final String name;
+  final double kcal;
+
+  const RecentMeal({
+    required this.draft,
+    required this.name,
+    required this.kcal,
+  });
+}
+
+String _foodIdOf(MealItem item) => item.personalProductId != null
+    ? '$personalProductIdPrefix${item.personalProductId}'
+    : item.foodId ?? '';
+
+/// R1/R2/R4: hasta [recentMealsShown] comidas distintas (mismos alimentos con
+/// los mismos gramos = la misma), de la más reciente a la más antigua. Se
+/// omiten las que tienen un alimento que ya no existe.
+List<RecentMeal> buildRecentMeals(
+  List<MealWithItems> newestFirst,
+  FoodQueryResolver resolver,
+) {
+  final seen = <String>{};
+  final result = <RecentMeal>[];
+  for (final meal in newestFirst) {
+    if (result.length >= recentMealsShown) break;
+    if (meal.items.isEmpty) continue;
+    final key =
+        (meal.items.map((i) => '${_foodIdOf(i)}@${i.grams}').toList()..sort())
+            .join('|');
+    if (!seen.add(key)) continue;
+
+    final foods = [
+      for (final i in meal.items) resolver.getFoodById(_foodIdOf(i)),
+    ];
+    if (foods.any((f) => f == null)) continue;
+
+    final items = <MealDraftItem>[];
+    final nutrients = <NutrientTotals>[];
+    for (final (index, item) in meal.items.indexed) {
+      final food = foods[index]!;
+      nutrients.add(calculateItemNutrients(food, item.grams));
+      items.add(
+        MealDraftItem(
+          foodId: food.id,
+          mention: item.mention,
+          grams: item.grams,
+          basis:
+              QuantityBasis.values.asNameMap()[item.quantityBasis] ??
+              QuantityBasis.explicitWeight,
+          confidence:
+              ConfidenceLevel.values.asNameMap()[item.confidence] ??
+              ConfidenceLevel.estimacion,
+        ),
+      );
+    }
+    result.add(
+      RecentMeal(
+        draft: MealDraft(items),
+        name: joinNamesEs([for (final f in foods) f!.nameEs]),
+        kcal: sumNutrients(nutrients).energyKcal,
+      ),
+    );
+  }
+  return result;
+}
+
+/// Lee las últimas [recentMealsScanned] comidas y arma las recientes.
+Future<List<RecentMeal>> loadRecentMeals(
+  StorageRepository storage,
+  FoodQueryResolver Function(List<PersonalProduct> personalProducts)
+  resolverFor,
+) async {
+  final meals = await storage.recentMeals(limit: recentMealsScanned);
+  if (meals.isEmpty) return const [];
+  final resolver = resolverFor(await storage.getAllPersonalProducts());
+  return buildRecentMeals(meals, resolver);
+}

@@ -4,6 +4,7 @@ import 'package:nutrition_core/nutrition_core.dart';
 import '../../infra/ai_client/parsed_meal_dto.dart';
 import '../../infra/catalog/food_match_result.dart';
 import '../../infra/food_resolution/food_query_resolver.dart';
+import '../../infra/food_resolution/meal_draft.dart';
 import '../../infra/storage/storage_repository.dart';
 import 'quantity_mapping.dart';
 import 'review_item.dart';
@@ -48,6 +49,40 @@ class ReviewController extends ChangeNotifier {
     _items = [
       for (final (i, parsed) in parsedMeal.items.indexed)
         _buildItem(parsed, resolved[i]),
+    ];
+  }
+
+  /// SPEC-017: comida con los alimentos y gramos ya resueltos (Recientes),
+  /// sin IA. El tipo de comida se asigna por la hora actual; un alimento que
+  /// ya no existe se omite. Las kcal se recalculan con el catálogo actual.
+  ReviewController.fromDraft({
+    required MealDraft draft,
+    required FoodQueryResolver resolver,
+    required StorageRepository storage,
+    DateTime? now,
+  }) : _resolver = resolver,
+       // ignore: prefer_initializing_formals
+       _storage = storage,
+       _householdUnits = resolver.householdUnitMlByUnit() {
+    mealType = assignMealTypeByHour(now ?? DateTime.now());
+    _items = [
+      for (final item in draft.items)
+        if (resolver.getFoodById(item.foodId) case final food?)
+          ReviewItem(
+            mention: item.mention,
+            foodQuery: food.nameEs,
+            isVague: false,
+            quantityRaw: item.grams,
+            unitRaw: 'g',
+            status: ReviewItemStatus.matched,
+            food: food,
+            grams: item.grams,
+            basis: item.basis,
+            // La confianza que le dieron las reglas al registrarla: repetir
+            // una comida no la vuelve más precisa.
+            confidence: item.confidence,
+            nutrients: calculateItemNutrients(food, item.grams),
+          ),
     ];
   }
 
