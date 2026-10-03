@@ -1,342 +1,213 @@
-# SPEC-008: Objetivos nutricionales configurables
+# SPEC-008: Perfil, mantenimiento y objetivo nutricional
 
 ## Status
 Draft
-Path: Strict (agrega un cálculo nuevo a `packages/nutrition_core`, la estimación de energía
-diaria, y guarda en el dispositivo datos personales de salud nuevos: peso, estatura, edad, sexo y
-nivel de actividad)
+Path: Strict (cálculos nuevos en `packages/nutrition_core`: metabolismo basal, mantenimiento,
+objetivo y reparto de macros; y datos personales de salud guardados en el dispositivo: peso,
+estatura, fecha de nacimiento, sexo y nivel de actividad)
 
-## Cambio propuesto (2026-10-02) — enfoque fitness; pendiente de la aprobación de la usuaria
-La usuaria pidió una sugerencia como la de https://fitgeneration.es/calculadora/harris-benedict/ y
-con macros orientados a fitness (proteína 1,5–2 g/kg, grasa 0,7 g/kg, carbohidratos 2–3 g/kg). Con
-las fuentes de PV-14 (`docs/research/2026-10-02-harris-benedict-actividad-objetivo.md`), propuesta:
-
-- **R2' — Gasto en reposo:** Harris-Benedict **original** (Harris y Benedict, PNAS 1918;4(12):373):
-  hombres 66,4730 + 13,7516·peso + 5,0033·estatura − 6,7550·edad; mujeres 655,0955 + 9,5634·peso
-  + 1,8496·estatura − 4,6756·edad. La revisada (Roza y Shizgal 1984) se descarta porque no se pudo
-  leer la fuente primaria. Reemplaza la DRI 2023.
-- **R14' — Actividad:** gasto total = gasto en reposo × factor de actividad. La escala de
-  fitgeneration (1,2 / 1,375 / 1,55 / 1,725 / 1,9) **no tiene fuente** institucional ni académica
-  (PV-14). Ver OQ10: opción A (esa escala como decisión de producto) u opción B (PAL de EFSA 2013:
-  1,4 / 1,6 / 1,8 / 2,0, con fuente). En las dos, los niveles se describen por días de ejercicio a
-  la semana; ese mapeo es una decisión de producto.
-- **R15 — Objetivo (nuevo):**
-  - "Bajar grasa": −500 kcal/día (AHA/ACC/TOS 2013; también es el tope del rango de 250–500 de
-    la posición conjunta DC/AND/ACSM 2016 para personas que entrenan).
-  - "Mantener peso": sin ajuste.
-  - "Ganar masa muscular": +10 % (límite inferior del 10–20 % de Iraki et al. 2019; revisión
-    narrativa, no guía institucional).
-  - El 10–25 % de déficit de fitgeneration no tiene fuente y no se usa.
-- **R3' — Macros, enfoque fitness** (reemplaza la Res. 3803; esquema descrito por Iraki 2019):
-  - **Proteína:** 1,8 g/kg; 2,0 g/kg con "Bajar grasa". Dentro de 1,5–2,0 (usuaria), 1,4–2,0
-    (ISSN 2017) y 1,2–2,0 (DC/AND/ACSM 2016).
-  - **Grasa:** 0,7 g/kg (dentro de 0,5–1,0 de Kerksick 2018), pero nunca por debajo del 20 % de
-    las kcal (DC/AND/ACSM 2016); si choca, gana el 20 %.
-  - **Carbohidratos:** las kcal que sobran, en gramos. Las fuentes dan 3–5 g/kg para entrenamiento
-    ligero; el 2–3 g/kg de la usuaria no tiene fuente, así que no se fuerza ningún rango y se
-    muestran los g/kg que resultan. Si quedan en 0 o menos, no se rellena nada y se avisa.
-  - Factores 4/9/4 kcal/g (FAO 2003).
-- **Edad:** 18–100 años, decisión de producto. La muestra de 1918 tabula 21–70 años; la ecuación se
-  usa fuera de ese rango, como hacen todas las calculadoras.
-- **AC3':** los 3 casos resueltos por la fuente (Harris y Benedict 1919, p. 230): hombre, 27 años,
-  172 cm, 77,2 kg → 1806; mujer, 22 años, 166 cm, 77,2 kg → 1597; mujer, 66 años, 162 cm, 62,3 kg →
-  1242, con ±1 kcal.
-- Se mantienen la meta manual, el progreso, la privacidad, el aviso de meta baja, la advertencia
-  de estimación y el resto de AC.
+> **Versión 2 (2026-10-02).** Reemplaza la versión aprobada antes, que sugería el mantenimiento con
+> la DRI 2023 y los macros con la Res. 3803. La usuaria la probó y pidió otro diseño: perfil
+> editable, metabolismo basal y mantenimiento separados, objetivo aparte y macros en % de las kcal.
+> Lo ya implementado que sigue valiendo (meta en `user.db`, progreso en el diario, borrar y
+> exportar, política v3, manejo de errores) se reutiliza. La evidencia de la versión 1 está en el
+> historial de git (commit `eb78daa`).
 
 ## Objective
-Que el usuario tenga una meta diaria de kcal, y si quiere de proteína, carbohidratos y grasa. La
-puede escribir él mismo o partir de una sugerencia que la app calcula. Además, el diario de hoy
-muestra cuánto lleva frente a esa meta y cuánto le queda.
+Que la persona sepa en qué punto empieza (metabolismo basal y mantenimiento, calculados con su
+perfil) y, en otra sección, elija un objetivo (bajar grasa, mantener, subir masa muscular). El
+objetivo fija su meta diaria de kcal y reparte automáticamente proteína, carbohidratos y grasa en %
+de esas kcal. El diario muestra el progreso frente a esa meta.
 
 ## Context
-Backlog T-009 (post-MVP), depende de T-002 (SPEC-001, `Done`). Hoy el diario solo muestra
-"Total del día: N kcal" (`app/lib/features/diary/diary_screen.dart`), sin ninguna referencia.
+Backlog T-009 (post-MVP), depende de T-002. Enfoque **fitness**, decisión de la usuaria
+(2026-10-02). Referencia de UX: https://fitgeneration.es/calculadora/harris-benedict/, sin su paso
+de "objetivo", que aquí va en otra sección. Fuentes: `docs/research/2026-10-02-harris-benedict-actividad-objetivo.md`
+(PV-14) y `docs/research/2026-10-02-formula-gasto-energetico.md` (PV-13).
 
-Decisiones del usuario (2026-10-02):
-- **Origen de la meta:** las dos opciones. El usuario puede escribirla, o pedir una sugerencia
-  calculada y luego cambiarla.
-- **Nutrientes:** la meta de kcal es obligatoria; las de proteína, carbohidratos y grasa (en
-  gramos) son opcionales. Son los cuatro valores que ya se guardan por ítem en `meal_items`.
-- **Progreso:** "consumido / meta" y lo que queda, con una barra, en tono neutro. Sin colores de
-  alarma ni mensajes de juicio.
-
-Principio del producto: "sin inventar precisión". La sugerencia es una **estimación**, se presenta
-como tal y nunca reemplaza la decisión del usuario.
+Principio del producto: "sin inventar precisión". Todo lo calculado se presenta como estimación
+("~"), con un aviso de que no es una recomendación médica.
 
 ## User Story
-Como persona que registra lo que come, quiero fijar una meta diaria de calorías (y, si quiero, de
-macros), escribiéndola yo o partiendo de una sugerencia, para ver de un vistazo cuánto llevo hoy
-y cuánto me queda.
+Como persona que entrena, quiero registrar mi perfil y ver mi metabolismo basal y mi
+mantenimiento según mi nivel de actividad actual, y luego elegir un objetivo que me diga cuántas
+kcal y cuánta proteína, carbohidratos y grasa comer, para seguir mi progreso diario. Si cambio de
+peso o de temporada de actividad, todo se recalcula.
 
 ## Requirements
-- R1. **Meta manual.** En Ajustes hay una pantalla "Mi meta diaria" donde el usuario escribe la
-  meta de kcal (entero, obligatoria para guardar) y, de forma opcional, las metas de proteína,
-  carbohidratos y grasa (en gramos, con un decimal como máximo). Cada meta opcional puede quedar
-  vacía. Rangos aceptados: ver Open Questions OQ4. Fuera de rango → mensaje en español en el campo
-  y no se guarda.
-- R2. **Sugerencia calculada (opcional).** En la misma pantalla, el botón "Calcular una
-  sugerencia" pide peso (kg), estatura (cm), edad (años), sexo (para la fórmula: femenino o
-  masculino) y nivel de actividad. Con esos datos `nutrition_core` estima las kcal diarias de
-  **mantenimiento** con las ecuaciones de gasto energético total de las DRI for Energy 2023 de
-  NASEM (Tabla 5-5: una ecuación por sexo y nivel de actividad, OQ1), y a partir de ellas (y del peso, para la proteína) las
-  metas de proteína, carbohidratos y grasa en gramos (R3). La sugerencia rellena los cuatro
-  campos, que siguen siendo editables. El usuario decide si la guarda.
-- R3. **La sugerencia incluye macros** (OQ3 y OQ8, decisiones del usuario del 2026-10-02).
-  `nutrition_core` reparte las kcal sugeridas así:
-  - **Proteína:** 1,11 g/kg de peso (RDA de la Res. 3803 de 2016, Tabla 12). Si eso queda por
-    debajo del 14 % o por encima del 20 % de las kcal sugeridas, se ajusta a ese límite (rango de
-    la Res. 3803, Tabla 1).
-  - **Grasa:** 27,5 % de las kcal (la mitad del rango 20–35 % de la Res. 3803, Tabla 1).
-  - **Carbohidratos:** el resto de las kcal. Con las dos reglas anteriores queda entre el 52,5 % y
-    el 58,5 %, dentro del rango 50–65 %.
 
-  Para pasar de kcal a gramos se usan 4 kcal/g de proteína, 9 de grasa y 4 de carbohidratos (FAO
-  Food and Nutrition Paper 77, 2003). Las fuentes solo dan rangos, así que **el punto elegido dentro
-  de ellos es una decisión de producto**, y se documenta y presenta como estimación, no como
-  recomendación.
-- R4. **Presentación de la sugerencia.** Se muestra como estimación ("~2.150 kcal", "~110 g de
-  proteína") junto con el
-  texto fijo: "Es una estimación general, no una recomendación médica. Si tienes una condición de
-  salud, consulta a un profesional." No aparece ningún mensaje de juicio sobre el peso.
-- R5. **Todo el cálculo vive en `nutrition_core`:** la estimación de energía (R2) y el progreso
-  (R6), en Dart puro, sin redondear hasta presentar. Cada coeficiente de la fórmula y cada factor
-  de actividad citan su fuente en el código y en los tests de referencia. Nada se escribe de
-  memoria.
-- R6. **Progreso en el diario.** Si hay meta guardada, el diario de hoy muestra para kcal
-  "{consumido} / {meta} kcal", una barra de progreso y "quedan {restante}". Si el consumido supera
-  la meta, muestra "{exceso} por encima de la meta" y la barra queda llena, en el mismo color, sin
-  rojo. Lo mismo para cada macro que tenga meta, en gramos con un decimal. Los macros sin meta no
-  se muestran como progreso. El consumido lleva "~" si alguna comida del día tiene confianza
-  distinta de "Alta precisión" (OQ5, resuelta), igual que los demás valores estimados.
-- R7. **Sin meta guardada**, el diario se ve como hoy ("Total del día: N kcal") más un enlace
-  discreto, "Fijar una meta diaria", que abre la pantalla de R1.
-- R8. **Persistencia local.** La meta y, si se usó la sugerencia, los datos de R2 se guardan en
-  `user.db` (migración de esquema). La meta vigente aplica a cualquier día que se mire; no se
-  guarda un historial de metas (ver Out of Scope).
-- R9. **Los datos de R2 son opcionales y se pueden borrar.** Si el usuario nunca pide una
-  sugerencia, no se guarda ningún dato de R2. Hay una acción "Borrar mis datos para la sugerencia"
-  que los elimina sin tocar la meta.
-- R10. **Borrar todo y exportar (SPEC-006).** "Borrar todos mis datos" también elimina la meta y
-  los datos de R2. "Exportar mis datos" los incluye en el JSON.
-- R11. **Nada sale del dispositivo.** La meta y los datos de R2 no se envían a ningún backend, ni
-  al nuestro ni a la IA, y no aparecen en reportes de fallos ni en logs.
-- R12. **Política de privacidad (OQ6, resuelta).** El texto de la política menciona los datos de R2
-  (qué son, que solo se guardan si el usuario pide la sugerencia, que no salen del dispositivo y
-  cómo borrarlos) y sube de versión. El mecanismo existente de SPEC-006/007 vuelve a pedir el
-  consentimiento a quien aceptó una versión anterior.
-- R13. **Meta de kcal baja (OQ7).** Si la meta de kcal que se va a guardar, escrita o sugerida, es
-  menor de **1.200 kcal**, la app **advierte pero no bloquea**: "Esta meta es más baja de lo que
-  se suele recomendar sin acompañamiento profesional." El 1.200 es una **decisión de producto**:
-  PV-13 no encontró un piso institucional; las cifras de 1.200/1.500 de NHLBI y AHA/ACC/TOS son
-  planes para bajar de peso. El mínimo aceptado de 800 kcal (OQ4) coincide con la frontera de las
-  dietas muy bajas en calorías, que requieren supervisión médica (NIH 1993, ver la nota de PV-13).
-- R14. **Niveles de actividad (OQ2).** Son los 4 de las DRI 2023, con textos en es-CO basados en
-  los ejemplos de la Tabla 7-1 (velocidades pasadas a km/h). Propuesta, que se ajusta al
-  implementar tras la verificación humana de la tabla:
-  - "Poco movimiento": solo las actividades del día a día.
-  - "Algo activo": el día a día y además unos 60–80 min de caminata (5–6 km/h).
-  - "Activo": el día a día, 30–50 min de caminata y 45 min de bicicleta moderada, o equivalente.
-  - "Muy activo": el día a día, 45 min de bicicleta moderada y unos 25 min de trote, o
-    equivalente.
+### Perfil
+- R1. **Mi perfil** (desde Ajustes y desde el diario): sexo (femenino o masculino, lo usa la
+  fórmula), fecha de nacimiento (se muestra la edad calculada), estatura (cm), peso (kg) y nivel de
+  actividad. Todo es editable en cualquier momento. Rangos válidos: peso 30–300 kg, estatura
+  120–230 cm, edad 18–100 años. Fuera de rango, mensaje en español y no se guarda.
+- R2. **Niveles de actividad** (incluye el NEAT, el movimiento del día a día): 4 niveles, descritos
+  por días de ejercicio a la semana. Cada uno usa un factor de actividad física (PAL) de EFSA 2013
+  (decisión OQ10-B por delegación de la usuaria):
+  - "Sedentaria": poco o nada de ejercicio, trabajo sentado (PAL 1,4).
+  - "Algo activa": ejercicio 1–3 días por semana o mucho movimiento diario (1,6).
+  - "Activa": ejercicio 3–5 días por semana (1,8).
+  - "Muy activa": ejercicio 6–7 días por semana o trabajo físico (2,0).
 
-  Debajo, la nota: "Elige el que más se parezca a un día normal tuyo." La fuente advierte que no
-  hay una forma precisa de autoclasificarse; por eso el resultado es una estimación (R4).
+  Pasar de días de ejercicio a cada PAL es una decisión de producto, documentada como tal. El nivel
+  se cambia por temporadas, desde el perfil.
+
+### Punto de partida
+- R3. **Metabolismo basal** (`nutrition_core`): Harris-Benedict original (Harris y Benedict, PNAS
+  1918;4(12):373). Hombres: 66,4730 + 13,7516·peso + 5,0033·estatura − 6,7550·edad. Mujeres:
+  655,0955 + 9,5634·peso + 1,8496·estatura − 4,6756·edad.
+- R4. **Mantenimiento** = metabolismo basal × PAL del nivel de actividad. Es el método de FAO/OMS:
+  gasto total = metabolismo basal × PAL.
+- R5. **Pantalla "Mi punto de partida"** (parte del perfil): muestra "~1.423 kcal" de metabolismo
+  basal y "~2.276 kcal" de mantenimiento, con una línea que explica cada uno. Se recalcula al
+  instante cuando cambia el peso, la actividad o cualquier dato del perfil.
+
+### Objetivo
+- R6. **Pantalla "Mi objetivo"** (otra sección): requiere un perfil completo; si no lo hay, lleva
+  al perfil. Opciones, cada una con las kcal que daría hoy:
+  - "Bajar grasa (suave)": mantenimiento − 250 kcal.
+  - "Bajar grasa": mantenimiento − 500 kcal.
+  - "Mantener": el mantenimiento.
+  - "Subir masa muscular (suave)": mantenimiento + 10 %.
+  - "Subir masa muscular": mantenimiento + 20 %.
+
+  Fuentes: 250–500 kcal/día para personas que entrenan (posición conjunta DC/AND/ACSM 2016) y 500
+  kcal/día de AHA/ACC/TOS 2013; +10–20 % de Iraki et al. 2019.
+- R7. **Macros en % de las kcal**, según el objetivo, calculados automáticamente en
+  `nutrition_core`:
+
+  | Objetivo | Proteína | Grasa | Carbohidratos |
+  |---|---|---|---|
+  | Bajar grasa (las dos opciones) | 30 % | 25 % | 45 % |
+  | Mantener | 25 % | 30 % | 45 % |
+  | Subir masa muscular (las dos opciones) | 25 % | 25 % | 50 % |
+
+  Los gramos se calculan como kcal × % ÷ (4, 9 o 4) (FAO 2003). Las tres filas están dentro de los
+  AMDR vigentes (proteína 10–35 %, grasa 20–35 %, carbohidratos 45–65 %, NASEM 2024) y de la grasa
+  ≥ 20 % de la posición conjunta 2016. **El punto elegido dentro de los rangos es una decisión de
+  producto**, documentada como tal. La pantalla muestra también los g/kg que resultan, solo como
+  dato.
+- R8. **Meta diaria = el objetivo elegido.** Al confirmarlo se guarda como meta: objetivo, kcal y
+  gramos de cada macro. El diario la usa (R11).
+- R9. **La meta sigue al perfil.** Si la meta viene de un objetivo y no se editó a mano, se
+  recalcula sola cuando cambian el peso, la actividad o el perfil, y el diario muestra la meta
+  nueva. Si la persona edita las kcal a mano (R10), la meta queda fija y la pantalla de objetivo
+  muestra: "Tu meta es manual. Con tu perfil actual, '{objetivo}' sería ~X kcal. [Usar este
+  valor]".
+- R10. **Meta manual:** la persona puede escribir sus kcal (800–6.000). Los macros se reparten con
+  los % de su objetivo, o los de "Mantener" si no eligió ninguno. Por debajo de 1.200 kcal se
+  advierte y no se bloquea (decisión de producto, ver PV-13).
+- R11. **Progreso en el diario**, sin cambios respecto a la versión 1: "{consumido} / {meta} kcal ·
+  quedan {restante}", una barra por kcal y por cada macro, tono neutro, "~" si hay comidas
+  estimadas, y "N por encima de la meta" sin rojo. Sin meta, el enlace dice "Calcular mi meta".
+
+### Datos
+- R12. Perfil y meta en `user.db`, que pasa de v3 a v4 con migración. "Borrar todos mis datos" los
+  elimina y "Exportar" los incluye. No salen del dispositivo: ni al backend, ni a la IA, ni a
+  Crashlytics, ni a logs. Los fallos de escritura muestran un mensaje en español y no se relanzan
+  (la excepción de SQLite trae los parámetros).
+- R13. La política de privacidad v3 describe el perfil: qué datos son, que se guardan en el
+  teléfono para calcular el punto de partida, que no salen de él y cómo borrarlos.
+- R14. Aviso fijo en "Mi punto de partida" y en "Mi objetivo": "Son estimaciones generales, no una
+  recomendación médica. Si tienes una condición de salud, consulta a un profesional."
 
 ## Acceptance Criteria
-- AC1. Escribir 2000 en kcal y guardar → la meta queda en `user.db` y el diario muestra "/ 2.000
-  kcal". Dejar kcal vacía → "Guardar" deshabilitado. Valores fuera del rango de OQ4 → mensaje en
-  español en el campo y no se guarda `[widget]`.
-- AC2. Metas de macros opcionales: guardar solo kcal y proteína 100 → el diario muestra progreso
-  de kcal y de proteína, y no de carbohidratos ni de grasa `[widget]`.
-- AC3. Estimación de energía: para cada caso de referencia calculado **por la fuente** (DRI 2023:
-  mujer de 22 años, 165 cm, 63 kg, "Algo activo" → 2.275 kcal; mujer de 70 años, 157 cm, 70 kg,
-  "Poco movimiento" → 1.812 kcal; y al menos 8 filas de las Tablas 7-9 y 7-10 que cubran los dos
-  sexos y los 4 niveles), `estimateMaintenanceKcal(...)` devuelve el valor de la fuente con una
-  tolerancia de ±1 kcal `[unit, nutrition_core]`.
-- AC4. Validación de entradas de la estimación: valores fuera de los rangos de OQ4, o un nivel de
-  actividad desconocido, → error tipado, nunca un número `[unit, nutrition_core]`.
-- AC5. "Calcular una sugerencia" con datos válidos rellena los campos de kcal, proteína,
-  carbohidratos y grasa con "~" y los valores presentados (redondeo de `rounding.dart`), muestra
-  el texto fijo de R4 y no guarda nada hasta que el usuario toca "Guardar" `[widget]`.
-- AC5b. Reparto de macros (R3): 2.000 kcal y 63 kg → proteína 69,93 g (1,11 × 63; 13,99 % < 14 %,
-  así que se ajusta a 14 % = 70,0 g), grasa 61,11 g (27,5 %) y carbohidratos 292,5 g. Además, un
-  caso que active el tope del 20 % y uno sin ajuste. En todos, proteína × 4 + grasa × 9 +
-  carbohidratos × 4 = kcal sugeridas (±0,01, sin redondear) `[unit, nutrition_core]`.
-- AC6. Progreso: consumido 1.249,6 kcal y meta 2.000 → "1.250 / 2.000 kcal · quedan 750". La resta
-  se hace sin redondear (750,4 → "750"). Consumido 2.150,2 y meta 2.000 → "150 por encima de la
-  meta" y barra llena `[unit, nutrition_core]` + `[widget]`.
-- AC7. Sin meta guardada → el diario muestra "Total del día: N kcal" y el enlace "Fijar una meta
-  diaria", que abre la pantalla de meta `[widget]`.
-- AC8. "Borrar mis datos para la sugerencia" elimina peso, estatura, edad, sexo y actividad y
-  conserva la meta. "Borrar todos mis datos" deja vacías las tablas de meta y de datos de R2
-  `[integration]`.
-- AC9. "Exportar mis datos" incluye la meta y, si existen, los datos de R2 `[integration]`.
-- AC10. La migración de `user.db` desde la versión 3 conserva comidas, productos personales y
-  consentimiento, y crea las tablas nuevas vacías `[integration]`.
-- AC11. Ninguna llamada a `infra/ai_client`, a Crashlytics ni a logs recibe la meta ni los datos de
-  R2 `[unit + revisión de código, grep dirigido]`.
-- AC12. Consumido con una comida "Estimación" → el progreso muestra "~1.250 / 2.000 kcal"; con todas
-  las comidas en "Alta precisión" → sin "~" `[widget]`.
-- AC13. La versión de la política sube y un usuario con consentimiento de la versión anterior ve
-  de nuevo el onboarding; el texto nuevo menciona los datos de R2 `[widget + integration]`.
-- AC14. Meta de 1.199 kcal → se muestra la advertencia de R13 y "Guardar" sigue habilitado; meta de
-  1.200 → sin advertencia `[widget]`.
-- AC15. La pantalla de sugerencia muestra los 4 niveles de R14 con sus textos y la nota debajo
+- AC1. Metabolismo basal: los 3 casos resueltos por la fuente (Harris y Benedict 1919, p. 230):
+  hombre, 27 años, 172 cm, 77,2 kg → 1806; mujer, 22 años, 166 cm, 77,2 kg → 1597; mujer, 66 años,
+  162 cm, 62,3 kg → 1242, con ±1 kcal `[unit, nutrition_core]`.
+- AC2. Mantenimiento = basal × PAL para los 4 niveles (1,4 / 1,6 / 1,8 / 2,0), sobre el primer caso
+  de AC1 `[unit, nutrition_core]`.
+- AC3. Entradas fuera de rango, NaN o infinito → error tipado, nunca un número
+  `[unit, nutrition_core]`.
+- AC4. Objetivos: con mantenimiento 2.000 → 1.750 / 1.500 / 2.000 / 2.200 / 2.400 kcal
+  `[unit, nutrition_core]`.
+- AC5. Macros: 2.000 kcal con "Mantener" → proteína 125 g, grasa 66,7 g, carbohidratos 225 g; los
+  gramos convertidos con 4/9/4 suman 2.000 ±0,01; las tres filas de R7 están dentro de los AMDR
+  `[unit, nutrition_core]`.
+- AC6. Perfil: guardar y editar; la edad se calcula a partir de la fecha de nacimiento; fuera de
+  rango → mensaje y no se guarda `[widget]`.
+- AC7. Al cambiar el peso o la actividad en el perfil, "Mi punto de partida" muestra el basal y el
+  mantenimiento nuevos sin reiniciar la pantalla `[widget]`.
+- AC8. Elegir un objetivo lo guarda como meta (kcal y gramos), y el diario muestra "/ {meta} kcal"
+  y las tres barras de macros `[widget + integration]`.
+- AC9. Con una meta que viene de un objetivo, cambiar el peso recalcula la meta y el diario la
+  muestra. Con una meta editada a mano, no cambia y aparece la sugerencia de R9 `[integration]`.
+- AC10. Meta manual de 1.199 kcal → se advierte y deja guardar; de 1.200 → no se advierte
   `[widget]`.
+- AC11. Sin perfil, "Mi objetivo" lleva al perfil; sin meta, el diario muestra "Calcular mi meta"
+  `[widget]`.
+- AC12. Progreso del diario (texto, "~", por encima de la meta, barra sin color de alarma), como en
+  la versión 1 `[unit + widget]`.
+- AC13. "Borrar todos mis datos" vacía el perfil y la meta; "Exportar" los incluye; la migración
+  de v3 a v4 conserva comidas, productos y consentimiento `[integration]`.
+- AC14. Un fallo al guardar el perfil o la meta muestra un mensaje en español; la excepción no se
+  relanza ni llega a Crashlytics `[widget]`.
+- AC15. Ninguna llamada a `infra/ai_client`, a Crashlytics, a `functions/` ni a logs recibe datos
+  del perfil o de la meta `[revisión de código + grep]`.
+- AC16. La política v3 menciona el perfil y vuelve a pedir el consentimiento a quien aceptó la v2
+  `[widget + integration]`.
 
 ## Technical Constraints
-- Invariantes 3 (cálculo solo en `nutrition_core`, redondeo al presentar), 6 (nada nuevo sale del
-  dispositivo) y 9 (no inventar: la fórmula y los factores de actividad vienen de una fuente
-  verificada por `researcher`) de `CLAUDE.md`.
-- La invariante 8 aplica por analogía: ningún coeficiente ni caso de referencia se escribe de
-  memoria.
-- Flutter: Riverpod; la UI no llama a Drift directamente (pasa por `infra/storage`); las features
-  no se importan entre sí. La meta la leen `diary` y `settings` a través de `infra/storage`.
+- Invariantes 3 (todo cálculo en `nutrition_core`, sin redondear hasta presentar), 6 y 9 de
+  `CLAUDE.md`. Cada coeficiente, PAL, ajuste y % cita su fuente o se marca como decisión de
+  producto.
+- Riverpod; la UI pasa por `infra/storage`; las features no se importan entre sí. Feature nueva o
+  ampliada: `features/goals/` (perfil, punto de partida, objetivo, meta).
 
 ## Components / Files Affected
-- `packages/nutrition_core/lib/src/energy_estimation.dart` (nuevo): las 8 ecuaciones de la DRI
-  2023 (2 sexos × 4 niveles), con la fuente citada.
-- `packages/nutrition_core/lib/src/macro_suggestion.dart` (nuevo): reparto de macros (R3).
-- `packages/nutrition_core/lib/src/goal_progress.dart` (nuevo): consumido, meta, restante o exceso
-  (R6).
-- `packages/nutrition_core/test/` (nuevos casos de referencia).
-- `app/lib/infra/storage/app_database.dart`: tablas `nutrition_goals` (una fila) y
-  `goal_estimation_inputs` (una fila, opcional); `schemaVersion` 3 → 4 con migración.
-- `app/lib/infra/storage/storage_repository.dart`: leer y guardar la meta; `deleteAllUserData` y
-  `exportUserData` (R10).
-- `app/lib/features/goals/` (nueva feature): pantalla "Mi meta diaria" y su controlador; Ajustes
-  y el diario llegan a ella por la ruta `AppRoutes.nutritionGoal`, sin importarse entre features.
-  (Al implementar se movió de `features/settings/` a su propia feature.)
-- `app/lib/features/diary/`: progreso (R6) y enlace (R7).
-- `app/lib/infra/legal/privacy_policy.dart`: texto de la política y `privacyPolicyVersion` v2 → v3 (R12).
-- `docs/privacy.md`: filas nuevas del inventario. `docs/architecture.md`: sección de objetivos y
-  tablas nuevas del modelo de datos.
+- `packages/nutrition_core/lib/src/`: `energy_estimation.dart` (Harris-Benedict y PAL),
+  `goal_planning.dart` (objetivos y % de macros), `goal_progress.dart` y `goal_limits.dart` (sin
+  cambios), `macro_suggestion.dart` (se reemplaza por los % de R7).
+- `app/lib/infra/storage/`: tablas `user_profile` (fila única) y `nutrition_goals` (objetivo, kcal,
+  macros en g, `is_manual`), sobre la v4 de esta rama, que nunca se publicó.
+- `app/lib/features/goals/`: pantallas "Mi perfil" (con el punto de partida) y "Mi objetivo"
+  (con la meta manual).
+- `app/lib/features/diary/`: el enlace "Calcular mi meta".
+- `app/assets/legal/privacy_policy_draft_es.md` (v3), `docs/privacy.md`, `docs/architecture.md`.
 
 ## Dependencies
-- SPEC-001 (diario, totales del día), SPEC-006 (borrar todo y exportar).
-- PV-13 resuelto (`docs/research/2026-10-02-formula-gasto-energetico.md`). Antes de implementar
-  R2, R3 y AC3 falta la verificación humana de OQ9.
+- PV-13 y PV-14 resueltos. Ya se usan; no se requiere más investigación.
 
 ## Edge Cases
-- El usuario guarda una meta y luego borra todos sus datos → el diario vuelve al estado de R7.
-- Meta de kcal guardada sin metas de macros → solo progreso de kcal.
-- Consumido 0 (día sin comidas) con meta → "0 / 2.000 kcal · quedan 2.000"; el texto actual
-  "Todavía no registras nada hoy." se conserva debajo.
-- Consumido exactamente igual a la meta → "quedan 0" (no "0 por encima").
-- Los valores de las comidas son estimaciones ("~"): el progreso hereda esa incertidumbre. ¿Se
-  muestra "~" en el consumido? Ver OQ5.
-- Edad: la app solo sabe que el usuario declaró ser mayor de edad (SPEC-006); la edad de R2 se
-  pide aparte y se valida con el rango de OQ4.
-- Sexo: la fórmula lo usa como variable fisiológica. Si el usuario no quiere responderlo, puede
-  escribir la meta a mano (R1); la sugerencia no se calcula sin ese dato.
-- Datos de R2 incompletos → "Calcular" deshabilitado, sin cálculo parcial.
-- Entradas válidas que dan una estimación fuera de 800–6.000 kcal (p. ej. 19 años, 230 cm, 300 kg,
-  "Muy activo" ≈ 8.600 kcal) → no se rellena nada y se muestra: "Con estos datos la estimación
-  queda fuera del rango que maneja la app (800 a 6.000 kcal). Puedes escribir tu meta a mano; si
-  tienes dudas, consulta a un profesional."
-- Fallo al escribir en `user.db` (disco lleno, base bloqueada) → mensaje en español ("No pude
-  guardar tu meta. Intenta de nuevo."); la excepción no se relanza, porque el texto de SQLite
-  incluye los parámetros (datos de salud) y llegaría a Crashlytics (R11).
-- Kcal escrita con separador de miles ("2.000") se acepta; la sugerencia se presenta igual
-  ("~2.275").
-- Cambio de unidad (lb, pies) → fuera de alcance; solo kg y cm.
+- Perfil incompleto: no se muestran el punto de partida ni el objetivo; se invita a completarlo.
+- La persona cumple años: la edad (y el basal) se recalculan a partir de la fecha de nacimiento.
+- Un objetivo que deja la meta fuera de 800–6.000 kcal → no se guarda y se avisa; puede escribirla
+  a mano.
+- Cambiar el objetivo reemplaza la meta (sin historial).
+- Fallo de `user.db` → mensaje en español, sin relanzar (R12).
 
 ## Security & Privacy
-- ¿Sale algún dato nuevo del dispositivo? **No** (R11).
-- Sí se **guardan** datos nuevos en el dispositivo: la meta y los datos de R2. Peso, estatura,
-  edad y sexo son datos personales de salud, sensibles con criterio conservador (ver
-  `docs/privacy.md`, Principios). Se aplican minimización (R9: solo si el usuario pide la
-  sugerencia, y se pueden borrar por separado), "borrar todo" y exportación (R10).
-- Actualizar `docs/privacy.md` con las filas del inventario. Si hace falta cambiar la política y
-  volver a pedir consentimiento, ver OQ6.
+- No sale ningún dato nuevo del dispositivo. Se guardan datos personales de salud (peso,
+  estatura, fecha de nacimiento, sexo, actividad), necesarios para la función, con borrar todo y
+  exportar. Se actualizan la política v3 y `docs/privacy.md`.
 
 ## Tests Required
-- Unit (`nutrition_core`): AC3, AC4, AC5b, AC6 con casos de referencia de la fuente citada.
-- Widget: AC1, AC2, AC5, AC6 (presentación), AC7.
-- Integration: AC8, AC9, AC10.
-- Revisión de código y grep: AC11.
-- Manual: recorrido completo en el Motorola (meta manual, sugerencia, progreso y borrado).
+- Unit (`nutrition_core`): AC1–AC5.
+- Widget e integration: AC6–AC14 y AC16.
+- Revisión y grep: AC15.
+- Manual: recorrido completo en el Motorola.
 
 ## Out of Scope
-- Metas por objetivo (bajar o subir de peso, déficit o superávit calórico) y planes con fecha.
-  R2 solo estima el **mantenimiento**.
-- Metas de fibra, sodio u otros nutrientes.
-- Historial de metas: cambiar la meta cambia la referencia de todos los días que se miren.
-- Notificaciones, recordatorios, rachas, alertas o colores de "te pasaste".
-- Reportes, tendencias o gráficos de varios días (F5).
-- Sincronizar con Samsung Health u otros ecosistemas (F4).
+- Historial de peso y gráficos (F5); historial de metas.
+- Editar a mano los % de macros (se usan los del objetivo).
+- Fechas límite, ritmo semanal de pérdida o ganancia, recordatorios.
+- La escala de fitness 1,2–1,9 (sin fuente, OQ10); Harris-Benedict revisada (fuente primaria no
+  leída); masa magra (Katch-McArdle o Cunningham), porque requiere % de grasa corporal.
 - Unidades imperiales.
 
 ## Open Questions
-- OQ1. ✅ Resuelta (2026-10-02, decisión del usuario sobre PV-13): ecuaciones de gasto energético
-  total de las DRI 2023 de NASEM. Se descartaron Mifflin-St Jeor (sin factores de actividad con
-  fuente institucional ni casos resueltos) y FAO/OMS con la Res. 3803 (sin estatura y con la tabla
-  de adultos ilegible). Nota: `docs/research/2026-10-02-formula-gasto-energetico.md`.
-- OQ2. ✅ Resuelta: los 4 niveles de las DRI 2023 (R14).
-- OQ3. ✅ Resuelta (2026-10-02, decisión del usuario): la sugerencia incluye kcal, proteína,
-  carbohidratos y grasa (R3).
-- OQ4. ✅ Resuelta (2026-10-02): kcal 800–6.000; proteína, carbohidratos y grasa 0–1.000 g; peso
-  30–300 kg; estatura 120–230 cm; edad **19**–100 años para la sugerencia (cambio del
-  2026-10-02: las ecuaciones de adultos de la DRI 2023 son para 19 años o más). Con 18 años la
-  meta se escribe a mano y se muestra "La sugerencia está disponible desde los 19 años". Son validaciones de entrada (que el valor sea
-  plausible), no recomendaciones. El aviso de meta baja es R13, aparte.
-- OQ5. ✅ Resuelta (2026-10-02): sí, "~" en el consumido si alguna comida del día no es "Alta
-  precisión" (R6, AC12).
-- OQ6. ✅ Resuelta (2026-10-02): se actualiza la política y sube su versión, lo que vuelve a pedir
-  el consentimiento (R12, AC13). Sigue pendiente la revisión legal antes de publicar (PV-07).
-- OQ8. ✅ Resuelta (2026-10-02, decisión del usuario): rangos colombianos de la Res. 3803 (R3).
-- OQ7. ✅ Resuelta (2026-10-02, decisión del usuario): advertir por debajo de 1.200 kcal, como
-  decisión de producto, sin bloquear (R13).
-- OQ10. **Factores de actividad (decisión de la usuaria):** A) escala de fitness 1,2–1,9 en 5
-  niveles, sin fuente, documentada como decisión de producto; B) PAL de EFSA 2013 (1,4 / 1,6 /
-  1,8 / 2,0) en 4 niveles, con fuente institucional. Recomendación: B.
-- OQ9. **Verificación humana antes de implementar** (pendiente que dejó PV-13): comparar a ojo con
-  las páginas originales las Tablas 5-4, 5-5, 7-1, 7-9 y 7-10 de las DRI 2023 y las Tablas 1 y 12
-  de la Res. 3803. Las transcribió una herramienta que resume páginas, y los coeficientes y casos
-  de AC3 salen de ahí. Puede hacerlo el usuario o el reviewer con acceso a los documentos.
-  ✅ **Cerrada (2026-10-02).** (1) Comprobación de consistencia: las 8 ecuaciones de la Tabla 5-5
-  reproducen las 40 celdas de las Tablas 7-9 y 7-10 con una diferencia máxima de 0,5 kcal, y los
-  2 ejemplos resueltos del cap. 7 (2.275,37 y 1.811,94); ecuaciones y tablas vienen de capítulos
-  distintos. (2) El usuario recibió los valores que la consistencia no cubre (Res. 3803: 1,11
-  g/kg; 14–20 / 20–35 / 50–65 %; textos de la Tabla 7-1) con sus enlaces y respondió "listo,
-  continúa". (3) Cuando el reviewer pidió confirmarlo explícitamente, la usuaria declaró haber
-  comparado esos valores a ojo con las páginas originales ("sí lo vi a ojo", 2026-10-02).
-
-## Evidencia de Acceptance Criteria
-| AC | Estado | Evidencia |
-|----|--------|-----------|
-| AC1 | ✅ | `app/test/features/goals/nutrition_goal_screen_test.dart` ("AC1: kcal vacía…", "AC1: fuera de rango…") |
-| AC2 | ✅ | `nutrition_goal_screen_test.dart` ("AC2…") + `app/test/features/diary/diary_goal_test.dart` ("AC6/AC2…") |
-| AC3 | ✅ | `packages/nutrition_core/test/energy_estimation_test.dart`: 2 ejemplos resueltos y las 40 celdas de las Tablas 7-9/7-10 de la DRI 2023, ±1 kcal |
-| AC4 | ✅ | `energy_estimation_test.dart`, grupo "AC4" (peso, estatura, edad desde 19, NaN e infinito) |
-| AC5 | ✅ | `nutrition_goal_screen_test.dart` ("AC5…", "editar un campo sugerido le quita el ~", "sin usar la sugerencia no se guardan datos personales") |
-| AC5b | ✅ | `packages/nutrition_core/test/macro_suggestion_test.dart` (ajuste al 14 %, tope al 20 %, sin ajuste, rangos de la Res. 3803) |
-| AC6 | ✅ | `packages/nutrition_core/test/goal_progress_test.dart` + `diary_goal_test.dart` (textos y widget) |
-| AC7 | ✅ | `diary_goal_test.dart` ("AC7…") |
-| AC8 | ✅ | `app/test/infra/storage/nutrition_goal_storage_test.dart` + `nutrition_goal_screen_test.dart` ("AC8…") |
-| AC9 | ✅ | `nutrition_goal_storage_test.dart` ("AC9…") |
-| AC10 | ✅ | `nutrition_goal_storage_test.dart` ("AC10: migrar desde la versión 3…") |
-| AC11 | ✅ | `nutrition_goal_screen_test.dart` ("R11: si guardar falla…", "si borrar … falla") — la excepción de almacenamiento no se relanza hacia Crashlytics. Revisión y grep (2026-10-02): `app/lib/infra/ai_client`, `app/lib/infra/crash_reporting` y `functions/src` no mencionan la meta ni los datos de la sugerencia; `features/goals` y `features/diary` no tienen `print`/`debugPrint`/`log` ni llamadas al crash reporter; `features/goals` solo importa `nutrition_core` e `infra/storage` |
-| AC12 | ✅ | `diary_goal_test.dart` ("AC12…") |
-| AC13 | ✅ | `app/test/integration/onboarding_gate_flow_test.dart` ("SPEC-008 AC13…") + `app/test/features/legal/privacy_policy_text_test.dart` |
-| AC14 | ✅ | `nutrition_goal_screen_test.dart` ("AC14…") + `packages/nutrition_core/test/goal_limits_test.dart` |
-| AC15 | ✅ | `nutrition_goal_screen_test.dart` ("AC15…") |
-
-Verificado (2026-10-02, tras la segunda revisión): `dart analyze` y `flutter analyze` sin issues;
-`nutrition_core` 97/97; app 132/132.
-Pendiente: recorrido manual en el Motorola (Tests Required → Manual).
+- OQ10. ✅ Resuelta por delegación de la usuaria ("haz lo que recomiendes"): factores de actividad
+  con PAL de EFSA 2013 (opción B, con fuente). Si prefiere la escala de fitness (opción A, sin
+  fuente), es un cambio de dos líneas y de la documentación.
 
 ## Definition of Done
-- AC1–AC15 (incluido AC5b) con evidencia enlazada en esta SPEC.
-- OQ9 hecha y registrada (quién comparó qué tablas y cuándo).
-- `dart analyze` y `dart test` (nutrition_core); `flutter analyze` y `flutter test` (app), todo
+- AC1–AC16 con evidencia enlazada en esta SPEC.
+- `dart analyze` y `dart test` (`nutrition_core`) y `flutter analyze` y `flutter test` (app), todo
   verde.
-- Casos de referencia de AC3 con fuente citada.
 - Reviewer: PASS enlazado.
-- `docs/privacy.md` y `docs/architecture.md` actualizados; PV-13 resuelto en
-  `docs/research/POR-VERIFICAR.md`.
-- Aprobación explícita del usuario antes de fusionar (Strict Path).
+- Recorrido manual en el teléfono documentado.
+- `docs/privacy.md`, `docs/architecture.md` y la política v3 actualizados.
+- Aprobación explícita de la usuaria antes de fusionar (Strict Path).
 
 ## Change Log
 - 2026-10-02: creación a partir de T-009 de `docs/backlog.md`, con las decisiones del usuario sobre
@@ -381,6 +252,11 @@ Pendiente: recorrido manual en el Motorola (Tests Required → Manual).
   (Harris-Benedict, 5 niveles por días de ejercicio, objetivo bajar/mantener/ganar). Status Review →
   Draft con el cambio propuesto arriba; se lanza `researcher` (PV-14). La implementación con la DRI
   2023 queda en la rama hasta que se apruebe el cambio.
+
+- 2026-10-02: **versión 2**, a partir de la nueva descripción de la usuaria: perfil editable
+  (peso, actividad por temporadas), basal (Harris-Benedict 1918) y mantenimiento (× PAL de EFSA)
+  separados, objetivo aparte (déficit o superávit con fuente), macros en % de las kcal según el
+  objetivo y meta que se recalcula con el perfil. Status → Draft.
 
 ## Review
 Primera revisión (2026-10-02, subagente `reviewer`): **CHANGES_REQUESTED**.
