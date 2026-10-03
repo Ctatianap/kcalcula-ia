@@ -116,7 +116,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     Tema global del diseño (paleta, tipografía Outfit embebida, tarjetas, botones, anillos de progreso)
     y navegación inferior Hoy / Historial / Progreso con botón + para registrar.
   dependencies: [T-008]
-  spec_required: true
+  spec_required: true    # specs/SPEC-010-sistema-visual.md
 - id: T-012
   title: Rediseño de "Hoy"
   objective: Semana con anillos por día, anillo de kcal, anillos de macros y tarjetas por comida.
