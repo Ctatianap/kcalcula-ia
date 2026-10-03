@@ -5,8 +5,8 @@ import '../../infra/storage/storage_repository.dart';
 /// SPEC-008 R4: mantenimiento a partir del perfil guardado. Si hay un
 /// mantenimiento medido válido, se usa ese aunque los demás datos ya no
 /// sirvan para la fórmula (no los necesita). Si no, el de la fórmula, o
-/// `null` si los datos ya no son válidos (p. ej. pasó de 100 años). Todo el cálculo vive en `nutrition_core`;
-/// aquí solo se traduce el perfil guardado.
+/// `null` si los datos ya no son válidos (p. ej. pasó de 100 años). Todo
+/// el cálculo vive en `nutrition_core`; aquí solo se traduce el perfil.
 double? maintenanceForProfile(UserProfileData profile, DateTime today) {
   final measured = profile.measuredMaintenanceKcal;
   if (measured != null && isValidGoalKcal(measured)) return measured;

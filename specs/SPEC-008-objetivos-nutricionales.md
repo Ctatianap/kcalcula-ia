@@ -344,6 +344,10 @@ issues; `nutrition_core` 63/63; app 139/139 (tras OQ10-A, el mantenimiento medid
   perfil inválido (Edge Cases); textos y cifras de la SPEC (v6, AC7, AC8, AC9); `parseKcal` movido a
   `goal_calculation.dart`.
 
+- 2026-10-03: reviewer **PASS** sobre `1f3df69` (app 139/139, `nutrition_core` 63/63). Pendiente de
+  la usuaria: el recorrido manual y la aprobación para fusionar, que incluye el cambio de AC17 de
+  `[widget + integration]` a `[widget + unit]`.
+
 ## Review
 Primera revisión (2026-10-02, subagente `reviewer`): **CHANGES_REQUESTED**.
 - [MAJOR] Fallos de escritura en `user.db` llegaban a Crashlytics con los parámetros de SQLite.
@@ -374,3 +378,9 @@ Re-revisión (2026-10-02, sobre `2143711`): **PASS**.
   fuera de `nutrition_core`.
 - 2 MINOR (cifra de tests; lectura fallida que dejaba guardar un formulario vacío), corregidos
   después: app 130/130.
+
+### Escala de fitness y mantenimiento medido (incremental)
+- Revisión de `fc05e53`: **CHANGES_REQUESTED**. [MAJOR] `architecture.md` desactualizado; [MAJOR]
+  faltaba evidencia de que el medido se exporta. Además, 4 MINOR.
+- Revisión de `1f3df69`: **PASS**. 2 MINOR: el cambio del tipo de prueba de AC17 debe aprobarlo la
+  usuaria; un comentario de más de 80 columnas, ya corregido.
