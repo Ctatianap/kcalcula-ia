@@ -112,12 +112,14 @@ kcal enteras (redondeo half-up) y macros con 1 decimal. Los valores estimados se
   `GoalProgress.ratio` (sin tope) y `presentPercent` dan el "% de tu meta" del Historial (SPEC-013).
 - Estado del día (SPEC-011, `day_status.dart`): por debajo < 90 % de la meta ≤ en tu meta ≤ 110 % <
   por encima (tolerancia: decisión de producto). Todos los días se comparan con la meta vigente.
+
 ## Progreso (SPEC-014)
 - `period_summary.dart` en `nutrition_core`: promedio diario de kcal y macros **solo sobre los días
   con al menos un registro** (decisión de producto: un día sin registros no es un día en 0), días en
   meta con la regla de SPEC-011 y promedios por semana (lunes a domingo). Sin redondear hasta
   presentar. La app agrupa las comidas por la fecha local de `eaten_at` con una sola consulta por
-  periodo (7, 30 o 90 días, hoy incluido).
+  periodo (7, 30 o 90 días, hoy incluido): `mealsBetween` lee las comidas y luego todos sus ítems en
+  lote.
 
 ## Interfaz (SPEC-010)
 - Tokens y tema en `app/lib/ui/theme.dart` (`KColors`, `DayGoalStatus`, `buildAppTheme()`); ninguna

@@ -165,7 +165,7 @@ class _ProgressBody extends StatelessWidget {
                 '${data.summary.loggedDays == 1 ? 'día' : 'días'} con registros',
                 style: secondary,
               ),
-              if (goal != null) ...[
+              if (goal != null && data.summary.daysOnGoal != null) ...[
                 const SizedBox(height: 10),
                 Wrap(
                   spacing: 12,
