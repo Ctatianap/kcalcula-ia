@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app_routes.dart';
 import '../../infra/ai_client/ai_client_providers.dart';
+import '../../infra/food_resolution/meal_draft.dart';
 import '../../infra/catalog/catalog_providers.dart';
 import '../../infra/clock.dart';
 import '../../infra/storage/storage_providers.dart';
@@ -9,6 +11,7 @@ import '../../ui/components/k_card.dart';
 import '../../ui/components/privacy_note.dart';
 import '../../ui/theme.dart';
 import 'meal_analysis_controller.dart';
+import 'food_search_screen.dart';
 import 'meal_detail_view.dart';
 
 /// SPEC-012: "Analizando" → "Detalle de comida" o "Algo salió mal", para un
@@ -50,6 +53,16 @@ class _MealAnalysisScreenState extends ConsumerState<MealAnalysisScreen> {
     super.dispose();
   }
 
+  /// SPEC-018 R4: desde el error, buscar a mano y abrir el detalle con ese
+  /// alimento (en lugar de esta pantalla; Corregir sigue volviendo al texto).
+  Future<void> _searchManually() async {
+    final item = await pickFoodManually(context);
+    if (item == null || !mounted) return;
+    _controller.cancel();
+    Navigator.of(context)
+        .pushReplacementNamed(AppRoutes.review, arguments: MealDraft([item]));
+  }
+
   void _back() {
     _controller.cancel();
     Navigator.of(context).pop();
@@ -70,6 +83,7 @@ class _MealAnalysisScreenState extends ConsumerState<MealAnalysisScreen> {
           isAiError: isAiError,
           onRetry: _controller.run,
           onBack: _back,
+          onSearchManually: isAiError ? _searchManually : null,
         ),
         AnalysisReady(:final review) => MealDetailView(
           controller: review,
@@ -209,12 +223,16 @@ class AnalysisErrorView extends StatelessWidget {
   final VoidCallback onRetry;
   final VoidCallback onBack;
 
+  /// SPEC-018 R4: "Buscar en la base manualmente" (solo si falló la IA).
+  final VoidCallback? onSearchManually;
+
   const AnalysisErrorView({
     super.key,
     required this.message,
     required this.isAiError,
     required this.onRetry,
     required this.onBack,
+    this.onSearchManually,
   });
 
   @override
@@ -226,81 +244,93 @@ class AnalysisErrorView extends StatelessWidget {
         leading: BackButton(onPressed: onBack),
       ),
       body: SafeArea(
-        child: ListView(
+        // No perezosa: todos los botones existen aunque no quepan.
+        child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-          children: [
-            Center(
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: const BoxDecoration(
-                  color: KColors.surface,
-                  shape: BoxShape.circle,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 120,
+                  height: 120,
+                  decoration: const BoxDecoration(
+                    color: KColors.surface,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.help_outline,
+                    size: 48,
+                    color: KColors.accent,
+                  ),
                 ),
-                child: const Icon(
-                  Icons.help_outline,
-                  size: 48,
-                  color: KColors.accent,
-                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              isAiError
-                  ? 'No pude entender tu comida'
-                  : 'No pude leer tus datos',
-              textAlign: TextAlign.center,
-              style: textTheme.titleLarge,
-            ),
-            const SizedBox(height: 6),
-            Text(
-              // Sin repetir el título en el error de lectura.
-              isAiError ? message : 'Intenta de nuevo.',
-              key: const Key('analysis-error-message'),
-              textAlign: TextAlign.center,
-              style: textTheme.bodyMedium?.copyWith(
-                color: KColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'No se guardó nada en tu diario.',
-              textAlign: TextAlign.center,
-              style: textTheme.bodyMedium?.copyWith(
-                color: KColors.textSecondary,
-              ),
-            ),
-            if (isAiError) ...[
               const SizedBox(height: 20),
-              KCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (final tip in analysisErrorTips)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Icon(
-                              Icons.lightbulb_outline,
-                              size: 18,
-                              color: KColors.accent,
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(child: Text(tip)),
-                          ],
-                        ),
-                      ),
-                  ],
+              Text(
+                isAiError
+                    ? 'No pude entender tu comida'
+                    : 'No pude leer tus datos',
+                textAlign: TextAlign.center,
+                style: textTheme.titleLarge,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                // Sin repetir el título en el error de lectura.
+                isAiError ? message : 'Intenta de nuevo.',
+                key: const Key('analysis-error-message'),
+                textAlign: TextAlign.center,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: KColors.textSecondary,
                 ),
               ),
+              const SizedBox(height: 6),
+              Text(
+                'No se guardó nada en tu diario.',
+                textAlign: TextAlign.center,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: KColors.textSecondary,
+                ),
+              ),
+              if (isAiError) ...[
+                const SizedBox(height: 20),
+                KCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final tip in analysisErrorTips)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(
+                                Icons.lightbulb_outline,
+                                size: 18,
+                                color: KColors.accent,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(child: Text(tip)),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+              const SizedBox(height: 24),
+              FilledButton(onPressed: onRetry, child: const Text('Reintentar')),
+              if (onSearchManually != null) ...[
+                const SizedBox(height: 10),
+                OutlinedButton.icon(
+                  onPressed: onSearchManually,
+                  icon: const Icon(Icons.search),
+                  label: const Text('Buscar en la base manualmente'),
+                ),
+              ],
+              const SizedBox(height: 10),
+              OutlinedButton(onPressed: onBack, child: const Text('Volver')),
             ],
-            const SizedBox(height: 24),
-            FilledButton(onPressed: onRetry, child: const Text('Reintentar')),
-            const SizedBox(height: 10),
-            OutlinedButton(onPressed: onBack, child: const Text('Volver')),
-          ],
+          ),
         ),
       ),
     );

@@ -82,6 +82,37 @@ class CatalogRepository {
     return FoodAmbiguous(candidates);
   }
 
+  /// SPEC-018 R1: búsqueda por nombre o sinónimo mientras se escribe (desde
+  /// 2 letras), con prefijo por palabra: "arep" encuentra "Arepa", "tinto"
+  /// encuentra el café. Hasta [limit] alimentos, por nombre.
+  List<FoodSearchHit> search(String query, {int limit = 20}) {
+    if (!isSearchableQuery(query)) return const [];
+    final matchQuery = _ftsPrefixQuery(_normalize(query));
+    if (matchQuery.isEmpty) return const [];
+    final hits = _db
+        .select(
+          '''
+          SELECT f.id, f.name_es, f.energy_kcal FROM foods f
+          WHERE f.id IN (
+            SELECT food_id FROM food_search WHERE food_search MATCH ?
+          )
+          ''',
+          [matchQuery],
+        )
+        .map(
+          (row) => FoodSearchHit(
+            id: row['id'] as String,
+            nameEs: row['name_es'] as String,
+            energyKcal100g: (row['energy_kcal'] as num).toDouble(),
+          ),
+        )
+        .toList();
+    // Orden alfabético sin tildes ("Ñame" junto a la n, no al final, como
+    // haría la colación binaria de SQLite).
+    hits.sort((a, b) => _normalize(a.nameEs).compareTo(_normalize(b.nameEs)));
+    return hits.take(limit).toList();
+  }
+
   FoodCatalogEntry? getFoodById(String id) {
     final foodRows = _db.select('SELECT * FROM foods WHERE id = ?', [id]);
     if (foodRows.isEmpty) return null;
@@ -129,6 +160,11 @@ class CatalogRepository {
   }
 }
 
+/// SPEC-018 R1: se busca desde 2 letras o números (sin contar espacios ni
+/// signos). Única regla para la pantalla, el resolver y el catálogo.
+bool isSearchableQuery(String query) =>
+    _normalize(query).replaceAll(RegExp('[^a-z0-9]'), '').length >= 2;
+
 String _normalize(String text) {
   const withAccents = 'áéíóúÁÉÍÓÚñÑ';
   const withoutAccents = 'aeiouAEIOUnN';
@@ -137,6 +173,14 @@ String _normalize(String text) {
     result = result.replaceAll(withAccents[i], withoutAccents[i].toLowerCase());
   }
   return result;
+}
+
+/// Como [_ftsQuery], pero cada término busca por prefijo (`"arep"*`).
+String _ftsPrefixQuery(String normalized) {
+  final tokens = normalized
+      .split(RegExp(r'[^a-z0-9]+'))
+      .where((t) => t.isNotEmpty);
+  return tokens.map((t) => '"$t"*').join(' ');
 }
 
 /// Une los términos en una consulta FTS5 tipo AND, citando cada uno para

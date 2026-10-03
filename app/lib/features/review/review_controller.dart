@@ -68,23 +68,37 @@ class ReviewController extends ChangeNotifier {
     _items = [
       for (final item in draft.items)
         if (resolver.getFoodById(item.foodId) case final food?)
-          ReviewItem(
-            mention: item.mention,
-            foodQuery: food.nameEs,
-            isVague: false,
-            quantityRaw: item.quantityInput ?? item.grams,
-            unitRaw: item.quantityInput == null ? 'g' : item.unitInput,
-            sizeRaw: item.sizeInput,
-            status: ReviewItemStatus.matched,
-            food: food,
-            grams: item.grams,
-            basis: item.basis,
-            // La confianza que le dieron las reglas al registrarla: repetir
-            // una comida no la vuelve más precisa.
-            confidence: item.confidence,
-            nutrients: calculateItemNutrients(food, item.grams),
-          ),
+          _draftReviewItem(item, food),
     ];
+  }
+
+  static ReviewItem _draftReviewItem(
+    MealDraftItem item,
+    FoodCatalogEntry food,
+  ) => ReviewItem(
+    mention: item.mention,
+    foodQuery: food.nameEs,
+    isVague: false,
+    quantityRaw: item.quantityInput ?? item.grams,
+    unitRaw: item.quantityInput == null ? 'g' : item.unitInput,
+    sizeRaw: item.sizeInput,
+    status: ReviewItemStatus.matched,
+    food: food,
+    grams: item.grams,
+    basis: item.basis,
+    // La confianza que le dieron las reglas al registrarla (Recientes) o
+    // al elegir la cantidad (búsqueda manual): repetir no la mejora.
+    confidence: item.confidence,
+    nutrients: calculateItemNutrients(food, item.grams),
+  );
+
+  /// SPEC-018 R3: "Añadir" un alimento buscado a mano; los totales se
+  /// recalculan solos.
+  void addDraftItem(MealDraftItem item) {
+    final food = _resolver.getFoodById(item.foodId);
+    if (food == null) return;
+    _items.add(_draftReviewItem(item, food));
+    notifyListeners();
   }
 
   /// Resolución de cada ítem contra el catálogo y los productos personales,

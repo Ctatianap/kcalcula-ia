@@ -95,6 +95,16 @@ CatalogRepository buildFixtureCatalog({
   synonym('pechuga_de_pollo', 'pollo');
   synonym('pollo_muslo', 'pollo');
 
+  // SPEC-018: otra arepa y el café con su sinónimo "tinto" (valores de
+  // prueba, no del catálogo real).
+  food('arepa_de_queso', 'Arepa de queso', 300, p: 9, c: 30, f: 16);
+  food('cafe', 'Café', 1, p: 0.1, c: 0, f: 0);
+  synonym('cafe', 'tinto');
+  // Orden alfabético con "Ñ" (valores de prueba).
+  food('papa_cocida', 'Papa cocida', 87);
+  food('name_cocido', 'Ñame cocido', 116);
+  food('ahuyama_cocida', 'Ahuyama cocida', 20);
+
   db.execute(
     "INSERT INTO household_units (unit, ml, source_ref) VALUES ('cucharada', 15, 'fixture')",
   );
