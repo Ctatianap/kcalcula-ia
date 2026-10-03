@@ -103,8 +103,69 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     o filtrar SqliteException en el crash reporter. Hallazgo del reviewer en SPEC-008.
   dependencies: [T-008]
   spec_required: true    # specs/SPEC-009-errores-de-almacenamiento.md (Done — reviewer PASS)
+# Rediseño de la UI (diseño "kcalcula ia UI", lienzo https://claude.ai/artifact/7SVwbLxMs9qjmGydrydhbD,
+# revisado el 2026-10-03). Decisiones de la usuaria sobre los choques con lo ya aprobado ("de acuerdo con
+# todo"): (1) se mantiene Harris-Benedict + escala de fitness (el texto "Mifflin-St Jeor" del diseño es un
+# error del diseño); (2) se mantienen los 5 objetivos de SPEC-008; (3) sin rojo/verde de alarma: estados
+# del día con tonos neutros o intensidad del mismo color; (4) el perfil conserva fecha de nacimiento y
+# mantenimiento medido; (5) sin sugerencias de alimentos ("Un par de huevos…") en el MVP; (6) foto del
+# plato = F2, como Estimación y con confirmación obligatoria.
+- id: T-011
+  title: Sistema visual y navegación
+  objective: >
+    Tema global del diseño (paleta, tipografía Outfit embebida, tarjetas, botones, anillos de progreso)
+    y navegación inferior Hoy / Historial / Progreso con botón + para registrar.
+  dependencies: [T-008]
+  spec_required: true
+- id: T-012
+  title: Rediseño de "Hoy"
+  objective: Semana con anillos por día, anillo de kcal, anillos de macros y tarjetas por comida.
+  dependencies: [T-011, T-009]
+  spec_required: true
+- id: T-013
+  title: Rediseño del flujo de registro
+  objective: >
+    ¿Qué comiste? con pestañas Foto/Texto/Voz; Analizando con pasos visibles y Cancelar; Detalle con
+    tipo de comida y sello "Base verificada"; Error de la IA con consejos y Reintentar.
+  dependencies: [T-011]
+  spec_required: true
+- id: T-014
+  title: Historial (calendario)
+  objective: Calendario del mes con el estado de cada día frente a la meta y el detalle del día elegido.
+  dependencies: [T-011, T-009]
+  spec_required: true
+- id: T-015
+  title: Progreso
+  objective: Promedios de kcal y macros por semana, mes y 3 meses; días en meta (cálculo en nutrition_core).
+  dependencies: [T-011, T-009]
+  spec_required: true    # Strict (nutrition_core)
+- id: T-016
+  title: Registro de peso y tendencia
+  objective: Registrar el peso con historial y mostrar su tendencia en Progreso; el perfil usa el último.
+  dependencies: [T-015]
+  spec_required: true    # Strict (dato de salud nuevo con historial)
+- id: T-017
+  title: Exportar en CSV y PDF
+  objective: Formatos CSV (hoja de cálculo) y PDF (resumen para la nutricionista), con filtro por periodo.
+  dependencies: [T-011]
+  spec_required: true    # Strict (archivo que sale del teléfono por decisión del usuario)
+- id: T-018
+  title: Comidas recientes
+  objective: Repetir una comida registrada antes desde "¿Qué comiste?" (parte de F2).
+  dependencies: [T-013]
+  spec_required: true
+- id: T-019
+  title: Búsqueda manual en el catálogo
+  objective: Buscar y añadir alimentos del catálogo sin IA (desde el error de la IA y "Añadir" ingrediente).
+  dependencies: [T-013]
+  spec_required: true
+- id: T-020
+  title: Racha de días registrados
+  objective: Contador de días seguidos con registros, en tono neutro (opcional).
+  dependencies: [T-012]
+  spec_required: true
 - id: F2
-  title: Fase 2 — foto del plato, comidas frecuentes, confianza visual
+  title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
 - id: F3
   title: Fase 3 — corrección conversacional, marcas, historial avanzado
 - id: F4
