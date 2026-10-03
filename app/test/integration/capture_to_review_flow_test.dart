@@ -8,6 +8,7 @@ import 'package:calorias_ia/infra/storage/app_database.dart';
 import 'package:calorias_ia/infra/storage/storage_providers.dart';
 import 'package:calorias_ia/infra/storage/storage_repository.dart';
 import 'package:drift/native.dart';
+import 'package:calorias_ia/features/diary/diary_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -68,7 +69,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Diario vacío -> capturar.
-      expect(find.text('Todavía no registras nada hoy.'), findsOneWidget);
+      expect(find.text('Todavía no registras nada hoy'), findsOneWidget);
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
 
@@ -88,7 +89,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // De vuelta en "Hoy": la comida registrada aparece con su total.
-      expect(find.text('Todavía no registras nada hoy.'), findsNothing);
+      expect(find.text('Todavía no registras nada hoy'), findsNothing);
       expect(find.textContaining('450 kcal'), findsWidgets);
 
       await db.close();
@@ -148,9 +149,9 @@ void main() {
         await tester.tap(find.text('Registrar'));
         await tester.pumpAndSettle();
 
-        expect(find.widgetWithText(AppBar, 'Hoy'), findsOneWidget);
+        expect(find.byType(DiaryScreen), findsOneWidget);
         expect(find.textContaining('143 kcal'), findsWidgets);
-        expect(find.text('Todavía no registras nada hoy.'), findsNothing);
+        expect(find.text('Todavía no registras nada hoy'), findsNothing);
       },
     );
   }

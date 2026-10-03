@@ -100,7 +100,7 @@ void main() {
       await tester.tap(find.text('Registrar'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Todavía no registras nada hoy.'), findsNothing);
+      expect(find.text('Todavía no registras nada hoy'), findsNothing);
       expect(find.textContaining('210 kcal'), findsWidgets);
 
       await db.close();

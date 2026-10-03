@@ -106,6 +106,12 @@ class _FlakyRepository extends StorageRepository {
       _fails(failReads) ? Future.error(_sqliteError()) : super.mealsForDay(day);
 
   @override
+  Future<List<MealWithItems>> mealsBetween(DateTime start, DateTime end) =>
+      _fails(failReads)
+      ? Future.error(_sqliteError())
+      : super.mealsBetween(start, end);
+
+  @override
   Future<ConsentRecordData?> getConsentState() => _fails(failReads)
       ? Future.error(_sqliteError())
       : super.getConsentState();
@@ -221,7 +227,7 @@ void main() {
     await tester.tap(find.text('Reintentar'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Todavía no registras nada hoy.'), findsOneWidget);
+    expect(find.text('Todavía no registras nada hoy'), findsOneWidget);
   });
 
   testWidgets('AC5: revisión con lectura fallida → mensaje y Reintentar', (

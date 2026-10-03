@@ -8,6 +8,7 @@ import 'package:calorias_ia/features/goals/profile_screen.dart';
 import 'package:calorias_ia/infra/storage/app_database.dart';
 import 'package:calorias_ia/infra/storage/storage_providers.dart';
 import 'package:calorias_ia/infra/storage/storage_repository.dart';
+import 'package:calorias_ia/ui/components/progress_ring.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -260,8 +261,9 @@ void main() {
         expect(goal!.objective, 'loseFat');
         expect(goal.isManual, isFalse);
         expect(goal.energyKcal, closeTo(1455.95, 0.01));
-        expect(find.text('0 / 1.456 kcal · quedan 1.456'), findsOneWidget);
-        expect(find.byType(LinearProgressIndicator), findsNWidgets(4));
+        expect(find.text('/1.456'), findsOneWidget);
+        expect(find.text('kcal consumidas · quedan 1.456'), findsOneWidget);
+        expect(find.byType(ProgressRing), findsNWidgets(4));
       },
     );
 
@@ -332,7 +334,7 @@ void main() {
       // El diario muestra la meta recalculada.
       await tester.pumpWidget(const SizedBox());
       await _pump(tester, AppRoutes.diary, db: db);
-      expect(find.text('0 / 1.548 kcal · quedan 1.548'), findsOneWidget);
+      expect(find.text('/1.548'), findsOneWidget);
     });
 
     testWidgets(

@@ -109,6 +109,8 @@ kcal enteras (redondeo half-up) y macros con 1 decimal. Los valores estimados se
 - Todo en `nutrition_core`, en el dispositivo. La meta de un objetivo se recalcula al guardar el
   perfil (en la misma transacción); la meta manual queda fija.
 - El progreso del día (`GoalProgress`) resta sin redondear y redondea al presentar, en tono neutro.
+- Estado del día (SPEC-011, `day_status.dart`): por debajo < 90 % de la meta ≤ en tu meta ≤ 110 % <
+  por encima (tolerancia: decisión de producto). Todos los días se comparan con la meta vigente.
 ## Interfaz (SPEC-010)
 - Tokens y tema en `app/lib/ui/theme.dart` (`KColors`, `DayGoalStatus`, `buildAppTheme()`); ninguna
   pantalla repite colores. Componentes en `app/lib/ui/components/` (tarjeta, anillo de progreso,

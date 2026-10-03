@@ -339,15 +339,24 @@ class StorageRepository {
     };
   }
 
-  /// R12: comidas de un día local (por rango, no por igualdad de fecha, ya
-  /// que `eatenAt` incluye hora).
-  Future<List<MealWithItems>> mealsForDay(DateTime day) async {
+  /// R12: comidas de un día local.
+  Future<List<MealWithItems>> mealsForDay(DateTime day) {
     final start = DateTime(day.year, day.month, day.day);
-    final end = start.add(const Duration(days: 1));
+    return mealsBetween(start, start.add(const Duration(days: 1)));
+  }
 
-    final meals = await (_db.select(
-      _db.meals,
-    )..where((m) => m.eatenAt.isBetweenValues(start, end))).get();
+  /// SPEC-011: comidas con `eatenAt` en [start, end) (fin excluido), en
+  /// orden por hora.
+  Future<List<MealWithItems>> mealsBetween(DateTime start, DateTime end) async {
+    final meals =
+        await (_db.select(_db.meals)
+              ..where(
+                (m) =>
+                    m.eatenAt.isBiggerOrEqualValue(start) &
+                    m.eatenAt.isSmallerThanValue(end),
+              )
+              ..orderBy([(m) => OrderingTerm.asc(m.eatenAt)]))
+            .get();
 
     final result = <MealWithItems>[];
     for (final meal in meals) {
