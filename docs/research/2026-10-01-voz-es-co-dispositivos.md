@@ -6,7 +6,7 @@ un iPhone físicos? ¿El reconocimiento ocurre en el dispositivo o en servidores
 Decisión que desbloquea: AC8 de `specs/SPEC-002-entrada-por-voz.md` y la fila "Audio de voz" de
 `docs/privacy.md` (hoy `POR VERIFICAR`).
 
-Estado: **Android completo** (ronda 3, versión final, commit `cca4a8b`). **iOS: pendiente.**
+Estado: **Android completo** (ronda 3, versión final, commit `8bccfad`). **iOS: pendiente.**
 
 ## Método
 
@@ -47,7 +47,7 @@ Estado: **Android completo** (ronda 3, versión final, commit `cca4a8b`). **iOS:
 
 ## Resultados — Android
 
-### Ronda 1 (2026-10-01, antes del arreglo de R5/R9 — commit `c87f32a`)
+### Ronda 1 (2026-10-01, antes del arreglo de R5/R9 — commit `db5cf7d`)
 
 Sin pausas al hablar, según la persona que dictó. En esta ronda la app tenía un bug: cuando el
 reconocedor cerraba la escucha por su cuenta, la app seguía en "escuchando" y al reintentar
@@ -182,7 +182,7 @@ privacidad lo necesita.
   "tajadas" se reconocieron bien cuando se oyeron).
 - La causa principal de los malos resultados iniciales no era el reconocimiento sino la app: el
   bug de estado de R5/R9 y el tiempo de silencio de 2 s, que provocaba cortes. Ambos se arreglaron
-  (commits `c87f32a` y `cca4a8b`).
+  (commits `db5cf7d` y `8bccfad`).
 - Privacidad: sin conexión no hay reconocimiento, así que con la configuración actual el audio se
   procesa en servidores de Google. Nunca pasa por nuestro backend.
 

@@ -242,9 +242,9 @@ Primera pasada sobre los cambios de R5/R9/R10 y AC9–AC12: **CHANGES_REQUESTED*
 - [MINOR] La nota de PV-05 describía una sola configuración para todas las rondas.
 - [MINOR] Los callbacks de `initialize` solo quedaban registrados en la primera llamada.
 
-Corregidos en `f98a206`, con 5 tests nuevos.
+Corregidos en `8ae686a`, con 5 tests nuevos.
 
-Segunda pasada sobre `f98a206`: **PASS**.
+Segunda pasada sobre `8ae686a`: **PASS**.
 - `flutter analyze` sin issues; `flutter test` 98/98.
 - AC1–AC12 cumplen; AC8 en iOS como pendiente aceptado por el usuario.
 - Sin cambios en `functions/`, `packages/`, `data/` ni `evals/`; ningún dato nuevo hacia el backend; sin restos de diagnóstico.

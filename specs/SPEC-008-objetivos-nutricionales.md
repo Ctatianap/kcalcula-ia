@@ -11,7 +11,7 @@ estatura, fecha de nacimiento, sexo y nivel de actividad)
 > editable, metabolismo basal y mantenimiento separados, objetivo aparte y macros en % de las kcal.
 > Lo ya implementado que sigue valiendo (meta en `user.db`, progreso en el diario, borrar y
 > exportar, política v3, manejo de errores) se reutiliza. La evidencia de la versión 1 está en el
-> historial de git (commit `eb78daa`).
+> historial de git (commit `c6614a4`).
 
 ## Objective
 Que la persona sepa en qué punto empieza (metabolismo basal y mantenimiento, calculados con su
@@ -292,7 +292,7 @@ issues; `nutrition_core` 63/63; app 139/139 (tras OQ10-A, el mantenimiento medid
   riesgo de SQLite → Crashlytics en el flujo de revisión de comidas queda en `docs/backlog.md`
   (T-010), fuera de esta SPEC.
 
-- 2026-10-02: reviewer PASS (re-revisión de 96d2837). Se aplicaron también sus 2 MINOR nuevos
+- 2026-10-02: reviewer PASS (re-revisión de 8504c5c). Se aplicaron también sus 2 MINOR nuevos
   (el mensaje de error se limpia al editar; mensaje propio si la meta se guarda pero los datos de
   la sugerencia no). OQ9 registrada con la confirmación de la usuaria. Status → Review; falta el
   recorrido manual en el teléfono y la aprobación de la usuaria para fusionar (Strict Path).
@@ -327,7 +327,7 @@ issues; `nutrition_core` 63/63; app 139/139 (tras OQ10-A, el mantenimiento medid
   actividad neutros en género se decidieron por delegación de la usuaria ("haz lo que
   recomiendes").
 
-- 2026-10-02: reviewer (v2) **PASS** en la re-revisión de `2143711`. Se aplicaron también sus 2
+- 2026-10-02: reviewer (v2) **PASS** en la re-revisión de `aa7995d`. Se aplicaron también sus 2
   MINOR: la cifra de tests y que una lectura fallida desactive "Guardar perfil" y ofrezca
   "Reintentar", con tests. Falta el recorrido manual y la aprobación de la usuaria para fusionar.
 
@@ -337,14 +337,14 @@ issues; `nutrition_core` 63/63; app 139/139 (tras OQ10-A, el mantenimiento medid
   producto) y R4 suma el mantenimiento medido opcional, que manda sobre la fórmula. AC2 y AC17
   nuevos; `user.db` v6 (columna `measured_maintenance_kcal`). Status → Implementing → Review.
 
-- 2026-10-02: reviewer (incremental, fc05e53) CHANGES_REQUESTED. Corregido: [MAJOR]
+- 2026-10-02: reviewer (incremental, b09c34a) CHANGES_REQUESTED. Corregido: [MAJOR]
   `docs/architecture.md` aún atribuía la escala a EFSA y no mencionaba la columna nueva; [MAJOR]
   faltaba evidencia de que el medido se exporta (test agregado; AC17 pasa a `[widget + unit]`).
   MINOR: tests del recálculo con el medido y de `maintenanceForProfile`; contrato del medido con un
   perfil inválido (Edge Cases); textos y cifras de la SPEC (v6, AC7, AC8, AC9); `parseKcal` movido a
   `goal_calculation.dart`.
 
-- 2026-10-03: reviewer **PASS** sobre `1f3df69` (app 139/139, `nutrition_core` 63/63). Pendiente de
+- 2026-10-03: reviewer **PASS** sobre `fddc59c` (app 139/139, `nutrition_core` 63/63). Pendiente de
   la usuaria: el recorrido manual y la aprobación para fusionar, que incluye el cambio de AC17 de
   `[widget + integration]` a `[widget + unit]`.
 
@@ -358,9 +358,9 @@ Primera revisión (2026-10-02, subagente `reviewer`): **CHANGES_REQUESTED**.
   datos de la sugerencia no los quitaba de memoria; separador de miles; test de widget por encima
   de la meta; la simulación de v3 en AC10 (aceptada); ubicación de la pantalla.
 
-Todo se corrigió en `96d2837`, salvo AC10, que se aceptó como está.
+Todo se corrigió en `8504c5c`, salvo AC10, que se aceptó como está.
 
-Re-revisión (2026-10-02, sobre `96d2837`): **PASS**. AC1–AC15 y AC5b cumplidos; `nutrition_core`
+Re-revisión (2026-10-02, sobre `8504c5c`): **PASS**. AC1–AC15 y AC5b cumplidos; `nutrition_core`
 97/97 y app 130/130. Recalculó las 40 celdas de la DRI 2023 (≤ 0,5 kcal). Dos MINOR nuevos (el
 mensaje de error no se limpiaba al editar; mensaje inexacto si fallaban solo los datos de la
 sugerencia), corregidos después (app 132/132). OQ9 quedaba pendiente de la confirmación de la
@@ -373,9 +373,9 @@ Primera revisión (2026-10-02): **CHANGES_REQUESTED**.
 - 9 MINOR: textos de la SPEC, aviso de recálculo fuera de rango, paso del tiempo, errores de
   lectura, numeración, PV-13, AC2 literal, AC9 hasta el diario y enlace al perfil.
 
-Todo se corrigió en `2143711`.
+Todo se corrigió en `aa7995d`.
 
-Re-revisión (2026-10-02, sobre `2143711`): **PASS**.
+Re-revisión (2026-10-02, sobre `aa7995d`): **PASS**.
 - AC1–AC16 cumplidos; `nutrition_core` 62/62, app 128/128.
 - El reviewer recalculó AC1, AC2 y los objetivos, y confirmó que no queda cálculo de mantenimiento
   fuera de `nutrition_core`.
@@ -383,7 +383,7 @@ Re-revisión (2026-10-02, sobre `2143711`): **PASS**.
   después: app 130/130.
 
 ### Escala de fitness y mantenimiento medido (incremental)
-- Revisión de `fc05e53`: **CHANGES_REQUESTED**. [MAJOR] `architecture.md` desactualizado; [MAJOR]
+- Revisión de `b09c34a`: **CHANGES_REQUESTED**. [MAJOR] `architecture.md` desactualizado; [MAJOR]
   faltaba evidencia de que el medido se exporta. Además, 4 MINOR.
-- Revisión de `1f3df69`: **PASS**. 2 MINOR: el cambio del tipo de prueba de AC17 debe aprobarlo la
+- Revisión de `fddc59c`: **PASS**. 2 MINOR: el cambio del tipo de prueba de AC17 debe aprobarlo la
   usuaria; un comentario de más de 80 columnas, ya corregido.

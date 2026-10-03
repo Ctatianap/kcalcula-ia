@@ -300,7 +300,7 @@ Hallazgos:
 
 **Corrección al hallazgo MAJOR (misma sesión, antes de re-solicitar revisión)**: verificado con
 `git log -p --follow` y `git diff develop...spec-004-foto-de-etiqueta` que `personalProductId` en
-`MealItems` **ya existía desde SPEC-001** (`schemaVersion 1`, commit `03782cec...`), no es una
+`MealItems` **ya existía desde SPEC-001** (`schemaVersion 1`, commit `30041b47...`), no es una
 columna nueva de esta SPEC — el diff real de esta rama no toca `MealItems` en absoluto, solo
 agrega la tabla `PersonalProducts` y sube `schemaVersion` de 1 a 2, que es exactamente lo que
 `onUpgrade` ya cubre. Se le devolvió la evidencia al reviewer en vez de "corregir" un problema
