@@ -96,6 +96,8 @@ void main() {
       // Ítem y total.
       expect(find.text('210 kcal'), findsNWidgets(2));
       expect(find.text('Alta precisión'), findsOneWidget);
+      // SPEC-012 R5: la etiqueta confirmada también cuenta como fuente.
+      expect(find.text('Base verificada'), findsOneWidget);
       expect(
         tester.widget<Text>(find.byKey(const Key('meal-detail-kcal'))).data,
         '210 kcal',

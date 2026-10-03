@@ -135,6 +135,13 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
                       const SizedBox(height: 20),
                       Text('Ingredientes', style: text.titleMedium),
                       const SizedBox(height: 8),
+                      if (items.isEmpty)
+                        const Text(
+                          'Quitaste todos los alimentos. Toca "Corregir" para '
+                          'escribir de nuevo.',
+                          key: Key('meal-detail-empty'),
+                          style: TextStyle(color: KColors.textSecondary),
+                        ),
                       for (final (index, item) in items.indexed) ...[
                         _IngredientCard(
                           item: item,

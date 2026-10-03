@@ -27,6 +27,19 @@ class _SlowStorage extends StorageRepository {
   }
 }
 
+/// Falla la primera lectura de productos personales.
+class _FlakyStorage extends StorageRepository {
+  var _calls = 0;
+
+  _FlakyStorage(super.db);
+
+  @override
+  Future<List<PersonalProduct>> getAllPersonalProducts() {
+    if (_calls++ == 0) throw StateError('SqliteException: datos');
+    return super.getAllPersonalProducts();
+  }
+}
+
 int _doneSteps(WidgetTester tester) =>
     [for (var i = 0; i < 4; i++) find.byKey(Key('analysis-step-done-$i'))]
         .where((f) => f.evaluate().isNotEmpty)
@@ -90,6 +103,30 @@ void main() {
       expect((controller.state as AnalysisInProgress).completedSteps, 0);
       controller.dispose();
     });
+
+    test(
+      'Reintentar tras un fallo de user.db no reenvía el texto a la IA',
+      () async {
+        final catalog = buildFixtureCatalog();
+        addTearDown(catalog.close);
+        final storage = _FlakyStorage(db);
+        final fake = FakeParseMeal((_) => eggsAndArepa);
+        final controller = MealAnalysisController(
+          text: 'dos huevos y una arepa',
+          aiClient: fake.client,
+          storage: storage,
+          catalog: catalog,
+          stepHold: Duration.zero,
+        );
+        await controller.run();
+        final failed = controller.state as AnalysisFailed;
+        expect(failed.isAiError, isFalse);
+        await controller.run();
+        expect(controller.state, isA<AnalysisReady>());
+        expect(fake.texts, ['dos huevos y una arepa']);
+        controller.dispose();
+      },
+    );
 
     test('edge case: la IA responde sin alimentos', () async {
       final catalog = buildFixtureCatalog();
@@ -273,6 +310,41 @@ void main() {
     final meals = await h.storage.mealsBetween(DateTime(2000), DateTime(2100));
     expect(meals, hasLength(1));
     expect(meals.single.meal.mealType, 'cena');
+  });
+
+  testWidgets('edge case: un doble toque en Guardar registra una sola '
+      'comida', (tester) async {
+    final h = await MealFlowHarness.pump(
+      tester,
+      aiClient: FakeParseMeal((_) => eggsAndArepa).client,
+    );
+    await h.openCaptureAndType(tester, 'dos huevos y una arepa');
+    await tester.tap(find.text('Analizar'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Guardar'));
+    await tester.tap(find.text('Guardar'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+    final meals = await h.storage.mealsBetween(DateTime(2000), DateTime(2100));
+    expect(meals, hasLength(1));
+  });
+
+  testWidgets('quitar todos los ingredientes deja un aviso y Guardar '
+      'deshabilitado', (tester) async {
+    final h = await MealFlowHarness.pump(
+      tester,
+      aiClient: FakeParseMeal(
+        (_) => parsedMeal([parsedItem('un chontaduro', 'chontaduro')]),
+      ).client,
+    );
+    await h.openCaptureAndType(tester, 'un chontaduro');
+    await tester.tap(find.text('Analizar'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Quitar'));
+    await tester.tap(find.text('Quitar'));
+    await tester.pump();
+    expect(find.byKey(const Key('meal-detail-empty')), findsOneWidget);
+    final save = find.widgetWithText(FilledButton, 'Guardar');
+    expect(tester.widget<FilledButton>(save).onPressed, isNull);
   });
 
   testWidgets('AC4: "Corregir" vuelve a "¿Qué comiste?" con el texto', (

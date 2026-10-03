@@ -140,6 +140,23 @@ Manual: recorrido en el teléfono pendiente (lo hace la usuaria).
     pude leer tus datos" y sin los consejos de la IA.
   - Fechas en es-CO movidas a `app/lib/ui/date_format_es.dart` (las comparten Hoy y el detalle).
   Status → Review.
+- 2026-10-03: reviewer **PASS** (commit 21d39ac; app 199/199, analyze limpio), sin BLOCKER ni MAJOR.
+  MINOR atendidos antes de fusionar:
+  - "Reintentar" tras un fallo de lectura de `user.db` ya no reenvía el texto a la IA: reusa la
+    respuesta recibida y repite solo la resolución (test unitario).
+  - El error de lectura ya no repite el título en el cuerpo.
+  - Quitar todos los ingredientes muestra un aviso ("Quitaste todos los alimentos…").
+  - Tests nuevos: doble toque en "Guardar" registra una sola comida; sello "Base verificada" en el
+    flujo de etiqueta confirmada; aviso sin ingredientes.
+  - Decisión anotada: el error de la **foto de etiqueta** sigue dentro de la pestaña Foto (no en
+    "Algo salió mal"), porque "Reintentar" de esa pantalla reenvía texto y la foto se repite con
+    "Tomar foto"; el consejo de luz se mantiene en "Algo salió mal" tal como pide R6.
+  - Sin cambio: la hora del título es la de apertura del detalle y `eaten_at` se toma al guardar
+    (cosmético); `mealTypeLabels` sigue en `ui/date_format_es.dart`.
+  Fusionada en `develop` por la autorización única de la usuaria. Sigue en Review hasta el
+  recorrido manual en el teléfono.
 
 ## Review
-Informe del reviewer: pendiente.
+Informe del reviewer (2026-10-03, commit 21d39ac): **PASS**. AC1–AC7 cumplidos con evidencia en tests
+(`meal_analysis_test.dart` y los cuatro tests de integración); invariantes 1–4 y 8 sin cambios;
+ningún dato nuevo sale del dispositivo. Hallazgos MINOR: ver Change Log (atendidos o anotados).

@@ -62,6 +62,10 @@ class MealAnalysisController extends ChangeNotifier {
   final Duration stepHold;
 
   MealAnalysisState _state = const AnalysisInProgress(0);
+
+  /// Respuesta de la IA ya recibida: si lo que falla después es la lectura
+  /// de `user.db`, "Reintentar" no vuelve a enviar el texto.
+  ParsedMealDto? _parsed;
   int _runId = 0;
   bool _cancelled = false;
   bool _disposed = false;
@@ -86,30 +90,34 @@ class MealAnalysisController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// También es "Reintentar" (R6): vuelve a enviar el mismo texto.
+  /// También es "Reintentar" (R6): vuelve a enviar el mismo texto, o, si la
+  /// IA ya respondió y lo que falló fue `user.db`, solo repite lo local.
   Future<void> run() async {
     final run = ++_runId;
     _cancelled = false;
-    _set(const AnalysisInProgress(0));
 
-    final ParsedMealDto parsed;
-    try {
-      parsed = await _aiClient.parseMeal(text: text);
-    } on AiClientException catch (error) {
-      if (_isCurrent(run)) {
-        _set(AnalysisFailed(error.userMessage, isAiError: true));
+    var parsed = _parsed;
+    if (parsed == null) {
+      _set(const AnalysisInProgress(0));
+      try {
+        parsed = await _aiClient.parseMeal(text: text);
+      } on AiClientException catch (error) {
+        if (_isCurrent(run)) {
+          _set(AnalysisFailed(error.userMessage, isAiError: true));
+        }
+        return;
+      } catch (_) {
+        if (_isCurrent(run)) {
+          _set(const AnalysisFailed(genericAiErrorMessage, isAiError: true));
+        }
+        return;
       }
-      return;
-    } catch (_) {
-      if (_isCurrent(run)) {
-        _set(const AnalysisFailed(genericAiErrorMessage, isAiError: true));
+      if (!_isCurrent(run)) return;
+      if (parsed.items.isEmpty) {
+        _set(const AnalysisFailed(noFoodsMessage, isAiError: true));
+        return;
       }
-      return;
-    }
-    if (!_isCurrent(run)) return;
-    if (parsed.items.isEmpty) {
-      _set(const AnalysisFailed(noFoodsMessage, isAiError: true));
-      return;
+      _parsed = parsed;
     }
     _set(const AnalysisInProgress(2));
 

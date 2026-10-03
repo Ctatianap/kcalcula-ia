@@ -254,7 +254,8 @@ class AnalysisErrorView extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              message,
+              // Sin repetir el título en el error de lectura.
+              isAiError ? message : 'Intenta de nuevo.',
               key: const Key('analysis-error-message'),
               textAlign: TextAlign.center,
               style: textTheme.bodyMedium?.copyWith(
