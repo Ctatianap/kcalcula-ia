@@ -8,6 +8,8 @@ const birthDateFormatMessage = 'Escribe la fecha como dd/mm/aaaa.';
 const ageRangeMessage = 'La app es para personas de 18 a 100 años.';
 const weightRangeMessage = 'Escribe tu peso en kg, entre 30 y 300.';
 const heightRangeMessage = 'Escribe tu estatura en cm, entre 120 y 230.';
+const measuredRangeMessage =
+    'Escribe un número entero entre 800 y 6.000, o déjalo vacío.';
 const profileSaveErrorMessage = 'No pude guardar tu perfil. Intenta de nuevo.';
 const profileLoadErrorMessage = 'No pude leer tu perfil. Intenta de nuevo.';
 const goalNotRecalculatedMessage =
@@ -25,6 +27,9 @@ class ProfileController extends ChangeNotifier {
   String heightText = '';
   String weightText = '';
   ActivityLevel? activityLevel;
+
+  /// R4: mantenimiento medido (opcional), p. ej. promedio de un reloj.
+  String measuredText = '';
 
   bool loaded = false;
   bool busy = false;
@@ -69,6 +74,10 @@ class ProfileController extends ChangeNotifier {
       heightText = _numberToText(profile.heightCm);
       weightText = _numberToText(profile.weightKg);
       activityLevel = ActivityLevel.values.asNameMap()[profile.activityLevel];
+      final measured = profile.measuredMaintenanceKcal;
+      measuredText = measured == null
+          ? ''
+          : formatThousandsEs(presentKcal(measured));
       hasSavedProfile = true;
     }
     loaded = true;
@@ -101,6 +110,11 @@ class ProfileController extends ChangeNotifier {
     _changed();
   }
 
+  void setMeasured(String text) {
+    measuredText = text;
+    _changed();
+  }
+
   void setActivityLevel(ActivityLevel value) {
     activityLevel = value;
     _changed();
@@ -127,6 +141,14 @@ class ProfileController extends ChangeNotifier {
     return null;
   }
 
+  double? get _measured => parseKcal(measuredText);
+
+  String? get measuredError {
+    if (measuredText.trim().isEmpty) return null;
+    final m = _measured;
+    return m == null || !isValidGoalKcal(m) ? measuredRangeMessage : null;
+  }
+
   String? get heightError {
     if (heightText.trim().isEmpty) return null;
     final h = _height;
@@ -151,7 +173,8 @@ class ProfileController extends ChangeNotifier {
       _weight != null &&
       birthDateError == null &&
       heightError == null &&
-      weightError == null;
+      weightError == null &&
+      measuredError == null;
 
   /// R3: metabolismo basal con los datos del formulario, o `null`.
   double? get basalKcal {
@@ -168,9 +191,20 @@ class ProfileController extends ChangeNotifier {
     }
   }
 
-  /// R4/R5: mantenimiento en vivo (calculado en `nutrition_core`); cambia
-  /// al editar peso o actividad.
+  /// R4: hay un mantenimiento medido válido, que manda sobre la fórmula.
+  bool get usesMeasured =>
+      measuredText.trim().isNotEmpty && measuredError == null;
+
+  /// R4/R5: mantenimiento que se usa: el medido si existe; si no, el de la
+  /// fórmula.
   double? get maintenanceKcal {
+    if (!isComplete) return null;
+    return usesMeasured ? _measured : formulaMaintenanceKcal;
+  }
+
+  /// R5: mantenimiento según la fórmula (calculado en `nutrition_core`);
+  /// cambia al editar peso o actividad.
+  double? get formulaMaintenanceKcal {
     if (!isComplete) return null;
     try {
       return estimateMaintenanceKcal(
@@ -204,6 +238,7 @@ class ProfileController extends ChangeNotifier {
         heightCm: _height!,
         weightKg: _weight!,
         activityLevel: activityLevel!.name,
+        measuredMaintenanceKcal: usesMeasured ? _measured : null,
         recalculatedGoal: recalculated,
       );
       hasSavedProfile = true;
@@ -224,6 +259,13 @@ class ProfileController extends ChangeNotifier {
     final text = formatMacroEs(value);
     return text.endsWith(',0') ? text.substring(0, text.length - 2) : text;
   }
+}
+
+/// Entero, con o sin separador de miles de es-CO ("1890" o "1.890").
+double? parseKcal(String text) {
+  final trimmed = text.trim();
+  if (!RegExp(r'^(\d+|\d{1,3}(\.\d{3})+)$').hasMatch(trimmed)) return null;
+  return int.parse(trimmed.replaceAll('.', '')).toDouble();
 }
 
 /// "15/10/1996" → fecha, o `null` si el formato o la fecha no son válidos.

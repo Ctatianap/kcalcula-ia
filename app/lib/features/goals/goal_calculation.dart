@@ -2,10 +2,13 @@ import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../infra/storage/storage_repository.dart';
 
-/// SPEC-008 R4: mantenimiento a partir del perfil guardado, o `null` si los
-/// datos ya no son válidos (p. ej. pasó de 100 años). Todo el cálculo vive
-/// en `nutrition_core`; aquí solo se traduce el perfil guardado.
+/// SPEC-008 R4: mantenimiento a partir del perfil guardado: el medido si
+/// existe; si no, el de la fórmula; `null` si los datos ya no son válidos
+/// (p. ej. pasó de 100 años). Todo el cálculo vive en `nutrition_core`;
+/// aquí solo se traduce el perfil guardado.
 double? maintenanceForProfile(UserProfileData profile, DateTime today) {
+  final measured = profile.measuredMaintenanceKcal;
+  if (measured != null && isValidGoalKcal(measured)) return measured;
   final sex = BiologicalSex.values.asNameMap()[profile.sex];
   final level = ActivityLevel.values.asNameMap()[profile.activityLevel];
   if (sex == null || level == null) return null;
@@ -63,20 +66,24 @@ const disclaimerText =
 /// SPEC-008 R2: textos de los niveles de actividad (incluye el NEAT).
 const activityLevelTexts = {
   ActivityLevel.sedentary: (
-    'Poca actividad',
+    'Sin ejercicio',
     'Poco o nada de ejercicio, trabajo sentado.',
   ),
   ActivityLevel.lightlyActive: (
     'Actividad ligera',
-    'Ejercicio 1–3 días por semana, o mucho movimiento en el día.',
+    'Ejercicio 1–3 días por semana.',
   ),
   ActivityLevel.active: (
     'Actividad moderada',
     'Ejercicio 3–5 días por semana.',
   ),
   ActivityLevel.veryActive: (
-    'Actividad alta',
-    'Ejercicio 6–7 días por semana, o trabajo físico.',
+    'Actividad intensa',
+    'Ejercicio 6–7 días por semana.',
+  ),
+  ActivityLevel.extraActive: (
+    'Actividad muy intensa',
+    'Dos entrenamientos al día, o trabajo físico.',
   ),
 };
 

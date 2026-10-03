@@ -41,25 +41,30 @@ peso o de temporada de actividad, todo se recalcula.
   fórmula), fecha de nacimiento (se muestra la edad calculada), estatura (cm), peso (kg) y nivel de
   actividad. Todo es editable en cualquier momento. Rangos válidos: peso 30–300 kg, estatura
   120–230 cm, edad 18–100 años. Fuera de rango, mensaje en español y no se guarda.
-- R2. **Niveles de actividad** (incluye el NEAT, el movimiento del día a día): 4 niveles, descritos
-  por días de ejercicio a la semana. Cada uno usa un factor de actividad física (PAL) de EFSA 2013
-  (decisión OQ10-B por delegación de la usuaria):
-  - "Poca actividad": poco o nada de ejercicio, trabajo sentado (PAL 1,4).
-  - "Actividad ligera": ejercicio 1–3 días por semana o mucho movimiento diario (1,6).
-  - "Actividad moderada": ejercicio 3–5 días por semana (1,8).
-  - "Actividad alta": ejercicio 6–7 días por semana o trabajo físico (2,0).
+- R2. **Niveles de actividad** (incluye el NEAT), descritos por días de ejercicio a la semana,
+  con la escala de factores de las calculadoras de fitness (la de fitgeneration):
+  - "Sin ejercicio": poco o nada de ejercicio, trabajo sentado (× 1,2).
+  - "Actividad ligera": ejercicio 1–3 días por semana (× 1,375).
+  - "Actividad moderada": ejercicio 3–5 días por semana (× 1,55).
+  - "Actividad intensa": ejercicio 6–7 días por semana (× 1,725).
+  - "Actividad muy intensa": dos entrenamientos al día, o trabajo físico (× 1,9).
 
-  Pasar de días de ejercicio a cada PAL es una decisión de producto, documentada como tal. El nivel
-  se cambia por temporadas, desde el perfil.
+  **Esta escala no tiene fuente institucional ni académica** (PV-14). Es una decisión de
+  producto aprobada por la usuaria (OQ10-A, 2026-10-02) después de compararla con 7 días de su
+  gasto medido por reloj: con los PAL de EFSA (1,4–2,0) la app daba ~2.580 kcal frente a un gasto
+  real de ~1.890 en promedio y ~2.300 como máximo. El nivel se cambia por temporadas.
 
 ### Punto de partida
 - R3. **Metabolismo basal** (`nutrition_core`): Harris-Benedict original (Harris y Benedict, PNAS
   1918;4(12):373). Hombres: 66,4730 + 13,7516·peso + 5,0033·estatura − 6,7550·edad. Mujeres:
   655,0955 + 9,5634·peso + 1,8496·estatura − 4,6756·edad.
-- R4. **Mantenimiento** = metabolismo basal × PAL del nivel de actividad. Es el método de FAO/OMS:
-  gasto total = metabolismo basal × PAL.
+- R4. **Mantenimiento** = metabolismo basal × factor del nivel de actividad. **Mantenimiento
+  medido (opcional):** la persona puede escribir el suyo (800–6.000 kcal), por ejemplo el promedio
+  de "Total de calorías quemadas" de su reloj en los últimos 7 días completos. Si existe, **manda
+  sobre la fórmula** en "Mi objetivo" y en el recálculo de la meta (R9).
 - R5. **Pantalla "Mi punto de partida"** (parte del perfil): muestra "~1.423 kcal" de metabolismo
-  basal y "~2.276 kcal" de mantenimiento, con una línea que explica cada uno. Se recalcula al
+  basal y el mantenimiento con una línea que explica cada uno. Si hay mantenimiento medido, se
+  muestra "Mantenimiento (medido): 1.890 kcal" y, como referencia, "Según la fórmula serían ~X". Se recalcula al
   instante cuando cambia el peso, la actividad o cualquier dato del perfil.
 
 ### Objetivo
@@ -106,8 +111,8 @@ peso o de temporada de actividad, todo se recalcula.
   estimadas, y "N por encima de la meta" sin rojo. Sin meta, el enlace dice "Calcular mi meta".
 
 ### Datos
-- R12. Perfil y meta en `user.db`, que pasa a v5 con migración (desde la v3 publicada y desde la v4
-  que solo existió en builds de desarrollo). "Borrar todos mis datos" los
+- R12. Perfil y meta en `user.db`, que pasa a v6 con migración (desde la v3 publicada, y desde la
+  v4 y la v5 que solo existieron en builds de desarrollo). "Borrar todos mis datos" los
   elimina y "Exportar" los incluye. No salen del dispositivo: ni al backend, ni a la IA, ni a
   Crashlytics, ni a logs. Los fallos de escritura muestran un mensaje en español y no se relanzan
   (la excepción de SQLite trae los parámetros).
@@ -120,8 +125,8 @@ peso o de temporada de actividad, todo se recalcula.
 - AC1. Metabolismo basal: los 3 casos resueltos por la fuente (Harris y Benedict 1919, p. 230):
   hombre, 27 años, 172 cm, 77,2 kg → 1806; mujer, 22 años, 166 cm, 77,2 kg → 1597; mujer, 66 años,
   162 cm, 62,3 kg → 1242, con ±1 kcal `[unit, nutrition_core]`.
-- AC2. Mantenimiento = basal × PAL para los 4 niveles (1,4 / 1,6 / 1,8 / 2,0), sobre el primer caso
-  de AC1 `[unit, nutrition_core]`.
+- AC2. Mantenimiento = basal × factor para los 5 niveles (1,2 / 1,375 / 1,55 / 1,725 / 1,9), sobre
+  el primer caso de AC1: 2.167,53 / 2.483,63 / 2.799,73 / 3.115,83 / 3.431,93 `[unit, nutrition_core]`.
 - AC3. Entradas fuera de rango, NaN o infinito → error tipado, nunca un número
   `[unit, nutrition_core]`.
 - AC4. Objetivos: con mantenimiento 2.000 → 1.750 / 1.500 / 2.000 / 2.200 / 2.400 kcal
@@ -150,6 +155,9 @@ peso o de temporada de actividad, todo se recalcula.
   relanza ni llega a Crashlytics `[widget]`.
 - AC15. Ninguna llamada a `infra/ai_client`, a Crashlytics, a `functions/` ni a logs recibe datos
   del perfil o de la meta `[revisión de código + grep]`.
+- AC17. Con un mantenimiento medido de 1.890: "Mi perfil" lo muestra como medido junto a la
+  referencia de la fórmula; "Mi objetivo" calcula con 1.890 ("Bajar grasa" ~1.390); se guarda y se
+  exporta; fuera de 800–6.000 → mensaje y no se guarda `[widget + integration]`.
 - AC16. La política v3 menciona el perfil y vuelve a pedir el consentimiento a quien aceptó la v2
   `[widget + integration]`.
 
@@ -203,20 +211,21 @@ peso o de temporada de actividad, todo se recalcula.
 - Historial de peso y gráficos (F5); historial de metas.
 - Editar a mano los % de macros (se usan los del objetivo).
 - Fechas límite, ritmo semanal de pérdida o ganancia, recordatorios.
-- La escala de fitness 1,2–1,9 (sin fuente, OQ10); Harris-Benedict revisada (fuente primaria no
+- Harris-Benedict revisada (fuente primaria no
   leída); masa magra (Katch-McArdle o Cunningham), porque requiere % de grasa corporal.
 - Unidades imperiales.
 
 ## Open Questions
-- OQ10. ✅ Resuelta por delegación de la usuaria ("haz lo que recomiendes"): factores de actividad
-  con PAL de EFSA 2013 (opción B, con fuente). Si prefiere la escala de fitness (opción A, sin
-  fuente), es un cambio de dos líneas y de la documentación.
+- OQ10. ✅ Resuelta por la usuaria (2026-10-02): **opción A**, la escala de fitness de 5 niveles,
+  sin fuente institucional y documentada como decisión de producto, validada con su gasto medido.
+  Antes se había implementado la opción B (EFSA 2013) por delegación; los valores salían altos para
+  su caso.
 
 ## Evidencia de Acceptance Criteria
 | AC | Estado | Evidencia |
 |----|--------|-----------|
 | AC1 | ✅ | `packages/nutrition_core/test/energy_estimation_test.dart`, grupo "AC1" (3 casos de Harris y Benedict 1919, p. 230, ±1 kcal) |
-| AC2 | ✅ | `energy_estimation_test.dart`, grupo "AC2" (4 PAL de EFSA 2013, con valores literales 2.528,79 / 2.890,05 / 3.251,30 / 3.612,56) |
+| AC2 | ✅ | `energy_estimation_test.dart`, grupo "AC2" (5 factores, con valores literales 2.167,53 / 2.483,63 / 2.799,73 / 3.115,83 / 3.431,93) |
 | AC3 | ✅ | `energy_estimation_test.dart`, grupo "AC3" (rangos, NaN, infinito, edad 18–100) |
 | AC4 | ✅ | `packages/nutrition_core/test/goal_planning_test.dart` ("AC4…") |
 | AC5 | ✅ | `goal_planning_test.dart` (100 / 55,6 / 275 g; suma 4/9/4; repartos dentro de los AMDR) |
@@ -230,13 +239,14 @@ peso o de temporada de actividad, todo se recalcula.
 | AC13 | ✅ | `nutrition_goal_storage_test.dart` (borrar todo, exportar, migración v3 → v5 y v4 de desarrollo → v5) |
 | AC14 | ✅ | `goals_flow_test.dart` ("AC14…" en perfil y en objetivo: `takeException()` nulo, sin "Sqlite") |
 | AC15 | ✅ | Grep (2026-10-02): `app/lib/infra/ai_client`, `app/lib/infra/crash_reporting` y `functions/src` no mencionan perfil ni meta; `features/goals` no tiene `print`/`debugPrint`/`log`; los fallos de escritura no se relanzan (AC14) |
+| AC17 | ✅ | `goals_flow_test.dart`, grupo "R4: mantenimiento medido" (manda sobre la fórmula y se guarda; "Mi objetivo" con 1.890 → "Bajar grasa · ~1.390"; fuera de rango) + `nutrition_goal_storage_test.dart` (migración v5 → v6) |
 | AC16 | ✅ | `app/test/integration/onboarding_gate_flow_test.dart` ("SPEC-008 AC13…": v2 → onboarding con v3) + `app/test/features/legal/privacy_policy_text_test.dart` (sección del perfil) |
 
 Verificado (2026-10-02, versión 2, tras la re-revisión): `dart analyze` y `flutter analyze` sin
-issues; `nutrition_core` 62/62; app 130/130. Pendiente: recorrido manual en el teléfono.
+issues; `nutrition_core` 63/63; app 134/134 (tras OQ10-A y el mantenimiento medido). Pendiente: recorrido manual en el teléfono.
 
 ## Definition of Done
-- AC1–AC16 con evidencia enlazada en esta SPEC.
+- AC1–AC17 con evidencia enlazada en esta SPEC.
 - `dart analyze` y `dart test` (`nutrition_core`) y `flutter analyze` y `flutter test` (app), todo
   verde.
 - Reviewer: PASS enlazado.
@@ -316,6 +326,12 @@ issues; `nutrition_core` 62/62; app 130/130. Pendiente: recorrido manual en el t
 - 2026-10-02: reviewer (v2) **PASS** en la re-revisión de `2143711`. Se aplicaron también sus 2
   MINOR: la cifra de tests y que una lectura fallida desactive "Guardar perfil" y ofrezca
   "Reintentar", con tests. Falta el recorrido manual y la aprobación de la usuaria para fusionar.
+
+- 2026-10-02: la usuaria probó la v2 en su teléfono y comparó con 7 días de Samsung Health
+  (promedio ~1.891 kcal, máximo ~2.300); la app le daba ~2.580. Aprueba los dos cambios ("sí a los
+  2 cambios"): R2 pasa a la escala de fitness de 5 niveles (OQ10-A, sin fuente, decisión de
+  producto) y R4 suma el mantenimiento medido opcional, que manda sobre la fórmula. AC2 y AC17
+  nuevos; `user.db` v6 (columna `measured_maintenance_kcal`). Status → Implementing → Review.
 
 ## Review
 Primera revisión (2026-10-02, subagente `reviewer`): **CHANGES_REQUESTED**.

@@ -20,6 +20,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   final _birthDate = TextEditingController();
   final _height = TextEditingController();
   final _weight = TextEditingController();
+  final _measured = TextEditingController();
 
   @override
   void initState() {
@@ -31,6 +32,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       _birthDate.text = _controller.birthDateText;
       _height.text = _controller.heightText;
       _weight.text = _controller.weightText;
+      _measured.text = _controller.measuredText;
     });
   }
 
@@ -40,6 +42,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _birthDate.dispose();
     _height.dispose();
     _weight.dispose();
+    _measured.dispose();
     super.dispose();
   }
 
@@ -136,6 +139,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ],
                 ),
               ),
+              const SizedBox(height: 12),
+              TextField(
+                key: const Key('profile-measured'),
+                controller: _measured,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: 'Mi mantenimiento medido (opcional, kcal)',
+                  helperText:
+                      'Si usas reloj: el promedio de "Total de calorías '
+                      'quemadas" de tus últimos 7 días completos. Si lo '
+                      'llenas, se usa en vez de la fórmula.',
+                  helperMaxLines: 4,
+                  errorText: c.measuredError,
+                ),
+                onChanged: c.setMeasured,
+              ),
               if (c.basalKcal != null) _StartingPoint(controller: c),
               if (c.infoMessage != null)
                 Padding(
@@ -204,14 +223,28 @@ class _StartingPoint extends StatelessWidget {
             ),
             Text('Lo que tu cuerpo gasta en reposo.', style: text.bodySmall),
             const SizedBox(height: 8),
-            Text(
-              'Mantenimiento: ${approxKcal(controller.maintenanceKcal!)}',
-              key: const Key('maintenance-kcal'),
-            ),
-            Text(
-              'Lo que gastas en un día con tu nivel de actividad.',
-              style: text.bodySmall,
-            ),
+            if (controller.usesMeasured) ...[
+              Text(
+                'Mantenimiento (medido): '
+                '${formatThousandsEs(presentKcal(controller.maintenanceKcal!))} kcal',
+                key: const Key('maintenance-kcal'),
+              ),
+              Text(
+                'Según la fórmula serían '
+                '${approxKcal(controller.formulaMaintenanceKcal!)}; se usa '
+                'tu valor medido.',
+                style: text.bodySmall,
+              ),
+            ] else ...[
+              Text(
+                'Mantenimiento: ${approxKcal(controller.maintenanceKcal!)}',
+                key: const Key('maintenance-kcal'),
+              ),
+              Text(
+                'Lo que gastas en un día con tu nivel de actividad.',
+                style: text.bodySmall,
+              ),
+            ],
             const SizedBox(height: 8),
             Text(disclaimerText, style: text.bodySmall),
           ],

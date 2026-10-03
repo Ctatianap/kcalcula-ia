@@ -214,6 +214,7 @@ class StorageRepository {
     required double heightCm,
     required double weightKg,
     required String activityLevel,
+    double? measuredMaintenanceKcal,
     NutritionGoalValues? recalculatedGoal,
   }) {
     return _db.transaction(() async {
@@ -227,6 +228,7 @@ class StorageRepository {
               heightCm: heightCm,
               weightKg: weightKg,
               activityLevel: activityLevel,
+              measuredMaintenanceKcal: Value(measuredMaintenanceKcal),
               updatedAt: DateTime.now(),
             ),
           );
@@ -319,6 +321,7 @@ class StorageRepository {
               'heightCm': profile.heightCm,
               'weightKg': profile.weightKg,
               'activityLevel': profile.activityLevel,
+              'measuredMaintenanceKcal': profile.measuredMaintenanceKcal,
               'updatedAt': profile.updatedAt.toIso8601String(),
             },
       'personalProducts': personalProducts

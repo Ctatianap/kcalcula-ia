@@ -39,8 +39,9 @@ nunca salen de tu dispositivo por decisión de la app.
 
 ## Tu perfil y tu meta diaria (opcional)
 
-Si usas "Mi perfil", la app guarda en tu teléfono tu sexo, fecha de nacimiento, estatura, peso y
-nivel de actividad física, para calcular ahí mismo tu metabolismo basal, tu mantenimiento y la meta
+Si usas "Mi perfil", la app guarda en tu teléfono tu sexo, fecha de nacimiento, estatura, peso,
+nivel de actividad física y, si lo escribes, tu mantenimiento medido (por ejemplo, el promedio de
+tu reloj), para calcular ahí mismo tu metabolismo basal, tu mantenimiento y la meta
 del objetivo que elijas (con sus calorías, proteína, carbohidratos y grasa). **Estos datos nunca
 salen de tu dispositivo**: ni a nuestro servidor, ni a la inteligencia artificial, ni en los
 reportes de fallos.

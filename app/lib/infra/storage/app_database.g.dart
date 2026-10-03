@@ -2687,6 +2687,17 @@ class $UserProfileTable extends UserProfile
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _measuredMaintenanceKcalMeta =
+      const VerificationMeta('measuredMaintenanceKcal');
+  @override
+  late final GeneratedColumn<double> measuredMaintenanceKcal =
+      GeneratedColumn<double>(
+        'measured_maintenance_kcal',
+        aliasedName,
+        true,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _updatedAtMeta = const VerificationMeta(
     'updatedAt',
   );
@@ -2706,6 +2717,7 @@ class $UserProfileTable extends UserProfile
     heightCm,
     weightKg,
     activityLevel,
+    measuredMaintenanceKcal,
     updatedAt,
   ];
   @override
@@ -2766,6 +2778,15 @@ class $UserProfileTable extends UserProfile
     } else if (isInserting) {
       context.missing(_activityLevelMeta);
     }
+    if (data.containsKey('measured_maintenance_kcal')) {
+      context.handle(
+        _measuredMaintenanceKcalMeta,
+        measuredMaintenanceKcal.isAcceptableOrUnknown(
+          data['measured_maintenance_kcal']!,
+          _measuredMaintenanceKcalMeta,
+        ),
+      );
+    }
     if (data.containsKey('updated_at')) {
       context.handle(
         _updatedAtMeta,
@@ -2807,6 +2828,10 @@ class $UserProfileTable extends UserProfile
         DriftSqlType.string,
         data['${effectivePrefix}activity_level'],
       )!,
+      measuredMaintenanceKcal: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}measured_maintenance_kcal'],
+      ),
       updatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
@@ -2827,6 +2852,10 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
   final double heightCm;
   final double weightKg;
   final String activityLevel;
+
+  /// SPEC-008 R4: mantenimiento medido (p. ej. promedio de un reloj); si
+  /// existe, manda sobre la fórmula.
+  final double? measuredMaintenanceKcal;
   final DateTime updatedAt;
   const UserProfileData({
     required this.id,
@@ -2835,6 +2864,7 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
     required this.heightCm,
     required this.weightKg,
     required this.activityLevel,
+    this.measuredMaintenanceKcal,
     required this.updatedAt,
   });
   @override
@@ -2846,6 +2876,11 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
     map['height_cm'] = Variable<double>(heightCm);
     map['weight_kg'] = Variable<double>(weightKg);
     map['activity_level'] = Variable<String>(activityLevel);
+    if (!nullToAbsent || measuredMaintenanceKcal != null) {
+      map['measured_maintenance_kcal'] = Variable<double>(
+        measuredMaintenanceKcal,
+      );
+    }
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
   }
@@ -2858,6 +2893,9 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       heightCm: Value(heightCm),
       weightKg: Value(weightKg),
       activityLevel: Value(activityLevel),
+      measuredMaintenanceKcal: measuredMaintenanceKcal == null && nullToAbsent
+          ? const Value.absent()
+          : Value(measuredMaintenanceKcal),
       updatedAt: Value(updatedAt),
     );
   }
@@ -2874,6 +2912,9 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       heightCm: serializer.fromJson<double>(json['heightCm']),
       weightKg: serializer.fromJson<double>(json['weightKg']),
       activityLevel: serializer.fromJson<String>(json['activityLevel']),
+      measuredMaintenanceKcal: serializer.fromJson<double?>(
+        json['measuredMaintenanceKcal'],
+      ),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
   }
@@ -2887,6 +2928,9 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       'heightCm': serializer.toJson<double>(heightCm),
       'weightKg': serializer.toJson<double>(weightKg),
       'activityLevel': serializer.toJson<String>(activityLevel),
+      'measuredMaintenanceKcal': serializer.toJson<double?>(
+        measuredMaintenanceKcal,
+      ),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
@@ -2898,6 +2942,7 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
     double? heightCm,
     double? weightKg,
     String? activityLevel,
+    Value<double?> measuredMaintenanceKcal = const Value.absent(),
     DateTime? updatedAt,
   }) => UserProfileData(
     id: id ?? this.id,
@@ -2906,6 +2951,9 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
     heightCm: heightCm ?? this.heightCm,
     weightKg: weightKg ?? this.weightKg,
     activityLevel: activityLevel ?? this.activityLevel,
+    measuredMaintenanceKcal: measuredMaintenanceKcal.present
+        ? measuredMaintenanceKcal.value
+        : this.measuredMaintenanceKcal,
     updatedAt: updatedAt ?? this.updatedAt,
   );
   UserProfileData copyWithCompanion(UserProfileCompanion data) {
@@ -2918,6 +2966,9 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       activityLevel: data.activityLevel.present
           ? data.activityLevel.value
           : this.activityLevel,
+      measuredMaintenanceKcal: data.measuredMaintenanceKcal.present
+          ? data.measuredMaintenanceKcal.value
+          : this.measuredMaintenanceKcal,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
@@ -2931,6 +2982,7 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
           ..write('heightCm: $heightCm, ')
           ..write('weightKg: $weightKg, ')
           ..write('activityLevel: $activityLevel, ')
+          ..write('measuredMaintenanceKcal: $measuredMaintenanceKcal, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
@@ -2944,6 +2996,7 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
     heightCm,
     weightKg,
     activityLevel,
+    measuredMaintenanceKcal,
     updatedAt,
   );
   @override
@@ -2956,6 +3009,7 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
           other.heightCm == this.heightCm &&
           other.weightKg == this.weightKg &&
           other.activityLevel == this.activityLevel &&
+          other.measuredMaintenanceKcal == this.measuredMaintenanceKcal &&
           other.updatedAt == this.updatedAt);
 }
 
@@ -2966,6 +3020,7 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
   final Value<double> heightCm;
   final Value<double> weightKg;
   final Value<String> activityLevel;
+  final Value<double?> measuredMaintenanceKcal;
   final Value<DateTime> updatedAt;
   const UserProfileCompanion({
     this.id = const Value.absent(),
@@ -2974,6 +3029,7 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
     this.heightCm = const Value.absent(),
     this.weightKg = const Value.absent(),
     this.activityLevel = const Value.absent(),
+    this.measuredMaintenanceKcal = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
   UserProfileCompanion.insert({
@@ -2983,6 +3039,7 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
     required double heightCm,
     required double weightKg,
     required String activityLevel,
+    this.measuredMaintenanceKcal = const Value.absent(),
     required DateTime updatedAt,
   }) : sex = Value(sex),
        birthDate = Value(birthDate),
@@ -2997,6 +3054,7 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
     Expression<double>? heightCm,
     Expression<double>? weightKg,
     Expression<String>? activityLevel,
+    Expression<double>? measuredMaintenanceKcal,
     Expression<DateTime>? updatedAt,
   }) {
     return RawValuesInsertable({
@@ -3006,6 +3064,8 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
       if (heightCm != null) 'height_cm': heightCm,
       if (weightKg != null) 'weight_kg': weightKg,
       if (activityLevel != null) 'activity_level': activityLevel,
+      if (measuredMaintenanceKcal != null)
+        'measured_maintenance_kcal': measuredMaintenanceKcal,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
   }
@@ -3017,6 +3077,7 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
     Value<double>? heightCm,
     Value<double>? weightKg,
     Value<String>? activityLevel,
+    Value<double?>? measuredMaintenanceKcal,
     Value<DateTime>? updatedAt,
   }) {
     return UserProfileCompanion(
@@ -3026,6 +3087,8 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
       heightCm: heightCm ?? this.heightCm,
       weightKg: weightKg ?? this.weightKg,
       activityLevel: activityLevel ?? this.activityLevel,
+      measuredMaintenanceKcal:
+          measuredMaintenanceKcal ?? this.measuredMaintenanceKcal,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
@@ -3051,6 +3114,11 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
     if (activityLevel.present) {
       map['activity_level'] = Variable<String>(activityLevel.value);
     }
+    if (measuredMaintenanceKcal.present) {
+      map['measured_maintenance_kcal'] = Variable<double>(
+        measuredMaintenanceKcal.value,
+      );
+    }
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
@@ -3066,6 +3134,7 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
           ..write('heightCm: $heightCm, ')
           ..write('weightKg: $weightKg, ')
           ..write('activityLevel: $activityLevel, ')
+          ..write('measuredMaintenanceKcal: $measuredMaintenanceKcal, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
@@ -5082,6 +5151,7 @@ typedef $$UserProfileTableCreateCompanionBuilder =
       required double heightCm,
       required double weightKg,
       required String activityLevel,
+      Value<double?> measuredMaintenanceKcal,
       required DateTime updatedAt,
     });
 typedef $$UserProfileTableUpdateCompanionBuilder =
@@ -5092,6 +5162,7 @@ typedef $$UserProfileTableUpdateCompanionBuilder =
       Value<double> heightCm,
       Value<double> weightKg,
       Value<String> activityLevel,
+      Value<double?> measuredMaintenanceKcal,
       Value<DateTime> updatedAt,
     });
 
@@ -5131,6 +5202,11 @@ class $$UserProfileTableFilterComposer
 
   ColumnFilters<String> get activityLevel => $composableBuilder(
     column: $table.activityLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get measuredMaintenanceKcal => $composableBuilder(
+    column: $table.measuredMaintenanceKcal,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5179,6 +5255,11 @@ class $$UserProfileTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get measuredMaintenanceKcal => $composableBuilder(
+    column: $table.measuredMaintenanceKcal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -5211,6 +5292,11 @@ class $$UserProfileTableAnnotationComposer
 
   GeneratedColumn<String> get activityLevel => $composableBuilder(
     column: $table.activityLevel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get measuredMaintenanceKcal => $composableBuilder(
+    column: $table.measuredMaintenanceKcal,
     builder: (column) => column,
   );
 
@@ -5255,6 +5341,7 @@ class $$UserProfileTableTableManager
                 Value<double> heightCm = const Value.absent(),
                 Value<double> weightKg = const Value.absent(),
                 Value<String> activityLevel = const Value.absent(),
+                Value<double?> measuredMaintenanceKcal = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => UserProfileCompanion(
                 id: id,
@@ -5263,6 +5350,7 @@ class $$UserProfileTableTableManager
                 heightCm: heightCm,
                 weightKg: weightKg,
                 activityLevel: activityLevel,
+                measuredMaintenanceKcal: measuredMaintenanceKcal,
                 updatedAt: updatedAt,
               ),
           createCompanionCallback:
@@ -5273,6 +5361,7 @@ class $$UserProfileTableTableManager
                 required double heightCm,
                 required double weightKg,
                 required String activityLevel,
+                Value<double?> measuredMaintenanceKcal = const Value.absent(),
                 required DateTime updatedAt,
               }) => UserProfileCompanion.insert(
                 id: id,
@@ -5281,6 +5370,7 @@ class $$UserProfileTableTableManager
                 heightCm: heightCm,
                 weightKg: weightKg,
                 activityLevel: activityLevel,
+                measuredMaintenanceKcal: measuredMaintenanceKcal,
                 updatedAt: updatedAt,
               ),
           withReferenceMapper: (p0) => p0

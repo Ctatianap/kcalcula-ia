@@ -162,7 +162,7 @@ void main() {
           .customSelect('PRAGMA user_version')
           .map((row) => row.read<int>('user_version'))
           .getSingle();
-      expect(version, 5);
+      expect(version, 6);
     });
 
     test('migrar desde la v4 de desarrollo (SPEC-008 v1) reemplaza las tablas de meta y conserva las comidas', () async {
@@ -219,6 +219,23 @@ void main() {
           )
           .get();
       expect(tables, isEmpty);
+    });
+
+    test('migrar desde la v5 de desarrollo agrega el mantenimiento medido y conserva el perfil', () async {
+      final s = _open();
+      await _saveSampleProfile(s.repo);
+      // Esquema de la v5: user_profile sin measured_maintenance_kcal.
+      await s.db.customStatement(
+        'ALTER TABLE user_profile DROP COLUMN measured_maintenance_kcal',
+      );
+      await s.db.customStatement('PRAGMA user_version = 5');
+      await s.db.close();
+
+      final db = AppDatabase(AppDatabase.openFile(s.path));
+      addTearDown(db.close);
+      final profile = await StorageRepository(db).getUserProfile();
+      expect(profile!.weightKg, 63);
+      expect(profile.measuredMaintenanceKcal, isNull);
     });
   });
 }

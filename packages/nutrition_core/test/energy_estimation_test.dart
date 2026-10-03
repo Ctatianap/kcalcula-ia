@@ -24,19 +24,20 @@ void main() {
     }
   });
 
-  group('AC2: mantenimiento = basal × PAL de EFSA 2013', () {
+  group('AC2: mantenimiento = basal × factor de actividad', () {
     final basal = estimateBasalKcal(
       weightKg: 77.2,
       heightCm: 172,
       ageYears: 27,
       sex: BiologicalSex.male,
     );
-    // Valores literales: basal 1.806,28 (primer caso de AC1) × PAL.
+    // Valores literales: basal 1.806,28 (primer caso de AC1) × factor.
     for (final (level, pal, expected) in [
-      (ActivityLevel.sedentary, 1.4, 2528.79),
-      (ActivityLevel.lightlyActive, 1.6, 2890.05),
-      (ActivityLevel.active, 1.8, 3251.30),
-      (ActivityLevel.veryActive, 2.0, 3612.56),
+      (ActivityLevel.sedentary, 1.2, 2167.53),
+      (ActivityLevel.lightlyActive, 1.375, 2483.63),
+      (ActivityLevel.active, 1.55, 2799.73),
+      (ActivityLevel.veryActive, 1.725, 3115.83),
+      (ActivityLevel.extraActive, 1.9, 3431.93),
     ]) {
       test('${level.name} → × $pal', () {
         expect(level.pal, pal);

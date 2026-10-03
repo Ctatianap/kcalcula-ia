@@ -5,25 +5,31 @@
 ///   Basal Metabolism". PNAS 1918;4(12):370-373, p. 373
 ///   (https://pmc.ncbi.nlm.nih.gov/articles/PMC1091498/, consultado
 ///   2026-10-02). Ecuaciones originales, no la revisión de Roza y Shizgal.
-/// - Factores de actividad física (PAL): EFSA 2013, adultos 1,4 / 1,6 / 1,8 /
-///   2,0, según EFSA, EU Menu Guidance, Appendix 8.2.1, pp. 4-5
-///   (https://www.efsa.europa.eu/sites/default/files/efsa_rep/blobserver_assets/3944A-8-2-1.pdf,
-///   consultado 2026-10-02). Mantenimiento = basal × PAL, como en FAO/OMS.
-///   Asignar cada PAL a "días de ejercicio por semana" es una **decisión de
-///   producto** de SPEC-008, no de la fuente.
+/// - Factores de actividad: escala de las calculadoras de fitness (1,2 /
+///   1,375 / 1,55 / 1,725 / 1,9), la misma de
+///   https://fitgeneration.es/calculadora/harris-benedict/. **No tiene fuente
+///   institucional ni académica** (PV-14): es una **decisión de producto** de
+///   SPEC-008, aprobada por la usuaria tras compararla con su gasto medido
+///   por reloj (los PAL de EFSA 2013, 1,4–2,0, daban valores más altos que
+///   su gasto real). Mantenimiento = basal × factor. Si la persona registra
+///   su mantenimiento medido, ese manda (R4).
 library;
 
 enum BiologicalSex { female, male }
 
-/// SPEC-008 R2: niveles de actividad (incluye NEAT), con su PAL de EFSA 2013.
+/// SPEC-008 R2: niveles de actividad (incluye NEAT) y su factor. Los
+/// nombres se conservan de la versión anterior para no invalidar perfiles
+/// guardados; `active` es "Actividad moderada".
 enum ActivityLevel {
-  sedentary(1.4),
-  lightlyActive(1.6),
-  active(1.8),
-  veryActive(2.0);
+  sedentary(1.2),
+  lightlyActive(1.375),
+  active(1.55),
+  veryActive(1.725),
+  extraActive(1.9);
 
   const ActivityLevel(this.pal);
 
+  /// Factor por el que se multiplica el metabolismo basal.
   final double pal;
 }
 
@@ -87,7 +93,7 @@ double estimateBasalKcal({
   };
 }
 
-/// Mantenimiento en kcal/día, sin redondear: basal × PAL.
+/// Mantenimiento estimado en kcal/día, sin redondear: basal × factor.
 double estimateMaintenanceKcal({
   required double weightKg,
   required double heightCm,

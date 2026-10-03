@@ -89,6 +89,10 @@ class UserProfile extends Table {
   RealColumn get heightCm => real()();
   RealColumn get weightKg => real()();
   TextColumn get activityLevel => text()();
+
+  /// SPEC-008 R4: mantenimiento medido (p. ej. promedio de un reloj); si
+  /// existe, manda sobre la fórmula.
+  RealColumn get measuredMaintenanceKcal => real().nullable()();
   DateTimeColumn get updatedAt => dateTime()();
 
   @override
@@ -127,7 +131,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -152,6 +156,10 @@ class AppDatabase extends _$AppDatabase {
       if (from < 5) {
         await m.createTable(userProfile);
         await m.createTable(nutritionGoals);
+      }
+      if (from == 5) {
+        // v5 solo existió en builds de desarrollo de SPEC-008.
+        await m.addColumn(userProfile, userProfile.measuredMaintenanceKcal);
       }
     },
   );

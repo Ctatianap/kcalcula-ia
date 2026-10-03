@@ -15,7 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrition_core/nutrition_core.dart';
 
 /// Perfil de referencia: mujer, 30 años, 165 cm, 63 kg, actividad ligera.
-/// Harris-Benedict 1918: basal 1.422,5 → "~1.423"; × 1,6 → "~2.276".
+/// Harris-Benedict 1918: basal 1.422,5 → "~1.423"; × 1,375 → "~1.956".
 final _birth30 = DateTime(DateTime.now().year - 30, 1, 1);
 
 Future<void> _saveProfile(StorageRepository repo, {double weightKg = 63}) =>
@@ -39,6 +39,7 @@ class _FailingRepository extends StorageRepository {
     required double heightCm,
     required double weightKg,
     required String activityLevel,
+    double? measuredMaintenanceKcal,
     NutritionGoalValues? recalculatedGoal,
   }) => Future.error(StateError('SqliteException: parameters: 63, 165'));
 
@@ -118,16 +119,16 @@ void main() {
 
       expect(find.text('30 años'), findsOneWidget);
       expect(find.text('Metabolismo basal: ~1.423 kcal'), findsOneWidget);
-      expect(find.text('Mantenimiento: ~2.276 kcal'), findsOneWidget);
+      expect(find.text('Mantenimiento: ~1.956 kcal'), findsOneWidget);
       expect(find.text(disclaimerText), findsOneWidget);
 
       // AC7: cambiar peso y actividad recalcula sin reiniciar la pantalla.
       await tester.enterText(find.byKey(const Key('profile-weight')), '70');
       await tester.pump();
-      expect(find.text('Mantenimiento: ~2.383 kcal'), findsOneWidget);
-      await tester.tap(find.text('Actividad alta'));
+      expect(find.text('Mantenimiento: ~2.048 kcal'), findsOneWidget);
+      await tester.tap(find.text('Actividad intensa'));
       await tester.pump();
-      expect(find.text('Mantenimiento: ~2.979 kcal'), findsOneWidget);
+      expect(find.text('Mantenimiento: ~2.569 kcal'), findsOneWidget);
 
       await tester.tap(save);
       await tester.pumpAndSettle();
@@ -241,11 +242,11 @@ void main() {
 
         await tester.tap(find.text('Calcular mi meta'));
         await tester.pumpAndSettle();
-        expect(find.text('Tu mantenimiento: ~2.276 kcal'), findsOneWidget);
-        expect(find.text('Bajar grasa · ~1.776 kcal'), findsOneWidget);
+        expect(find.text('Tu mantenimiento: ~1.956 kcal'), findsOneWidget);
+        expect(find.text('Bajar grasa · ~1.456 kcal'), findsOneWidget);
         expect(
           find.textContaining(
-            'Proteína 114 g · Grasa 63 g · Carbohidratos 313 g',
+            'Proteína 98 g · Grasa 54 g · Carbohidratos 269 g',
           ),
           findsOneWidget,
         );
@@ -258,8 +259,8 @@ void main() {
         final goal = await StorageRepository(db).getNutritionGoal();
         expect(goal!.objective, 'loseFat');
         expect(goal.isManual, isFalse);
-        expect(goal.energyKcal, closeTo(1776.01, 0.01));
-        expect(find.text('0 / 1.776 kcal · quedan 1.776'), findsOneWidget);
+        expect(goal.energyKcal, closeTo(1455.95, 0.01));
+        expect(find.text('0 / 1.456 kcal · quedan 1.456'), findsOneWidget);
         expect(find.byType(LinearProgressIndicator), findsNWidgets(4));
       },
     );
@@ -325,13 +326,13 @@ void main() {
       await tester.pumpAndSettle();
 
       final goal = await repo.getNutritionGoal();
-      expect(goal!.energyKcal, closeTo(1883.12, 0.01));
+      expect(goal!.energyKcal, closeTo(1547.99, 0.01));
       expect(goal.objective, 'loseFat');
 
       // El diario muestra la meta recalculada.
       await tester.pumpWidget(const SizedBox());
       await _pump(tester, AppRoutes.diary, db: db);
-      expect(find.text('0 / 1.883 kcal · quedan 1.883'), findsOneWidget);
+      expect(find.text('0 / 1.548 kcal · quedan 1.548'), findsOneWidget);
     });
 
     testWidgets(
@@ -353,7 +354,7 @@ void main() {
         );
         await tester.enterText(find.byKey(const Key('profile-weight')), '300');
         await tester.enterText(find.byKey(const Key('profile-height')), '230');
-        await tester.tap(find.text('Actividad alta'));
+        await tester.tap(find.text('Actividad intensa'));
         await tester.pump();
         await tester.tap(find.widgetWithText(FilledButton, 'Guardar perfil'));
         await tester.pumpAndSettle();
@@ -390,7 +391,7 @@ void main() {
       expect(
         find.text(
           'Tu meta es manual (1.800 kcal). Con tu perfil actual, '
-          '"Bajar grasa" sería ~1.883 kcal.',
+          '"Bajar grasa" sería ~1.548 kcal.',
         ),
         findsOneWidget,
       );
@@ -399,7 +400,7 @@ void main() {
       await tester.pumpAndSettle();
       final goal = await repo.getNutritionGoal();
       expect(goal!.isManual, isFalse);
-      expect(goal.energyKcal, closeTo(1883.12, 0.01));
+      expect(goal.energyKcal, closeTo(1547.99, 0.01));
     });
   });
 
@@ -425,6 +426,66 @@ void main() {
       expect(tester.takeException(), isNull);
       expect(find.text(goalLoadErrorMessage), findsOneWidget);
       expect(find.text('Reintentar'), findsOneWidget);
+    });
+  });
+
+  group('R4: mantenimiento medido', () {
+    testWidgets('si se llena, manda sobre la fórmula y se guarda', (
+      tester,
+    ) async {
+      final db = await _pump(tester, AppRoutes.profile);
+      addTearDown(db.close);
+      await _fillProfile(tester);
+
+      await tester.enterText(
+        find.byKey(const Key('profile-measured')),
+        '1.890',
+      );
+      await tester.pump();
+
+      expect(find.text('Mantenimiento (medido): 1.890 kcal'), findsOneWidget);
+      expect(
+        find.text(
+          'Según la fórmula serían ~1.956 kcal; se usa tu valor medido.',
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(find.widgetWithText(FilledButton, 'Guardar perfil'));
+      await tester.pumpAndSettle();
+      final profile = await StorageRepository(db).getUserProfile();
+      expect(profile!.measuredMaintenanceKcal, 1890);
+    });
+
+    testWidgets('Mi objetivo usa el mantenimiento medido', (tester) async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      await StorageRepository(db).saveUserProfile(
+        sex: 'female',
+        birthDate: _birth30,
+        heightCm: 165,
+        weightKg: 63,
+        activityLevel: 'active',
+        measuredMaintenanceKcal: 1890,
+      );
+      await _pump(tester, AppRoutes.objective, db: db);
+
+      expect(find.text('Tu mantenimiento: ~1.890 kcal'), findsOneWidget);
+      expect(find.text('Bajar grasa · ~1.390 kcal'), findsOneWidget);
+    });
+
+    testWidgets('fuera de rango: mensaje y no se puede guardar', (
+      tester,
+    ) async {
+      final db = await _pump(tester, AppRoutes.profile);
+      addTearDown(db.close);
+      await _fillProfile(tester);
+
+      await tester.enterText(find.byKey(const Key('profile-measured')), '500');
+      await tester.pump();
+
+      expect(find.text(measuredRangeMessage), findsOneWidget);
+      final save = find.widgetWithText(FilledButton, 'Guardar perfil');
+      expect(tester.widget<FilledButton>(save).onPressed, isNull);
     });
   });
 }

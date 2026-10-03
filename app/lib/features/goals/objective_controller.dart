@@ -3,6 +3,7 @@ import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../infra/storage/storage_repository.dart';
 import 'goal_calculation.dart';
+import 'profile_controller.dart' show parseKcal;
 
 const kcalRangeMessage = 'Escribe un número entero entre 800 y 6.000.';
 const lowGoalWarningMessage =
@@ -163,10 +164,5 @@ class ObjectiveController extends ChangeNotifier {
   }
 }
 
-/// Entero, con o sin separador de miles de es-CO ("2000" o "2.000");
-/// `null` si no lo es.
-double? parseGoalKcal(String text) {
-  final trimmed = text.trim();
-  if (!RegExp(r'^(\d+|\d{1,3}(\.\d{3})+)$').hasMatch(trimmed)) return null;
-  return int.parse(trimmed.replaceAll('.', '')).toDouble();
-}
+/// Entero, con o sin separador de miles de es-CO ("2000" o "2.000").
+double? parseGoalKcal(String text) => parseKcal(text);
