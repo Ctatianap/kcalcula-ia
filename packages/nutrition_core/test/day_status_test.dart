@@ -32,4 +32,17 @@ void main() {
       DayStatus.aboveGoal,
     );
   });
+
+  test('meta no redonda: exactamente el 90 % y el 110 % están en la meta', () {
+    expect(
+      dayStatus(consumedKcal: 1456 * 0.9, goalKcal: 1456),
+      DayStatus.onGoal,
+    );
+    expect(
+      dayStatus(consumedKcal: 1456 * 1.1, goalKcal: 1456),
+      DayStatus.onGoal,
+    );
+    expect(dayStatus(consumedKcal: 1310, goalKcal: 1456), DayStatus.belowGoal);
+    expect(dayStatus(consumedKcal: 1602, goalKcal: 1456), DayStatus.aboveGoal);
+  });
 }

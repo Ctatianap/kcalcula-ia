@@ -200,7 +200,7 @@ class _WeekDay extends StatelessWidget {
         fontSize: 14,
         fontWeight: FontWeight.w400,
         color: day.isToday
-            ? Colors.white
+            ? KColors.background
             : day.isFuture
             ? KColors.textSecondary
             : KColors.text,
@@ -218,15 +218,29 @@ class _WeekDay extends StatelessWidget {
         ),
         child: number,
       );
-    } else if (day.hasMeals) {
-      final status = _statusColors[day.status];
+    } else if (day.hasMeals && day.status != null) {
+      final status = _statusColors[day.status]!;
       circle = ProgressRing(
         key: Key('week-ring-${day.date.day}'),
-        fraction: status == null ? 1 : day.fraction,
+        fraction: day.fraction,
         size: 40,
         strokeWidth: 2,
-        color: status?.color ?? KColors.textSecondary,
+        color: status.color,
         center: number,
+      );
+    } else if (day.hasMeals) {
+      // Sin meta: no hay anillo de meta (R7); un fondo suave marca que hubo
+      // registros.
+      circle = Container(
+        key: Key('week-day-logged-${day.date.day}'),
+        width: 40,
+        height: 40,
+        alignment: Alignment.center,
+        decoration: const BoxDecoration(
+          color: KColors.surface,
+          shape: BoxShape.circle,
+        ),
+        child: number,
       );
     } else {
       circle = SizedBox(width: 40, height: 40, child: Center(child: number));
@@ -386,8 +400,8 @@ class _MacroCards extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w400,
@@ -402,19 +416,29 @@ class _MacroCards extends StatelessWidget {
                     ).fraction,
                     color: color,
                     semanticsLabel:
-                        '$label: ${presentKcal(consumed)} de '
-                        '${presentKcal(target)} g',
-                    center: Text(
-                      '${presentKcal(consumed)}',
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
+                        '$label: ${formatMacroEs(consumed)} de '
+                        '${formatMacroEs(target)} g',
+                    // Con texto grande el número se reduce para no salirse
+                    // del anillo.
+                    center: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          formatMacroEs(consumed),
+                          maxLines: 1,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'de ${presentKcal(target)} g',
+                    'de ${formatMacroEs(target)} g',
+                    textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 12,
                       color: KColors.textSecondary,
@@ -509,7 +533,7 @@ class _MealCard extends StatelessWidget {
     final totals = summary.totals;
     final label = mealTypeLabels[meal.mealType] ?? 'Snack';
     final items = summary.meal.items
-        .map((i) => '${i.nameSnapshot} ${presentKcal(i.grams)} g')
+        .map((i) => '${i.nameSnapshot} ${i.grams.round()} g')
         .join(' · ');
     const secondary = TextStyle(fontSize: 13, color: KColors.textSecondary);
     return KCard(
@@ -542,9 +566,9 @@ class _MealCard extends StatelessWidget {
                 '${presentKcal(totals.energyKcal)} kcal',
                 style: const TextStyle(fontWeight: FontWeight.w500),
               ),
-              Text('P ${presentKcal(totals.proteinG)}g', style: secondary),
-              Text('C ${presentKcal(totals.carbsG)}g', style: secondary),
-              Text('G ${presentKcal(totals.fatG)}g', style: secondary),
+              Text('P ${formatMacroEs(totals.proteinG)} g', style: secondary),
+              Text('C ${formatMacroEs(totals.carbsG)} g', style: secondary),
+              Text('G ${formatMacroEs(totals.fatG)} g', style: secondary),
             ],
           ),
         ],

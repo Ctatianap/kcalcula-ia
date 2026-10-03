@@ -79,7 +79,10 @@ cómo voy en macros y cómo me fue los días anteriores de la semana.
 - Semana que cruza de mes: los números de día son los del calendario real.
 - Muchas comidas en un día: la lista crece y la pantalla se desplaza; la barra inferior no tapa
   contenido.
-- Texto grande del sistema: las tarjetas de macros pasan a dos líneas sin cortar números.
+- Texto grande del sistema: las etiquetas de macros pasan a dos líneas y el número del anillo se
+  reduce para caber, sin cortarse (test con texto ×2).
+- Sin meta, los días pasados con registros no llevan anillo (R7): un fondo suave indica que hubo
+  registros y la etiqueta semántica dice "con registros".
 
 ## Security & Privacy
 - No sale ningún dato nuevo del dispositivo.
@@ -102,13 +105,13 @@ cómo voy en macros y cómo me fue los días anteriores de la semana.
 | AC1 | ✅ | `packages/nutrition_core/test/day_status_test.dart` (1.799 / 1.800 / 2.200 / 2.201, sin meta, límites sin redondear) |
 | AC2 | ✅ | `app/test/features/diary/diary_format_test.dart` |
 | AC3 | ✅ | `app/test/features/diary/diary_screen_test.dart` ("AC3…": anillo del lunes al 75 % con color "por debajo", martes lleno "por encima", sin anillo en días sin registros y futuros, etiquetas semánticas por día) |
-| AC4 | ✅ | `diary_screen_test.dart` ("AC4…" con meta y "por encima de la meta") |
+| AC4 | ✅ | `diary_screen_test.dart` ("AC4…" con meta —macros con 1 decimal: "de 55,6 g"— y "por encima de la meta", anillo lleno con el acento) |
 | AC5 | ✅ | `diary_screen_test.dart` ("AC5…") |
-| AC6 | ✅ | `diary_screen_test.dart` ("AC6…" sin meta y sin comidas) |
+| AC6 | ✅ | `diary_screen_test.dart` ("AC6…" sin meta —muestra "500"— y sin comidas; "sin meta: los días con registros no llevan anillo de meta") |
 | AC7 | ✅ | Colores de estado = `DayGoalStatus` (sin rojo ni verde, test de SPEC-010); cada día lleva etiqueta semántica con su estado (AC3) |
 
 Verificado (2026-10-03): `dart analyze` y `flutter analyze` sin issues; `nutrition_core` 71/71; app
-176/176. Recorrido manual: al final del lote.
+184/184 (tras la revisión). Recorrido manual: al final del lote.
 
 Decisiones de implementación:
 - `clockProvider` (`app/lib/infra/clock.dart`) hace inyectable la hora actual para probar la semana.
@@ -128,6 +131,23 @@ Decisiones de implementación:
 - 2026-10-03: **Approved por la usuaria** ("aprobadas", junto con SPEC-011 a SPEC-019). Los recorridos manuales en el teléfono se agrupan al final del lote.
 
 - 2026-10-03: implementada. Status → Review.
+
+- 2026-10-03: reviewer CHANGES_REQUESTED. Corregido:
+  - [BLOCKER] La evidencia de AC2 citaba un test que no existía (no se creó por un comando
+    fallido): `diary_format_test.dart` creado con los límites del saludo.
+  - [MAJOR] Los macros se presentaban en gramos enteros con `presentKcal`: ahora usan
+    `formatMacroEs`, con 1 decimal, como dice `docs/architecture.md`.
+  - [MAJOR] Con texto grande el número del anillo se salía: ahora usa `FittedBox` y la etiqueta
+    admite dos líneas, con test ×2.
+  - MINOR:
+    - `Colors.white` → `KColors.background`;
+    - evidencia de SPEC-008 actualizada; asserts de "500" sin meta y del anillo lleno por encima
+      de la meta;
+    - test de `mealsBetween` [inicio, fin) y del orden;
+    - el lunes se calcula por fecha de calendario, con tests de hoy lunes, hoy domingo y cruce de
+      mes;
+    - sin meta, sin anillo (Edge Cases);
+    - margen de coma flotante en `dayStatus`, con caso de meta no redonda.
 
 ## Review
 Informe del reviewer: pendiente.

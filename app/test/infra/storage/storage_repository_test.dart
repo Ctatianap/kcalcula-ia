@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:calorias_ia/infra/storage/app_database.dart';
 import 'package:calorias_ia/infra/storage/storage_repository.dart';
+import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 MealItemRecord _egg() => const MealItemRecord(
@@ -362,5 +363,29 @@ void main() {
 
       await db.close();
     });
+  });
+
+  test('SPEC-011: mealsBetween es [inicio, fin) y ordena por hora', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repo = StorageRepository(db);
+    Future<void> at(DateTime t) => repo.registerMeal(
+      eatenAt: t,
+      mealType: 'snack',
+      confidence: 'buenaEstimacion',
+      catalogVersion: 'test-1',
+      items: [_egg()],
+    );
+    await at(DateTime(2026, 10, 3, 13));
+    await at(DateTime(2026, 10, 3)); // 00:00 del inicio: incluida
+    await at(DateTime(2026, 10, 4)); // 00:00 del fin: excluida
+    await at(DateTime(2026, 10, 3, 8));
+
+    final meals = await repo.mealsBetween(
+      DateTime(2026, 10, 3),
+      DateTime(2026, 10, 4),
+    );
+
+    expect(meals.map((m) => m.meal.eatenAt.hour), [0, 8, 13]);
   });
 }

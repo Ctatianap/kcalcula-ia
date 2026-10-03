@@ -75,7 +75,12 @@ Future<DiarySummary> loadDiarySummary(
   DateTime now,
 ) async {
   final today = _dayOf(now);
-  final monday = today.subtract(Duration(days: today.weekday - 1));
+  // Por fecha de calendario, no restando días de 24 h (horario de verano).
+  final monday = DateTime(
+    today.year,
+    today.month,
+    today.day - (today.weekday - 1),
+  );
   final nextMonday = DateTime(monday.year, monday.month, monday.day + 7);
   final weekMeals = await storage.mealsBetween(monday, nextMonday);
   final goal = await storage.getNutritionGoal();

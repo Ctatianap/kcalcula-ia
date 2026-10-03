@@ -59,7 +59,12 @@ NutritionGoalValues _goal(double kcal) => (
   fatG: 55.6,
 );
 
-Future<AppDatabase> _pump(WidgetTester tester, {AppDatabase? db}) async {
+Future<AppDatabase> _pump(
+  WidgetTester tester, {
+  AppDatabase? db,
+  DateTime? now,
+  double textScale = 1,
+}) async {
   tester.view.physicalSize = const Size(1080, 3000);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -68,9 +73,14 @@ Future<AppDatabase> _pump(WidgetTester tester, {AppDatabase? db}) async {
     ProviderScope(
       overrides: [
         appDatabaseProvider.overrideWithValue(database),
-        clockProvider.overrideWithValue(() => _now),
+        clockProvider.overrideWithValue(() => now ?? _now),
       ],
       child: MaterialApp(
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: TextScaler.linear(textScale)),
+          child: child!,
+        ),
         initialRoute: AppRoutes.today,
         routes: {
           AppRoutes.today: (_) => const DiaryScreen(),
@@ -142,10 +152,12 @@ void main() {
     expect(find.text('893'), findsWidgets);
     expect(find.text('/2.000'), findsOneWidget);
     expect(find.text('kcal consumidas · quedan 1.107'), findsOneWidget);
-    expect(find.text('de 100 g'), findsOneWidget);
-    expect(find.text('de 275 g'), findsOneWidget);
-    expect(find.text('de 56 g'), findsOneWidget);
-    expect(find.bySemanticsLabel('Proteína: 20 de 100 g'), findsOneWidget);
+    // Macros con 1 decimal (docs/architecture.md, Cálculo).
+    expect(find.text('de 100,0 g'), findsOneWidget);
+    expect(find.text('de 275,0 g'), findsOneWidget);
+    expect(find.text('de 55,6 g'), findsOneWidget);
+    expect(find.text('20,0'), findsOneWidget);
+    expect(find.bySemanticsLabel('Proteína: 20,0 de 100,0 g'), findsOneWidget);
   });
 
   testWidgets('AC4: por encima de la meta, texto neutro', (tester) async {
@@ -161,6 +173,13 @@ void main() {
       find.text('kcal consumidas · 150 por encima de la meta'),
       findsOneWidget,
     );
+    // Hoy no lleva anillo en la semana; el anillo de kcal va lleno y con el
+    // acento, sin color de alarma.
+    final ring = tester.widget<ProgressRing>(
+      find.byWidgetPredicate((w) => w is ProgressRing && w.size == 84),
+    );
+    expect(ring.clampedFraction, 1);
+    expect(ring.color, KColors.accent);
   });
 
   testWidgets(
@@ -188,7 +207,7 @@ void main() {
       expect(find.text('13:02'), findsOneWidget);
       expect(find.text('Arepa 100 g'), findsOneWidget);
       expect(find.text('397 kcal'), findsOneWidget);
-      expect(find.text('P 20g'), findsWidgets);
+      expect(find.text('P 20,0 g'), findsWidgets);
     },
   );
 
@@ -201,6 +220,7 @@ void main() {
 
     await _pump(tester, db: db);
 
+    expect(find.text('500'), findsOneWidget);
     expect(find.text('kcal consumidas hoy'), findsOneWidget);
     expect(find.text('Proteína'), findsNothing);
     await tester.tap(find.text('Calcular mi meta'));
@@ -232,5 +252,60 @@ void main() {
     await _pump(tester, db: db);
 
     expect(find.text('~500'), findsOneWidget);
+  });
+
+  testWidgets('sin meta: los días con registros no llevan anillo de meta', (
+    tester,
+  ) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await _meal(StorageRepository(db), DateTime(2026, 9, 28, 13), 1500);
+
+    await _pump(tester, db: db);
+
+    expect(find.byKey(const Key('week-ring-28')), findsNothing);
+    expect(find.byKey(const Key('week-day-logged-28')), findsOneWidget);
+    expect(
+      find.bySemanticsLabel('lunes 28 de septiembre, con registros'),
+      findsOneWidget,
+    );
+  });
+
+  for (final (name, now, firstDay, lastDay) in [
+    ('lunes', DateTime(2026, 9, 28, 9), 28, 4),
+    ('domingo', DateTime(2026, 10, 4, 9), 28, 4),
+    ('cruce de mes', DateTime(2026, 11, 1, 9), 26, 1),
+  ]) {
+    testWidgets('semana correcta con hoy $name', (tester) async {
+      final db = await _pump(tester, now: now);
+      addTearDown(db.close);
+      final labels = find.byWidgetPredicate(
+        (w) => w is Semantics && (w.properties.label ?? '').contains(' de '),
+      );
+      final texts = tester
+          .widgetList<Semantics>(labels)
+          .map((w) => w.properties.label!)
+          .where((l) => RegExp(r'^\S+ \d+ de \S+,').hasMatch(l))
+          .toList();
+      expect(texts, hasLength(7));
+      expect(texts.first, startsWith('lunes $firstDay '));
+      expect(texts.last, startsWith('domingo $lastDay '));
+    });
+  }
+
+  testWidgets('texto grande (×2): sin desbordes y números completos', (
+    tester,
+  ) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repo = StorageRepository(db);
+    await repo.saveNutritionGoal(_goal(2000));
+    await _meal(repo, DateTime(2026, 10, 3, 8), 893);
+
+    await _pump(tester, db: db, textScale: 2);
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('20,0'), findsOneWidget);
+    expect(find.text('Carbohidratos'), findsOneWidget);
   });
 }

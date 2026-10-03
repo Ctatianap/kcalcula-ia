@@ -235,11 +235,11 @@ peso o de temporada de actividad, todo se recalcula.
 | AC5 | ✅ | `goal_planning_test.dart` (100 / 55,6 / 275 g; suma 4/9/4; repartos dentro de los AMDR) |
 | AC6 | ✅ | `app/test/features/goals/goals_flow_test.dart` ("AC6/AC7…", "AC6: fuera de rango…", "carga el perfil guardado…") |
 | AC7 | ✅ | `goals_flow_test.dart` ("AC6/AC7…": peso 63 → 70 y actividad ligera → intensa: ~1.956 → ~2.048 → ~2.569, sin reiniciar la pantalla) |
-| AC8 | ✅ | `goals_flow_test.dart` ("AC8…": diario → "Calcular mi meta" → objetivo → meta → "0 / 1.456 kcal" y 4 barras) + `app/test/features/diary/diary_goal_test.dart` |
+| AC8 | ✅ | `goals_flow_test.dart` ("AC8…": diario → "Calcular mi meta" → objetivo → meta → "0 / 1.456 kcal" y 4 barras) + `app/test/features/diary/diary_screen_test.dart` |
 | AC9 | ✅ | `goals_flow_test.dart`, grupo "AC9" (meta de un objetivo recalculada 1.456 → 1.548 y el diario muestra "/ 1.548 kcal"; meta manual fija, aviso y "Usar este valor"; recálculo fuera de rango → se conserva y se avisa) + `app/test/infra/storage/nutrition_goal_storage_test.dart` ("R9…") |
 | AC10 | ✅ | `goals_flow_test.dart` ("AC10…") + `packages/nutrition_core/test/goal_limits_test.dart` |
-| AC11 | ✅ | `goals_flow_test.dart` ("AC11: sin perfil…", "perfil que ya no es válido…", "R1: desde Mi objetivo se abre Mi perfil") + `diary_goal_test.dart` ("AC11: sin meta…") |
-| AC12 | ✅ | `diary_goal_test.dart` (textos, "~", por encima de la meta, barra con el color del tema) + `goal_progress_test.dart` |
+| AC11 | ✅ | `goals_flow_test.dart` ("AC11: sin perfil…", "perfil que ya no es válido…", "R1: desde Mi objetivo se abre Mi perfil") + `diary_screen_test.dart` ("AC11: sin meta…") |
+| AC12 | ✅ | `diary_screen_test.dart` (textos, "~", por encima de la meta, barra con el color del tema) + `goal_progress_test.dart` |
 | AC13 | ✅ | `nutrition_goal_storage_test.dart` (borrar todo, exportar, migraciones v3, v4 y v5 de desarrollo → v6) |
 | AC14 | ✅ | `goals_flow_test.dart` ("AC14…" en perfil y en objetivo: `takeException()` nulo, sin "Sqlite") |
 | AC15 | ✅ | Grep (2026-10-02): `app/lib/infra/ai_client`, `app/lib/infra/crash_reporting` y `functions/src` no mencionan perfil ni meta; `features/goals` no tiene `print`/`debugPrint`/`log`; los fallos de escritura no se relanzan (AC14) |
@@ -350,6 +350,8 @@ issues; `nutrition_core` 63/63; app 139/139 (tras OQ10-A, el mantenimiento medid
 
 - 2026-10-03: la usuaria hizo el recorrido manual en su teléfono ("ahora sí") y aprobó la fusión
   ("aprobado"), incluido el cambio de AC17 a `[widget + unit]`. Status Review → Done.
+
+- 2026-10-03: SPEC-011 reemplazó `diary_goal_test.dart` por `diary_screen_test.dart`; la evidencia de AC8, AC11 y AC12 apunta ahora a ese archivo (mismos casos, presentación nueva).
 
 ## Review
 Primera revisión (2026-10-02, subagente `reviewer`): **CHANGES_REQUESTED**.
