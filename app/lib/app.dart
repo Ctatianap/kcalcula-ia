@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_routes.dart';
 import 'features/goals/objective_screen.dart';
+import 'features/history/history_screen.dart';
+import 'features/progress/progress_screen.dart';
 import 'features/goals/profile_screen.dart';
 import 'features/capture/capture_screen.dart';
 import 'features/diary/diary_screen.dart';
@@ -15,6 +17,7 @@ import 'infra/crash_reporting/crash_reporting_providers.dart';
 import 'infra/legal/privacy_policy.dart';
 import 'infra/storage/storage_providers.dart';
 import 'infra/storage/storage_repository.dart';
+import 'ui/theme.dart';
 
 /// Raíz de composición: es el único lugar que conoce las features y las
 /// conecta por nombre de ruta (`app_routes.dart`). Las features nunca se
@@ -26,9 +29,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'KCalcula IA',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
+      // SPEC-010 R1: tema global del diseño "kcalcula ia UI".
+      theme: buildAppTheme(),
       initialRoute: AppRoutes.diary,
       onGenerateRoute: (settings) {
         switch (settings.name) {
@@ -63,21 +65,36 @@ class MyApp extends StatelessWidget {
               settings: settings,
               builder: (_) => const ObjectiveScreen(),
             );
+          // SPEC-010 R4: las pestañas principales cambian sin animación.
+          // Solo se llega aquí después de pasar el control de consentimiento
+          // de `/` (_RootGate). No exponer `/today` a deep links sin repetir
+          // ese control.
+          case AppRoutes.today:
+            return _tabRoute(settings, const DiaryScreen());
+          case AppRoutes.history:
+            return _tabRoute(settings, const HistoryScreen());
+          case AppRoutes.progress:
+            return _tabRoute(settings, const ProgressScreen());
           case AppRoutes.privacyPolicy:
             return MaterialPageRoute(
               settings: settings,
               builder: (_) => const PrivacyPolicyScreen(),
             );
           default:
-            return MaterialPageRoute(
-              settings: settings,
-              builder: (_) => const _RootGate(),
-            );
+            return _tabRoute(settings, const _RootGate());
         }
       },
     );
   }
 }
+
+Route<void> _tabRoute(RouteSettings settings, Widget screen) =>
+    PageRouteBuilder(
+      settings: settings,
+      transitionDuration: Duration.zero,
+      reverseTransitionDuration: Duration.zero,
+      pageBuilder: (_, _, _) => screen,
+    );
 
 /// SPEC-006 R1/AC1/AC4, extendido por SPEC-007 R5: decide entre
 /// `OnboardingScreen` y `DiaryScreen` según si existe un `ConsentRecord`

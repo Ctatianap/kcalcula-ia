@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'app.dart';
 import 'firebase_options.dart';
+import 'ui/licenses.dart';
 import 'infra/ai_client/ai_client.dart';
 import 'infra/ai_client/ai_client_providers.dart';
 import 'infra/catalog/catalog_asset_loader.dart';
@@ -70,6 +71,9 @@ Future<void> main() async {
   // SPEC-006 R7: directorio de escritura para el JSON de "Exportar mis
   // datos" antes de pasarlo al share sheet — temporal, no `user.db`.
   final tempDir = await getTemporaryDirectory();
+
+  // SPEC-010 R2: licencia de la fuente embebida (OFL 1.1).
+  registerFontLicenses();
 
   runApp(
     ProviderScope(

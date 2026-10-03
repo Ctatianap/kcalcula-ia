@@ -107,7 +107,9 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
     // atrás ítem por ítem.
     if (mounted) {
       Navigator.of(context)
-          .popUntil((route) => route.settings.name == AppRoutes.diary);
+      // SPEC-010: siempre un Hoy recién cargado, aunque se haya
+      // registrado desde Historial o Progreso.
+      .pushNamedAndRemoveUntil(AppRoutes.today, (route) => false);
     }
   }
 

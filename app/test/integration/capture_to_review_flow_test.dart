@@ -95,4 +95,63 @@ void main() {
       catalog.close();
     },
   );
+
+  for (final tab in ['Historial', 'Progreso']) {
+    testWidgets(
+      'SPEC-010: registrar con + desde $tab vuelve a Hoy con la comida',
+      (tester) async {
+        final db = AppDatabase(NativeDatabase.memory());
+        addTearDown(db.close);
+        await StorageRepository(db)
+            .saveConsent(policyVersion: privacyPolicyVersion);
+        final catalog = buildFixtureCatalog();
+        addTearDown(catalog.close);
+        final aiClient = AiClient(
+          (data) async => {
+            'schema_version': 'parsed_meal.v1',
+            'meal_type': null,
+            'items': [
+              {
+                'mention': 'dos huevos',
+                'food_query': 'huevo',
+                'quantity': 2,
+                'unit': 'unidad',
+                'size': null,
+                'preparation': null,
+                'is_vague': false,
+                'parent_index': null,
+              },
+            ],
+          },
+        );
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              appDatabaseProvider.overrideWithValue(db),
+              catalogRepositoryProvider.overrideWithValue(catalog),
+              aiClientProvider.overrideWithValue(aiClient),
+              crashReporterProvider.overrideWithValue(FakeCrashReporter()),
+            ],
+            child: const MyApp(),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byKey(Key('nav-$tab')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byIcon(Icons.add));
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byType(TextField), 'dos huevos');
+        await tester.pump();
+        await tester.tap(find.text('Analizar'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Registrar'));
+        await tester.pumpAndSettle();
+
+        expect(find.widgetWithText(AppBar, 'Hoy'), findsOneWidget);
+        expect(find.textContaining('143 kcal'), findsWidgets);
+        expect(find.text('Todavía no registras nada hoy.'), findsNothing);
+      },
+    );
+  }
 }

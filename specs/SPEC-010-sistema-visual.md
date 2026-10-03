@@ -1,7 +1,7 @@
 # SPEC-010: Sistema visual y navegación
 
 ## Status
-Implementing
+Review
 Path: Standard (solo presentación: no toca `nutrition_core`, la IA, el catálogo ni lo que sale del
 dispositivo. La fuente se embebe para no descargarla de internet; ver Security & Privacy).
 
@@ -108,6 +108,10 @@ Historial y Progreso y un botón para registrar, para usarla a diario sin esfuer
   barra inferior: es solo de las tres pantallas principales.
 - Botón atrás de Android en Historial o Progreso: vuelve a Hoy, no cierra la app.
 - Modo oscuro del sistema: fuera de alcance; la app se ve en claro.
+- El + desde Historial o Progreso abre la captura encima de Hoy: si se sale sin registrar, se llega
+  a Hoy, no a la pestaña de origen (coherente con el diseño).
+- `/today` solo se alcanza después del control de consentimiento de `/`; no se expone a enlaces
+  externos sin repetirlo.
 
 ## Security & Privacy
 - ¿Sale algún dato nuevo del dispositivo? **No.** Embeber la fuente evita la petición a Google Fonts
@@ -129,6 +133,23 @@ Historial y Progreso y un botón para registrar, para usarla a diario sin esfuer
 ## Open Questions
 - Ninguna. El modo oscuro queda fuera del MVP.
 
+## Evidencia de Acceptance Criteria
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/ui/theme_test.dart` ("AC1…") + `app/test/ui/main_nav_test.dart` ("AC1: la app montada usa el tema nuevo") |
+| AC2 | ✅ | Licencia empaquetada (`assets/fonts/OFL.txt`) y registrada en el `LicenseRegistry` (`lib/ui/licenses.dart`), visible en Ajustes → "Licencias de código abierto"; test "R2: la licencia de Outfit queda registrada". `app/pubspec.yaml` declara Outfit (200/300/400/500) desde `assets/fonts/`; grep (2026-10-03) sin `google_fonts`, `fonts.googleapis` ni `fonts.gstatic` en `lib/`, `pubspec.yaml` ni `pubspec.lock`. Licencia: SIL OFL 1.1, archivos de https://github.com/Outfitio/Outfit-Fonts en el commit `902773808eb372f70fb34e8946dd1ffe604efc79`, `app/assets/fonts/OFL.txt` |
+| AC3 | ✅ | `app/test/ui/main_nav_test.dart` (pestañas, estados vacíos, + desde Hoy y Progreso, Atrás en Historial y en Progreso vuelve a Hoy) + `app/test/integration/capture_to_review_flow_test.dart` ("SPEC-010: registrar con + desde Historial/Progreso vuelve a Hoy con la comida") |
+| AC4 | ✅ | `app/test/ui/progress_ring_test.dart` |
+| AC5 | ✅ | `app/test/ui/theme_test.dart`, grupo "AC5" (7 pares, todos ≥ 4,5:1; el menor, 4,87) y "R6/R7: cada estado del día contrasta ≥ 3:1" (elementos gráficos, WCAG 1.4.11). Los colores de macros y de estado se usan solo en elementos gráficos acompañados de texto con contraste suficiente, nunca como color de texto |
+| AC6 | ✅ | `main_nav_test.dart` ("AC6…") |
+| AC7 | ✅ | `flutter analyze` sin issues; `flutter test` 175/175 (2026-10-03, tras la revisión) |
+| AC8 | ⏳ | Recorrido manual en el teléfono: se hace al final del lote (decisión de la usuaria) |
+
+Decisión de implementación: los botones primario y secundario de R3 son `FilledButton` y
+`OutlinedButton` con el estilo del tema (56 px, radio 28), no widgets nuevos; el encabezado usa el
+`AppBarTheme` (título en el acento, 26 px, peso 300). Los dos tests de integración que buscaban el
+texto "Hoy" ahora buscan el título de la pantalla, porque "Hoy" también está en la barra.
+
 ## Definition of Done
 - AC1–AC8 con evidencia enlazada en esta SPEC.
 - `flutter analyze` sin issues y `flutter test` verde.
@@ -140,5 +161,38 @@ Historial y Progreso y un botón para registrar, para usarla a diario sin esfuer
 - 2026-10-03: creación a partir de T-011 de `docs/backlog.md` y del diseño "kcalcula ia UI".
 - 2026-10-03: **Approved por la usuaria** ("aprobado"). Status → Implementing.
 
+- 2026-10-03: implementada (AC1–AC7); AC8 al final del lote. Status → Review.
+
+- 2026-10-03: reviewer CHANGES_REQUESTED. Corregido:
+  - [BLOCKER] Registrar con + desde Historial o Progreso dejaba la pantalla en blanco, porque
+    `popUntil('/')` no encontraba Hoy en la pila. Ahora Hoy tiene su propia ruta (`/today`) y las
+    pestañas reemplazan toda la pila. El + de Historial y Progreso abre la captura encima de Hoy, y
+    la revisión vuelve a un Hoy recién cargado (`pushNamedAndRemoveUntil`). Hay test de
+    integración.
+  - [MAJOR] La OFL exige que la licencia acompañe a la fuente: ahora se empaqueta, se registra en el
+    `LicenseRegistry` y se ve en Ajustes → "Licencias de código abierto".
+  - MINOR:
+    - tocar Hoy ya no repite el control de consentimiento (ruta `/today`);
+    - "por debajo" pasa a `#7690AC` (3,3:1);
+    - Atrás probado en las dos pestañas;
+    - AC1 probado con la app montada.
+
+- 2026-10-03: reviewer **PASS** en la re-revisión (`84297da`, 175/175). Sus 2 MINOR quedaron
+  documentados (Edge Cases y un comentario en `app.dart`). Se fusiona en `develop` para las SPECs
+  siguientes; el Status queda en Review hasta el recorrido manual (AC8) del final del lote.
+
 ## Review
-Informe del reviewer: pendiente.
+Primera revisión (2026-10-03, `0dbce13`): **CHANGES_REQUESTED**.
+- [BLOCKER] Registrar desde Historial o Progreso dejaba la pantalla en blanco (`popUntil('/')` sin
+  `/` en la pila).
+- [MAJOR] La licencia OFL no viajaba con la app.
+- 4 MINOR.
+
+Todo se corrigió en `84297da`.
+
+Re-revisión (`84297da` + `1f7d013`): **PASS**.
+- AC1–AC7 cumplidos; analyze sin issues; 175/175. AC8 queda para el final del lote, por acuerdo
+  con la usuaria.
+- El reviewer comprobó que no queda ningún `popUntil` en `lib/`, que no hay colores fuera de
+  `theme.dart` y que no hay `setState` después de `dispose` al volver de registrar.
+- 2 MINOR, documentados.
