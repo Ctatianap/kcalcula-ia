@@ -1,32 +1,46 @@
-/// SPEC-008 R2: estimación de las kcal diarias de mantenimiento con las
-/// ecuaciones de gasto energético total (TEE) para adultos de 19 años o más.
+/// SPEC-008 (v2) R3/R4: metabolismo basal y mantenimiento.
 ///
-/// Fuente: National Academies of Sciences, Engineering, and Medicine (2023),
-/// *Dietary Reference Intakes for Energy*, cap. 5, Tabla 5-5
-/// (https://www.nationalacademies.org/read/26818/chapter/7, consultado
-/// 2026-10-02). Verificación: `docs/research/2026-10-02-formula-gasto-energetico.md`
-/// y OQ9 de SPEC-008 (las 8 ecuaciones reproducen las 40 celdas de las
-/// Tablas 7-9 y 7-10 de la misma fuente).
+/// Fuentes (ver `docs/research/2026-10-02-harris-benedict-actividad-objetivo.md`, PV-14):
+/// - Metabolismo basal: Harris JA, Benedict FG. "A Biometric Study of Human
+///   Basal Metabolism". PNAS 1918;4(12):370-373, p. 373
+///   (https://pmc.ncbi.nlm.nih.gov/articles/PMC1091498/, consultado
+///   2026-10-02). Ecuaciones originales, no la revisión de Roza y Shizgal.
+/// - Factores de actividad física (PAL): EFSA 2013, adultos 1,4 / 1,6 / 1,8 /
+///   2,0, según EFSA, EU Menu Guidance, Appendix 8.2.1, pp. 4-5
+///   (https://www.efsa.europa.eu/sites/default/files/efsa_rep/blobserver_assets/3944A-8-2-1.pdf,
+///   consultado 2026-10-02). Mantenimiento = basal × PAL, como en FAO/OMS.
+///   Asignar cada PAL a "días de ejercicio por semana" es una **decisión de
+///   producto** de SPEC-008, no de la fuente.
 library;
 
 enum BiologicalSex { female, male }
 
-/// Categorías de nivel de actividad física (PAL) de la DRI 2023 (Tabla 5-4).
-enum ActivityLevel { inactive, lowActive, active, veryActive }
+/// SPEC-008 R2: niveles de actividad (incluye NEAT), con su PAL de EFSA 2013.
+enum ActivityLevel {
+  sedentary(1.4),
+  lightlyActive(1.6),
+  active(1.8),
+  veryActive(2.0);
 
-/// SPEC-008 OQ4: rangos de entrada aceptados para la sugerencia. La edad
-/// mínima es 19 porque las ecuaciones de adultos de la fuente son para
-/// 19 años o más.
+  const ActivityLevel(this.pal);
+
+  final double pal;
+}
+
+/// SPEC-008 R1: rangos de entrada aceptados (validación, no recomendación).
+/// La muestra de 1918 tabula 21–70 años; usar la ecuación de 18 a 100 es
+/// una decisión de producto, como en cualquier calculadora.
 const estimationWeightMinKg = 30.0;
 const estimationWeightMaxKg = 300.0;
 const estimationHeightMinCm = 120.0;
 const estimationHeightMaxCm = 230.0;
-const estimationAgeMin = 19;
+const estimationAgeMin = 18;
 const estimationAgeMax = 100;
 
 enum EstimationField { weight, height, age }
 
-/// AC4: entrada fuera de rango; nunca se devuelve un número en ese caso.
+/// AC3: entrada fuera de rango (incluido NaN o infinito); nunca se devuelve
+/// un número en ese caso.
 class InvalidEstimationInput implements Exception {
   final EstimationField field;
 
@@ -36,81 +50,24 @@ class InvalidEstimationInput implements Exception {
   String toString() => 'InvalidEstimationInput($field)';
 }
 
-/// Coeficientes de una ecuación: TEE = intercepto − a·edad + b·estatura + c·peso.
-typedef _TeeEquation = ({
-  double intercept,
-  double age,
-  double height,
-  double weight,
-});
+/// Edad en años cumplidos a una fecha dada.
+int ageInYears(DateTime birthDate, DateTime on) {
+  var age = on.year - birthDate.year;
+  final hadBirthday =
+      on.month > birthDate.month ||
+      (on.month == birthDate.month && on.day >= birthDate.day);
+  if (!hadBirthday) age--;
+  return age;
+}
 
-/// DRI 2023, Tabla 5-5, adultos de 19 años o más (edad en años, estatura en
-/// cm, peso en kg, resultado en kcal/día).
-const Map<BiologicalSex, Map<ActivityLevel, _TeeEquation>> _equations = {
-  BiologicalSex.male: {
-    ActivityLevel.inactive: (
-      intercept: 753.07,
-      age: 10.83,
-      height: 6.50,
-      weight: 14.10,
-    ),
-    ActivityLevel.lowActive: (
-      intercept: 581.47,
-      age: 10.83,
-      height: 8.30,
-      weight: 14.94,
-    ),
-    ActivityLevel.active: (
-      intercept: 1004.82,
-      age: 10.83,
-      height: 6.52,
-      weight: 15.91,
-    ),
-    ActivityLevel.veryActive: (
-      intercept: -517.88,
-      age: 10.83,
-      height: 15.61,
-      weight: 19.11,
-    ),
-  },
-  BiologicalSex.female: {
-    ActivityLevel.inactive: (
-      intercept: 584.90,
-      age: 7.01,
-      height: 5.72,
-      weight: 11.71,
-    ),
-    ActivityLevel.lowActive: (
-      intercept: 575.77,
-      age: 7.01,
-      height: 6.60,
-      weight: 12.14,
-    ),
-    ActivityLevel.active: (
-      intercept: 710.25,
-      age: 7.01,
-      height: 6.54,
-      weight: 12.34,
-    ),
-    ActivityLevel.veryActive: (
-      intercept: 511.83,
-      age: 7.01,
-      height: 9.07,
-      weight: 12.56,
-    ),
-  },
-};
-
-/// Kcal/día de mantenimiento, sin redondear. Lanza [InvalidEstimationInput]
-/// si alguna entrada está fuera de los rangos de OQ4.
-double estimateMaintenanceKcal({
+/// Metabolismo basal en kcal/día, sin redondear (Harris y Benedict 1918).
+double estimateBasalKcal({
   required double weightKg,
   required double heightCm,
   required int ageYears,
   required BiologicalSex sex,
-  required ActivityLevel activityLevel,
 }) {
-  // `!(x >= min && x <= max)` también rechaza NaN (AC4: nunca un número).
+  // `!(x >= min && x <= max)` también rechaza NaN.
   if (!(weightKg >= estimationWeightMinKg &&
       weightKg <= estimationWeightMaxKg)) {
     throw const InvalidEstimationInput(EstimationField.weight);
@@ -122,9 +79,26 @@ double estimateMaintenanceKcal({
   if (ageYears < estimationAgeMin || ageYears > estimationAgeMax) {
     throw const InvalidEstimationInput(EstimationField.age);
   }
-  final eq = _equations[sex]![activityLevel]!;
-  return eq.intercept -
-      eq.age * ageYears +
-      eq.height * heightCm +
-      eq.weight * weightKg;
+  return switch (sex) {
+    BiologicalSex.male =>
+      66.4730 + 13.7516 * weightKg + 5.0033 * heightCm - 6.7550 * ageYears,
+    BiologicalSex.female =>
+      655.0955 + 9.5634 * weightKg + 1.8496 * heightCm - 4.6756 * ageYears,
+  };
 }
+
+/// Mantenimiento en kcal/día, sin redondear: basal × PAL.
+double estimateMaintenanceKcal({
+  required double weightKg,
+  required double heightCm,
+  required int ageYears,
+  required BiologicalSex sex,
+  required ActivityLevel activityLevel,
+}) =>
+    estimateBasalKcal(
+      weightKg: weightKg,
+      heightCm: heightCm,
+      ageYears: ageYears,
+      sex: sex,
+    ) *
+    activityLevel.pal;
