@@ -3,6 +3,7 @@
 library;
 
 export 'src/confidence.dart';
+export 'src/day_status.dart';
 export 'src/energy_estimation.dart';
 export 'src/goal_limits.dart';
 export 'src/goal_planning.dart';

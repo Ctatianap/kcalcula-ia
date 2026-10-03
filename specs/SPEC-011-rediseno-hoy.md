@@ -1,7 +1,7 @@
 # SPEC-011: Rediseño de "Hoy"
 
 ## Status
-Approved
+Review
 Path: Strict (agrega a `packages/nutrition_core` la regla del estado del día frente a la meta)
 
 ## Objective
@@ -96,6 +96,29 @@ cómo voy en macros y cómo me fue los días anteriores de la semana.
 ## Open Questions
 - Ninguna. La tolerancia del 10 % (R3) es una decisión de producto y se puede ajustar al aprobar.
 
+## Evidencia de Acceptance Criteria
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `packages/nutrition_core/test/day_status_test.dart` (1.799 / 1.800 / 2.200 / 2.201, sin meta, límites sin redondear) |
+| AC2 | ✅ | `app/test/features/diary/diary_format_test.dart` |
+| AC3 | ✅ | `app/test/features/diary/diary_screen_test.dart` ("AC3…": anillo del lunes al 75 % con color "por debajo", martes lleno "por encima", sin anillo en días sin registros y futuros, etiquetas semánticas por día) |
+| AC4 | ✅ | `diary_screen_test.dart` ("AC4…" con meta y "por encima de la meta") |
+| AC5 | ✅ | `diary_screen_test.dart` ("AC5…") |
+| AC6 | ✅ | `diary_screen_test.dart` ("AC6…" sin meta y sin comidas) |
+| AC7 | ✅ | Colores de estado = `DayGoalStatus` (sin rojo ni verde, test de SPEC-010); cada día lleva etiqueta semántica con su estado (AC3) |
+
+Verificado (2026-10-03): `dart analyze` y `flutter analyze` sin issues; `nutrition_core` 71/71; app
+176/176. Recorrido manual: al final del lote.
+
+Decisiones de implementación:
+- `clockProvider` (`app/lib/infra/clock.dart`) hace inyectable la hora actual para probar la semana.
+- `mealsBetween` usa un intervalo semiabierto [inicio, fin) y ordena por hora; `mealsForDay` lo
+  reutiliza. Antes, `isBetweenValues` incluía la medianoche del día siguiente.
+- El diseño no tiene barra superior "Hoy": los tests que detectaban el diario por ese título ahora
+  buscan `DiaryScreen`.
+- Cada día de la semana es su propio nodo semántico (`container: true`): sin eso, el lector de
+  pantalla fusionaba los siete.
+
 ## Definition of Done
 - AC1–AC7 con evidencia; analyze y tests verdes (`nutrition_core` y app); reviewer PASS;
   recorrido manual; aprobación de la usuaria antes de fusionar (Strict).
@@ -103,6 +126,8 @@ cómo voy en macros y cómo me fue los días anteriores de la semana.
 ## Change Log
 - 2026-10-03: creación a partir de T-012 y del diseño "kcalcula ia UI".
 - 2026-10-03: **Approved por la usuaria** ("aprobadas", junto con SPEC-011 a SPEC-019). Los recorridos manuales en el teléfono se agrupan al final del lote.
+
+- 2026-10-03: implementada. Status → Review.
 
 ## Review
 Informe del reviewer: pendiente.

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:calorias_ia/features/diary/diary_screen.dart';
 import 'package:calorias_ia/app.dart';
 import 'package:calorias_ia/infra/crash_reporting/crash_reporting_providers.dart';
 import 'package:calorias_ia/infra/legal/privacy_policy.dart';
@@ -64,7 +64,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.widgetWithText(AppBar, 'Hoy'), findsOneWidget);
+      expect(find.byType(DiaryScreen), findsOneWidget);
       expect(find.text('Antes de empezar'), findsNothing);
       // SPEC-007 R5: consentimiento vigente -> se activa Crashlytics.
       expect(crashReporter.collectionEnabled, isTrue);
@@ -120,7 +120,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.widgetWithText(AppBar, 'Hoy'), findsOneWidget);
+      expect(find.byType(DiaryScreen), findsOneWidget);
       expect(find.text('Antes de empezar'), findsNothing);
 
       await db.close();

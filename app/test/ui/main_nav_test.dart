@@ -8,6 +8,7 @@ import 'package:calorias_ia/ui/licenses.dart';
 import 'package:calorias_ia/ui/theme.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
+import 'package:calorias_ia/features/diary/diary_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -36,7 +37,7 @@ void main() {
   ) async {
     await _pumpApp(tester);
 
-    expect(find.widgetWithText(AppBar, 'Hoy'), findsOneWidget);
+    expect(find.byType(DiaryScreen), findsOneWidget);
     expect(find.bySemanticsLabel('Historial'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('nav-Historial')));
@@ -53,7 +54,7 @@ void main() {
 
     await tester.tap(find.byKey(const Key('nav-Hoy')));
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(AppBar, 'Hoy'), findsOneWidget);
+    expect(find.byType(DiaryScreen), findsOneWidget);
   });
 
   testWidgets('AC3: + abre "¿Qué comiste?" desde Hoy y desde Progreso', (
@@ -83,7 +84,7 @@ void main() {
       await widgetsAppState.didPopRoute();
       await tester.pumpAndSettle();
 
-      expect(find.widgetWithText(AppBar, 'Hoy'), findsOneWidget);
+      expect(find.byType(DiaryScreen), findsOneWidget);
     });
   }
 
@@ -116,9 +117,7 @@ void main() {
       expect(size.width, greaterThanOrEqualTo(44), reason: key);
       expect(size.height, greaterThanOrEqualTo(44), reason: key);
     }
-    // "Hoy" también es el título de la pantalla.
-    expect(find.bySemanticsLabel('Hoy'), findsNWidgets(2));
-    for (final label in ['Historial', 'Progreso', 'Agregar comida']) {
+    for (final label in ['Hoy', 'Historial', 'Progreso', 'Agregar comida']) {
       expect(find.bySemanticsLabel(label), findsOneWidget, reason: label);
     }
   });
