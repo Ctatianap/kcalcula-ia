@@ -1,7 +1,7 @@
 # SPEC-016: Exportar en CSV y PDF
 
 ## Status
-Approved
+Review
 Path: Strict (crea archivos con datos de salud que la persona puede compartir fuera del dispositivo)
 
 ## Objective
@@ -88,9 +88,52 @@ nutricionista.
 - AC1–AC6 con evidencia; analyze y tests verdes; reviewer PASS; librería verificada y citada;
   `docs/privacy.md` actualizado; aprobación de la usuaria antes de fusionar (Strict).
 
+## Librería de PDF (R6)
+`pdf` 3.13.1 (https://pub.dev/packages/pdf, repositorio DavBfr/dart_pdf), verificada en la API de
+pub.dev el 2026-10-03: versión estable más reciente, publicada el 2026-09-19, licencia Apache-2.0,
+160 puntos de pub, SDK `>=3.12.0 <4.0.0`. Dart puro (sin código nativo ni red). Se declara en
+`app/pubspec.yaml` con esa nota. El texto del PDF usa Outfit (OFL 1.1, ya embebida en la app).
+
+## Evidencia
+| AC | Evidencia |
+|----|-----------|
+| AC1 | `app/test/infra/export/meals_csv_test.dart` › "AC1: 2 comidas (3 ítems) → BOM, encabezado y 3 filas con ; y coma decimal" (y "edge case: nombres con ; o comillas se escapan (RFC 4180)") |
+| AC2 | mismo archivo › "AC2: \"Últimos 30 días\" excluye una comida de hace 40 días en CSV y PDF" (CSV) y `summary_report_test.dart` › "AC2: el PDF de los últimos 30 días no incluye la comida de hace 40 días" |
+| AC3 | `app/test/infra/export/summary_report_test.dart` › "AC3: periodo, meta, promedio, días en meta y tabla por día" y "AC3/R3: el PDF no contiene fecha de nacimiento, sexo ni mantenimiento medido" (inspección de todo el texto que dibuja el PDF; ver Change Log), "el PDF se genera (A4) y pagina con 100 días" |
+| AC4 | `app/test/features/settings/export_screen_test.dart` › "AC4: \"Exportar\" con csv/pdf/json entrega un archivo .csv/.pdf/.json al share sheet"; `summary_report_test.dart` › "AC4: el servicio entrega .pdf al share sheet" |
+| AC5 | `export_screen_test.dart` › "AC5: el resumen cuenta comidas y días con registros del periodo" |
+| AC6 | `export_screen_test.dart` › "AC6: sin comidas en el periodo → mensaje y no se crea archivo" |
+
+Además: el JSON ignora el periodo, "Elegir fechas" abre el selector (en español en la app), texto ×2
+en 360 px, fallo del share sheet con mensaje (`settings_screen_test.dart`). Manual: abrir el CSV en
+una hoja de cálculo y el PDF en el teléfono (usuaria).
+
 ## Change Log
 - 2026-10-03: creación a partir de T-017 y del diseño "kcalcula ia UI".
 - 2026-10-03: **Approved por la usuaria** ("aprobadas", junto con SPEC-011 a SPEC-019). Los recorridos manuales en el teléfono se agrupan al final del lote.
+- 2026-10-03: implementada (autorización única de la usuaria para el lote, incluidas las Strict).
+  Detalles menores:
+  - Librería `pdf` 3.13.1 (ver "Librería de PDF"). El PDF usa la fuente Outfit embebida: con las
+    fuentes estándar de PDF no hay soporte Unicode completo.
+  - AC3 "inspección del texto del PDF": el PDF solo dibuja las cadenas de `SummaryReport`, y el test
+    inspecciona todas (`allText`); con una fuente TrueType embebida el texto dentro del archivo va
+    codificado por glifos y no se puede buscar en los bytes. Además se comprueba que el archivo es un
+    PDF y que pagina.
+  - El resumen superior cuenta las comidas y los días del periodo elegido (el JSON, de todo); sin
+    comidas en el periodo, el resumen dice "No hay comidas en este periodo." y "Exportar" queda
+    deshabilitado (no se crea archivo).
+  - Fecha en CSV "dd/mm/aaaa" y hora "hh:mm"; gramos con 1 decimal; tipo de comida y confianza en
+    español; fin de línea CRLF.
+  - "Últimos 30 días" = hoy y los 29 anteriores (como "Mes" en Progreso). "Elegir fechas" usa el
+    selector de rango de Material; para que salga en español la app declara `es-CO` con
+    `flutter_localizations` (paquete del SDK).
+  - El PDF **no** incluye estatura, fecha de nacimiento, sexo ni mantenimiento medido; sí la meta vigente, el promedio y los días en meta (`nutrition_core`) y
+    los registros de peso del periodo.
+  - "Exportar mis datos" en Ajustes abre la pantalla nueva; la lógica del JSON pasó de
+    `SettingsController` a `infra/export/export_service.dart` (mismo contenido y nombre de archivo).
+  - La política solo se aclara (formatos de exportación) sin subir de versión: no sale ningún dato
+    nuevo del teléfono por decisión de la app.
+  Status → Review.
 
 ## Review
 Informe del reviewer: pendiente.

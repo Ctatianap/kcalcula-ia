@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_routes.dart';
@@ -12,6 +13,7 @@ import 'features/legal/privacy_policy_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/review/meal_analysis_screen.dart';
 import 'features/review/review_screen.dart';
+import 'features/settings/export_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'infra/ai_client/parsed_meal_dto.dart';
 import 'infra/crash_reporting/crash_reporting_providers.dart';
@@ -32,6 +34,11 @@ class MyApp extends StatelessWidget {
       title: 'KCalcula IA',
       // SPEC-010 R1: tema global del diseño "kcalcula ia UI".
       theme: buildAppTheme(),
+      // SPEC-016: textos de Material (p. ej. el selector de fechas) en
+      // español de Colombia.
+      locale: const Locale('es', 'CO'),
+      supportedLocales: const [Locale('es', 'CO'), Locale('es')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       initialRoute: AppRoutes.diary,
       onGenerateRoute: (settings) {
         switch (settings.name) {
@@ -66,6 +73,11 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(
               settings: settings,
               builder: (_) => const ProfileScreen(),
+            );
+          case AppRoutes.export:
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (_) => const ExportScreen(),
             );
           case AppRoutes.objective:
             return MaterialPageRoute(

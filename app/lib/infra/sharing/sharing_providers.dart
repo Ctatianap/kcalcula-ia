@@ -6,7 +6,7 @@ final sharingServiceProvider = Provider<SharingService>((ref) {
   return PluginSharingService();
 });
 
-/// Directorio donde `SettingsController.exportData()` escribe el JSON antes
+/// Directorio donde `ExportService` (SPEC-016) escribe el archivo antes
 /// de pasarlo al share sheet. Se sobrescribe en `main()` con
 /// `getTemporaryDirectory()` (async, por eso no se resuelve aquí
 /// directamente — mismo patrón que `appDatabaseProvider`). Los tests lo

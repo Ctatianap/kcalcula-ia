@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_routes.dart';
 import '../../infra/crash_reporting/crash_reporting_providers.dart';
-import '../../infra/sharing/sharing_providers.dart';
 import '../../infra/storage/storage_providers.dart';
 import 'settings_controller.dart';
 
@@ -25,9 +24,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     super.initState();
     _controller = SettingsController(
       storage: ref.read(storageRepositoryProvider),
-      sharing: ref.read(sharingServiceProvider),
       crashReporter: ref.read(crashReporterProvider),
-      exportDirectoryPath: ref.read(exportDirectoryPathProvider),
     );
   }
 
@@ -94,17 +91,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     _showSnackBar('Tus datos se borraron.');
   }
 
-  /// R7/AC7-AC9.
-  Future<void> _exportData() async {
-    try {
-      await _controller.exportData();
-    } catch (_) {
-      if (mounted) _showSnackBar(_genericErrorMessage);
-      return;
-    }
-    if (!mounted) return;
-    _showSnackBar('Exportación lista.');
-  }
+  /// SPEC-016: la exportación (CSV, PDF o el JSON de SPEC-006 R7) tiene su
+  /// propia pantalla.
+  void _exportData() => Navigator.of(context).pushNamed(AppRoutes.export);
 
   /// R8/AC13-AC14: revocar re-bloquea la app hasta que el usuario vuelva a
   /// aceptar (mismo camino que "primer lanzamiento" — ver `_RootGate`).

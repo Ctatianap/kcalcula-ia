@@ -71,7 +71,8 @@ revocas tu consentimiento (ver Ajustes), se detiene de inmediato.
   confirmes.
 - **Borrar todos tus datos** cuando quieras, desde Ajustes. Es inmediato y no se puede deshacer.
 - **Exportar tus datos** en un archivo que tú decides dónde guardar o a quién enviar — nosotros no
-  elegimos el destino ni lo mandamos por nuestra cuenta.
+  elegimos el destino ni lo mandamos por nuestra cuenta. Puede ser una hoja de cálculo (CSV), un
+  resumen para imprimir (PDF, sin tu fecha de nacimiento ni tu sexo) o la copia completa (JSON).
 - **Revocar tu consentimiento** en cualquier momento, desde Ajustes, sin que eso borre tus datos ya
   guardados — simplemente dejarás de poder usar la app (incluido el análisis con IA y el reporte de
   fallos) hasta que vuelvas a aceptar.

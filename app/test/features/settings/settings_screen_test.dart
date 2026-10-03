@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:calorias_ia/app_routes.dart';
+import 'package:calorias_ia/features/settings/export_screen.dart';
 import 'package:calorias_ia/features/settings/settings_screen.dart';
 import 'package:calorias_ia/infra/crash_reporting/crash_reporting_providers.dart';
 import 'package:calorias_ia/infra/sharing/sharing_providers.dart';
@@ -68,6 +69,7 @@ Future<_Harness> _pump(
         initialRoute: AppRoutes.settings,
         routes: {
           AppRoutes.settings: (_) => const SettingsScreen(),
+          AppRoutes.export: (_) => const ExportScreen(),
           AppRoutes.diary: (_) =>
               const Scaffold(body: Text('Pantalla del diario')),
           AppRoutes.privacyPolicy: (_) =>
@@ -84,6 +86,23 @@ Future<_Harness> _pump(
     sharing: sharing,
     crashReporter: crashReporter,
   );
+}
+
+Future<void> _exportJson(WidgetTester tester) async {
+  await tester.tap(find.text('Exportar mis datos'));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('Copia completa (JSON)'));
+  await tester.runAsync(
+    () => Future<void>.delayed(const Duration(milliseconds: 50)),
+  );
+  await tester.pumpAndSettle();
+  // Escribir el JSON a disco es E/S real (dart:io): fuera de la zona de
+  // tiempo simulado de los widget tests.
+  await tester.runAsync(() async {
+    await tester.tap(find.widgetWithText(FilledButton, 'Exportar'));
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+  });
+  await tester.pumpAndSettle();
 }
 
 void main() {
@@ -153,11 +172,9 @@ void main() {
       // tiempo simulado de los widget tests, esperar directamente esa
       // Future se cuelga — `runAsync` corre el tap y la espera fuera de esa
       // zona para que la E/S real termine de verdad.
-      await tester.runAsync(() async {
-        await tester.tap(find.text('Exportar mis datos'));
-        await Future<void>.delayed(const Duration(milliseconds: 100));
-      });
-      await tester.pump();
+      // SPEC-016: "Exportar mis datos" abre su pantalla; el JSON es el
+      // formato "Copia completa".
+      await _exportJson(tester);
 
       expect(h.sharing.sharedPath, isNotNull);
       final file = File(h.sharing.sharedPath!);
@@ -189,15 +206,11 @@ void main() {
         items: [_egg()],
       );
 
-      await tester.runAsync(() async {
-        await tester.tap(find.text('Exportar mis datos'));
-        await Future<void>.delayed(const Duration(milliseconds: 100));
-      });
-      await tester.pump();
+      await _exportJson(tester);
 
-      expect(find.text('Ocurrió un error. Intenta de nuevo.'), findsOneWidget);
-      // Sigue en Ajustes, no se cayó la pantalla.
-      expect(find.text('Ajustes'), findsOneWidget);
+      expect(find.text(exportErrorMessage), findsOneWidget);
+      // Sigue en la pantalla de exportar, no se cayó.
+      expect(find.text('Exportar mis datos'), findsOneWidget);
 
       await h.db.close();
       h.exportDir.deleteSync(recursive: true);

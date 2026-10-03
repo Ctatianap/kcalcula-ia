@@ -72,6 +72,15 @@ dependencies:
   # (2026-09-29).
   share_plus: ^13.3.0
 
+  # SPEC-016 R6: PDF del resumen para la nutricionista, generado en el
+  # teléfono. Dart puro, Apache-2.0 (DavBfr/dart_pdf). Versión estable
+  # verificada en pub.dev al momento de escribir (3.13.1, 2026-09-19).
+  pdf: ^3.13.1
+
+  # SPEC-016: textos de Material (selector de fechas) en español.
+  flutter_localizations:
+    sdk: flutter
+
 # `permission_handler_android` 14.0.0/14.1.0 fijan `compileSdk = 37` en su
 # propio build.gradle.kts, pero la API 37 de Android ya no se publica en
 # forma "plana" (solo 37.0/37.1/37.2) y el Android Gradle Plugin 9.1.0 que
