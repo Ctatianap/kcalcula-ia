@@ -93,7 +93,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
 - id: T-009
   title: Objetivos nutricionales configurables
   dependencies: [T-002]
-  spec_required: true    # specs/SPEC-008-objetivos-nutricionales.md
+  spec_required: true    # specs/SPEC-008-objetivos-nutricionales.md (Done — reviewer PASS; perfil, mantenimiento y objetivo)
 - id: T-010
   title: Errores de almacenamiento sin datos del usuario en Crashlytics
   objective: >

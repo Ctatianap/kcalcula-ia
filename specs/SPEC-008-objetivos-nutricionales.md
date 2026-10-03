@@ -1,7 +1,7 @@
 # SPEC-008: Perfil, mantenimiento y objetivo nutricional
 
 ## Status
-Review
+Done
 Path: Strict (cálculos nuevos en `packages/nutrition_core`: metabolismo basal, mantenimiento,
 objetivo y reparto de macros; y datos personales de salud guardados en el dispositivo: peso,
 estatura, fecha de nacimiento, sexo y nivel de actividad)
@@ -247,7 +247,7 @@ peso o de temporada de actividad, todo se recalcula.
 | AC16 | ✅ | `app/test/integration/onboarding_gate_flow_test.dart` ("SPEC-008 AC13…": v2 → onboarding con v3) + `app/test/features/legal/privacy_policy_text_test.dart` (sección del perfil) |
 
 Verificado (2026-10-02, versión 2, tras la re-revisión): `dart analyze` y `flutter analyze` sin
-issues; `nutrition_core` 63/63; app 139/139 (tras OQ10-A, el mantenimiento medido y su revisión). Pendiente: recorrido manual en el teléfono.
+issues; `nutrition_core` 63/63; app 139/139 (tras OQ10-A, el mantenimiento medido y su revisión). Recorrido manual en el teléfono: hecho por la usuaria (2026-10-03), que confirmó "ahora sí".
 
 ## Definition of Done
 - AC1–AC17 con evidencia enlazada en esta SPEC.
@@ -347,6 +347,9 @@ issues; `nutrition_core` 63/63; app 139/139 (tras OQ10-A, el mantenimiento medid
 - 2026-10-03: reviewer **PASS** sobre `1f3df69` (app 139/139, `nutrition_core` 63/63). Pendiente de
   la usuaria: el recorrido manual y la aprobación para fusionar, que incluye el cambio de AC17 de
   `[widget + integration]` a `[widget + unit]`.
+
+- 2026-10-03: la usuaria hizo el recorrido manual en su teléfono ("ahora sí") y aprobó la fusión
+  ("aprobado"), incluido el cambio de AC17 a `[widget + unit]`. Status Review → Done.
 
 ## Review
 Primera revisión (2026-10-02, subagente `reviewer`): **CHANGES_REQUESTED**.
