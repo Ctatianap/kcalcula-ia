@@ -148,6 +148,18 @@ Decisiones de implementación:
       mes;
     - sin meta, sin anillo (Edge Cases);
     - margen de coma flotante en `dayStatus`, con caso de meta no redonda.
+- 2026-10-03: re-revisión del reviewer: **PASS** (commit a3aa3d7; nutrition_core 72/72, app
+  184/184). Fusionada en `develop` por la autorización única de la usuaria ("todo está aprobado solo
+  por esta vez", ver `docs/cloud-handoff.md`). Sigue en Review hasta el recorrido manual del lote.
 
 ## Review
-Informe del reviewer: pendiente.
+Re-revisión (2026-10-03, commit a3aa3d7): **PASS**. AC1–AC7 cumplidos con evidencia en tests.
+Hallazgos MINOR pendientes (no bloquean):
+- `diary_screen.dart` (tarjetas de macros): "Carbohidratos" se parte a mitad de palabra con texto
+  grande en 360 px; envolver la etiqueta en `FittedBox(scaleDown)`.
+- `diary_screen_test.dart` "texto grande (×2)": fijar la vista en 360×800 para reproducir un teléfono
+  angosto.
+- `SPEC-008` AC8: la evidencia aún describe "0 / 1.456 kcal" y "4 barras"; actualizar a "/1.456" y
+  4 `ProgressRing`.
+- Fuera de alcance (SPEC-010): `main_nav_bar.dart` se desborda 29 px con escala de texto 3,0 en
+  360 px; registrado en `docs/backlog.md`.
