@@ -12,6 +12,8 @@ const objectiveOutOfRangeMessage =
     'Con tu perfil, este objetivo queda fuera del rango que maneja la app '
     '(800 a 6.000 kcal). Puedes escribir tu meta a mano.';
 const goalSaveErrorMessage = 'No pude guardar tu meta. Intenta de nuevo.';
+const goalLoadErrorMessage =
+    'No pude leer tu perfil o tu meta. Intenta de nuevo.';
 
 /// SPEC-008 R6–R10: elegir objetivo (que se vuelve la meta diaria) o
 /// escribir la meta a mano.
@@ -39,12 +41,20 @@ class ObjectiveController extends ChangeNotifier {
        _now = now ?? DateTime.now;
 
   Future<void> load() async {
-    final profile = await _storage.getUserProfile();
+    final UserProfileData? profile;
+    try {
+      profile = await _storage.getUserProfile();
+      currentGoal = await _storage.getNutritionGoal();
+    } catch (_) {
+      errorMessage = goalLoadErrorMessage;
+      loaded = true;
+      notifyListeners();
+      return;
+    }
     hasProfile = profile != null;
     maintenance = profile == null
         ? null
         : maintenanceForProfile(profile, _now());
-    currentGoal = await _storage.getNutritionGoal();
     final saved = GoalObjective.values.asNameMap()[currentGoal?.objective];
     if (saved != null) selected = saved;
     loaded = true;

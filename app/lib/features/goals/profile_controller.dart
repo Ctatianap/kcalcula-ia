@@ -9,6 +9,11 @@ const ageRangeMessage = 'La app es para personas de 18 a 100 años.';
 const weightRangeMessage = 'Escribe tu peso en kg, entre 30 y 300.';
 const heightRangeMessage = 'Escribe tu estatura en cm, entre 120 y 230.';
 const profileSaveErrorMessage = 'No pude guardar tu perfil. Intenta de nuevo.';
+const profileLoadErrorMessage = 'No pude leer tu perfil. Intenta de nuevo.';
+const goalNotRecalculatedMessage =
+    'Guardé tu perfil, pero con estos datos tu objetivo quedaría fuera del '
+    'rango que maneja la app (800 a 6.000 kcal), así que tu meta no cambió. '
+    'Revisa "Mi objetivo".';
 
 /// SPEC-008 R1–R5/R9: perfil editable y punto de partida en vivo.
 class ProfileController extends ChangeNotifier {
@@ -30,6 +35,9 @@ class ProfileController extends ChangeNotifier {
   /// Crashlytics (R12).
   String? errorMessage;
 
+  /// R9/Edge Cases: se guardó el perfil pero la meta no se pudo recalcular.
+  String? infoMessage;
+
   ProfileController({
     required StorageRepository storage,
     DateTime Function()? now,
@@ -39,7 +47,15 @@ class ProfileController extends ChangeNotifier {
        _now = now ?? DateTime.now;
 
   Future<void> load() async {
-    final profile = await _storage.getUserProfile();
+    final UserProfileData? profile;
+    try {
+      profile = await _storage.getUserProfile();
+    } catch (_) {
+      errorMessage = profileLoadErrorMessage;
+      loaded = true;
+      notifyListeners();
+      return;
+    }
     if (profile != null) {
       sex = BiologicalSex.values.asNameMap()[profile.sex];
       birthDateText = formatBirthDate(profile.birthDate);
@@ -54,6 +70,7 @@ class ProfileController extends ChangeNotifier {
 
   void _changed() {
     errorMessage = null;
+    infoMessage = null;
     notifyListeners();
   }
 
@@ -144,10 +161,21 @@ class ProfileController extends ChangeNotifier {
     }
   }
 
-  /// R4/R5: mantenimiento en vivo; cambia al editar peso o actividad.
+  /// R4/R5: mantenimiento en vivo (calculado en `nutrition_core`); cambia
+  /// al editar peso o actividad.
   double? get maintenanceKcal {
-    final basal = basalKcal;
-    return basal == null ? null : basal * activityLevel!.pal;
+    if (!isComplete) return null;
+    try {
+      return estimateMaintenanceKcal(
+        weightKg: _weight!,
+        heightCm: _height!,
+        ageYears: _age!,
+        sex: sex!,
+        activityLevel: activityLevel!,
+      );
+    } on InvalidEstimationInput {
+      return null;
+    }
   }
 
   bool get canSave => isComplete && !busy;
@@ -158,18 +186,23 @@ class ProfileController extends ChangeNotifier {
     if (!canSave) return false;
     busy = true;
     errorMessage = null;
+    infoMessage = null;
     notifyListeners();
     try {
       final goal = await _storage.getNutritionGoal();
+      final recalculated = recalculatedGoal(goal, maintenanceKcal);
       await _storage.saveUserProfile(
         sex: sex!.name,
         birthDate: _birthDate!,
         heightCm: _height!,
         weightKg: _weight!,
         activityLevel: activityLevel!.name,
-        recalculatedGoal: recalculatedGoal(goal, maintenanceKcal),
+        recalculatedGoal: recalculated,
       );
       hasSavedProfile = true;
+      if (goal != null && !goal.isManual && recalculated == null) {
+        infoMessage = goalNotRecalculatedMessage;
+      }
       return true;
     } catch (_) {
       errorMessage = profileSaveErrorMessage;

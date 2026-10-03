@@ -37,17 +37,17 @@ peso o de temporada de actividad, todo se recalcula.
 ## Requirements
 
 ### Perfil
-- R1. **Mi perfil** (desde Ajustes y desde el diario): sexo (femenino o masculino, lo usa la
+- R1. **Mi perfil** (desde Ajustes, desde "Mi objetivo" y, sin meta, desde el enlace del diario): sexo (femenino o masculino, lo usa la
   fórmula), fecha de nacimiento (se muestra la edad calculada), estatura (cm), peso (kg) y nivel de
   actividad. Todo es editable en cualquier momento. Rangos válidos: peso 30–300 kg, estatura
   120–230 cm, edad 18–100 años. Fuera de rango, mensaje en español y no se guarda.
 - R2. **Niveles de actividad** (incluye el NEAT, el movimiento del día a día): 4 niveles, descritos
   por días de ejercicio a la semana. Cada uno usa un factor de actividad física (PAL) de EFSA 2013
   (decisión OQ10-B por delegación de la usuaria):
-  - "Sedentaria": poco o nada de ejercicio, trabajo sentado (PAL 1,4).
-  - "Algo activa": ejercicio 1–3 días por semana o mucho movimiento diario (1,6).
-  - "Activa": ejercicio 3–5 días por semana (1,8).
-  - "Muy activa": ejercicio 6–7 días por semana o trabajo físico (2,0).
+  - "Poca actividad": poco o nada de ejercicio, trabajo sentado (PAL 1,4).
+  - "Actividad ligera": ejercicio 1–3 días por semana o mucho movimiento diario (1,6).
+  - "Actividad moderada": ejercicio 3–5 días por semana (1,8).
+  - "Actividad alta": ejercicio 6–7 días por semana o trabajo físico (2,0).
 
   Pasar de días de ejercicio a cada PAL es una decisión de producto, documentada como tal. El nivel
   se cambia por temporadas, desde el perfil.
@@ -106,7 +106,8 @@ peso o de temporada de actividad, todo se recalcula.
   estimadas, y "N por encima de la meta" sin rojo. Sin meta, el enlace dice "Calcular mi meta".
 
 ### Datos
-- R12. Perfil y meta en `user.db`, que pasa de v3 a v4 con migración. "Borrar todos mis datos" los
+- R12. Perfil y meta en `user.db`, que pasa a v5 con migración (desde la v3 publicada y desde la v4
+  que solo existió en builds de desarrollo). "Borrar todos mis datos" los
   elimina y "Exportar" los incluye. No salen del dispositivo: ni al backend, ni a la IA, ni a
   Crashlytics, ni a logs. Los fallos de escritura muestran un mensaje en español y no se relanzan
   (la excepción de SQLite trae los parámetros).
@@ -143,7 +144,8 @@ peso o de temporada de actividad, todo se recalcula.
 - AC12. Progreso del diario (texto, "~", por encima de la meta, barra sin color de alarma), como en
   la versión 1 `[unit + widget]`.
 - AC13. "Borrar todos mis datos" vacía el perfil y la meta; "Exportar" los incluye; la migración
-  de v3 a v4 conserva comidas, productos y consentimiento `[integration]`.
+  a v5 (desde la v3 y desde la v4 de desarrollo) conserva comidas, productos y consentimiento
+  `[integration]`.
 - AC14. Un fallo al guardar el perfil o la meta muestra un mensaje en español; la excepción no se
   relanza ni llega a Crashlytics `[widget]`.
 - AC15. Ninguna llamada a `infra/ai_client`, a Crashlytics, a `functions/` ni a logs recibe datos
@@ -160,10 +162,10 @@ peso o de temporada de actividad, todo se recalcula.
 
 ## Components / Files Affected
 - `packages/nutrition_core/lib/src/`: `energy_estimation.dart` (Harris-Benedict y PAL),
-  `goal_planning.dart` (objetivos y % de macros), `goal_progress.dart` y `goal_limits.dart` (sin
-  cambios), `macro_suggestion.dart` (se reemplaza por los % de R7).
+  `goal_planning.dart` (objetivos y % de macros), `goal_progress.dart` y `goal_limits.dart`. El
+  `macro_suggestion.dart` de la versión 1 se eliminó.
 - `app/lib/infra/storage/`: tablas `user_profile` (fila única) y `nutrition_goals` (objetivo, kcal,
-  macros en g, `is_manual`), sobre la v4 de esta rama, que nunca se publicó.
+  macros en g, `is_manual`); `user.db` v5.
 - `app/lib/features/goals/`: pantallas "Mi perfil" (con el punto de partida) y "Mi objetivo"
   (con la meta manual).
 - `app/lib/features/diary/`: el enlace "Calcular mi meta".
@@ -178,6 +180,12 @@ peso o de temporada de actividad, todo se recalcula.
 - Un objetivo que deja la meta fuera de 800–6.000 kcal → no se guarda y se avisa; puede escribirla
   a mano.
 - Cambiar el objetivo reemplaza la meta (sin historial).
+- Si al guardar el perfil la meta de un objetivo quedaría fuera de 800–6.000 kcal, se conserva la
+  anterior y "Mi perfil" lo avisa.
+- Con el paso del tiempo (cumpleaños), el basal y el mantenimiento en pantalla se recalculan solos;
+  la meta guardada se actualiza la próxima vez que se guarde el perfil o se elija el objetivo. Si
+  la edad sale de 18–100, "Mi objetivo" pide revisar el perfil.
+- Fallo al leer `user.db` → mensaje en español en vez de quedarse cargando.
 - Fallo de `user.db` → mensaje en español, sin relanzar (R12).
 
 ## Security & Privacy
@@ -208,16 +216,16 @@ peso o de temporada de actividad, todo se recalcula.
 | AC | Estado | Evidencia |
 |----|--------|-----------|
 | AC1 | ✅ | `packages/nutrition_core/test/energy_estimation_test.dart`, grupo "AC1" (3 casos de Harris y Benedict 1919, p. 230, ±1 kcal) |
-| AC2 | ✅ | `energy_estimation_test.dart`, grupo "AC2" (4 PAL de EFSA 2013) |
+| AC2 | ✅ | `energy_estimation_test.dart`, grupo "AC2" (4 PAL de EFSA 2013, con valores literales 2.528,79 / 2.890,05 / 3.251,30 / 3.612,56) |
 | AC3 | ✅ | `energy_estimation_test.dart`, grupo "AC3" (rangos, NaN, infinito, edad 18–100) |
 | AC4 | ✅ | `packages/nutrition_core/test/goal_planning_test.dart` ("AC4…") |
 | AC5 | ✅ | `goal_planning_test.dart` (100 / 55,6 / 275 g; suma 4/9/4; repartos dentro de los AMDR) |
 | AC6 | ✅ | `app/test/features/goals/goals_flow_test.dart` ("AC6/AC7…", "AC6: fuera de rango…", "carga el perfil guardado…") |
 | AC7 | ✅ | `goals_flow_test.dart` ("AC6/AC7…": peso 63 → 70 y actividad ligera → alta, sin reiniciar la pantalla) |
 | AC8 | ✅ | `goals_flow_test.dart` ("AC8…": diario → "Calcular mi meta" → objetivo → meta → "0 / 1.776 kcal" y 4 barras) + `app/test/features/diary/diary_goal_test.dart` |
-| AC9 | ✅ | `goals_flow_test.dart`, grupo "AC9" (meta de un objetivo recalculada 1.776 → 1.883; meta manual fija, aviso y "Usar este valor") + `app/test/infra/storage/nutrition_goal_storage_test.dart` ("R9…") |
+| AC9 | ✅ | `goals_flow_test.dart`, grupo "AC9" (meta de un objetivo recalculada 1.776 → 1.883 y el diario muestra "/ 1.883 kcal"; meta manual fija, aviso y "Usar este valor"; recálculo fuera de rango → se conserva y se avisa) + `app/test/infra/storage/nutrition_goal_storage_test.dart` ("R9…") |
 | AC10 | ✅ | `goals_flow_test.dart` ("AC10…") + `packages/nutrition_core/test/goal_limits_test.dart` |
-| AC11 | ✅ | `goals_flow_test.dart` ("AC11: sin perfil…") + `diary_goal_test.dart` ("AC11: sin meta…") |
+| AC11 | ✅ | `goals_flow_test.dart` ("AC11: sin perfil…", "perfil que ya no es válido…", "R1: desde Mi objetivo se abre Mi perfil") + `diary_goal_test.dart` ("AC11: sin meta…") |
 | AC12 | ✅ | `diary_goal_test.dart` (textos, "~", por encima de la meta, barra con el color del tema) + `goal_progress_test.dart` |
 | AC13 | ✅ | `nutrition_goal_storage_test.dart` (borrar todo, exportar, migración v3 → v5 y v4 de desarrollo → v5) |
 | AC14 | ✅ | `goals_flow_test.dart` ("AC14…" en perfil y en objetivo: `takeException()` nulo, sin "Sqlite") |
@@ -296,6 +304,14 @@ Verificado (2026-10-02, versión 2): `dart analyze` y `flutter analyze` sin issu
   versión 1 (por ejemplo, el teléfono de pruebas), con otras tablas de meta. La migración desde la v4
   las reemplaza y conserva comidas, productos y consentimiento. Desde la v3 se crean las dos tablas
   nuevas.
+
+- 2026-10-02: reviewer (v2) CHANGES_REQUESTED. Corregido: [MAJOR] el mantenimiento se calculaba
+  en `ProfileController` (ahora llama a `estimateMaintenanceKcal`). MINOR: textos de la SPEC (R1,
+  R2, R12, AC13, Components); aviso cuando la meta no se puede recalcular; perfil inválido con el
+  tiempo; errores de lectura; numeración de comentarios y tests; PV-13; AC2 con valores literales;
+  AC9 hasta el diario; enlace a "Mi perfil" desde "Mi objetivo". El paso a v5 y los textos de
+  actividad neutros en género se decidieron por delegación de la usuaria ("haz lo que
+  recomiendes").
 
 ## Review
 Primera revisión (2026-10-02, subagente `reviewer`): **CHANGES_REQUESTED**.

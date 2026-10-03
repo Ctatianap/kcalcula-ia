@@ -137,6 +137,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
               ),
               if (c.basalKcal != null) _StartingPoint(controller: c),
+              if (c.infoMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Text(c.infoMessage!),
+                ),
               if (c.errorMessage != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 12),

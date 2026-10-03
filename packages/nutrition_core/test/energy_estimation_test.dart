@@ -31,11 +31,12 @@ void main() {
       ageYears: 27,
       sex: BiologicalSex.male,
     );
-    for (final (level, pal) in [
-      (ActivityLevel.sedentary, 1.4),
-      (ActivityLevel.lightlyActive, 1.6),
-      (ActivityLevel.active, 1.8),
-      (ActivityLevel.veryActive, 2.0),
+    // Valores literales: basal 1.806,28 (primer caso de AC1) × PAL.
+    for (final (level, pal, expected) in [
+      (ActivityLevel.sedentary, 1.4, 2528.79),
+      (ActivityLevel.lightlyActive, 1.6, 2890.05),
+      (ActivityLevel.active, 1.8, 3251.30),
+      (ActivityLevel.veryActive, 2.0, 3612.56),
     ]) {
       test('${level.name} → × $pal', () {
         expect(level.pal, pal);
@@ -47,6 +48,7 @@ void main() {
           activityLevel: level,
         );
         expect(kcal, closeTo(basal * pal, 1e-9));
+        expect(kcal, closeTo(expected, 0.01));
       });
     }
   });

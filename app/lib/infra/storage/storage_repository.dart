@@ -191,7 +191,7 @@ class StorageRepository {
   /// R5: borra todo el contenido nutricional del usuario. No toca
   /// `ConsentRecord` — borrar los datos no es lo mismo que revocar el
   /// consentimiento (R8/AC14 son la acción separada para eso).
-  /// SPEC-008 R10: también la meta y los datos de la sugerencia.
+  /// SPEC-008 R12: también el perfil y la meta.
   Future<void> deleteAllUserData() {
     return _db.transaction(() async {
       await _db.delete(_db.mealItems).go();
@@ -299,7 +299,7 @@ class StorageRepository {
     return {
       'exportedAt': DateTime.now().toIso8601String(),
       'meals': mealsJson,
-      // SPEC-008 R10.
+      // SPEC-008 R12.
       'nutritionGoal': goal == null
           ? null
           : {

@@ -63,7 +63,7 @@ Future<void> _pump(WidgetTester tester, AppDatabase db) async {
 }
 
 void main() {
-  group('textos de progreso (AC6)', () {
+  group('textos de progreso (AC12)', () {
     test('kcal por debajo y por encima de la meta', () {
       expect(
         kcalProgressText(
@@ -93,22 +93,23 @@ void main() {
     });
   });
 
-  testWidgets('AC7: sin meta muestra el total y el enlace a fijar una meta', (
-    tester,
-  ) async {
-    final db = AppDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-    await _meal(StorageRepository(db), 500);
+  testWidgets(
+    'AC11: sin meta muestra el total y el enlace "Calcular mi meta"',
+    (tester) async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      await _meal(StorageRepository(db), 500);
 
-    await _pump(tester, db);
+      await _pump(tester, db);
 
-    expect(find.text('Total del día: 500 kcal'), findsOneWidget);
-    await tester.tap(find.text('Calcular mi meta'));
-    await tester.pumpAndSettle();
-    expect(find.text('Pantalla de meta'), findsOneWidget);
-  });
+      expect(find.text('Total del día: 500 kcal'), findsOneWidget);
+      await tester.tap(find.text('Calcular mi meta'));
+      await tester.pumpAndSettle();
+      expect(find.text('Pantalla de meta'), findsOneWidget);
+    },
+  );
 
-  testWidgets('AC6/AC2: con meta de kcal y proteína muestra solo esas dos', (
+  testWidgets('AC8/AC12: con meta muestra kcal y las tres barras de macros', (
     tester,
   ) async {
     final db = AppDatabase(NativeDatabase.memory());
@@ -155,7 +156,7 @@ void main() {
     expect(find.text('Todavía no registras nada hoy.'), findsOneWidget);
   });
 
-  testWidgets('AC6: por encima de la meta, texto neutro y barra llena', (
+  testWidgets('AC12: por encima de la meta, texto neutro y barra llena', (
     tester,
   ) async {
     final db = AppDatabase(NativeDatabase.memory());

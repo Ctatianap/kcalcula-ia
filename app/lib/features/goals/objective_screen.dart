@@ -47,7 +47,17 @@ class _ObjectiveScreenState extends ConsumerState<ObjectiveScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Mi objetivo')),
+      appBar: AppBar(
+        title: const Text('Mi objetivo'),
+        actions: [
+          // R1: el perfil también se abre desde aquí.
+          IconButton(
+            icon: const Icon(Icons.person_outline),
+            tooltip: 'Mi perfil',
+            onPressed: _openProfile,
+          ),
+        ],
+      ),
       body: ListenableBuilder(
         listenable: _controller,
         builder: (context, _) {
@@ -55,8 +65,14 @@ class _ObjectiveScreenState extends ConsumerState<ObjectiveScreen> {
           if (!c.loaded) {
             return const Center(child: CircularProgressIndicator());
           }
+          if (c.errorMessage == goalLoadErrorMessage) {
+            return Center(child: Text(goalLoadErrorMessage));
+          }
           if (!c.hasProfile || c.maintenance == null) {
-            return _NeedsProfile(onOpenProfile: _openProfile);
+            return _NeedsProfile(
+              onOpenProfile: _openProfile,
+              invalidProfile: c.hasProfile,
+            );
           }
           final text = Theme.of(context).textTheme;
           final suggested = c.suggestedForManualGoal;
@@ -185,7 +201,13 @@ class _ObjectiveOption extends StatelessWidget {
 class _NeedsProfile extends StatelessWidget {
   final VoidCallback onOpenProfile;
 
-  const _NeedsProfile({required this.onOpenProfile});
+  /// El perfil existe pero ya no es válido (p. ej. pasó de 100 años).
+  final bool invalidProfile;
+
+  const _NeedsProfile({
+    required this.onOpenProfile,
+    required this.invalidProfile,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -195,15 +217,20 @@ class _NeedsProfile extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'Para calcular tu objetivo primero necesito tu perfil: '
-              'sexo, fecha de nacimiento, estatura, peso y actividad.',
+            Text(
+              invalidProfile
+                  ? 'Con los datos actuales de tu perfil no puedo calcular tu '
+                        'mantenimiento. Revísalos.'
+                  : 'Para calcular tu objetivo primero necesito tu perfil: '
+                        'sexo, fecha de nacimiento, estatura, peso y actividad.',
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
             FilledButton(
               onPressed: onOpenProfile,
-              child: const Text('Completar mi perfil'),
+              child: Text(
+                invalidProfile ? 'Revisar mi perfil' : 'Completar mi perfil',
+              ),
             ),
           ],
         ),

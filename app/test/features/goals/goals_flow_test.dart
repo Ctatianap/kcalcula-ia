@@ -179,6 +179,34 @@ void main() {
   });
 
   group('Mi objetivo (AC8–AC11, AC14)', () {
+    testWidgets('perfil que ya no es válido: pide revisarlo', (tester) async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      await StorageRepository(db).saveUserProfile(
+        sex: 'female',
+        birthDate: DateTime(DateTime.now().year - 101, 1, 1),
+        heightCm: 165,
+        weightKg: 63,
+        activityLevel: 'lightlyActive',
+      );
+      await _pump(tester, AppRoutes.objective, db: db);
+
+      expect(find.text('Revisar mi perfil'), findsOneWidget);
+      expect(find.text('Completar mi perfil'), findsNothing);
+    });
+
+    testWidgets('R1: desde Mi objetivo se abre Mi perfil', (tester) async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      await _saveProfile(StorageRepository(db));
+      await _pump(tester, AppRoutes.objective, db: db);
+
+      await tester.tap(find.byTooltip('Mi perfil'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Guardar perfil'), findsOneWidget);
+    });
+
     testWidgets('AC11: sin perfil lleva a completarlo', (tester) async {
       final db = await _pump(tester, AppRoutes.objective);
       addTearDown(db.close);
@@ -285,7 +313,41 @@ void main() {
       final goal = await repo.getNutritionGoal();
       expect(goal!.energyKcal, closeTo(1883.12, 0.01));
       expect(goal.objective, 'loseFat');
+
+      // El diario muestra la meta recalculada.
+      await tester.pumpWidget(const SizedBox());
+      await _pump(tester, AppRoutes.diary, db: db);
+      expect(find.text('0 / 1.883 kcal · quedan 1.883'), findsOneWidget);
     });
+
+    testWidgets(
+      'si la meta recalculada queda fuera de rango, se conserva y se avisa',
+      (tester) async {
+        final db = AppDatabase(NativeDatabase.memory());
+        addTearDown(db.close);
+        final repo = StorageRepository(db);
+        await _saveProfile(repo);
+        await _pump(tester, AppRoutes.profile, db: db);
+        // Con 300 kg, 230 cm y actividad alta, "Subir masa muscular" (+20 %)
+        // queda por encima de 6.000 kcal: la meta no se recalcula.
+        await repo.saveNutritionGoal(
+          goalValuesFor(
+            kcal: 3000,
+            objective: GoalObjective.gainMuscle,
+            isManual: false,
+          ),
+        );
+        await tester.enterText(find.byKey(const Key('profile-weight')), '300');
+        await tester.enterText(find.byKey(const Key('profile-height')), '230');
+        await tester.tap(find.text('Actividad alta'));
+        await tester.pump();
+        await tester.tap(find.widgetWithText(FilledButton, 'Guardar perfil'));
+        await tester.pumpAndSettle();
+
+        expect(find.text(goalNotRecalculatedMessage), findsOneWidget);
+        expect((await repo.getNutritionGoal())!.energyKcal, 3000);
+      },
+    );
 
     testWidgets('meta manual: no cambia y aparece la sugerencia', (
       tester,

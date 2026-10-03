@@ -1,6 +1,8 @@
 /// SPEC-008 (v2) R6/R7: objetivo y reparto de macros en % de las kcal.
 ///
-/// Fuentes (ver `docs/research/2026-10-02-harris-benedict-actividad-objetivo.md`, PV-14):
+/// Fuentes: déficit y superávit en `docs/research/2026-10-02-harris-benedict-actividad-objetivo.md`
+/// (PV-14); AMDR y factores de conversión en
+/// `docs/research/2026-10-02-formula-gasto-energetico.md` (PV-13).
 /// - Déficit: 250–500 kcal/día para personas que entrenan (posición conjunta
 ///   Dietitians of Canada, Academy of Nutrition and Dietetics y ACSM, 2016,
 ///   https://www.dietitians.ca/DietitiansOfCanada/media/Documents/Resources/noap-position-paper.pdf);
