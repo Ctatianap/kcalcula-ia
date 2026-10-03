@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:nutrition_core/nutrition_core.dart';
+
 import '../../app_routes.dart';
+import '../../infra/catalog/catalog_providers.dart';
+import '../../infra/food_resolution/food_query_resolver.dart';
+import '../../infra/food_resolution/recent_meals.dart';
+import '../../infra/storage/storage_providers.dart';
 import '../../ui/components/k_card.dart';
 import '../../ui/components/privacy_note.dart';
 import '../../ui/theme.dart';
@@ -27,6 +33,33 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
 
   /// Edge case: un doble toque en "Analizar" no abre dos análisis.
   bool _analysisOpen = false;
+
+  /// SPEC-017: comidas recientes para repetir sin IA. Si la lectura falla,
+  /// la sección simplemente no aparece (escribir sigue funcionando).
+  late final Future<List<RecentMeal>> _recents = _loadRecents();
+
+  Future<List<RecentMeal>> _loadRecents() async {
+    try {
+      return await loadRecentMeals(
+        ref.read(storageRepositoryProvider),
+        (personalProducts) => FoodQueryResolver(
+          catalog: ref.read(catalogRepositoryProvider),
+          personalProducts: personalProducts,
+        ),
+      );
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  /// R3: abre el detalle con los alimentos y gramos ya resueltos.
+  Future<void> _openRecent(RecentMeal recent) async {
+    if (_analysisOpen) return;
+    setState(() => _analysisOpen = true);
+    await Navigator.of(context)
+        .pushNamed(AppRoutes.review, arguments: recent.draft);
+    if (mounted) setState(() => _analysisOpen = false);
+  }
 
   @override
   void dispose() {
@@ -122,6 +155,15 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
         _textField(isListening: false, enabled: !isAnalyzingLabel),
         const SizedBox(height: 12),
         _analyzeButton(canAnalyze),
+        FutureBuilder<List<RecentMeal>>(
+          future: _recents,
+          builder: (context, snapshot) {
+            final recents = snapshot.data ?? const <RecentMeal>[];
+            // R5: sin comidas previas, la sección no se muestra.
+            if (recents.isEmpty) return const SizedBox.shrink();
+            return _RecentMeals(recents: recents, onOpen: _openRecent);
+          },
+        ),
       ],
       CaptureTab.voice => <Widget>[
         _VoicePanel(
@@ -207,6 +249,59 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
     return FilledButton(
       onPressed: canAnalyze ? _analyze : null,
       child: const Text('Analizar'),
+    );
+  }
+}
+
+/// SPEC-017 R1/R2: hasta 5 comidas distintas, con sus kcal de hoy.
+class _RecentMeals extends StatelessWidget {
+  final List<RecentMeal> recents;
+  final ValueChanged<RecentMeal> onOpen;
+
+  const _RecentMeals({required this.recents, required this.onOpen});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 24),
+        Semantics(
+          header: true,
+          child: Text(
+            'Recientes',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ),
+        const SizedBox(height: 8),
+        for (final (i, recent) in recents.indexed) ...[
+          KCard(
+            padding: EdgeInsets.zero,
+            radius: 20,
+            // Material propio: si no, la tarjeta tapa el efecto del toque.
+            child: Material(
+              type: MaterialType.transparency,
+              child: ListTile(
+                key: Key('recent-meal-$i'),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                leading: const Icon(Icons.history, color: KColors.accent),
+                title: Text(recent.name),
+                trailing: Text(
+                  // "~" salvo con "Alta precisión" (regla del 15 %, como el
+                  // detalle).
+                  '${recent.confidence == ConfidenceLevel.altaPrecision ? '' : '~'}'
+                  '${formatThousandsEs(presentKcal(recent.kcal))} kcal',
+                  key: Key('recent-meal-kcal-$i'),
+                ),
+                onTap: () => onOpen(recent),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
+      ],
     );
   }
 }

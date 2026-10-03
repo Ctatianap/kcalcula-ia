@@ -62,6 +62,13 @@ existen, `unreadable_fields`) → validación en `nutrition_core` (Atwater ±20 
 confirma o corrige los valores → indica la cantidad consumida → cálculo → se guarda como producto
 personal reutilizable.
 
+## Flujo: comida reciente (SPEC-017)
+"¿Qué comiste?" lee las últimas 50 comidas de `user.db`, deja hasta 5 distintas (mismos alimentos con
+los mismos gramos) y recalcula sus kcal con el catálogo actual (`infra/food_resolution/recent_meals.dart`).
+Al tocar una, el detalle se abre con un `MealDraft` (alimentos y gramos ya resueltos, la base de la
+cantidad y la confianza que dieron las reglas al registrarla), **sin llamar a la IA**; se guarda como
+una comida nueva con la hora actual. Una comida con un alimento que ya no existe no aparece.
+
 ## Resolución de cantidades (orden de preferencia)
 | `quantity_basis` | Ejemplo | Cómo se obtienen los gramos |
 |---|---|---|

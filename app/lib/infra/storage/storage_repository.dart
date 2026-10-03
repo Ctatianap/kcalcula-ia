@@ -8,6 +8,8 @@ import 'goal_sync.dart';
 export 'app_database.dart'
     show
         ConsentRecordData,
+        Meal,
+        MealItem,
         NutritionGoal,
         PersonalProduct,
         UserProfileData,
@@ -430,6 +432,20 @@ class StorageRepository {
     return mealsBetween(start, start.add(const Duration(days: 1)));
   }
 
+  /// SPEC-017: las [limit] comidas más recientes, de la más nueva a la más
+  /// antigua, con sus ítems.
+  Future<List<MealWithItems>> recentMeals({int limit = 50}) async {
+    final meals =
+        await (_db.select(_db.meals)
+              ..orderBy([
+                (m) => OrderingTerm.desc(m.eatenAt),
+                (m) => OrderingTerm.desc(m.id),
+              ])
+              ..limit(limit))
+            .get();
+    return _withItems(meals);
+  }
+
   /// SPEC-011: comidas con `eatenAt` en [start, end) (fin excluido), en
   /// orden por hora.
   Future<List<MealWithItems>> mealsBetween(DateTime start, DateTime end) async {
@@ -443,6 +459,10 @@ class StorageRepository {
               ..orderBy([(m) => OrderingTerm.asc(m.eatenAt)]))
             .get();
 
+    return _withItems(meals);
+  }
+
+  Future<List<MealWithItems>> _withItems(List<Meal> meals) async {
     // Ítems en lote (no una consulta por comida), en tandas para no pasar
     // el límite de parámetros de SQLite.
     final itemsByMeal = <int, List<MealItem>>{};

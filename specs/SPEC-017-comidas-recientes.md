@@ -1,7 +1,7 @@
 # SPEC-017: Comidas recientes
 
 ## Status
-Approved
+Review
 Path: Standard (reutiliza el catálogo y el cálculo existentes; no llama a la IA)
 
 ## Objective
@@ -68,9 +68,52 @@ toque.
 ## Definition of Done
 - AC1–AC5 con evidencia; analyze y tests verdes; reviewer PASS.
 
+## Evidencia
+| AC | Evidencia |
+|----|-----------|
+| AC1 | `app/test/features/capture/recent_meals_flow_test.dart` › "AC1: Recientes muestra 5 comidas distintas, en orden" (widget); `app/test/infra/food_resolution/recent_meals_test.dart` › "AC1/R1: 7 comidas (2 repetidas) → 5 distintas…" (unit) |
+| AC2 | `recent_meals_flow_test.dart` › "AC2 + AC5: tocar una abre el detalle con los mismos alimentos y gramos sin llamar a la IA…" (app completa; el `AiClient` falla el test si se llama) |
+| AC3 | `recent_meals_test.dart` › "AC3: las kcal salen del catálogo actual, no de la instantánea" (unit) y `recent_meals_flow_test.dart` › "AC3: la tarjeta muestra las kcal del catálogo actual" (widget) |
+| AC4 | `recent_meals_test.dart` › "AC4: una comida con un alimento que ya no está en el catálogo no aparece" (y "R4: un producto personal borrado…") |
+| AC5 | `recent_meals_flow_test.dart` › "AC2 + AC5: …guardar crea una comida nueva con la hora actual" |
+
+Además: R5 sin comidas previas (unit y widget), texto ×2 en 360 px.
+
 ## Change Log
 - 2026-10-03: creación a partir de T-018 y del diseño "kcalcula ia UI".
 - 2026-10-03: **Approved por la usuaria** ("aprobadas", junto con SPEC-011 a SPEC-019). Los recorridos manuales en el teléfono se agrupan al final del lote.
+- 2026-10-03: implementada (autorización única de la usuaria para el lote). Detalles menores:
+  - `MealDraft` (en `infra/food_resolution`, compartido por "¿Qué comiste?" y el detalle; lo
+    reutilizará la búsqueda manual de SPEC-018) y `ReviewController.fromDraft`. La ruta `/review`
+    acepta la etiqueta confirmada o un `MealDraft`.
+  - **Confianza al repetir:** se conserva la base de la cantidad y la confianza que las reglas le
+    dieron a cada ítem al registrarlo (no la reporta la IA); repetir una comida no la vuelve más
+    precisa. Las kcal y macros sí se recalculan con el catálogo actual.
+  - "La misma comida": mismo conjunto de alimentos (id del catálogo o del producto personal) con los
+    mismos gramos, sin importar el orden.
+  - Recientes aparece en la pestaña Texto, debajo de "Analizar"; muestra el nombre (alimentos del
+    catálogo actual unidos con "," e "y") y las kcal ("~" salvo si todo es "Alta precisión"). Si la
+    lectura falla, la sección no aparece y escribir sigue funcionando.
+  - `joinNamesEs` pasó a `format/text_es.dart` (lo usan el detalle y Recientes).
+  Status → Review.
+- 2026-10-03: reviewer **PASS** (commit c50775b; app 278/278), sin BLOCKER ni MAJOR. MINOR atendidos
+  antes de fusionar:
+  - el "~" de la tarjeta usa la confianza de la comida de `nutrition_core` (regla del 15 %), igual
+    que el detalle, en lugar de una regla propia;
+  - "Recientes" es encabezado para el lector de pantalla;
+  - la comida repetida guarda la cantidad tal como se dijo la primera vez ("2" "unidad"), no solo
+    los gramos;
+  - tests: tope de 5 con 8 comidas distintas, límite de 50 en la consulta, regla del 15 % y
+    cantidad original; el `AiClient` falso cuenta las llamadas (deben ser 0).
+  - Aceptado: si un alimento desaparece entre armar la lista y tocar la tarjeta (muy raro), se omite;
+    si no queda ninguno, el detalle muestra "Quitaste todos los alimentos…" con Guardar
+    deshabilitado. Una comida repetida conserva la confianza con la que se registró aunque las
+    reglas cambien después.
+  Fusionada en `develop` por la autorización única de la usuaria. Sigue en Review hasta el
+  recorrido manual en el teléfono.
 
 ## Review
-Informe del reviewer: pendiente.
+Informe del reviewer (2026-10-03, commit c50775b): **PASS**. AC1–AC5 con evidencia
+(`recent_meals_test.dart`, `recent_meals_flow_test.dart`); sin IA, kcal del catálogo actual con
+`nutrition_core`, confianza de reglas y `source_ref` del catálogo; fronteras respetadas. MINOR
+atendidos (ver Change Log).

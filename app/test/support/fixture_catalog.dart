@@ -30,7 +30,10 @@ const catalogFixtureSchema = [
 /// Catálogo de fixtures con huevo (unidad=50g) y arepa (unidad=115g,
 /// pequeno=70g) — los mismos valores reales de data/curated/foods.csv,
 /// suficientes para AC1/AC7 (texto o voz -> "dos huevos y una arepa").
-CatalogRepository buildFixtureCatalog({String catalogVersion = 'test-1'}) {
+CatalogRepository buildFixtureCatalog({
+  String catalogVersion = 'test-1',
+  double eggKcal = 143,
+}) {
   final db = sqlite3.openInMemory();
   for (final statement in catalogFixtureSchema) {
     db.execute(statement);
@@ -80,7 +83,7 @@ CatalogRepository buildFixtureCatalog({String catalogVersion = 'test-1'}) {
     );
   }
 
-  food('huevo', 'Huevo', 143, p: 12.56, c: 0.72, f: 9.51);
+  food('huevo', 'Huevo', eggKcal, p: 12.56, c: 0.72, f: 9.51);
   portion('huevo', 'unidad', 50);
 
   food('arepa', 'Arepa', 267, p: 5.66, c: 30.47, f: 14);

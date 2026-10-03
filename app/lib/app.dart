@@ -16,6 +16,7 @@ import 'features/review/review_screen.dart';
 import 'features/settings/export_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'infra/ai_client/parsed_meal_dto.dart';
+import 'infra/food_resolution/meal_draft.dart';
 import 'infra/crash_reporting/crash_reporting_providers.dart';
 import 'infra/legal/privacy_policy.dart';
 import 'infra/storage/storage_providers.dart';
@@ -48,10 +49,13 @@ class MyApp extends StatelessWidget {
               builder: (_) => const CaptureScreen(),
             );
           case AppRoutes.review:
-            final parsedMeal = settings.arguments as ParsedMealDto;
+            // SPEC-004: etiqueta confirmada; SPEC-017: comida reciente.
+            final arguments = settings.arguments;
             return MaterialPageRoute(
               settings: settings,
-              builder: (_) => ReviewScreen(parsedMeal: parsedMeal),
+              builder: (_) => arguments is MealDraft
+                  ? ReviewScreen(draft: arguments)
+                  : ReviewScreen(parsedMeal: arguments as ParsedMealDto),
             );
           case AppRoutes.analysis:
             final text = settings.arguments as String;
