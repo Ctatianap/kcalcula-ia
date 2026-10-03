@@ -142,6 +142,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         builder: (context, _) => ListView(
           children: [
             ListTile(
+              leading: const Icon(Icons.person_outline),
+              title: const Text('Mi perfil'),
+              onTap: () => Navigator.of(context).pushNamed(AppRoutes.profile),
+            ),
+            ListTile(
+              leading: const Icon(Icons.flag_outlined),
+              title: const Text('Mi objetivo'),
+              onTap: () => Navigator.of(context).pushNamed(AppRoutes.objective),
+            ),
+            ListTile(
               leading: const Icon(Icons.ios_share),
               title: const Text('Exportar mis datos'),
               enabled: !_controller.busy,

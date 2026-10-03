@@ -18,7 +18,16 @@ class DiarySummary {
   final List<DiaryMealSummary> meals;
   final NutrientTotals dayTotals;
 
-  const DiarySummary({required this.meals, required this.dayTotals});
+  /// SPEC-008 R6/R7: meta vigente, o `null` si el usuario no ha fijado una.
+  final NutritionGoal? goal;
+
+  const DiarySummary({required this.meals, required this.dayTotals, this.goal});
+
+  /// SPEC-008 R6/AC12: el consumido lleva "~" si alguna comida del día no
+  /// es "Alta precisión".
+  bool get isApproximate => meals.any(
+    (m) => m.meal.meal.confidence != ConfidenceLevel.altaPrecision.name,
+  );
 }
 
 NutrientTotals _totalsOf(MealWithItems meal) => sumNutrients(
@@ -49,5 +58,6 @@ Future<DiarySummary> loadDiarySummary(
           return aIndex.compareTo(bIndex);
         });
   final dayTotals = sumNutrients(summaries.map((s) => s.totals));
-  return DiarySummary(meals: summaries, dayTotals: dayTotals);
+  final goal = await storage.getNutritionGoal();
+  return DiarySummary(meals: summaries, dayTotals: dayTotals, goal: goal);
 }

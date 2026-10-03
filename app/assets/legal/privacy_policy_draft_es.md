@@ -1,4 +1,4 @@
-<!-- Versión: v2 — SPEC-007. BORRADOR: pendiente de revisión legal humana antes de publicar. -->
+<!-- Versión: v3 — SPEC-008 (antes v2, SPEC-007). BORRADOR: pendiente de revisión legal humana antes de publicar. -->
 
 # Política de privacidad (borrador)
 
@@ -29,8 +29,25 @@ momento — solo pasa por él, de ida y de vuelta, sin quedarse con una copia. L
 quedar registrado, para poder detectar fallas técnicas, son datos como cuánto tardó la respuesta o
 si hubo un error — nunca el contenido de lo que enviaste.
 
-Ni tu voz (se transcribe en tu propio teléfono, sin pasar por nuestro servidor) ni tus datos ya
-registrados (comidas, productos guardados) salen jamás de tu dispositivo por decisión de la app.
+Tu voz nunca pasa por nuestro servidor: la convierte en texto el reconocimiento de voz del propio
+sistema operativo de tu teléfono. En Android ese servicio puede procesar el audio en servidores de
+Google (sin conexión a internet no funciona); en iPhone puede procesarse en servidores de Apple.
+Eso depende del sistema operativo, no de esta app, y la app no guarda el audio.
+
+Tus datos ya registrados (comidas, productos guardados, tu perfil y tu meta diaria)
+nunca salen de tu dispositivo por decisión de la app.
+
+## Tu perfil y tu meta diaria (opcional)
+
+Si usas "Mi perfil", la app guarda en tu teléfono tu sexo, fecha de nacimiento, estatura, peso,
+nivel de actividad física y, si lo escribes, tu mantenimiento medido (por ejemplo, el promedio de
+tu reloj), para calcular ahí mismo tu metabolismo basal, tu mantenimiento y la meta
+del objetivo que elijas (con sus calorías, proteína, carbohidratos y grasa). **Estos datos nunca
+salen de tu dispositivo**: ni a nuestro servidor, ni a la inteligencia artificial, ni en los
+reportes de fallos.
+
+Puedes cambiarlos cuando quieras desde "Mi perfil", y "Borrar todos mis datos" los elimina junto con
+tu meta. Los cálculos son estimaciones generales, no una recomendación médica.
 
 ## Si la app falla
 

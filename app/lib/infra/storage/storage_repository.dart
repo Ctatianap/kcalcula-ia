@@ -2,6 +2,9 @@ import 'package:drift/drift.dart';
 
 import 'app_database.dart';
 
+// SPEC-008: las features leen la meta sin depender de Drift directamente.
+export 'app_database.dart' show NutritionGoal, UserProfileData;
+
 /// Ítem ya calculado y confirmado por el usuario, listo para registrar
 /// (R11). Exactamente uno de `foodId`/`personalProductId` no es `null`
 /// (SPEC-004 R7) — nunca ambos, nunca ninguno (no debería llegar aquí: la
@@ -41,6 +44,17 @@ class MealItemRecord {
     this.sizeInput,
   });
 }
+
+/// SPEC-008: valores de la meta a guardar (kcal y gramos sin redondear,
+/// calculados en `nutrition_core`).
+typedef NutritionGoalValues = ({
+  String objective,
+  bool isManual,
+  double energyKcal,
+  double proteinG,
+  double carbsG,
+  double fatG,
+});
 
 class StorageRepository {
   final AppDatabase _db;
@@ -177,12 +191,71 @@ class StorageRepository {
   /// R5: borra todo el contenido nutricional del usuario. No toca
   /// `ConsentRecord` — borrar los datos no es lo mismo que revocar el
   /// consentimiento (R8/AC14 son la acción separada para eso).
+  /// SPEC-008 R12: también el perfil y la meta.
   Future<void> deleteAllUserData() {
     return _db.transaction(() async {
       await _db.delete(_db.mealItems).go();
       await _db.delete(_db.meals).go();
       await _db.delete(_db.personalProducts).go();
+      await _db.delete(_db.nutritionGoals).go();
+      await _db.delete(_db.userProfile).go();
     });
+  }
+
+  /// SPEC-008 R1: perfil, o `null` si no se ha completado.
+  Future<UserProfileData?> getUserProfile() =>
+      _db.select(_db.userProfile).getSingleOrNull();
+
+  /// SPEC-008 R1/R9: guarda el perfil y, si se pasa, la meta recalculada,
+  /// en una sola transacción (o se guardan los dos, o ninguno).
+  Future<void> saveUserProfile({
+    required String sex,
+    required DateTime birthDate,
+    required double heightCm,
+    required double weightKg,
+    required String activityLevel,
+    double? measuredMaintenanceKcal,
+    NutritionGoalValues? recalculatedGoal,
+  }) {
+    return _db.transaction(() async {
+      await _db
+          .into(_db.userProfile)
+          .insertOnConflictUpdate(
+            UserProfileCompanion.insert(
+              id: const Value(0),
+              sex: sex,
+              birthDate: birthDate,
+              heightCm: heightCm,
+              weightKg: weightKg,
+              activityLevel: activityLevel,
+              measuredMaintenanceKcal: Value(measuredMaintenanceKcal),
+              updatedAt: DateTime.now(),
+            ),
+          );
+      if (recalculatedGoal != null) await saveNutritionGoal(recalculatedGoal);
+    });
+  }
+
+  /// SPEC-008 R8/R11: meta diaria vigente, o `null` si no hay.
+  Future<NutritionGoal?> getNutritionGoal() =>
+      _db.select(_db.nutritionGoals).getSingleOrNull();
+
+  /// SPEC-008 R8/R10: guarda (o reemplaza) la meta única.
+  Future<void> saveNutritionGoal(NutritionGoalValues goal) {
+    return _db
+        .into(_db.nutritionGoals)
+        .insertOnConflictUpdate(
+          NutritionGoalsCompanion.insert(
+            id: const Value(0),
+            objective: goal.objective,
+            isManual: goal.isManual,
+            energyKcal: goal.energyKcal,
+            proteinG: goal.proteinG,
+            carbsG: goal.carbsG,
+            fatG: goal.fatG,
+            updatedAt: DateTime.now(),
+          ),
+        );
   }
 
   /// R7/AC7-AC9: instantánea completa en una forma directamente serializable
@@ -222,10 +295,35 @@ class StorageRepository {
     }
 
     final personalProducts = await getAllPersonalProducts();
+    final goal = await getNutritionGoal();
+    final profile = await getUserProfile();
 
     return {
       'exportedAt': DateTime.now().toIso8601String(),
       'meals': mealsJson,
+      // SPEC-008 R12.
+      'nutritionGoal': goal == null
+          ? null
+          : {
+              'objective': goal.objective,
+              'isManual': goal.isManual,
+              'energyKcal': goal.energyKcal,
+              'proteinG': goal.proteinG,
+              'carbsG': goal.carbsG,
+              'fatG': goal.fatG,
+              'updatedAt': goal.updatedAt.toIso8601String(),
+            },
+      'userProfile': profile == null
+          ? null
+          : {
+              'sex': profile.sex,
+              'birthDate': profile.birthDate.toIso8601String(),
+              'heightCm': profile.heightCm,
+              'weightKg': profile.weightKg,
+              'activityLevel': profile.activityLevel,
+              'measuredMaintenanceKcal': profile.measuredMaintenanceKcal,
+              'updatedAt': profile.updatedAt.toIso8601String(),
+            },
       'personalProducts': personalProducts
           .map(
             (p) => {
