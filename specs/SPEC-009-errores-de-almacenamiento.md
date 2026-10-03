@@ -1,7 +1,7 @@
 # SPEC-009: Errores de almacenamiento sin datos del usuario en Crashlytics
 
 ## Status
-Draft
+Review
 Path: Strict (cambia qué datos salen del dispositivo: el contenido de los reportes de fallos de
 Crashlytics, SPEC-007)
 
@@ -58,9 +58,11 @@ fallos.
 - AC1. `recordError` con una `SqliteException` cuyo mensaje incluye "parameters: pollo, 150" envía
   un error cuyo `toString()` no contiene "pollo" ni "150", e indica el tipo y el código de resultado.
   Errores que no son de almacenamiento se envían igual que hoy `[unit]`.
-- AC2. Lo mismo para una `DriftRemoteException` cuya causa remota es una `SqliteException`, y para
-  `recordFlutterFatalError` con un `FlutterErrorDetails` cuya excepción es de almacenamiento
-  `[unit]`.
+- AC2. Lo mismo para un error de Drift cuya causa encadenada es una `SqliteException`
+  (`DriftWrappedException`), para un envoltorio desconocido cuyo texto incluye un error de SQLite y
+  para `recordFlutterFatalError` con un `FlutterErrorDetails` cuya excepción es de almacenamiento
+  `[unit]`. `DriftRemoteException` se reconoce por nombre, porque su librería es experimental y su
+  constructor es privado; además la cubre la red de seguridad por texto.
 - AC3. Revisión: con un repositorio que falla en `registerMeal`, tocar "Registrar" muestra el
   mensaje de R2, la pantalla sigue en revisión con los ítems y `takeException()` es nulo `[widget]`.
 - AC4. Confirmación de etiqueta: con un repositorio que falla en `savePersonalProduct`, guardar
@@ -68,6 +70,16 @@ fallos.
 - AC5. Diario, revisión y arranque con lecturas que fallan → mensaje de R4 y "Reintentar". Al
   reintentar con el repositorio ya sano, carga normal `[widget]`.
 - AC6. Las suites existentes siguen verdes: el flujo normal no cambia `[unit + widget + integration]`.
+
+## Evidencia de Acceptance Criteria
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/infra/crash_reporting/sanitizing_crash_reporter_test.dart` ("AC1: SqliteException → StorageFailure…": sin "pollo", "150" ni "INSERT"; tipo y código 19), ("AC1: otros errores se envían igual") |
+| AC2 | ✅ | Mismo archivo: causa encadenada, envoltorio desconocido y `recordFlutterFatalError` (con y sin error de almacenamiento) |
+| AC3 | ✅ | `app/test/integration/storage_errors_test.dart` ("AC3…") |
+| AC4 | ✅ | `storage_errors_test.dart` ("AC4…") |
+| AC5 | ✅ | `storage_errors_test.dart` (diario, revisión y arranque: mensaje, "Reintentar" y carga normal al reintentar) |
+| AC6 | ✅ | `flutter analyze` sin issues; `flutter test` 151/151 (2026-10-03) |
 
 ## Technical Constraints
 - Invariantes 5 y 6 de `CLAUDE.md`: nada nuevo sale del dispositivo; esta SPEC **reduce** lo que
@@ -123,6 +135,13 @@ fallos.
 
 ## Change Log
 - 2026-10-03: creación a partir de T-010 de `docs/backlog.md`.
+- 2026-10-03: **Approved por la usuaria** ("aprobada"). Status → Implementing.
+- 2026-10-03: implementada. AC2 se ajusta (ver el texto del AC): `DriftRemoteException` no se puede
+  construir en los tests, así que se prueba con `DriftWrappedException`, con un envoltorio
+  desconocido y con la red de seguridad por texto. `main.dart` usa
+  `SanitizingCrashReporter(FirebaseCrashReporter())`. `storage_repository.dart` reexporta
+  `PersonalProduct` y `ConsentRecordData` para que las pantallas declaren tipos sin usar Drift.
+  Status → Review.
 
 ## Review
 Informe del reviewer: pendiente.

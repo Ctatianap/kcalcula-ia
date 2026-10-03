@@ -14,6 +14,7 @@ import 'infra/ai_client/parsed_meal_dto.dart';
 import 'infra/crash_reporting/crash_reporting_providers.dart';
 import 'infra/legal/privacy_policy.dart';
 import 'infra/storage/storage_providers.dart';
+import 'infra/storage/storage_repository.dart';
 
 /// Raíz de composición: es el único lugar que conoce las features y las
 /// conecta por nombre de ruta (`app_routes.dart`). Las features nunca se
@@ -105,9 +106,18 @@ class _RootGateState extends ConsumerState<_RootGate> {
     _checkConsent();
   }
 
+  /// SPEC-009 R4: la lectura del consentimiento falló.
+  bool _readFailed = false;
+
   Future<void> _checkConsent() async {
     final storage = ref.read(storageRepositoryProvider);
-    final state = await storage.getConsentState();
+    final ConsentRecordData? state;
+    try {
+      state = await storage.getConsentState();
+    } catch (_) {
+      if (mounted) setState(() => _readFailed = true);
+      return;
+    }
     final hasCurrentConsent =
         state != null && state.policyVersion == privacyPolicyVersion;
     // SPEC-007 R4/R5/AC12: el reporte de fallos nunca empieza antes de que
@@ -127,6 +137,25 @@ class _RootGateState extends ConsumerState<_RootGate> {
 
   @override
   Widget build(BuildContext context) {
+    if (_readFailed) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('No pude leer tus datos. Intenta de nuevo.'),
+              TextButton(
+                onPressed: () {
+                  setState(() => _readFailed = false);
+                  _checkConsent();
+                },
+                child: const Text('Reintentar'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     if (_hasConsent == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }

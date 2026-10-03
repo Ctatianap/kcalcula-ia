@@ -46,7 +46,10 @@ Future<void> main() async {
 
   // SPEC-007 R4: la recolección arranca desactivada — solo `_RootGate` la
   // activa, y solo tras confirmar consentimiento vigente (ver app.dart).
-  final CrashReporter crashReporter = FirebaseCrashReporter();
+  // SPEC-009 R1: los errores de `user.db` se reportan sin su mensaje.
+  final CrashReporter crashReporter = SanitizingCrashReporter(
+    FirebaseCrashReporter(),
+  );
   try {
     await crashReporter.setCollectionEnabled(false);
   } catch (_) {

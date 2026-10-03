@@ -71,6 +71,21 @@ class _DiaryScreenState extends ConsumerState<DiaryScreen> {
       body: FutureBuilder<DiarySummary>(
         future: _summaryFuture,
         builder: (context, snapshot) {
+          // SPEC-009 R4: una lectura fallida no deja el spinner para siempre.
+          if (snapshot.hasError) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('No pude leer tus datos. Intenta de nuevo.'),
+                  TextButton(
+                    onPressed: () => setState(_reload),
+                    child: const Text('Reintentar'),
+                  ),
+                ],
+              ),
+            );
+          }
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
