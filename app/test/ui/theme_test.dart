@@ -40,6 +40,19 @@ void main() {
     }
   });
 
+  test(
+    'R6/R7: cada estado del día contrasta ≥ 3:1 con el blanco (WCAG 1.4.11)',
+    () {
+      for (final status in DayGoalStatus.values) {
+        expect(
+          _contrast(status.color, KColors.background),
+          greaterThanOrEqualTo(3),
+          reason: status.label,
+        );
+      }
+    },
+  );
+
   test('R6: los estados del día no usan rojo ni verde de alarma', () {
     for (final status in DayGoalStatus.values) {
       final c = status.color;

@@ -11,6 +11,10 @@ abstract class AppRoutes {
   static const privacyPolicy = '/privacy-policy';
   static const profile = '/profile';
   static const objective = '/objective';
+
+  /// SPEC-010: "Hoy" ya pasado el control de consentimiento (`/` lo hace
+  /// al arrancar). Las pestañas y el regreso tras registrar usan esta ruta.
+  static const today = '/today';
   static const history = '/history';
   static const progress = '/progress';
 }

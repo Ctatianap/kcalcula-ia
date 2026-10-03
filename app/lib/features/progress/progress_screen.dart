@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../app_routes.dart';
 import '../../ui/components/empty_state.dart';
 import '../../ui/components/main_nav_bar.dart';
 
@@ -14,9 +13,7 @@ class ProgressScreen extends StatelessWidget {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) {
-          Navigator.of(context).pushReplacementNamed(AppRoutes.diary);
-        }
+        if (!didPop) backToToday(context);
       },
       child: Scaffold(
         appBar: AppBar(title: const Text('Progreso')),
@@ -26,7 +23,7 @@ class ProgressScreen extends StatelessWidget {
         ),
         bottomNavigationBar: MainNavBar(
           current: MainTab.progress,
-          onAdd: () => Navigator.of(context).pushNamed(AppRoutes.capture),
+          onAdd: () => openCaptureFromTab(context),
         ),
       ),
     );

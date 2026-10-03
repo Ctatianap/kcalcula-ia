@@ -4,7 +4,10 @@ import 'package:calorias_ia/infra/legal/privacy_policy.dart';
 import 'package:calorias_ia/infra/storage/app_database.dart';
 import 'package:calorias_ia/infra/storage/storage_providers.dart';
 import 'package:calorias_ia/infra/storage/storage_repository.dart';
+import 'package:calorias_ia/ui/licenses.dart';
+import 'package:calorias_ia/ui/theme.dart';
 import 'package:drift/native.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -70,16 +73,38 @@ void main() {
     expect(find.text('¿Qué comiste?'), findsWidgets);
   });
 
-  testWidgets('Atrás en Historial vuelve a Hoy', (tester) async {
+  for (final tab in ['Historial', 'Progreso']) {
+    testWidgets('Atrás en $tab vuelve a Hoy', (tester) async {
+      await _pumpApp(tester);
+      await tester.tap(find.byKey(Key('nav-$tab')));
+      await tester.pumpAndSettle();
+
+      final dynamic widgetsAppState = tester.state(find.byType(WidgetsApp));
+      await widgetsAppState.didPopRoute();
+      await tester.pumpAndSettle();
+
+      expect(find.widgetWithText(AppBar, 'Hoy'), findsOneWidget);
+    });
+  }
+
+  testWidgets('AC1: la app montada usa el tema nuevo', (tester) async {
     await _pumpApp(tester);
-    await tester.tap(find.byKey(const Key('nav-Historial')));
-    await tester.pumpAndSettle();
+    final theme = Theme.of(tester.element(find.byType(Scaffold).first));
+    expect(theme.colorScheme.primary, KColors.accent);
+    expect(theme.textTheme.bodyMedium?.fontFamily, kFontFamily);
+    expect(theme.scaffoldBackgroundColor, KColors.background);
+  });
 
-    final dynamic widgetsAppState = tester.state(find.byType(WidgetsApp));
-    await widgetsAppState.didPopRoute();
-    await tester.pumpAndSettle();
-
-    expect(find.widgetWithText(AppBar, 'Hoy'), findsOneWidget);
+  testWidgets('R2: la licencia de Outfit queda registrada', (tester) async {
+    registerFontLicenses();
+    final entries = await tester.runAsync(
+      () => LicenseRegistry.licenses.toList(),
+    );
+    final outfit = entries!.where((e) => e.packages.contains('Outfit'));
+    expect(outfit, isNotEmpty);
+    final text = outfit.first.paragraphs.map((p) => p.text).join(' ');
+    expect(text, contains('SIL Open Font License'));
+    expect(text, contains('The Outfit Project Authors'));
   });
 
   testWidgets('AC6: botones de la barra ≥ 44 px con etiqueta en español', (

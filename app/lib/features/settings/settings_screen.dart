@@ -174,6 +174,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               title: const Text('Ver política de privacidad completa'),
               onTap: _openFullPolicy,
             ),
+            // SPEC-010 R2: licencias de terceros (incluida la fuente Outfit).
+            ListTile(
+              leading: const Icon(Icons.description_outlined),
+              title: const Text('Licencias de código abierto'),
+              onTap: () => showLicensePage(
+                context: context,
+                applicationName: 'KCalcula IA',
+              ),
+            ),
             if (_controller.busy)
               const Padding(
                 padding: EdgeInsets.all(16),

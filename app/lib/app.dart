@@ -66,6 +66,8 @@ class MyApp extends StatelessWidget {
               builder: (_) => const ObjectiveScreen(),
             );
           // SPEC-010 R4: las pestañas principales cambian sin animación.
+          case AppRoutes.today:
+            return _tabRoute(settings, const DiaryScreen());
           case AppRoutes.history:
             return _tabRoute(settings, const HistoryScreen());
           case AppRoutes.progress:

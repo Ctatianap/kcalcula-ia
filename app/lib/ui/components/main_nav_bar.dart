@@ -5,6 +5,20 @@ import '../theme.dart';
 
 enum MainTab { today, history, progress }
 
+/// SPEC-010: desde Historial o Progreso, el + abre la captura encima de Hoy
+/// (al guardar, la revisión vuelve a un Hoy recién cargado).
+void openCaptureFromTab(BuildContext context) {
+  Navigator.of(context)
+    ..pushNamedAndRemoveUntil(AppRoutes.today, (route) => false)
+    ..pushNamed(AppRoutes.capture);
+}
+
+/// SPEC-010: Atrás en Historial o Progreso vuelve a Hoy.
+void backToToday(BuildContext context) {
+  Navigator.of(context)
+      .pushNamedAndRemoveUntil(AppRoutes.today, (route) => false);
+}
+
 /// SPEC-010 R4: barra inferior de las tres pantallas principales: píldora con
 /// Hoy / Historial / Progreso y botón + para registrar. Va en el
 /// `bottomNavigationBar` de cada pantalla principal, así no tapa contenido.
@@ -15,14 +29,16 @@ class MainNavBar extends StatelessWidget {
   const MainNavBar({super.key, required this.current, required this.onAdd});
 
   static const _routes = {
-    MainTab.today: AppRoutes.diary,
+    MainTab.today: AppRoutes.today,
     MainTab.history: AppRoutes.history,
     MainTab.progress: AppRoutes.progress,
   };
 
+  /// Cambiar de pestaña deja la pila con una sola pantalla principal.
   void _go(BuildContext context, MainTab tab) {
     if (tab == current) return;
-    Navigator.of(context).pushReplacementNamed(_routes[tab]!);
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil(_routes[tab]!, (route) => false);
   }
 
   @override

@@ -30,7 +30,8 @@ abstract final class KColors {
 /// alarma. El significado nunca depende solo del color: quien lo usa añade
 /// texto o icono.
 enum DayGoalStatus {
-  belowGoal(Color(0xFF9DB4CA), 'Por debajo'),
+  // 3,3:1 contra el blanco (≥ 3:1 para elementos gráficos, WCAG 1.4.11).
+  belowGoal(Color(0xFF7690AC), 'Por debajo'),
   onGoal(KColors.accent, 'En tu meta'),
   aboveGoal(KColors.text, 'Por encima');
 

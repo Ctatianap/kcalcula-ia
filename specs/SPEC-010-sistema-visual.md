@@ -132,13 +132,13 @@ Historial y Progreso y un botón para registrar, para usarla a diario sin esfuer
 ## Evidencia de Acceptance Criteria
 | AC | Estado | Evidencia |
 |----|--------|-----------|
-| AC1 | ✅ | `app/test/ui/theme_test.dart` ("AC1…") |
-| AC2 | ✅ | `app/pubspec.yaml` declara Outfit (200/300/400/500) desde `assets/fonts/`; grep (2026-10-03) sin `google_fonts`, `fonts.googleapis` ni `fonts.gstatic` en `lib/`, `pubspec.yaml` ni `pubspec.lock`. Licencia: SIL OFL 1.1, archivos de https://github.com/Outfitio/Outfit-Fonts en el commit `902773808eb372f70fb34e8946dd1ffe604efc79`, `app/assets/fonts/OFL.txt` |
-| AC3 | ✅ | `app/test/ui/main_nav_test.dart` (pestañas, estados vacíos, + desde Hoy y Progreso, Atrás en Historial vuelve a Hoy) + suites de integración que registran desde Hoy y vuelven al diario |
+| AC1 | ✅ | `app/test/ui/theme_test.dart` ("AC1…") + `app/test/ui/main_nav_test.dart` ("AC1: la app montada usa el tema nuevo") |
+| AC2 | ✅ | Licencia empaquetada (`assets/fonts/OFL.txt`) y registrada en el `LicenseRegistry` (`lib/ui/licenses.dart`), visible en Ajustes → "Licencias de código abierto"; test "R2: la licencia de Outfit queda registrada". `app/pubspec.yaml` declara Outfit (200/300/400/500) desde `assets/fonts/`; grep (2026-10-03) sin `google_fonts`, `fonts.googleapis` ni `fonts.gstatic` en `lib/`, `pubspec.yaml` ni `pubspec.lock`. Licencia: SIL OFL 1.1, archivos de https://github.com/Outfitio/Outfit-Fonts en el commit `902773808eb372f70fb34e8946dd1ffe604efc79`, `app/assets/fonts/OFL.txt` |
+| AC3 | ✅ | `app/test/ui/main_nav_test.dart` (pestañas, estados vacíos, + desde Hoy y Progreso, Atrás en Historial y en Progreso vuelve a Hoy) + `app/test/integration/capture_to_review_flow_test.dart` ("SPEC-010: registrar con + desde Historial/Progreso vuelve a Hoy con la comida") |
 | AC4 | ✅ | `app/test/ui/progress_ring_test.dart` |
-| AC5 | ✅ | `app/test/ui/theme_test.dart`, grupo "AC5" (7 pares, todos ≥ 4,5:1; el menor, 4,87) |
+| AC5 | ✅ | `app/test/ui/theme_test.dart`, grupo "AC5" (7 pares, todos ≥ 4,5:1; el menor, 4,87) y "R6/R7: cada estado del día contrasta ≥ 3:1" (elementos gráficos, WCAG 1.4.11). Los colores de macros y de estado se usan solo en elementos gráficos acompañados de texto con contraste suficiente, nunca como color de texto |
 | AC6 | ✅ | `main_nav_test.dart` ("AC6…") |
-| AC7 | ✅ | `flutter analyze` sin issues; `flutter test` 169/169 (2026-10-03, tres corridas) |
+| AC7 | ✅ | `flutter analyze` sin issues; `flutter test` 177/177 (2026-10-03, tras la revisión) |
 | AC8 | ⏳ | Recorrido manual en el teléfono: se hace al final del lote (decisión de la usuaria) |
 
 Decisión de implementación: los botones primario y secundario de R3 son `FilledButton` y
@@ -158,6 +158,20 @@ texto "Hoy" ahora buscan el título de la pantalla, porque "Hoy" también está 
 - 2026-10-03: **Approved por la usuaria** ("aprobado"). Status → Implementing.
 
 - 2026-10-03: implementada (AC1–AC7); AC8 al final del lote. Status → Review.
+
+- 2026-10-03: reviewer CHANGES_REQUESTED. Corregido:
+  - [BLOCKER] Registrar con + desde Historial o Progreso dejaba la pantalla en blanco, porque
+    `popUntil('/')` no encontraba Hoy en la pila. Ahora Hoy tiene su propia ruta (`/today`) y las
+    pestañas reemplazan toda la pila. El + de Historial y Progreso abre la captura encima de Hoy, y
+    la revisión vuelve a un Hoy recién cargado (`pushNamedAndRemoveUntil`). Hay test de
+    integración.
+  - [MAJOR] La OFL exige que la licencia acompañe a la fuente: ahora se empaqueta, se registra en el
+    `LicenseRegistry` y se ve en Ajustes → "Licencias de código abierto".
+  - MINOR:
+    - tocar Hoy ya no repite el control de consentimiento (ruta `/today`);
+    - "por debajo" pasa a `#7690AC` (3,3:1);
+    - Atrás probado en las dos pestañas;
+    - AC1 probado con la app montada.
 
 ## Review
 Informe del reviewer: pendiente.

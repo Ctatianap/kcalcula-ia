@@ -119,6 +119,7 @@ flutter:
   assets:
     - assets/catalog/catalog.db
     - assets/legal/privacy_policy_draft_es.md
+    - assets/fonts/OFL.txt
 
   # SPEC-010 R2: Outfit embebida (SIL OFL 1.1, Outfitio/Outfit-Fonts@9027738;
   # licencia en assets/fonts/OFL.txt). Nunca se descarga en tiempo de ejecución.
