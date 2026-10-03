@@ -61,7 +61,7 @@ class SettingsController extends ChangeNotifier {
       '$_exportDirectoryPath/calorias_ia_export_$timestamp.json',
     );
     await file.writeAsString(jsonText);
-    await _sharing.shareFile(file.path, subject: 'Mis datos de Calorías IA');
+    await _sharing.shareFile(file.path, subject: 'Mis datos de KCalcula IA');
   });
 
   Future<void> _run(Future<void> Function() action) async {
