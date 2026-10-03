@@ -70,7 +70,7 @@ void main() {
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byIcon(Icons.camera_alt));
+      await tester.tap(find.text('Foto'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Tomar foto'));
       await tester.pumpAndSettle();
@@ -93,11 +93,17 @@ void main() {
       await tester.pumpAndSettle();
 
       // Revisión: mismo pipeline que texto/voz (R8). 140 kcal * 45/30 = 210.
-      expect(find.text('210 kcal'), findsOneWidget);
+      // Ítem y total.
+      expect(find.text('210 kcal'), findsNWidgets(2));
       expect(find.text('Alta precisión'), findsOneWidget);
-      expect(find.text('Total: 210 kcal'), findsOneWidget);
+      // SPEC-012 R5: la etiqueta confirmada también cuenta como fuente.
+      expect(find.text('Base verificada'), findsOneWidget);
+      expect(
+        tester.widget<Text>(find.byKey(const Key('meal-detail-kcal'))).data,
+        '210 kcal',
+      );
 
-      await tester.tap(find.text('Registrar'));
+      await tester.tap(find.text('Guardar'));
       await tester.pumpAndSettle();
 
       expect(find.text('Todavía no registras nada hoy'), findsNothing);
@@ -174,7 +180,8 @@ void main() {
 
       // 140/30*100 kcal/100g * 60g = 280 kcal, sin haber tomado ninguna foto
       // en esta sesión (food_query_resolver.dart lo encontró por nombre).
-      expect(find.text('280 kcal'), findsOneWidget);
+      // Ítem y total.
+      expect(find.text('280 kcal'), findsNWidgets(2));
       expect(find.text('Alta precisión'), findsOneWidget);
 
       await db.close();

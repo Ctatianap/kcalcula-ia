@@ -1,7 +1,7 @@
 # SPEC-012: Rediseño del flujo de registro
 
 ## Status
-Approved
+Review
 Path: Standard (presentación y flujo; no cambia prompts, esquemas de IA, cálculos ni datos que salen
 del dispositivo)
 
@@ -100,9 +100,63 @@ deje corregir antes de guardar.
 ## Definition of Done
 - AC1–AC7 con evidencia; analyze y tests verdes; reviewer PASS; recorrido manual.
 
+## Evidencia
+| AC | Evidencia |
+|----|-----------|
+| AC1 | `app/test/features/review/meal_analysis_test.dart` › "AC1: tres pestañas, Texto por defecto, contador 0/500, Analizar deshabilitado y nota de privacidad" |
+| AC2 | mismo archivo › "AC2: los pasos se marcan en orden 0 → 2 → 3 → 4 y luego el detalle" (unit) y "AC2: pasos 1-2 con la respuesta de la IA; 3-4 con la resolución y el cálculo locales" (widget, `AiClient` que responde cuando el test lo libera) |
+| AC3 | mismo archivo › "AC3: Cancelar vuelve con el texto intacto y la respuesta tardía no navega ni guarda" (widget) y "AC3: tras cancelar, una respuesta tardía se ignora" (unit) |
+| AC4 | mismo archivo › "AC4: el tipo de comida se cambia con botones y se guarda; −/+ ajusta gramos y kcal" y "AC4: \"Corregir\" vuelve a \"¿Qué comiste?\" con el texto" (app completa con `user.db` en memoria); `test/features/review/review_screen_test.dart` › AC8 |
+| AC5 | mismo archivo › "AC5: el sello \"Base verificada\" aparece…" y "AC5: sin sello si un ítem queda sin resolver; Guardar sigue deshabilitado" |
+| AC6 | mismo archivo › "AC6: con la IA en timeout se ve el error con 3 consejos; \"Reintentar\" envía el mismo texto" y "AC6: \"Volver\" desde el error regresa con el texto" |
+| AC7 | `test/integration/capture_to_review_flow_test.dart`, `voice_to_review_flow_test.dart`, `label_to_review_flow_test.dart`, `storage_errors_test.dart` adaptados (pestañas, "Guardar", total en `meal-detail-kcal`) y verdes |
+
+Edge cases: doble toque en Analizar ("edge case: un doble toque en Analizar abre un solo análisis"),
+IA sin alimentos (unit + widget), micrófono denegado con la pestaña Texto disponible
+(`capture_screen_voice_test.dart` › AC4), texto grande ×2 en 360 px sin desbordes.
+Manual: recorrido en el teléfono pendiente (lo hace la usuaria).
+
 ## Change Log
 - 2026-10-03: creación a partir de T-013 y del diseño "kcalcula ia UI".
 - 2026-10-03: **Approved por la usuaria** ("aprobadas", junto con SPEC-011 a SPEC-019). Los recorridos manuales en el teléfono se agrupan al final del lote.
+- 2026-10-03: implementada (autorización única de la usuaria para implementar y fusionar el lote
+  SPEC-012 a SPEC-019). Detalles menores decididos con la opción recomendada:
+  - "Analizando", el detalle y el error viven en `features/review` (`MealAnalysisScreen`, ruta
+    `/analysis` con el texto como argumento), no en `capture`: así los pasos 3 y 4 se marcan con la
+    resolución y el cálculo reales sin que las features se importen. `CaptureController` se
+    eliminó; "¿Qué comiste?" solo abre `/analysis`.
+  - La etiqueta confirmada (SPEC-004) va directo al detalle (`ReviewScreen`), sin "Analizando": su
+    IA ya corrió en la confirmación.
+  - Pausa de 300 ms con los cuatro pasos marcados antes de abrir el detalle (si no, los pasos 3 y 4
+    no alcanzan a verse).
+  - "~" en kcal y P/C/G salvo con "Alta precisión", como en Hoy; la confianza de la comida se muestra
+    en la tarjeta de kcal (ya no por ítem).
+  - Textos de cómo se obtuvo la cantidad: "Cantidad dicha por ti" (peso explícito o unidades), "De tu
+    etiqueta", "Tamaño estimado · ajústalo", "Medida casera estimada · ajústala", "Porción estimada ·
+    ajústala".
+  - Título del detalle con los nombres del catálogo unidos con "," e "y"; la mención original va
+    entre comillas debajo de cada ingrediente.
+  - El error de lectura de `user.db` durante el análisis usa la misma pantalla, con el título "No
+    pude leer tus datos" y sin los consejos de la IA.
+  - Fechas en es-CO movidas a `app/lib/ui/date_format_es.dart` (las comparten Hoy y el detalle).
+  Status → Review.
+- 2026-10-03: reviewer **PASS** (commit 21d39ac; app 199/199, analyze limpio), sin BLOCKER ni MAJOR.
+  MINOR atendidos antes de fusionar:
+  - "Reintentar" tras un fallo de lectura de `user.db` ya no reenvía el texto a la IA: reusa la
+    respuesta recibida y repite solo la resolución (test unitario).
+  - El error de lectura ya no repite el título en el cuerpo.
+  - Quitar todos los ingredientes muestra un aviso ("Quitaste todos los alimentos…").
+  - Tests nuevos: doble toque en "Guardar" registra una sola comida; sello "Base verificada" en el
+    flujo de etiqueta confirmada; aviso sin ingredientes.
+  - Decisión anotada: el error de la **foto de etiqueta** sigue dentro de la pestaña Foto (no en
+    "Algo salió mal"), porque "Reintentar" de esa pantalla reenvía texto y la foto se repite con
+    "Tomar foto"; el consejo de luz se mantiene en "Algo salió mal" tal como pide R6.
+  - Sin cambio: la hora del título es la de apertura del detalle y `eaten_at` se toma al guardar
+    (cosmético); `mealTypeLabels` sigue en `ui/date_format_es.dart`.
+  Fusionada en `develop` por la autorización única de la usuaria. Sigue en Review hasta el
+  recorrido manual en el teléfono.
 
 ## Review
-Informe del reviewer: pendiente.
+Informe del reviewer (2026-10-03, commit 21d39ac): **PASS**. AC1–AC7 cumplidos con evidencia en tests
+(`meal_analysis_test.dart` y los cuatro tests de integración); invariantes 1–4 y 8 sin cambios;
+ningún dato nuevo sale del dispositivo. Hallazgos MINOR: ver Change Log (atendidos o anotados).

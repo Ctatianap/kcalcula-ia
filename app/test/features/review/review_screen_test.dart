@@ -53,15 +53,16 @@ void main() {
       expect(find.text('Muslo de pollo'), findsOneWidget);
 
       final registrarButton = tester.widget<FilledButton>(
-        find.widgetWithText(FilledButton, 'Registrar'),
+        find.widgetWithText(FilledButton, 'Guardar'),
       );
       expect(registrarButton.onPressed, isNull);
 
+      await tester.ensureVisible(find.text('Pechuga de pollo'));
       await tester.tap(find.text('Pechuga de pollo'));
       await tester.pumpAndSettle();
 
       final registrarButtonAfter = tester.widget<FilledButton>(
-        find.widgetWithText(FilledButton, 'Registrar'),
+        find.widgetWithText(FilledButton, 'Guardar'),
       );
       expect(registrarButtonAfter.onPressed, isNotNull);
     },

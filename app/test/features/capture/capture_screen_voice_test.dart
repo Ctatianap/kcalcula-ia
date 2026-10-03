@@ -20,6 +20,9 @@ Future<void> _pump(
       child: const MaterialApp(home: CaptureScreen()),
     ),
   );
+  // SPEC-012 R1: el micrófono vive en la pestaña Voz.
+  await tester.tap(find.text('Voz'));
+  await tester.pumpAndSettle();
 }
 
 void main() {

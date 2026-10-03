@@ -35,14 +35,28 @@ class ReviewController extends ChangeNotifier {
     required FoodQueryResolver resolver,
     required StorageRepository storage,
     DateTime? now,
+    List<FoodMatchResult>? matches,
   }) : _resolver = resolver,
        // ignore: prefer_initializing_formals
        _storage = storage,
        _householdUnits = resolver.householdUnitMlByUnit() {
     mealType =
         parsedMeal.mealType ?? assignMealTypeByHour(now ?? DateTime.now());
-    _items = parsedMeal.items.map(_buildItem).toList();
+    // SPEC-012 R2: quien muestra "Analizando" resuelve primero (paso 3) y
+    // pasa aquí las coincidencias; el cálculo (paso 4) ocurre al construir.
+    final resolved = matches ?? resolveAll(parsedMeal, resolver);
+    _items = [
+      for (final (i, parsed) in parsedMeal.items.indexed)
+        _buildItem(parsed, resolved[i]),
+    ];
   }
+
+  /// Resolución de cada ítem contra el catálogo y los productos personales,
+  /// sin cálculo.
+  static List<FoodMatchResult> resolveAll(
+    ParsedMealDto parsedMeal,
+    FoodQueryResolver resolver,
+  ) => parsedMeal.items.map((i) => resolver.resolve(i.foodQuery)).toList();
 
   List<ReviewItem> get items => List.unmodifiable(_items);
 
@@ -70,8 +84,17 @@ class ReviewController extends ChangeNotifier {
     return mealConfidence(withConfidence);
   }
 
-  ReviewItem _buildItem(ParsedMealItemDto parsed) {
-    final match = _resolver.resolve(parsed.foodQuery);
+  /// SPEC-012 R5: todos los ítems salen del catálogo o de una etiqueta
+  /// confirmada, es decir, todos tienen `source_ref` (invariante 8).
+  bool get isFullyVerified =>
+      _items.isNotEmpty &&
+      _items.every(
+        (i) =>
+            i.status == ReviewItemStatus.matched &&
+            (i.food?.sourceRef.isNotEmpty ?? false),
+      );
+
+  ReviewItem _buildItem(ParsedMealItemDto parsed, FoodMatchResult match) {
     return switch (match) {
       FoodMatched(food: final food) => _matchedItem(parsed, food),
       FoodAmbiguous(candidates: final candidates) => ReviewItem(
