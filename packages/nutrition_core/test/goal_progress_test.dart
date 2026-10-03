@@ -60,4 +60,24 @@ void main() {
       expect(formatMacroEs(0.04), '0,0');
     });
   });
+
+  group('ratio y presentPercent (SPEC-013 R3)', () {
+    test('1.538 de 1.640 kcal → 94 %', () {
+      const p = GoalProgress(consumed: 1538, goal: 1640);
+      expect(p.ratio, closeTo(0.937805, 1e-6));
+      expect(presentPercent(p.ratio), 94);
+    });
+
+    test('sin tope por encima de la meta: 1.900 de 1.640 → 116 %', () {
+      const p = GoalProgress(consumed: 1900, goal: 1640);
+      expect(presentPercent(p.ratio), 116);
+      expect(p.fraction, 1);
+    });
+
+    test('half-up en el .5 y meta no positiva → 0', () {
+      expect(presentPercent(0.945), 95);
+      expect(presentPercent(0.9449), 94);
+      expect(const GoalProgress(consumed: 500, goal: 0).ratio, 0);
+    });
+  });
 }

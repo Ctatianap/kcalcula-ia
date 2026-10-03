@@ -79,7 +79,11 @@ class MyApp extends StatelessWidget {
           case AppRoutes.today:
             return _tabRoute(settings, const DiaryScreen());
           case AppRoutes.history:
-            return _tabRoute(settings, const HistoryScreen());
+            // SPEC-013 R3: puede llegar con el día elegido en la semana de Hoy.
+            return _tabRoute(
+              settings,
+              HistoryScreen(initialDay: settings.arguments as DateTime?),
+            );
           case AppRoutes.progress:
             return _tabRoute(settings, const ProgressScreen());
           case AppRoutes.privacyPolicy:

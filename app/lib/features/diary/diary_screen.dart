@@ -7,6 +7,7 @@ import '../../infra/clock.dart';
 import '../../infra/storage/storage_providers.dart';
 import '../../ui/components/k_card.dart';
 import '../../ui/components/main_nav_bar.dart';
+import '../../ui/components/meal_card.dart';
 import '../../ui/components/progress_ring.dart';
 import '../../ui/theme.dart';
 import 'diary_controller.dart';
@@ -246,10 +247,21 @@ class _WeekDay extends StatelessWidget {
       circle = SizedBox(width: 40, height: 40, child: Center(child: number));
     }
     // Un nodo por día: sin `container`, los siete se fusionaban en uno.
-    return Semantics(
+    final tap = day.isFuture
+        ? null
+        : () => Navigator.of(context).pushNamedAndRemoveUntil(
+            AppRoutes.history,
+            (route) => false,
+            arguments: day.date,
+          );
+    // La acción va en el nodo semántico con la etiqueta del día; con
+    // `excludeSemantics` la del InkWell no llegaría al lector de pantalla.
+    final column = Semantics(
       container: true,
       label: _semantics,
       excludeSemantics: true,
+      button: !day.isFuture,
+      onTap: tap,
       child: Column(
         children: [
           Text(
@@ -264,6 +276,18 @@ class _WeekDay extends StatelessWidget {
           circle,
         ],
       ),
+    );
+    // SPEC-013 AC5: tocar un día abre el Historial en ese día; los días
+    // futuros no hacen nada.
+    if (day.isFuture) return column;
+    return InkWell(
+      key: Key('week-day-${day.date.day}'),
+      borderRadius: BorderRadius.circular(20),
+      // El nodo de arriba ya expone la acción: este no crea otro sin
+      // etiqueta.
+      excludeFromSemantics: true,
+      onTap: tap,
+      child: column,
     );
   }
 }
@@ -530,49 +554,14 @@ class _MealCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final meal = summary.meal.meal;
-    final totals = summary.totals;
-    final label = mealTypeLabels[meal.mealType] ?? 'Snack';
-    final items = summary.meal.items
-        .map((i) => '${i.nameSnapshot} ${i.grams.round()} g')
-        .join(' · ');
-    const secondary = TextStyle(fontSize: 13, color: KColors.textSecondary);
-    return KCard(
-      radius: 22,
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              Text(timeEs(meal.eatenAt), style: secondary),
-            ],
-          ),
-          const SizedBox(height: 2),
-          Text(items, style: secondary),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 12,
-            children: [
-              Text(
-                '${presentKcal(totals.energyKcal)} kcal',
-                style: const TextStyle(fontWeight: FontWeight.w500),
-              ),
-              Text('P ${formatMacroEs(totals.proteinG)} g', style: secondary),
-              Text('C ${formatMacroEs(totals.carbsG)} g', style: secondary),
-              Text('G ${formatMacroEs(totals.fatG)} g', style: secondary),
-            ],
-          ),
-        ],
-      ),
+    return MealCard(
+      label: mealTypeLabels[meal.mealType] ?? 'Snack',
+      time: timeEs(meal.eatenAt),
+      items: [
+        for (final i in summary.meal.items)
+          (name: i.nameSnapshot, grams: i.grams),
+      ],
+      totals: summary.totals,
     );
   }
 }

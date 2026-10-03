@@ -48,41 +48,52 @@ class MainNavBar extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: KColors.background,
-                borderRadius: BorderRadius.circular(32),
-                boxShadow: kCardShadow,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(6),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _NavItem(
-                      icon: Icons.home_outlined,
-                      label: 'Hoy',
-                      selected: current == MainTab.today,
-                      onTap: () => _go(context, MainTab.today),
-                    ),
-                    _NavItem(
-                      icon: Icons.calendar_month_outlined,
-                      label: 'Historial',
-                      selected: current == MainTab.history,
-                      onTap: () => _go(context, MainTab.history),
-                    ),
-                    _NavItem(
-                      icon: Icons.bar_chart_outlined,
-                      label: 'Progreso',
-                      selected: current == MainTab.progress,
-                      onTap: () => _go(context, MainTab.progress),
-                    ),
-                  ],
+            // T-021: con texto muy grande la pastilla cede espacio y la
+            // etiqueta activa se reduce en vez de desbordar la barra.
+            Flexible(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: KColors.background,
+                  borderRadius: BorderRadius.circular(32),
+                  boxShadow: kCardShadow,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: _NavItem(
+                          icon: Icons.home_outlined,
+                          label: 'Hoy',
+                          selected: current == MainTab.today,
+                          onTap: () => _go(context, MainTab.today),
+                        ),
+                      ),
+                      Flexible(
+                        child: _NavItem(
+                          icon: Icons.calendar_month_outlined,
+                          label: 'Historial',
+                          selected: current == MainTab.history,
+                          onTap: () => _go(context, MainTab.history),
+                        ),
+                      ),
+                      Flexible(
+                        child: _NavItem(
+                          icon: Icons.bar_chart_outlined,
+                          label: 'Progreso',
+                          selected: current == MainTab.progress,
+                          onTap: () => _go(context, MainTab.progress),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-            const Spacer(),
+            const SizedBox(width: 12),
             Semantics(
               button: true,
               label: 'Agregar comida',
@@ -151,12 +162,18 @@ class _NavItem extends StatelessWidget {
                   ),
                   if (selected) ...[
                     const SizedBox(width: 8),
-                    Text(
-                      label,
-                      style: const TextStyle(
-                        color: KColors.accent,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          label,
+                          maxLines: 1,
+                          style: const TextStyle(
+                            color: KColors.accent,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
                       ),
                     ),
                   ],
