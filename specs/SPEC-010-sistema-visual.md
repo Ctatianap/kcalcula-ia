@@ -108,6 +108,10 @@ Historial y Progreso y un botón para registrar, para usarla a diario sin esfuer
   barra inferior: es solo de las tres pantallas principales.
 - Botón atrás de Android en Historial o Progreso: vuelve a Hoy, no cierra la app.
 - Modo oscuro del sistema: fuera de alcance; la app se ve en claro.
+- El + desde Historial o Progreso abre la captura encima de Hoy: si se sale sin registrar, se llega
+  a Hoy, no a la pestaña de origen (coherente con el diseño).
+- `/today` solo se alcanza después del control de consentimiento de `/`; no se expone a enlaces
+  externos sin repetirlo.
 
 ## Security & Privacy
 - ¿Sale algún dato nuevo del dispositivo? **No.** Embeber la fuente evita la petición a Google Fonts
@@ -173,5 +177,22 @@ texto "Hoy" ahora buscan el título de la pantalla, porque "Hoy" también está 
     - Atrás probado en las dos pestañas;
     - AC1 probado con la app montada.
 
+- 2026-10-03: reviewer **PASS** en la re-revisión (`84297da`, 175/175). Sus 2 MINOR quedaron
+  documentados (Edge Cases y un comentario en `app.dart`). Se fusiona en `develop` para las SPECs
+  siguientes; el Status queda en Review hasta el recorrido manual (AC8) del final del lote.
+
 ## Review
-Informe del reviewer: pendiente.
+Primera revisión (2026-10-03, `0dbce13`): **CHANGES_REQUESTED**.
+- [BLOCKER] Registrar desde Historial o Progreso dejaba la pantalla en blanco (`popUntil('/')` sin
+  `/` en la pila).
+- [MAJOR] La licencia OFL no viajaba con la app.
+- 4 MINOR.
+
+Todo se corrigió en `84297da`.
+
+Re-revisión (`84297da` + `1f7d013`): **PASS**.
+- AC1–AC7 cumplidos; analyze sin issues; 175/175. AC8 queda para el final del lote, por acuerdo
+  con la usuaria.
+- El reviewer comprobó que no queda ningún `popUntil` en `lib/`, que no hay colores fuera de
+  `theme.dart` y que no hay `setState` después de `dispose` al volver de registrar.
+- 2 MINOR, documentados.

@@ -66,6 +66,9 @@ class MyApp extends StatelessWidget {
               builder: (_) => const ObjectiveScreen(),
             );
           // SPEC-010 R4: las pestañas principales cambian sin animación.
+          // Solo se llega aquí después de pasar el control de consentimiento
+          // de `/` (_RootGate). No exponer `/today` a deep links sin repetir
+          // ese control.
           case AppRoutes.today:
             return _tabRoute(settings, const DiaryScreen());
           case AppRoutes.history:
