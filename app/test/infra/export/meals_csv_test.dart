@@ -81,6 +81,17 @@ void main() {
     expect(csvField('Huevo'), 'Huevo');
   });
 
+  test(
+    'edge case: un texto que empieza por = + - @ no se lee como fórmula',
+    () {
+      expect(csvField('=1+1'), "'=1+1");
+      expect(csvField('+57 arepa'), "'+57 arepa");
+      expect(csvField('-2'), "'-2");
+      expect(csvField('@x'), "'@x");
+      expect(csvField('=A1;B1'), '"\'=A1;B1"');
+    },
+  );
+
   test('AC2: "Últimos 30 días" excluye una comida de hace 40 días en CSV y '
       'PDF', () async {
     final now = DateTime(2026, 10, 3, 18);

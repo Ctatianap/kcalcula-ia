@@ -5,7 +5,7 @@ import 'package:nutrition_core/nutrition_core.dart';
 import '../../app_routes.dart';
 import '../../infra/clock.dart';
 import '../../ui/components/k_card.dart';
-import '../../ui/date_format_es.dart';
+import '../../format/date_format_es.dart';
 import '../../ui/theme.dart';
 import 'review_controller.dart';
 import 'review_item.dart';

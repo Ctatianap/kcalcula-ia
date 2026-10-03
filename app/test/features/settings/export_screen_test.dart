@@ -8,6 +8,7 @@ import 'package:calorias_ia/infra/storage/storage_providers.dart';
 import 'package:calorias_ia/infra/storage/storage_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -28,6 +29,8 @@ Future<_H> _pump(
   WidgetTester tester, {
   Future<void> Function(StorageRepository repo)? seed,
   Size size = const Size(1080, 2400),
+  bool spanish = false,
+  StorageRepository Function(AppDatabase db)? storage,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -47,8 +50,20 @@ Future<_H> _pump(
         sharingServiceProvider.overrideWithValue(sharing),
         clockProvider.overrideWithValue(() => _now),
         pdfFontsLoaderProvider.overrideWithValue(testPdfFonts),
+        if (storage != null)
+          storageRepositoryProvider.overrideWithValue(storage(db)),
       ],
-      child: const MaterialApp(home: ExportScreen()),
+      child: MaterialApp(
+        // Como en la app (app.dart): Material en es-CO.
+        locale: spanish ? const Locale('es', 'CO') : null,
+        supportedLocales: spanish
+            ? const [Locale('es', 'CO'), Locale('es')]
+            : const [Locale('en', 'US')],
+        localizationsDelegates: spanish
+            ? GlobalMaterialLocalizations.delegates
+            : null,
+        home: const ExportScreen(),
+      ),
     ),
   );
   await tester.runAsync(
@@ -72,6 +87,21 @@ Future<void> _exportTap(WidgetTester tester) async {
     await Future<void>.delayed(const Duration(milliseconds: 300));
   });
   await tester.pumpAndSettle();
+}
+
+class _FailOnceStorage extends StorageRepository {
+  var _failed = false;
+
+  _FailOnceStorage(super.db);
+
+  @override
+  Future<List<MealWithItems>> mealsBetween(DateTime start, DateTime end) {
+    if (!_failed) {
+      _failed = true;
+      return Future.error(StateError('SqliteException'));
+    }
+    return super.mealsBetween(start, end);
+  }
 }
 
 String _summary(WidgetTester tester) =>
@@ -152,11 +182,42 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('"Elegir fechas" abre el selector de rango', (tester) async {
-    await _pump(tester, seed: _seed);
+  testWidgets('"Elegir fechas" abre el selector de rango en español y '
+      '"Cambiar fechas" lo vuelve a abrir', (tester) async {
+    await _pump(tester, seed: _seed, spanish: true);
     await tester.tap(find.text('Elegir fechas'));
     await tester.pumpAndSettle();
     expect(find.byType(DateRangePickerDialog), findsOneWidget);
     expect(find.text('Elige las fechas'), findsOneWidget);
+    // Botones de Material en español (es-CO).
+    expect(find.text('Guardar'), findsOneWidget);
+    await tester.tap(find.text('Guardar'));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 50)),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<Text>(find.byKey(const Key('export-custom-range'))).data,
+      'Del 27 de septiembre de 2026 al 3 de octubre de 2026',
+    );
+    await tester.tap(find.text('Cambiar fechas'));
+    await tester.pumpAndSettle();
+    expect(find.byType(DateRangePickerDialog), findsOneWidget);
+  });
+
+  testWidgets('error de lectura del resumen → mensaje y Reintentar', (
+    tester,
+  ) async {
+    await _pump(tester, seed: _seed, storage: _FailOnceStorage.new);
+    expect(
+      find.text('No pude leer tus datos. Intenta de nuevo.'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Reintentar'));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 50)),
+    );
+    await tester.pumpAndSettle();
+    expect(_summary(tester), '3 comidas · 2 días');
   });
 }

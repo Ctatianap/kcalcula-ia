@@ -7,7 +7,7 @@ import '../../infra/export/export_service.dart';
 import '../../infra/sharing/sharing_providers.dart';
 import '../../infra/storage/storage_providers.dart';
 import '../../ui/components/k_card.dart';
-import '../../ui/date_format_es.dart';
+import '../../format/date_format_es.dart';
 import '../../ui/theme.dart';
 
 const noMealsInPeriodMessage = 'No hay comidas en este periodo.';
@@ -144,8 +144,19 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                   return KCard(
                     color: KColors.surfaceSoft,
                     child: snapshot.hasError
-                        ? const Text(
-                            'No pude leer tus datos. Intenta de nuevo.',
+                        // SPEC-009 R4: mensaje y Reintentar.
+                        ? Row(
+                            children: [
+                              const Expanded(
+                                child: Text(
+                                  'No pude leer tus datos. Intenta de nuevo.',
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () => _update(() {}),
+                                child: const Text('Reintentar'),
+                              ),
+                            ],
                           )
                         : counts == null
                         ? const Text('Contando tus registros…')
@@ -216,10 +227,23 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                 if (_period == ExportPeriodChoice.custom && custom != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 6),
-                    child: Text(
-                      'Del ${_dateEs(custom.start)} al ${_dateEs(custom.end)}',
-                      key: const Key('export-custom-range'),
-                      style: text.bodySmall,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Del ${_dateEs(custom.start)} al '
+                            '${_dateEs(custom.end)}',
+                            key: const Key('export-custom-range'),
+                            style: text.bodySmall,
+                          ),
+                        ),
+                        // El segmento ya elegido no responde a otro toque:
+                        // este botón permite cambiar las fechas.
+                        TextButton(
+                          onPressed: _pickDates,
+                          child: const Text('Cambiar fechas'),
+                        ),
+                      ],
                     ),
                   ),
               ],
@@ -280,7 +304,10 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                         ? const SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              semanticsLabel: 'Exportando…',
+                            ),
                           )
                         : const Text('Exportar'),
                   );

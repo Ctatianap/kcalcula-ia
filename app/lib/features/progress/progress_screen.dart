@@ -7,7 +7,7 @@ import '../../infra/storage/storage_providers.dart';
 import '../../ui/components/empty_state.dart';
 import '../../ui/components/k_card.dart';
 import '../../ui/components/main_nav_bar.dart';
-import '../../ui/date_format_es.dart';
+import '../../format/date_format_es.dart';
 import '../../ui/theme.dart';
 import 'progress_controller.dart';
 import 'weight_card.dart';

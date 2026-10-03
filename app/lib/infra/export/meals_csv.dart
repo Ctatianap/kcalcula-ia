@@ -32,8 +32,11 @@ const _confidence = {
 };
 
 /// RFC 4180: entre comillas si lleva `;`, comillas o saltos de línea; las
-/// comillas internas se duplican.
+/// comillas internas se duplican. Un texto que empieza por `=`, `+`, `-` o
+/// `@` lleva un apóstrofo delante para que la hoja de cálculo no lo tome
+/// como fórmula (OWASP, inyección de CSV).
 String csvField(String value) {
+  if (value.startsWith(RegExp(r'[=+\-@]'))) value = "'$value";
   if (value.contains(RegExp('[;"\r\n]'))) {
     return '"${value.replaceAll('"', '""')}"';
   }

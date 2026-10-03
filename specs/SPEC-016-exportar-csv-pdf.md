@@ -134,6 +134,23 @@ una hoja de cálculo y el PDF en el teléfono (usuaria).
   - La política solo se aclara (formatos de exportación) sin subir de versión: no sale ningún dato
     nuevo del teléfono por decisión de la app.
   Status → Review.
+- 2026-10-03: reviewer **PASS** (commit 1a91efa; app 266/266), sin BLOCKER ni MAJOR. MINOR atendidos
+  antes de fusionar:
+  - "Cambiar fechas" junto al rango elegido (el segmento ya seleccionado no responde a otro toque);
+  - error de lectura del resumen con "Reintentar" (SPEC-009 R4), con test;
+  - el indicador de "Exportar" tiene etiqueta semántica ("Exportando…");
+  - CSV: un texto que empieza por `=`, `+`, `-` o `@` lleva un apóstrofo delante para que la hoja
+    de cálculo no lo tome como fórmula (OWASP), con test;
+  - `date_format_es.dart` pasó de `ui/` a `format/` (módulo neutral): `infra/export` ya no depende de
+    `ui/`;
+  - el test del selector de fechas monta Material en es-CO y comprueba textos en español.
+  - Al backlog (Fast Path): T-022 borrar exportaciones temporales anteriores y T-023 idioma
+    declarado en iOS (`CFBundleLocalizations`).
+  Fusionada en `develop` por la autorización única de la usuaria (incluidas las Strict). Sigue en
+  Review hasta los pasos manuales en el teléfono.
 
 ## Review
-Informe del reviewer: pendiente.
+Informe del reviewer (2026-10-03, commit 1a91efa): **PASS**. AC1–AC6 con evidencia; AC3 con
+evidencia sustituta aceptada (la garantía es estructural: el PDF no recibe el perfil y solo dibuja
+`SummaryReport`); `pdf` 3.13.1 verificada en `pubspec.lock`; sin red ni logs en la exportación;
+locale es-CO sin efectos colaterales. MINOR atendidos o llevados al backlog (ver Change Log).

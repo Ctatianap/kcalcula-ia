@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../ui/components/k_card.dart';
-import '../../ui/date_format_es.dart';
+import '../../format/date_format_es.dart';
 import '../../ui/number_input_es.dart';
 import '../../ui/theme.dart';
 
