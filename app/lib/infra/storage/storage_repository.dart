@@ -2,10 +2,16 @@ import 'package:drift/drift.dart';
 import 'package:nutrition_core/nutrition_core.dart';
 
 import 'app_database.dart';
+import 'goal_sync.dart';
 
 // SPEC-008: las features leen la meta sin depender de Drift directamente.
 export 'app_database.dart'
-    show ConsentRecordData, NutritionGoal, PersonalProduct, UserProfileData;
+    show
+        ConsentRecordData,
+        NutritionGoal,
+        PersonalProduct,
+        UserProfileData,
+        WeightLogData;
 
 /// Ítem ya calculado y confirmado por el usuario, listo para registrar
 /// (R11). Exactamente uno de `foodId`/`personalProductId` no es `null`
@@ -201,6 +207,8 @@ class StorageRepository {
       await _db.delete(_db.personalProducts).go();
       await _db.delete(_db.nutritionGoals).go();
       await _db.delete(_db.userProfile).go();
+      // SPEC-015 R6.
+      await _db.delete(_db.weightLog).go();
     });
   }
 
@@ -218,8 +226,12 @@ class StorageRepository {
     required String activityLevel,
     double? measuredMaintenanceKcal,
     NutritionGoalValues? recalculatedGoal,
+    DateTime? weightLogDay,
   }) {
     return _db.transaction(() async {
+      // SPEC-015 R2: guardar el perfil con otro peso crea el registro del
+      // día, en la misma transacción.
+      if (weightLogDay != null) await _upsertWeight(weightLogDay, weightKg);
       await _db
           .into(_db.userProfile)
           .insertOnConflictUpdate(
@@ -299,6 +311,7 @@ class StorageRepository {
     final personalProducts = await getAllPersonalProducts();
     final goal = await getNutritionGoal();
     final profile = await getUserProfile();
+    final weights = await weightEntries();
 
     return {
       'exportedAt': DateTime.now().toIso8601String(),
@@ -326,6 +339,10 @@ class StorageRepository {
               'measuredMaintenanceKcal': profile.measuredMaintenanceKcal,
               'updatedAt': profile.updatedAt.toIso8601String(),
             },
+      // SPEC-015 R6.
+      'weightLog': weights
+          .map((w) => {'day': w.day.toIso8601String(), 'weightKg': w.weightKg})
+          .toList(),
       'personalProducts': personalProducts
           .map(
             (p) => {
@@ -338,6 +355,73 @@ class StorageRepository {
           )
           .toList(),
     };
+  }
+
+  /// SPEC-015: registros de peso desde [from] (incluido), del más antiguo al
+  /// más reciente.
+  Future<List<WeightLogData>> weightEntries({DateTime? from}) {
+    final query = _db.select(_db.weightLog)
+      ..orderBy([(w) => OrderingTerm.asc(w.day)]);
+    if (from != null) {
+      final start = DateTime(from.year, from.month, from.day);
+      query.where((w) => w.day.isBiggerOrEqualValue(start));
+    }
+    return query.get();
+  }
+
+  Future<void> _upsertWeight(DateTime day, double kg) => _db
+      .into(_db.weightLog)
+      .insertOnConflictUpdate(
+        WeightLogCompanion.insert(
+          day: DateTime(day.year, day.month, day.day),
+          weightKg: kg,
+          updatedAt: DateTime.now(),
+        ),
+      );
+
+  /// SPEC-015 R1/R3: anota el peso del día (reemplaza el de ese día si ya
+  /// había) y deja el perfil con el último peso, recalculando una meta de
+  /// objetivo (SPEC-008 R9), todo en una transacción. Devuelve `true` si una
+  /// meta de objetivo no se pudo recalcular (queda fuera de 800–6.000).
+  Future<bool> logWeight({required DateTime day, required double kg}) =>
+      _db.transaction(() async {
+        await _upsertWeight(day, kg);
+        return _syncProfileWithLatestWeight(day);
+      });
+
+  /// SPEC-015 R5: borra el registro de ese día. Si era el más reciente, el
+  /// perfil pasa al anterior (y la meta se recalcula); si no queda ninguno,
+  /// el perfil conserva su peso.
+  Future<bool> deleteWeight({required DateTime day, required DateTime today}) =>
+      _db.transaction(() async {
+        await (_db.delete(_db.weightLog)..where(
+              (w) => w.day.equals(DateTime(day.year, day.month, day.day)),
+            ))
+            .go();
+        return _syncProfileWithLatestWeight(today);
+      });
+
+  Future<bool> _syncProfileWithLatestWeight(DateTime today) async {
+    final latest =
+        await (_db.select(_db.weightLog)
+              ..orderBy([(w) => OrderingTerm.desc(w.day)])
+              ..limit(1))
+            .getSingleOrNull();
+    final profile = await getUserProfile();
+    if (latest == null || profile == null) return false;
+    if (profile.weightKg == latest.weightKg) return false;
+    final updated = profile.copyWith(
+      weightKg: latest.weightKg,
+      updatedAt: DateTime.now(),
+    );
+    await _db.into(_db.userProfile).insertOnConflictUpdate(updated);
+    final goal = await getNutritionGoal();
+    final recalculated = recalculatedGoal(
+      goal,
+      maintenanceForProfile(updated, today),
+    );
+    if (recalculated != null) await saveNutritionGoal(recalculated);
+    return goal != null && !goal.isManual && recalculated == null;
   }
 
   /// R12: comidas de un día local.

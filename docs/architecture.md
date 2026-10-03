@@ -97,6 +97,11 @@ kcal enteras (redondeo half-up) y macros con 1 decimal. Los valores estimados se
   measured_maintenance_kcal NULL, updated_at)`: perfil (SPEC-008, `user.db` v6).
 - `nutrition_goals(id=0, objective, is_manual, energy_kcal, protein_g, carbs_g, fat_g, updated_at)`:
   meta diaria vigente, fila única, sin historial (SPEC-008).
+- `weight_log(day PK, weight_kg, updated_at)`: historial de peso, un registro por día (SPEC-015,
+  `user.db` v7). `user_profile.weight_kg` siempre es el registro más reciente: anotar o borrar un
+  peso actualiza el perfil y recalcula una meta de objetivo en la misma transacción
+  (`infra/storage/goal_sync.dart`, compartido por Mi perfil y Progreso). El cambio de la semana se
+  calcula en `nutrition_core` (`weight_trend.dart`).
 
 ## Objetivos (SPEC-008)
 - Metabolismo basal: Harris-Benedict 1918. Mantenimiento: basal × factor de actividad, con la escala

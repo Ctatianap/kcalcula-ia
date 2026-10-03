@@ -117,6 +117,17 @@ class NutritionGoals extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// SPEC-015 R1: historial de peso, un registro por día (fecha local a las
+/// 00:00). Dato personal de salud: solo en el dispositivo.
+class WeightLog extends Table {
+  DateTimeColumn get day => dateTime()();
+  RealColumn get weightKg => real()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {day};
+}
+
 @DriftDatabase(
   tables: [
     Meals,
@@ -125,13 +136,14 @@ class NutritionGoals extends Table {
     ConsentRecord,
     UserProfile,
     NutritionGoals,
+    WeightLog,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -160,6 +172,10 @@ class AppDatabase extends _$AppDatabase {
       if (from == 5) {
         // v5 solo existió en builds de desarrollo de SPEC-008.
         await m.addColumn(userProfile, userProfile.measuredMaintenanceKcal);
+      }
+      if (from < 7) {
+        // SPEC-015 R1.
+        await m.createTable(weightLog);
       }
     },
   );

@@ -9,8 +9,9 @@ import 'package:flutter/services.dart' show rootBundle;
 /// coincide, vuelve a mostrar el onboarding aunque ya exista un
 /// `ConsentRecord`. `'v2'` (2026-09-30) añade el reporte de fallos
 /// (Crashlytics). `'v3'` (2026-10-02, SPEC-008 R13) añade el perfil (datos personales
-/// de salud) y la meta diaria, que se guardan solo en el teléfono.
-const privacyPolicyVersion = 'v3';
+/// de salud) y la meta diaria, que se guardan solo en el teléfono. `'v4'`
+/// (2026-10-03, SPEC-015 R6) añade el historial de peso.
+const privacyPolicyVersion = 'v4';
 
 const _privacyPolicyAssetPath = 'assets/legal/privacy_policy_draft_es.md';
 
