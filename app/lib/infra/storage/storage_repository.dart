@@ -432,6 +432,15 @@ class StorageRepository {
     return mealsBetween(start, start.add(const Duration(days: 1)));
   }
 
+  /// SPEC-019: solo la hora de cada comida desde [from] (la racha no
+  /// necesita los ítems).
+  Future<List<DateTime>> mealTimesSince(DateTime from) {
+    final query = _db.selectOnly(_db.meals)
+      ..addColumns([_db.meals.eatenAt])
+      ..where(_db.meals.eatenAt.isBiggerOrEqualValue(from));
+    return query.map((row) => row.read(_db.meals.eatenAt)!).get();
+  }
+
   /// SPEC-017: las [limit] comidas más recientes, de la más nueva a la más
   /// antigua, con sus ítems.
   Future<List<MealWithItems>> recentMeals({int limit = 50}) async {

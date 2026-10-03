@@ -12,6 +12,7 @@ import '../../ui/components/progress_ring.dart';
 import '../../ui/theme.dart';
 import 'diary_controller.dart';
 import 'diary_format.dart';
+import 'streak.dart';
 
 /// SPEC-011: "Hoy" (saludo, semana, kcal, macros y comidas del día).
 class DiaryScreen extends ConsumerStatefulWidget {
@@ -89,7 +90,11 @@ class _DiaryScreenState extends ConsumerState<DiaryScreen> {
             return ListView(
               padding: const EdgeInsets.only(bottom: 24),
               children: [
-                _Header(now: _now, onSettings: _openSettings),
+                _Header(
+                  now: _now,
+                  streak: summary.streak,
+                  onSettings: _openSettings,
+                ),
                 _WeekStrip(week: summary.week),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
@@ -116,9 +121,14 @@ class _DiaryScreenState extends ConsumerState<DiaryScreen> {
 /// R1: saludo, fecha y Ajustes.
 class _Header extends StatelessWidget {
   final DateTime now;
+  final int streak;
   final VoidCallback onSettings;
 
-  const _Header({required this.now, required this.onSettings});
+  const _Header({
+    required this.now,
+    required this.streak,
+    required this.onSettings,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -146,12 +156,58 @@ class _Header extends StatelessWidget {
               ],
             ),
           ),
+          _StreakPill(days: streak),
           IconButton(
             icon: const Icon(Icons.settings_outlined),
             tooltip: 'Ajustes',
             onPressed: onSettings,
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// SPEC-019 R2/R3: días seguidos registrando, en tono neutro (sin mensajes
+/// de pérdida; con 0 muestra 0).
+class _StreakPill extends StatelessWidget {
+  final int days;
+
+  const _StreakPill({required this.days});
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      container: true,
+      label: streakSemantics(days),
+      excludeSemantics: true,
+      child: Container(
+        key: const Key('streak-pill'),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: KColors.surface,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.local_fire_department_outlined,
+              size: 18,
+              color: KColors.accent,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              '$days',
+              key: const Key('streak-count'),
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                color: KColors.text,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
