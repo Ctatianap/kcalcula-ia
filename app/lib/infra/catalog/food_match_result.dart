@@ -25,3 +25,16 @@ class FoodCandidate {
 
   const FoodCandidate({required this.id, required this.nameEs});
 }
+
+/// SPEC-018 R1: un resultado de "Buscar alimento" (nombre y kcal por 100 g).
+class FoodSearchHit {
+  final String id;
+  final String nameEs;
+  final double energyKcal100g;
+
+  const FoodSearchHit({
+    required this.id,
+    required this.nameEs,
+    required this.energyKcal100g,
+  });
+}

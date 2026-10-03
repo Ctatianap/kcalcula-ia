@@ -126,6 +126,26 @@ class FoodQueryResolver {
     return FoodAmbiguous(combined.take(3).toList());
   }
 
+  /// SPEC-018 R1/AC6: catálogo y productos personales (por nombre), hasta
+  /// [limit] en total; los productos personales van primero.
+  List<FoodSearchHit> search(String query, {int limit = 20}) {
+    final normalized = _normalize(query);
+    if (normalized.length < 2) return const [];
+    final personal = _personalProducts
+        .where((p) => _normalize(p.nameEs).contains(normalized))
+        .map(
+          (p) => FoodSearchHit(
+            id: '$personalProductIdPrefix${p.id}',
+            nameEs: p.nameEs,
+            energyKcal100g: p.energyKcal100,
+          ),
+        );
+    return [
+      ...personal,
+      ..._catalog.search(query, limit: limit),
+    ].take(limit).toList();
+  }
+
   FoodCatalogEntry? getFoodById(String id) {
     final personalId = personalProductIdFrom(id);
     if (personalId == null) return _catalog.getFoodById(id);

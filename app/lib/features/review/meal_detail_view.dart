@@ -8,6 +8,7 @@ import '../../ui/components/k_card.dart';
 import '../../format/date_format_es.dart';
 import '../../format/text_es.dart';
 import '../../ui/theme.dart';
+import 'food_search_screen.dart';
 import 'review_controller.dart';
 import 'review_item.dart';
 
@@ -55,6 +56,11 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
   late final DateTime _shownAt = ref.read(clockProvider)();
   bool _registering = false;
   String? _registerError;
+
+  Future<void> _addIngredient() async {
+    final item = await pickFoodManually(context);
+    if (item != null && mounted) widget.controller.addDraftItem(item);
+  }
 
   Future<void> _register() async {
     // Edge case: un doble toque no guarda dos veces.
@@ -148,6 +154,12 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
                         ),
                         const SizedBox(height: 10),
                       ],
+                      // SPEC-018 R3: añadir un alimento buscado a mano.
+                      OutlinedButton.icon(
+                        onPressed: _registering ? null : _addIngredient,
+                        icon: const Icon(Icons.add),
+                        label: const Text('Añadir ingrediente'),
+                      ),
                     ],
                   ),
                 ),

@@ -69,6 +69,14 @@ Al tocar una, el detalle se abre con un `MealDraft` (alimentos y gramos ya resue
 cantidad y la confianza que dieron las reglas al registrarla), **sin llamar a la IA**; se guarda como
 una comida nueva con la hora actual. Una comida con un alimento que ya no existe no aparece.
 
+## Flujo: búsqueda manual (SPEC-018)
+"Buscar alimento" (desde "Añadir ingrediente" en el detalle o "Buscar en la base manualmente" en el
+error de la IA) busca en `catalog.db` con FTS5 por prefijo (nombre y sinónimos, desde 2 letras,
+hasta 20) y en los productos personales, **sin IA**. La cantidad se elige con las porciones del
+alimento (unidad, tamaños, porción), medidas caseras si el alimento tiene densidad o esa porción, o
+gramos; los gramos salen de `resolveGrams` y la confianza de `itemConfidence` (las mismas reglas del
+texto). El resultado es un `MealDraftItem` que el detalle agrega a la comida.
+
 ## Resolución de cantidades (orden de preferencia)
 | `quantity_basis` | Ejemplo | Cómo se obtienen los gramos |
 |---|---|---|
