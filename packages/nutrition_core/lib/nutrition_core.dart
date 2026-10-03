@@ -3,9 +3,11 @@
 library;
 
 export 'src/confidence.dart';
+export 'src/energy_estimation.dart';
 export 'src/goal_limits.dart';
 export 'src/goal_progress.dart';
 export 'src/label_validation.dart';
+export 'src/macro_suggestion.dart';
 export 'src/models/confidence_level.dart';
 export 'src/models/food_catalog_entry.dart';
 export 'src/models/portion_option.dart';
