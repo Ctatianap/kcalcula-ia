@@ -28,7 +28,8 @@ SPEC-008 ya resolvió el problema en sus pantallas (perfil y objetivo). Revisió
 | `review_screen.dart` `_loadController` | `getAllPersonalProducts` (lectura) | No; además la pantalla se queda cargando |
 | `diary_screen.dart` (`FutureBuilder`) | `mealsForDay`, `getNutritionGoal` (lectura) | El error queda en el `snapshot`, pero la pantalla muestra el spinner para siempre |
 | `app.dart` `_RootGate._checkConsent` | `getConsentState` (lectura) | No; la app se queda en el spinner inicial |
-| Onboarding, Ajustes (borrar, exportar, revocar), perfil y objetivo | varias | Sí |
+| Onboarding (`saveConsent`) | escritura (versión de política y fecha) | **No** (`try/finally` sin `catch`); corregido en esta SPEC |
+| Ajustes (borrar, exportar, revocar), perfil y objetivo | varias | Sí |
 
 ## User Story
 Como persona que usa la app, quiero que si algo falla al guardar o leer mis datos se me diga en
@@ -79,7 +80,8 @@ fallos.
 | AC3 | ✅ | `app/test/integration/storage_errors_test.dart` ("AC3…") |
 | AC4 | ✅ | `storage_errors_test.dart` ("AC4…") |
 | AC5 | ✅ | `storage_errors_test.dart` (diario, revisión y arranque: mensaje, "Reintentar" y carga normal al reintentar) |
-| AC6 | ✅ | `flutter analyze` sin issues; `flutter test` 151/151 (2026-10-03) |
+| AC6 | ✅ | `flutter analyze` sin issues; `flutter test` 155/155 (2026-10-03, tras la revisión) |
+| Onboarding | ✅ | `storage_errors_test.dart` ("si guardar el consentimiento falla…") |
 
 ## Technical Constraints
 - Invariantes 5 y 6 de `CLAUDE.md`: nada nuevo sale del dispositivo; esta SPEC **reduce** lo que
@@ -143,5 +145,21 @@ fallos.
   `PersonalProduct` y `ConsentRecordData` para que las pantallas declaren tipos sin usar Drift.
   Status → Review.
 
+- 2026-10-03: reviewer **PASS**. Se aplicaron sus 6 MINOR:
+  - el onboarding no capturaba el fallo de `saveConsent` (la tabla de Context decía que sí): ahora
+    muestra un mensaje y tiene test;
+  - la red de seguridad por texto también busca `InvalidDataException` y
+    `CouldNotRollBackException`;
+  - `DriftRemoteException` se reconoce con `is` (vía `package:drift/isolate.dart`, que no es
+    experimental), lo que sobrevive a `--obfuscate`;
+  - las causas encadenadas se recorren de verdad (hasta 5 niveles);
+  - test de que se descartan `context` e `informationCollector`;
+  - punto faltante en `docs/privacy.md`.
+  Status sigue en Review: falta la aprobación de la usuaria para fusionar.
+
 ## Review
-Informe del reviewer: pendiente.
+Informe del reviewer (2026-10-03, rama `spec-009-errores-almacenamiento`, `d1f2e6f`): **PASS**.
+AC1–AC6 cumplidos; analyze sin issues; 151/151. El reviewer verificó que los dos caminos de
+`main.dart` usan la misma instancia saneadora, que nada en `lib/` llama a `FirebaseCrashlytics`
+fuera de `FirebaseCrashReporter` y que no hay `runZonedGuarded` ni `Isolate.addErrorListener`.
+Hizo 6 observaciones MINOR, todas aplicadas (ver Change Log).

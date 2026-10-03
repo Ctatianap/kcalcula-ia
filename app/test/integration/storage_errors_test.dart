@@ -1,6 +1,7 @@
 import 'package:calorias_ia/app.dart';
 import 'package:calorias_ia/features/capture/label_confirmation_screen.dart';
 import 'package:calorias_ia/features/diary/diary_screen.dart';
+import 'package:calorias_ia/features/onboarding/onboarding_screen.dart';
 import 'package:calorias_ia/features/review/review_screen.dart';
 import 'package:calorias_ia/infra/ai_client/label_extraction_dto.dart';
 import 'package:calorias_ia/infra/ai_client/parsed_meal_dto.dart';
@@ -32,12 +33,20 @@ class _FlakyRepository extends StorageRepository {
     this.failRegister = false,
     this.failSaveProduct = false,
     this.failReads = false,
+    this.failConsent = false,
   });
 
   final bool failRegister;
   final bool failSaveProduct;
   final bool failReads;
+  final bool failConsent;
   bool healed = false;
+
+  @override
+  Future<void> saveConsent({required String policyVersion}) =>
+      _fails(failConsent)
+      ? Future.error(_sqliteError())
+      : super.saveConsent(policyVersion: policyVersion);
 
   bool _fails(bool flag) => flag && !healed;
 
@@ -108,6 +117,7 @@ Future<_FlakyRepository> _pump(
   bool failRegister = false,
   bool failSaveProduct = false,
   bool failReads = false,
+  bool failConsent = false,
 }) async {
   final db = AppDatabase(NativeDatabase.memory());
   addTearDown(db.close);
@@ -116,6 +126,7 @@ Future<_FlakyRepository> _pump(
     failRegister: failRegister,
     failSaveProduct: failSaveProduct,
     failReads: failReads,
+    failConsent: failConsent,
   );
   await tester.pumpWidget(
     ProviderScope(
@@ -244,6 +255,26 @@ void main() {
     await tester.tap(find.text('Reintentar'));
     await tester.pumpAndSettle();
 
+    expect(find.text('Antes de empezar'), findsOneWidget);
+  });
+
+  testWidgets('si guardar el consentimiento falla, mensaje y sin relanzar', (
+    tester,
+  ) async {
+    await _pump(tester, const MyApp(), failConsent: true);
+
+    for (final box in find.byType(CheckboxListTile).evaluate().toList()) {
+      await tester.ensureVisible(find.byWidget(box.widget));
+      await tester.tap(find.byWidget(box.widget));
+      await tester.pump();
+    }
+    final accept = find.byType(FilledButton).first;
+    await tester.ensureVisible(accept);
+    await tester.tap(accept);
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text(acceptErrorMessage), findsOneWidget);
     expect(find.text('Antes de empezar'), findsOneWidget);
   });
 }

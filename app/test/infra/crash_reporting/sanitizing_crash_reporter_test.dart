@@ -1,6 +1,7 @@
 import 'package:calorias_ia/infra/crash_reporting/crash_reporter.dart';
 import 'package:calorias_ia/infra/crash_reporting/storage_failure.dart';
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart'
+    show DriftWrappedException, InvalidDataException;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqlite3/common.dart' show SqliteException;
@@ -78,17 +79,56 @@ void main() {
     expect(sent, startsWith('StorageFailure('));
   });
 
-  test('AC2: recordFlutterFatalError también sanea', () {
+  test('AC2: recordFlutterFatalError también sanea y descarta el contexto', () {
     final inner = _RecordingReporter();
     final stack = StackTrace.current;
     SanitizingCrashReporter(inner).recordFlutterFatalError(
-      FlutterErrorDetails(exception: _sqliteWithParams(), stack: stack),
+      FlutterErrorDetails(
+        exception: _sqliteWithParams(),
+        stack: stack,
+        context: ErrorDescription('guardando pollo'),
+        informationCollector: () => [ErrorDescription('pollo, 150')],
+      ),
     );
     final d = inner.details.single;
     expect(d.exception, isA<StorageFailure>());
     expect(d.exception.toString(), isNot(contains('pollo')));
     expect(d.stack, same(stack));
+    expect(d.context, isNull);
+    expect(d.informationCollector, isNull);
   });
+
+  test('causas encadenadas de varios niveles conservan el código', () async {
+    final inner = _RecordingReporter();
+    await SanitizingCrashReporter(inner).recordError(
+      DriftWrappedException(
+        message: 'externo',
+        cause: DriftWrappedException(
+          message: 'interno',
+          cause: _sqliteWithParams(),
+        ),
+      ),
+      null,
+    );
+    expect(
+      inner.errors.single.toString(),
+      'StorageFailure(DriftWrappedException, sqlite=19)',
+    );
+  });
+
+  test(
+    'InvalidDataException dentro de un envoltorio desconocido se sanea',
+    () async {
+      final inner = _RecordingReporter();
+      await SanitizingCrashReporter(inner).recordError(
+        Exception('wrapped: ${InvalidDataException('Sorry, pollo 150')}'),
+        null,
+      );
+      final sent = inner.errors.single.toString();
+      expect(sent, isNot(contains('pollo')));
+      expect(sent, startsWith('StorageFailure('));
+    },
+  );
 
   test('AC2: recordFlutterFatalError con un error normal no cambia', () {
     final inner = _RecordingReporter();

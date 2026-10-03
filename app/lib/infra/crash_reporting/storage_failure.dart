@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:drift/isolate.dart' show DriftRemoteException;
 import 'package:sqlite3/common.dart' show SqliteException;
 
 /// SPEC-009 R1: lo único que se reporta de un error de `user.db`. El
@@ -17,8 +18,16 @@ class StorageFailure implements Exception {
       : 'StorageFailure($originalType, sqlite=$sqliteResultCode)';
 }
 
-/// Devuelve un [StorageFailure] si [error] (o su causa encadenada) es un
-/// error de almacenamiento; si no, `null`.
+/// Textos que delatan un error de almacenamiento dentro de un envoltorio
+/// desconocido (red de seguridad).
+const _storageErrorMarkers = [
+  'SqliteException',
+  'InvalidDataException',
+  'CouldNotRollBackException',
+];
+
+/// Devuelve un [StorageFailure] si [error] (o su causa encadenada, hasta 5
+/// niveles) es un error de almacenamiento; si no, `null`.
 StorageFailure? storageFailureFor(Object error, [int depth = 0]) {
   if (depth > 5) return const StorageFailure('nested');
   return switch (error) {
@@ -27,28 +36,25 @@ StorageFailure? storageFailureFor(Object error, [int depth = 0]) {
       'SqliteException',
       error.extendedResultCode,
     ),
-    // `DriftRemoteException` (errores que vienen del isolate de la base) se
-    // identifica por nombre: su librería (`drift/remote.dart`) es
-    // experimental. Su `toString()` es el de la causa (el texto de SQLite).
-    _ when error.runtimeType.toString() == 'DriftRemoteException' =>
-      const StorageFailure('DriftRemoteException'),
+    DriftRemoteException(:final remoteCause) => StorageFailure(
+      'DriftRemoteException',
+      _codeOf(remoteCause, depth),
+    ),
     DriftWrappedException(:final cause) => StorageFailure(
       'DriftWrappedException',
-      cause == null ? null : _codeOf(cause),
+      cause == null ? null : _codeOf(cause, depth),
     ),
     CouldNotRollBackException(:final cause) => StorageFailure(
       'CouldNotRollBackException',
-      _codeOf(cause),
+      _codeOf(cause, depth),
     ),
     InvalidDataException() => const StorageFailure('InvalidDataException'),
-    // Red de seguridad: cualquier otro envoltorio cuyo texto incluya un
-    // error de SQLite.
-    _ when error.toString().contains('SqliteException') => StorageFailure(
-      error.runtimeType.toString(),
-    ),
+    _ when _storageErrorMarkers.any(error.toString().contains) =>
+      StorageFailure(error.runtimeType.toString()),
     _ => null,
   };
 }
 
-int? _codeOf(Object cause) =>
-    cause is SqliteException ? cause.extendedResultCode : null;
+/// Código de SQLite de la causa, buscando en causas encadenadas.
+int? _codeOf(Object cause, int depth) =>
+    storageFailureFor(cause, depth + 1)?.sqliteResultCode;
