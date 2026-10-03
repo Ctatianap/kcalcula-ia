@@ -110,10 +110,13 @@ double estimateMaintenanceKcal({
   required BiologicalSex sex,
   required ActivityLevel activityLevel,
 }) {
-  if (weightKg < estimationWeightMinKg || weightKg > estimationWeightMaxKg) {
+  // `!(x >= min && x <= max)` también rechaza NaN (AC4: nunca un número).
+  if (!(weightKg >= estimationWeightMinKg &&
+      weightKg <= estimationWeightMaxKg)) {
     throw const InvalidEstimationInput(EstimationField.weight);
   }
-  if (heightCm < estimationHeightMinCm || heightCm > estimationHeightMaxCm) {
+  if (!(heightCm >= estimationHeightMinCm &&
+      heightCm <= estimationHeightMaxCm)) {
     throw const InvalidEstimationInput(EstimationField.height);
   }
   if (ageYears < estimationAgeMin || ageYears > estimationAgeMax) {

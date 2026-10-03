@@ -94,6 +94,15 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   title: Objetivos nutricionales configurables
   dependencies: [T-002]
   spec_required: true    # specs/SPEC-008-objetivos-nutricionales.md
+- id: T-010
+  title: Errores de almacenamiento sin datos del usuario en Crashlytics
+  objective: >
+    El guardado de comidas (review) y de productos personales no captura los fallos de user.db;
+    el texto de SqliteException incluye los parámetros (alimentos, cantidades) y llegaría a
+    Crashlytics vía PlatformDispatcher.onError. Capturar, mostrar mensaje en español y no relanzar,
+    o filtrar SqliteException en el crash reporter. Hallazgo del reviewer en SPEC-008.
+  dependencies: [T-008]
+  spec_required: true
 - id: F2
   title: Fase 2 — foto del plato, comidas frecuentes, confianza visual
 - id: F3

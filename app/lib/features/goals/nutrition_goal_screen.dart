@@ -76,6 +76,15 @@ class _NutritionGoalScreenState extends ConsumerState<NutritionGoalScreen> {
     if (saved && mounted) Navigator.of(context).maybePop();
   }
 
+  Future<void> _deleteEstimationInputs() async {
+    await _controller.deleteEstimationInputs();
+    if (!_controller.hasEstimationInputs) {
+      _weightField.clear();
+      _heightField.clear();
+      _ageField.clear();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -143,6 +152,16 @@ class _NutritionGoalScreenState extends ConsumerState<NutritionGoalScreen> {
                   ageField: _ageField,
                   onCalculate: _applySuggestion,
                 ),
+              if (_controller.errorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Text(
+                    _controller.errorMessage!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ),
               const SizedBox(height: 16),
               FilledButton(
                 onPressed: _controller.canSave ? _save : null,
@@ -150,7 +169,7 @@ class _NutritionGoalScreenState extends ConsumerState<NutritionGoalScreen> {
               ),
               if (_controller.hasEstimationInputs)
                 TextButton(
-                  onPressed: _controller.deleteEstimationInputs,
+                  onPressed: _deleteEstimationInputs,
                   child: const Text('Borrar mis datos para la sugerencia'),
                 ),
             ],

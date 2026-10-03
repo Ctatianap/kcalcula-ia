@@ -145,4 +145,26 @@ void main() {
     expect(find.text('0 / 2.000 kcal · quedan 2.000'), findsOneWidget);
     expect(find.text('Todavía no registras nada hoy.'), findsOneWidget);
   });
+
+  testWidgets('AC6: por encima de la meta, texto neutro y barra llena', (
+    tester,
+  ) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repo = StorageRepository(db);
+    await repo.saveNutritionGoal(energyKcal: 2000);
+    await _meal(repo, 2150.2);
+
+    await _pump(tester, db);
+
+    expect(
+      find.text('2.150 / 2.000 kcal · 150 por encima de la meta'),
+      findsOneWidget,
+    );
+    final bar = tester.widget<LinearProgressIndicator>(
+      find.byType(LinearProgressIndicator),
+    );
+    expect(bar.value, 1);
+    expect(bar.color, isNull);
+  });
 }

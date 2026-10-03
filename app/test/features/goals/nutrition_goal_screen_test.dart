@@ -9,7 +9,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Future<AppDatabase> _pump(WidgetTester tester, {AppDatabase? db}) async {
+/// Repositorio cuyo guardado falla como fallaría SQLite (con los
+/// parámetros en el mensaje), para comprobar que no se relanza (R11).
+class _FailingRepository extends StorageRepository {
+  _FailingRepository(super.db);
+
+  @override
+  Future<void> saveNutritionGoal({
+    required double energyKcal,
+    double? proteinG,
+    double? carbsG,
+    double? fatG,
+  }) => Future.error(StateError('SqliteException: parameters: 63, 165'));
+
+  @override
+  Future<void> deleteGoalEstimationInputs() =>
+      Future.error(StateError('SqliteException: database is locked'));
+}
+
+Future<AppDatabase> _pump(
+  WidgetTester tester, {
+  AppDatabase? db,
+  StorageRepository Function(AppDatabase db)? repository,
+}) async {
   // Pantalla alta: el formulario completo cabe sin que el ListView descarte
   // los campos de la meta al bajar a la sugerencia.
   tester.view.physicalSize = const Size(1080, 4000);
@@ -18,7 +40,11 @@ Future<AppDatabase> _pump(WidgetTester tester, {AppDatabase? db}) async {
   final database = db ?? AppDatabase(NativeDatabase.memory());
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [appDatabaseProvider.overrideWithValue(database)],
+      overrides: [
+        appDatabaseProvider.overrideWithValue(database),
+        if (repository != null)
+          storageRepositoryProvider.overrideWithValue(repository(database)),
+      ],
       child: MaterialApp(
         initialRoute: AppRoutes.nutritionGoal,
         routes: {
@@ -115,7 +141,7 @@ void main() {
 
     await _pump(tester, db: db);
 
-    expect(find.text('1800'), findsOneWidget);
+    expect(find.text('1.800'), findsOneWidget);
     expect(find.text('90'), findsOneWidget);
   });
 
@@ -194,7 +220,7 @@ void main() {
       // DRI 2023: mujer, 22 años, 165 cm, 63 kg, low active → 2.275 kcal.
       // Proteína 1,11 × 63 = 69,93 g = 12,3 % < 14 % → 14 % = 79,6 g;
       // grasa 27,5 % = 69,5 g; carbohidratos el resto = 332,8 g (sobre 2.275,37 sin redondear).
-      expect(find.text('2275'), findsOneWidget);
+      expect(find.text('2.275'), findsOneWidget);
       expect(find.text('79,6'), findsOneWidget);
       expect(find.text('69,5'), findsOneWidget);
       expect(find.text('332,8'), findsOneWidget);
@@ -261,5 +287,124 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(await StorageRepository(db).getGoalEstimationInputs(), isNull);
+  });
+
+  testWidgets('kcal con separador de miles ("2.000") se acepta', (
+    tester,
+  ) async {
+    final db = await _pump(tester);
+    addTearDown(db.close);
+
+    await tester.enterText(find.byKey(const Key('goal-kcal')), '2.000');
+    await tester.pump();
+    expect(find.text(kcalRangeMessage), findsNothing);
+    await tester.tap(find.text('Guardar'));
+    await tester.pumpAndSettle();
+
+    expect((await StorageRepository(db).getNutritionGoal())!.energyKcal, 2000);
+  });
+
+  testWidgets(
+    'R11: si guardar falla, mensaje en español y la excepción no se relanza',
+    (tester) async {
+      final db = await _pump(tester, repository: _FailingRepository.new);
+      addTearDown(db.close);
+
+      await tester.enterText(find.byKey(const Key('goal-kcal')), '2000');
+      await tester.pump();
+      await tester.tap(find.text('Guardar'));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text(saveErrorMessage), findsOneWidget);
+      expect(find.textContaining('Sqlite'), findsNothing);
+      expect(find.text('Mi meta diaria'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'si borrar los datos de la sugerencia falla, mensaje en español',
+    (tester) async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      await StorageRepository(db).saveGoalEstimationInputs(
+        weightKg: 63,
+        heightCm: 165,
+        ageYears: 22,
+        sex: 'female',
+        activityLevel: 'lowActive',
+      );
+      await _pump(tester, db: db, repository: _FailingRepository.new);
+
+      await tester.tap(find.text('Borrar mis datos para la sugerencia'));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text(deleteErrorMessage), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'borrar los datos de la sugerencia los quita también del formulario: '
+    'Guardar no los vuelve a escribir',
+    (tester) async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final repo = StorageRepository(db);
+      await repo.saveGoalEstimationInputs(
+        weightKg: 63,
+        heightCm: 165,
+        ageYears: 22,
+        sex: 'female',
+        activityLevel: 'lowActive',
+      );
+      await _pump(tester, db: db);
+
+      // Misma sesión: calcular con los datos cargados, borrarlos y guardar.
+      await openSuggestion(tester);
+      await tester.tap(find.widgetWithText(FilledButton, 'Calcular'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Borrar mis datos para la sugerencia'));
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<TextField>(find.byKey(const Key('estimation-weight')))
+            .controller!
+            .text,
+        isEmpty,
+      );
+      await tester.tap(find.text('Guardar'));
+      await tester.pumpAndSettle();
+
+      expect(await repo.getGoalEstimationInputs(), isNull);
+      expect((await repo.getNutritionGoal())!.energyKcal, 2275);
+    },
+  );
+
+  testWidgets('sugerencia fuera de 800–6.000 kcal: mensaje, no rellena', (
+    tester,
+  ) async {
+    final db = await _pump(tester);
+    addTearDown(db.close);
+    await openSuggestion(tester);
+    await tester.enterText(find.byKey(const Key('estimation-weight')), '300');
+    await tester.enterText(find.byKey(const Key('estimation-height')), '230');
+    await tester.enterText(find.byKey(const Key('estimation-age')), '19');
+    await tester.pump();
+    await tester.tap(find.text('Masculino'));
+    await tester.tap(find.text('Muy activo'));
+    await tester.pump();
+    await tester.tap(find.widgetWithText(FilledButton, 'Calcular'));
+    await tester.pumpAndSettle();
+
+    expect(find.text(suggestionOutOfRangeMessage), findsOneWidget);
+    expect(find.text('~'), findsNothing);
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const Key('goal-kcal')))
+          .controller!
+          .text,
+      isEmpty,
+    );
   });
 }

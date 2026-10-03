@@ -167,7 +167,9 @@ y cuánto me queda.
   `goal_estimation_inputs` (una fila, opcional); `schemaVersion` 3 → 4 con migración.
 - `app/lib/infra/storage/storage_repository.dart`: leer y guardar la meta; `deleteAllUserData` y
   `exportUserData` (R10).
-- `app/lib/features/settings/`: pantalla "Mi meta diaria" y entrada en Ajustes.
+- `app/lib/features/goals/` (nueva feature): pantalla "Mi meta diaria" y su controlador; Ajustes
+  y el diario llegan a ella por la ruta `AppRoutes.nutritionGoal`, sin importarse entre features.
+  (Al implementar se movió de `features/settings/` a su propia feature.)
 - `app/lib/features/diary/`: progreso (R6) y enlace (R7).
 - `app/lib/infra/legal/privacy_policy.dart`: texto de la política y `privacyPolicyVersion` v2 → v3 (R12).
 - `docs/privacy.md`: filas nuevas del inventario. `docs/architecture.md`: sección de objetivos y
@@ -191,6 +193,15 @@ y cuánto me queda.
 - Sexo: la fórmula lo usa como variable fisiológica. Si el usuario no quiere responderlo, puede
   escribir la meta a mano (R1); la sugerencia no se calcula sin ese dato.
 - Datos de R2 incompletos → "Calcular" deshabilitado, sin cálculo parcial.
+- Entradas válidas que dan una estimación fuera de 800–6.000 kcal (p. ej. 19 años, 230 cm, 300 kg,
+  "Muy activo" ≈ 8.600 kcal) → no se rellena nada y se muestra: "Con estos datos la estimación
+  queda fuera del rango que maneja la app (800 a 6.000 kcal). Puedes escribir tu meta a mano; si
+  tienes dudas, consulta a un profesional."
+- Fallo al escribir en `user.db` (disco lleno, base bloqueada) → mensaje en español ("No pude
+  guardar tu meta. Intenta de nuevo."); la excepción no se relanza, porque el texto de SQLite
+  incluye los parámetros (datos de salud) y llegaría a Crashlytics (R11).
+- Kcal escrita con separador de miles ("2.000") se acepta; la sugerencia se presenta igual
+  ("~2.275").
 - Cambio de unidad (lb, pies) → fuera de alcance; solo kg y cm.
 
 ## Security & Privacy
@@ -256,7 +267,7 @@ y cuánto me queda.
 | AC1 | ✅ | `app/test/features/goals/nutrition_goal_screen_test.dart` ("AC1: kcal vacía…", "AC1: fuera de rango…") |
 | AC2 | ✅ | `nutrition_goal_screen_test.dart` ("AC2…") + `app/test/features/diary/diary_goal_test.dart` ("AC6/AC2…") |
 | AC3 | ✅ | `packages/nutrition_core/test/energy_estimation_test.dart`: 2 ejemplos resueltos y las 40 celdas de las Tablas 7-9/7-10 de la DRI 2023, ±1 kcal |
-| AC4 | ✅ | `energy_estimation_test.dart`, grupo "AC4" (peso, estatura, edad desde 19) |
+| AC4 | ✅ | `energy_estimation_test.dart`, grupo "AC4" (peso, estatura, edad desde 19, NaN e infinito) |
 | AC5 | ✅ | `nutrition_goal_screen_test.dart` ("AC5…", "editar un campo sugerido le quita el ~", "sin usar la sugerencia no se guardan datos personales") |
 | AC5b | ✅ | `packages/nutrition_core/test/macro_suggestion_test.dart` (ajuste al 14 %, tope al 20 %, sin ajuste, rangos de la Res. 3803) |
 | AC6 | ✅ | `packages/nutrition_core/test/goal_progress_test.dart` + `diary_goal_test.dart` (textos y widget) |
@@ -264,13 +275,14 @@ y cuánto me queda.
 | AC8 | ✅ | `app/test/infra/storage/nutrition_goal_storage_test.dart` + `nutrition_goal_screen_test.dart` ("AC8…") |
 | AC9 | ✅ | `nutrition_goal_storage_test.dart` ("AC9…") |
 | AC10 | ✅ | `nutrition_goal_storage_test.dart` ("AC10: migrar desde la versión 3…") |
-| AC11 | ✅ | Revisión y grep (2026-10-02): `app/lib/infra/ai_client`, `app/lib/infra/crash_reporting` y `functions/src` no mencionan la meta ni los datos de la sugerencia; `features/goals` y `features/diary` no tienen `print`/`debugPrint`/`log` ni llamadas al crash reporter; `features/goals` solo importa `nutrition_core` e `infra/storage` |
+| AC11 | ✅ | `nutrition_goal_screen_test.dart` ("R11: si guardar falla…", "si borrar … falla") — la excepción de almacenamiento no se relanza hacia Crashlytics. Revisión y grep (2026-10-02): `app/lib/infra/ai_client`, `app/lib/infra/crash_reporting` y `functions/src` no mencionan la meta ni los datos de la sugerencia; `features/goals` y `features/diary` no tienen `print`/`debugPrint`/`log` ni llamadas al crash reporter; `features/goals` solo importa `nutrition_core` e `infra/storage` |
 | AC12 | ✅ | `diary_goal_test.dart` ("AC12…") |
 | AC13 | ✅ | `app/test/integration/onboarding_gate_flow_test.dart` ("SPEC-008 AC13…") + `app/test/features/legal/privacy_policy_text_test.dart` |
 | AC14 | ✅ | `nutrition_goal_screen_test.dart` ("AC14…") + `packages/nutrition_core/test/goal_limits_test.dart` |
 | AC15 | ✅ | `nutrition_goal_screen_test.dart` ("AC15…") |
 
-Verificado (2026-10-02): `dart analyze` y `flutter analyze` sin issues; `nutrition_core` 96/96; app 124/124.
+Verificado (2026-10-02, tras la primera revisión): `dart analyze` y `flutter analyze` sin issues;
+`nutrition_core` 97/97; app 130/130.
 Pendiente: recorrido manual en el Motorola (Tests Required → Manual).
 
 ## Definition of Done
@@ -308,6 +320,15 @@ Pendiente: recorrido manual en el Motorola (Tests Required → Manual).
   años y OQ4 aceptaba 18. El usuario aprueba: sugerencia de 19 a 100 años; a los 18, meta manual
   (OQ4 ajustada). También aprueba corregir en la política v3 la frase sobre la voz ("se transcribe
   en tu propio teléfono"), que la medición de SPEC-002 mostró inexacta en Android.
+
+- 2026-10-02: reviewer CHANGES_REQUESTED. Corregidos: [MAJOR] fallos de escritura en `user.db`
+  llegaban a Crashlytics con los parámetros de SQLite (ahora se capturan, mensaje en español, sin
+  relanzar); NaN en la estimación; sugerencia fuera de 800–6.000 kcal (decisión: no rellenar y
+  avisar, ver Edge Cases; tomada por delegación de la usuaria, "haz lo que recomiendes"); borrar los
+  datos de la sugerencia los limpia también en memoria; separador de miles en kcal; test de widget
+  del diario por encima de la meta; fila PV-13; ubicación de la pantalla en `features/goals/`. El
+  riesgo de SQLite → Crashlytics en el flujo de revisión de comidas queda en `docs/backlog.md`
+  (T-010), fuera de esta SPEC.
 
 ## Review
 Informe del reviewer: pendiente.

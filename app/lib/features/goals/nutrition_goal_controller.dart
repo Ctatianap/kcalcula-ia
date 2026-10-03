@@ -20,6 +20,12 @@ const ageUnavailableMessage =
 const weightRangeMessage = 'Escribe tu peso en kg, entre 30 y 300.';
 const heightRangeMessage = 'Escribe tu estatura en cm, entre 120 y 230.';
 const ageRangeMessage = 'Escribe tu edad en años, hasta 100.';
+const saveErrorMessage = 'No pude guardar tu meta. Intenta de nuevo.';
+const deleteErrorMessage = 'No pude borrar tus datos. Intenta de nuevo.';
+const suggestionOutOfRangeMessage =
+    'Con estos datos la estimación queda fuera del rango que maneja la app '
+    '(800 a 6.000 kcal). Puedes escribir tu meta a mano; si tienes dudas, '
+    'consulta a un profesional.';
 
 /// SPEC-008 R14: niveles de actividad de la DRI 2023 (Tabla 7-1), en es-CO.
 const activityLevelTexts = {
@@ -68,6 +74,11 @@ class NutritionGoalController extends ChangeNotifier {
 
   /// Hay una sugerencia aplicada: al guardar se guardan también sus datos.
   bool suggestionApplied = false;
+
+  /// Mensaje en español si guardar o borrar falló, o si la sugerencia quedó
+  /// fuera de rango. Nunca el texto de la excepción: el de SQLite incluye
+  /// los parámetros (datos de salud) y no debe llegar a Crashlytics (R11).
+  String? errorMessage;
   bool loaded = false;
   bool busy = false;
 
@@ -78,7 +89,7 @@ class NutritionGoalController extends ChangeNotifier {
   Future<void> load() async {
     final goal = await _storage.getNutritionGoal();
     if (goal != null) {
-      kcalText = presentKcal(goal.energyKcal).toString();
+      kcalText = formatThousandsEs(presentKcal(goal.energyKcal));
       macroText[MacroField.protein] = _macroToText(goal.proteinG);
       macroText[MacroField.carbs] = _macroToText(goal.carbsG);
       macroText[MacroField.fat] = _macroToText(goal.fatG);
@@ -187,8 +198,16 @@ class NutritionGoalController extends ChangeNotifier {
     } on InvalidEstimationInput {
       return;
     }
+    // Entradas válidas pueden dar una estimación fuera de OQ4 (p. ej. 230 cm,
+    // 300 kg, muy activo): no se rellena un valor que la pantalla rechazaría.
+    if (!isValidGoalKcal(kcal)) {
+      errorMessage = suggestionOutOfRangeMessage;
+      notifyListeners();
+      return;
+    }
+    errorMessage = null;
     final macros = suggestMacros(energyKcal: kcal, weightKg: _weight!);
-    kcalText = presentKcal(kcal).toString();
+    kcalText = formatThousandsEs(presentKcal(kcal));
     macroText[MacroField.protein] = _macroToText(macros.proteinG);
     macroText[MacroField.carbs] = _macroToText(macros.carbsG);
     macroText[MacroField.fat] = _macroToText(macros.fatG);
@@ -234,6 +253,7 @@ class NutritionGoalController extends ChangeNotifier {
       return false;
     }
     busy = true;
+    errorMessage = null;
     notifyListeners();
     try {
       await _storage.saveNutritionGoal(
@@ -254,6 +274,10 @@ class NutritionGoalController extends ChangeNotifier {
         hasEstimationInputs = true;
       }
       return true;
+    } catch (_) {
+      // R11: no se relanza la excepción original (ver [errorMessage]).
+      errorMessage = saveErrorMessage;
+      return false;
     } finally {
       busy = false;
       notifyListeners();
@@ -262,8 +286,22 @@ class NutritionGoalController extends ChangeNotifier {
 
   /// R9/AC8: borra los datos de la sugerencia sin tocar la meta.
   Future<void> deleteEstimationInputs() async {
-    await _storage.deleteGoalEstimationInputs();
+    try {
+      await _storage.deleteGoalEstimationInputs();
+    } catch (_) {
+      errorMessage = deleteErrorMessage;
+      notifyListeners();
+      return;
+    }
+    // También en memoria: si no, "Guardar" los volvería a escribir.
     hasEstimationInputs = false;
+    weightText = '';
+    heightText = '';
+    ageText = '';
+    sex = null;
+    activityLevel = null;
+    suggestionApplied = false;
+    errorMessage = null;
     notifyListeners();
   }
 
@@ -282,10 +320,12 @@ class NutritionGoalController extends ChangeNotifier {
   }
 }
 
-/// Entero sin separadores ("2000"); `null` si no lo es.
+/// Entero, con o sin separador de miles de es-CO ("2000" o "2.000");
+/// `null` si no lo es.
 double? parseGoalKcal(String text) {
-  final value = int.tryParse(text.trim());
-  return value?.toDouble();
+  final trimmed = text.trim();
+  if (!RegExp(r'^(\d+|\d{1,3}(\.\d{3})+)$').hasMatch(trimmed)) return null;
+  return int.parse(trimmed.replaceAll('.', '')).toDouble();
 }
 
 /// Número con máximo un decimal, con coma o punto ("45,5"); `null` si no.

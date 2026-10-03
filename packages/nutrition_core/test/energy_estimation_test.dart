@@ -112,6 +112,17 @@ void main() {
       expect(estimate(weightKg: 300), isA<double>());
     });
 
+    test('NaN e infinito', () {
+      expect(
+        () => estimate(weightKg: double.nan),
+        throwsField(EstimationField.weight),
+      );
+      expect(
+        () => estimate(heightCm: double.infinity),
+        throwsField(EstimationField.height),
+      );
+    });
+
     test('estatura', () {
       expect(
         () => estimate(heightCm: 119),
