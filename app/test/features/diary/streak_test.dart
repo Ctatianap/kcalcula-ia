@@ -61,6 +61,12 @@ Future<void> _pump(WidgetTester tester, List<DateTime> meals) async {
   await tester.pumpAndSettle();
 }
 
+/// Quita las líneas de comentario (`//`, `///`) para revisar solo textos.
+String _withoutComments(String source) => source
+    .split('\n')
+    .where((line) => !line.trimLeft().startsWith('//'))
+    .join('\n');
+
 void main() {
   group('AC1: racha', () {
     test('hoy, ayer y anteayer → 3', () {
@@ -155,10 +161,17 @@ void main() {
     for (final file in Directory('lib').listSync(recursive: true)) {
       if (file is! File || !file.path.endsWith('.dart')) continue;
       if (file.path.endsWith('.g.dart')) continue;
-      // Solo literales de texto (entre comillas), no comentarios.
+      // Solo literales de texto (comillas simples, dobles o triples), no
+      // comentarios.
       for (final m in RegExp(
-        r"'[^'\n]*'",
-      ).allMatches(file.readAsStringSync())) {
+        r"'''[\s\S]*?'''"
+        '|'
+        r'"""[\s\S]*?"""'
+        '|'
+        r"'[^'\n]*'"
+        '|'
+        r'"[^"\n]*"',
+      ).allMatches(_withoutComments(file.readAsStringSync()))) {
         if (pattern.hasMatch(m.group(0)!)) {
           offenders.add('${file.path}: ${m.group(0)}');
         }
@@ -176,5 +189,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     expect(find.byKey(const Key('streak-pill')), findsOneWidget);
+    // El saludo conserva el ancho de la fila (menos Ajustes): "Buenas"
+    // cabe entero y no se parte a mitad de palabra.
+    final greeting = tester.getSize(find.byKey(const Key('diary-greeting')));
+    expect(greeting.width, greaterThan(250));
   });
 }

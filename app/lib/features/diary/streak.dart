@@ -12,7 +12,8 @@ DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
 int streakDays(Iterable<DateTime> mealTimes, DateTime now) {
   final days = {for (final t in mealTimes) _dateOnly(t)};
   final today = _dateOnly(now);
-  // Por fecha de calendario (no restando 24 h, por el cambio de hora).
+  // Por fecha de calendario (no restando 24 h): un cambio de hora queda
+  // cubierto por construcción. Colombia no tiene horario de verano.
   var day = days.contains(today)
       ? today
       : DateTime(today.year, today.month, today.day - 1);

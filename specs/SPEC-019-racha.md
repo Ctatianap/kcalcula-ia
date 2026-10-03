@@ -74,10 +74,22 @@ Manual: recorrido en el teléfono (usuaria).
     nutricional), por fecha de calendario local y con tope de 400 días.
   - Lectura liviana: `StorageRepository.mealTimesSince` trae solo `eaten_at` de los últimos 400
     días (sin ítems).
-  - Píldora entre el saludo y Ajustes: llama (`local_fire_department_outlined`) en el acento y el
+  - Píldora (primero entre el saludo y Ajustes; luego en la línea de la fecha, ver abajo): llama (`local_fire_department_outlined`) en el acento y el
     número en el color de texto, fondo `surface`; etiqueta "N días seguidos registrando" ("1 día
     seguido registrando" en singular). Sin colores de alarma ni textos de pérdida.
   Status → Review.
+- 2026-10-03: reviewer **PASS** (commit 9b7811e; app 307/307), sin BLOCKER ni MAJOR. MINOR atendidos
+  antes de fusionar:
+  - la píldora pasó a la línea de la fecha (en un `Wrap`): junto al saludo le quitaba ancho y, con
+    texto ×2 en 360 px, "Buenas" se partía a mitad de palabra; test en 360 px ×2 que mide el
+    ancho del saludo;
+  - el test de AC3 revisa también textos entre comillas dobles y triples, sin comentarios;
+  - el comentario de `streakDays` aclara que el cambio de hora queda cubierto por construcción
+    (Colombia no tiene horario de verano).
+  Fusionada en `develop` por la autorización única de la usuaria. Sigue en Review hasta el
+  recorrido manual en el teléfono.
 
 ## Review
-Informe del reviewer: pendiente.
+Informe del reviewer (2026-10-03, commit 9b7811e): **PASS**. AC1–AC3 con evidencia en
+`streak_test.dart`; regla por fecha local con aritmética de calendario; píldora accesible con una
+sola etiqueta; tono neutro. MINOR atendidos (ver Change Log).

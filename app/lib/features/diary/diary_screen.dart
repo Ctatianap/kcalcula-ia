@@ -147,16 +147,26 @@ class _Header extends StatelessWidget {
                   style: text.headlineLarge?.copyWith(fontSize: 34),
                 ),
                 const SizedBox(height: 2),
-                Text(
-                  longDateEs(now),
-                  style: text.bodyMedium?.copyWith(
-                    color: KColors.textSecondary,
-                  ),
+                // La píldora va con la fecha (no junto al saludo): con
+                // texto grande el saludo conserva todo el ancho y baja de
+                // línea entre palabras; si no cabe, la píldora pasa abajo.
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(
+                      longDateEs(now),
+                      style: text.bodyMedium?.copyWith(
+                        color: KColors.textSecondary,
+                      ),
+                    ),
+                    _StreakPill(days: streak),
+                  ],
                 ),
               ],
             ),
           ),
-          _StreakPill(days: streak),
           IconButton(
             icon: const Icon(Icons.settings_outlined),
             tooltip: 'Ajustes',
