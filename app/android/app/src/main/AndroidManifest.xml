@@ -6,7 +6,7 @@
          sistema), solo la cámara. -->
     <uses-permission android:name="android.permission.CAMERA"/>
     <application
-        android:label="calorias_ia"
+        android:label="KCalcula IA"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
