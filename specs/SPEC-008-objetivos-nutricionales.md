@@ -250,6 +250,29 @@ y cuánto me queda.
   g/kg; 14–20 / 20–35 / 50–65 %; textos de la Tabla 7-1) con sus enlaces y respondió "listo,
   continúa".
 
+## Evidencia de Acceptance Criteria
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/features/goals/nutrition_goal_screen_test.dart` ("AC1: kcal vacía…", "AC1: fuera de rango…") |
+| AC2 | ✅ | `nutrition_goal_screen_test.dart` ("AC2…") + `app/test/features/diary/diary_goal_test.dart` ("AC6/AC2…") |
+| AC3 | ✅ | `packages/nutrition_core/test/energy_estimation_test.dart`: 2 ejemplos resueltos y las 40 celdas de las Tablas 7-9/7-10 de la DRI 2023, ±1 kcal |
+| AC4 | ✅ | `energy_estimation_test.dart`, grupo "AC4" (peso, estatura, edad desde 19) |
+| AC5 | ✅ | `nutrition_goal_screen_test.dart` ("AC5…", "editar un campo sugerido le quita el ~", "sin usar la sugerencia no se guardan datos personales") |
+| AC5b | ✅ | `packages/nutrition_core/test/macro_suggestion_test.dart` (ajuste al 14 %, tope al 20 %, sin ajuste, rangos de la Res. 3803) |
+| AC6 | ✅ | `packages/nutrition_core/test/goal_progress_test.dart` + `diary_goal_test.dart` (textos y widget) |
+| AC7 | ✅ | `diary_goal_test.dart` ("AC7…") |
+| AC8 | ✅ | `app/test/infra/storage/nutrition_goal_storage_test.dart` + `nutrition_goal_screen_test.dart` ("AC8…") |
+| AC9 | ✅ | `nutrition_goal_storage_test.dart` ("AC9…") |
+| AC10 | ✅ | `nutrition_goal_storage_test.dart` ("AC10: migrar desde la versión 3…") |
+| AC11 | ✅ | Revisión y grep (2026-10-02): `app/lib/infra/ai_client`, `app/lib/infra/crash_reporting` y `functions/src` no mencionan la meta ni los datos de la sugerencia; `features/goals` y `features/diary` no tienen `print`/`debugPrint`/`log` ni llamadas al crash reporter; `features/goals` solo importa `nutrition_core` e `infra/storage` |
+| AC12 | ✅ | `diary_goal_test.dart` ("AC12…") |
+| AC13 | ✅ | `app/test/integration/onboarding_gate_flow_test.dart` ("SPEC-008 AC13…") + `app/test/features/legal/privacy_policy_text_test.dart` |
+| AC14 | ✅ | `nutrition_goal_screen_test.dart` ("AC14…") + `packages/nutrition_core/test/goal_limits_test.dart` |
+| AC15 | ✅ | `nutrition_goal_screen_test.dart` ("AC15…") |
+
+Verificado (2026-10-02): `dart analyze` y `flutter analyze` sin issues; `nutrition_core` 96/96; app 124/124.
+Pendiente: recorrido manual en el Motorola (Tests Required → Manual).
+
 ## Definition of Done
 - AC1–AC15 (incluido AC5b) con evidencia enlazada en esta SPEC.
 - OQ9 hecha y registrada (quién comparó qué tablas y cuándo).
