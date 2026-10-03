@@ -80,7 +80,7 @@ fallos.
 | AC3 | ✅ | `app/test/integration/storage_errors_test.dart` ("AC3…") |
 | AC4 | ✅ | `storage_errors_test.dart` ("AC4…") |
 | AC5 | ✅ | `storage_errors_test.dart` (diario, revisión y arranque: mensaje, "Reintentar" y carga normal al reintentar) |
-| AC6 | ✅ | `flutter analyze` sin issues; `flutter test` 155/155 (2026-10-03, tras la revisión) |
+| AC6 | ✅ | `flutter analyze` sin issues; `flutter test` 154/154 (2026-10-03, tras la revisión) |
 | Onboarding | ✅ | `storage_errors_test.dart` ("si guardar el consentimiento falla…") |
 
 ## Technical Constraints
