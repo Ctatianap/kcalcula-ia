@@ -1,7 +1,7 @@
 # SPEC-008: Perfil, mantenimiento y objetivo nutricional
 
 ## Status
-Draft
+Implementing
 Path: Strict (cálculos nuevos en `packages/nutrition_core`: metabolismo basal, mantenimiento,
 objetivo y reparto de macros; y datos personales de salud guardados en el dispositivo: peso,
 estatura, fecha de nacimiento, sexo y nivel de actividad)
@@ -79,8 +79,12 @@ peso o de temporada de actividad, todo se recalcula.
   | Objetivo | Proteína | Grasa | Carbohidratos |
   |---|---|---|---|
   | Bajar grasa (las dos opciones) | 30 % | 25 % | 45 % |
-  | Mantener | 25 % | 30 % | 45 % |
-  | Subir masa muscular (las dos opciones) | 25 % | 25 % | 50 % |
+  | Mantener | 20 % | 25 % | 55 % |
+  | Subir masa muscular (las dos opciones) | 20 % | 25 % | 55 % |
+
+  Ajuste aprobado por la usuaria: con proteína al 25 %, el % crecía con las kcal y daba 2,3–2,7 g/kg
+  al mantener o subir masa, por encima de su referencia de 1,5–2,0. Con el 20 % queda en ~1,8–2,2
+  g/kg (ejemplo: 63 kg, mantenimiento 2.276 kcal).
 
   Los gramos se calculan como kcal × % ÷ (4, 9 o 4) (FAO 2003). Las tres filas están dentro de los
   AMDR vigentes (proteína 10–35 %, grasa 20–35 %, carbohidratos 45–65 %, NASEM 2024) y de la grasa
@@ -121,7 +125,7 @@ peso o de temporada de actividad, todo se recalcula.
   `[unit, nutrition_core]`.
 - AC4. Objetivos: con mantenimiento 2.000 → 1.750 / 1.500 / 2.000 / 2.200 / 2.400 kcal
   `[unit, nutrition_core]`.
-- AC5. Macros: 2.000 kcal con "Mantener" → proteína 125 g, grasa 66,7 g, carbohidratos 225 g; los
+- AC5. Macros: 2.000 kcal con "Mantener" → proteína 100 g, grasa 55,6 g, carbohidratos 275 g; los
   gramos convertidos con 4/9/4 suman 2.000 ±0,01; las tres filas de R7 están dentro de los AMDR
   `[unit, nutrition_core]`.
 - AC6. Perfil: guardar y editar; la edad se calcula a partir de la fecha de nacimiento; fuera de
@@ -257,6 +261,9 @@ peso o de temporada de actividad, todo se recalcula.
   (peso, actividad por temporadas), basal (Harris-Benedict 1918) y mantenimiento (× PAL de EFSA)
   separados, objetivo aparte (déficit o superávit con fuente), macros en % de las kcal según el
   objetivo y meta que se recalcula con el perfil. Status → Draft.
+
+- 2026-10-02: **versión 2 aprobada por la usuaria** ("aprobada, con el ajuste de porcentajes"),
+  con Mantener y Subir masa en 20 / 25 / 55 %. Status → Implementing.
 
 ## Review
 Primera revisión (2026-10-02, subagente `reviewer`): **CHANGES_REQUESTED**.
