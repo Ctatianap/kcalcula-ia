@@ -34,7 +34,7 @@ Future<void> _pumpApp(WidgetTester tester) async {
 
 void main() {
   testWidgets(
-    'AC3: Hoy con barra; Historial con su calendario y Progreso con su estado vacío',
+    'AC3: Hoy con barra; Historial con su calendario y Progreso sin registros',
     (tester) async {
       await _pumpApp(tester);
 
@@ -50,7 +50,7 @@ void main() {
       await tester.tap(find.byKey(const Key('nav-Progreso')));
       await tester.pumpAndSettle();
       expect(
-        find.text('Aquí verás tus promedios y tu progreso.'),
+        find.text('Todavía no hay registros en este periodo.'),
         findsOneWidget,
       );
 
