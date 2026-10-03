@@ -138,7 +138,7 @@ Historial y Progreso y un botón para registrar, para usarla a diario sin esfuer
 | AC4 | ✅ | `app/test/ui/progress_ring_test.dart` |
 | AC5 | ✅ | `app/test/ui/theme_test.dart`, grupo "AC5" (7 pares, todos ≥ 4,5:1; el menor, 4,87) y "R6/R7: cada estado del día contrasta ≥ 3:1" (elementos gráficos, WCAG 1.4.11). Los colores de macros y de estado se usan solo en elementos gráficos acompañados de texto con contraste suficiente, nunca como color de texto |
 | AC6 | ✅ | `main_nav_test.dart` ("AC6…") |
-| AC7 | ✅ | `flutter analyze` sin issues; `flutter test` 177/177 (2026-10-03, tras la revisión) |
+| AC7 | ✅ | `flutter analyze` sin issues; `flutter test` 175/175 (2026-10-03, tras la revisión) |
 | AC8 | ⏳ | Recorrido manual en el teléfono: se hace al final del lote (decisión de la usuaria) |
 
 Decisión de implementación: los botones primario y secundario de R3 son `FilledButton` y
