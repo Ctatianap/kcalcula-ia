@@ -1,6 +1,7 @@
 import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../infra/storage/storage_repository.dart';
+import 'streak.dart';
 
 class DiaryMealSummary {
   final MealWithItems meal;
@@ -43,11 +44,15 @@ class DiarySummary {
   /// SPEC-011 R2: lunes a domingo de la semana actual.
   final List<WeekDaySummary> week;
 
+  /// SPEC-019: días seguidos registrando.
+  final int streak;
+
   const DiarySummary({
     required this.meals,
     required this.dayTotals,
     this.goal,
     this.week = const [],
+    this.streak = 0,
   });
 
   /// SPEC-008 R6/AC12: el consumido lleva "~" si alguna comida del día no
@@ -104,10 +109,16 @@ Future<DiarySummary> loadDiarySummary(
     );
   }
 
+  final streakFrom = DateTime(
+    today.year,
+    today.month,
+    today.day - streakLookbackDays,
+  );
   return DiarySummary(
     meals: todays,
     dayTotals: sumNutrients(todays.map((s) => s.totals)),
     goal: goal,
     week: week,
+    streak: streakDays(await storage.mealTimesSince(streakFrom), now),
   );
 }
