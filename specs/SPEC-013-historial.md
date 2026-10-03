@@ -117,6 +117,12 @@ Edge cases: grilla desde el lunes, error de lectura con Reintentar, texto ×2 en
       por Hoy e Historial.
   - Aceptado sin cambio: si la pantalla queda abierta pasada la medianoche, "hoy" se actualiza al
     volver a abrir la pestaña.
+- 2026-10-03: re-revisión del reviewer: **PASS** (commit 25efa94; nutrition_core 75/75, app 219/219).
+  Fusionada en `develop` por la autorización única de la usuaria. Sigue en Review hasta el
+  recorrido manual en el teléfono.
 
 ## Review
-Informe del reviewer: pendiente.
+Re-revisión (2026-10-03, commit 25efa94): **PASS**. AC1–AC5 con evidencia en
+`history_screen_test.dart` y `goal_progress_test.dart`; el MAJOR de accesibilidad (acción de tocar
+en los días) y los MINOR quedaron resueltos (ver Change Log). Sin hallazgos nuevos; invariantes y
+privacidad sin cambios.
