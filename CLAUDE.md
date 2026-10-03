@@ -57,7 +57,15 @@ Reglas:
   en la SPEC y espera aprobación. No reinterpretes en silencio.
 - Una SPEC a la vez, en una rama `spec-NNN-slug`.
 - `firebase deploy`, `git push` y `gcloud` requieren confirmación humana (hay hook y permisos).
+  Excepción: en sesiones en la nube, `git push` sin forzar a ramas distintas de `main` no pregunta.
 - Acciones que solo el usuario puede hacer (consolas de Firebase/Google Cloud, cuentas, facturación):
+  dale los pasos exactos y espera su confirmación.
+- **Detalles menores: decide tú** con la opción recomendada y dilo en una línea. Pregunta solo por
+  aprobación de SPECs, acciones que solo puede hacer la usuaria o decisiones grandes de producto.
+- **Sesiones en la nube** (claude.ai/code): el entorno instala Flutter con `scripts/cloud-setup.sh`
+  (pegado en el campo "Setup script") y el hook SessionStart corre `scripts/cloud-session-start.sh`
+  (dependencias y `catalog.db`). Las autorizaciones puntuales llegan en el mensaje de la usuaria,
+  no en el repo.
   dale los pasos exactos y espera su confirmación.
 
 ## Agentes y skills

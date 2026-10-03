@@ -39,8 +39,13 @@ for (const [re, reason] of DENY) {
   }
 }
 
+// Sesiones en la nube (claude.ai/code): git push sin forzar a ramas distintas de main
+// pasa sin pedir confirmación, para que la sesión trabaje sola. main sigue protegida.
+const cloud = process.env.CLAUDE_CODE_REMOTE === "true";
+const cloudPush = cloud && /\bgit\s+push\b/i.test(command) && !/\bmain\b/.test(command);
+
 for (const [re, reason] of ASK) {
-  if (re.test(command)) {
+  if (re.test(command) && !(cloudPush && /git/.test(re.source))) {
     process.stdout.write(JSON.stringify({
       hookSpecificOutput: {
         hookEventName: "PreToolUse",
