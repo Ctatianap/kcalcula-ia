@@ -359,16 +359,28 @@ class StorageRepository {
               ..orderBy([(m) => OrderingTerm.asc(m.eatenAt)]))
             .get();
 
-    final result = <MealWithItems>[];
-    for (final meal in meals) {
+    // Ítems en lote (no una consulta por comida), en tandas para no pasar
+    // el límite de parámetros de SQLite.
+    final itemsByMeal = <int, List<MealItem>>{};
+    final ids = meals.map((m) => m.id).toList();
+    for (var i = 0; i < ids.length; i += 500) {
+      final chunk = ids.sublist(i, i + 500 > ids.length ? ids.length : i + 500);
       final items =
           await (_db.select(_db.mealItems)
-                ..where((i) => i.mealId.equals(meal.id))
-                ..orderBy([(i) => OrderingTerm.asc(i.position)]))
+                ..where((item) => item.mealId.isIn(chunk))
+                ..orderBy([
+                  (item) => OrderingTerm.asc(item.mealId),
+                  (item) => OrderingTerm.asc(item.position),
+                ]))
               .get();
-      result.add(MealWithItems(meal: meal, items: items));
+      for (final item in items) {
+        itemsByMeal.putIfAbsent(item.mealId, () => []).add(item);
+      }
     }
-    return result;
+    return [
+      for (final meal in meals)
+        MealWithItems(meal: meal, items: itemsByMeal[meal.id] ?? const []),
+    ];
   }
 }
 

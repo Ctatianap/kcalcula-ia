@@ -388,4 +388,41 @@ void main() {
 
     expect(meals.map((m) => m.meal.eatenAt.hour), [0, 8, 13]);
   });
+
+  test('SPEC-014: mealsBetween carga los ítems en lote, cada uno con su '
+      'comida y en orden', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repo = StorageRepository(db);
+    MealItemRecord item(String name) => MealItemRecord(
+      mention: name,
+      foodId: name,
+      nameSnapshot: name,
+      grams: 100,
+      quantityBasis: 'explicitWeight',
+      energyKcal: 100,
+      proteinG: 1,
+      carbsG: 1,
+      fatG: 1,
+      confidence: 'buenaEstimacion',
+      sourceRef: 'fixture',
+    );
+    for (var d = 1; d <= 3; d++) {
+      await repo.registerMeal(
+        eatenAt: DateTime(2026, 9, d, 8),
+        mealType: 'desayuno',
+        confidence: 'buenaEstimacion',
+        catalogVersion: 'test-1',
+        items: [item('a$d'), item('b$d'), item('c$d')],
+      );
+    }
+    final meals = await repo.mealsBetween(
+      DateTime(2026, 9),
+      DateTime(2026, 10),
+    );
+    expect(
+      [for (final m in meals) m.items.map((i) => i.nameSnapshot).join()],
+      ['a1b1c1', 'a2b2c2', 'a3b3c3'],
+    );
+  });
 }

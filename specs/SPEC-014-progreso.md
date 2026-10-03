@@ -1,7 +1,7 @@
 # SPEC-014: Progreso
 
 ## Status
-Approved
+Review
 Path: Strict (cálculos nuevos en `packages/nutrition_core`: promedios y días en meta)
 
 ## Objective
@@ -78,9 +78,46 @@ Como persona que sigue un objetivo, quiero ver cómo me ha ido en promedio para 
 - AC1–AC6 con evidencia; analyze y tests verdes (`nutrition_core` y app); reviewer PASS; recorrido
   manual; aprobación de la usuaria antes de fusionar (Strict).
 
+## Evidencia
+| AC | Evidencia |
+|----|-----------|
+| AC1 | `packages/nutrition_core/test/period_summary_test.dart` › "AC1: promedio diario solo sobre días con registros" (1.500 y 1.700 → 1.600 sobre 2 días; macros; suma sin redondear). Que el día sin comidas no cuente lo prueba el agrupado de la app: AC3 espera 1.917 sobre 6 días (con el día vacío como 0 serían 1.643 sobre 7) |
+| AC2 | mismo archivo › "AC2: días en meta" › "meta 2.000 con 1.900, 2.300 y 1.500 → 1 de 3" (y límites 1.800/2.200, sin meta) |
+| AC3 | `app/test/features/progress/progress_screen_test.dart` › "AC3: semana con 6 días: 7 posiciones, promedio, \"N de 6 días en meta\" y \"meta 2.000\"" |
+| AC4 | `period_summary_test.dart` › "AC4: promedios por semana (lunes a domingo)" (unit) y `progress_screen_test.dart` › "AC4: \"Mes\" agrupa por semanas…" (widget, también "3 meses" con 13 semanas) |
+| AC5 | `progress_screen_test.dart` › "AC5: sin registros en el periodo → mensaje…" y "AC5: sin meta → sin días en meta ni línea de meta" |
+| AC6 | `progress_screen_test.dart` › "AC6: cada barra lleva su valor como etiqueta semántica" (y las de semana en AC4) |
+
+Además: texto ×2 en 360 px sin desbordes. Manual: recorrido en el teléfono pendiente (usuaria).
+
 ## Change Log
 - 2026-10-03: creación a partir de T-015 y del diseño "kcalcula ia UI".
 - 2026-10-03: **Approved por la usuaria** ("aprobadas", junto con SPEC-011 a SPEC-019). Los recorridos manuales en el teléfono se agrupan al final del lote.
+- 2026-10-03: implementada (autorización única de la usuaria para el lote, incluidas las Strict).
+  Detalles menores:
+  - `nutrition_core`: `LoggedDay`, `dailyAverage`, `daysOnGoal`, `summarizePeriod`,
+    `weeklyAverages` y `mondayOf` (por fecha de calendario).
+  - "Mes" y "3 meses" muestran todas las semanas desde la que contiene el primer día del periodo
+    hasta la de hoy (5 y 13 barras); una semana sin registros va como barra vacía, igual que un día
+    sin registros en "Semana".
+  - Color de cada barra: estado de SPEC-011 de su valor (día o promedio semanal) frente a la meta;
+    sin meta, el acento. La altura es solo escala de dibujo (valor / máximo del gráfico).
+  - "~" en el promedio con la regla de Hoy (alguna comida del periodo que no es "Alta precisión").
+  - Debajo del promedio: "Sobre N días con registros", para que se entienda la regla de R2.
+  - En "3 meses" las etiquetas de las barras se muestran una sí y una no (13 barras en 360 px).
+  Status → Review.
+- 2026-10-03: reviewer **PASS** (commit 6817352; nutrition_core 83/83, app 225/225), sin BLOCKER ni
+  MAJOR. MINOR atendidos antes de fusionar:
+  - `mealsBetween` ya no hace una consulta de ítems por comida: los carga en lote (tandas de 500),
+    con test de que cada ítem queda en su comida y en orden;
+  - "N de M días en meta" solo se muestra si hay número (no "null de…");
+  - evidencia de AC1 aclarada (la exclusión del día vacío se prueba en la app);
+  - línea en blanco antes de "Progreso" en `docs/architecture.md`.
+  Fusionada en `develop` por la autorización única de la usuaria (incluidas las Strict). Sigue en
+  Review hasta el recorrido manual en el teléfono.
 
 ## Review
-Informe del reviewer: pendiente.
+Informe del reviewer (2026-10-03, commit 6817352): **PASS**. AC1–AC6 con evidencia
+(`period_summary_test.dart`, `progress_screen_test.dart`); promedios y días en meta en
+`nutrition_core`, suma sin redondear y redondeo al presentar; sin datos nuevos fuera del
+dispositivo; accesibilidad del gráfico correcta. MINOR atendidos (ver Change Log).
