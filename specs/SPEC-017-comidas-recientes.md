@@ -1,7 +1,7 @@
 # SPEC-017: Comidas recientes
 
 ## Status
-Draft
+Approved
 Path: Standard (reutiliza el catálogo y el cálculo existentes; no llama a la IA)
 
 ## Objective
@@ -70,6 +70,7 @@ toque.
 
 ## Change Log
 - 2026-10-03: creación a partir de T-018 y del diseño "kcalcula ia UI".
+- 2026-10-03: **Approved por la usuaria** ("aprobadas", junto con SPEC-011 a SPEC-019). Los recorridos manuales en el teléfono se agrupan al final del lote.
 
 ## Review
 Informe del reviewer: pendiente.

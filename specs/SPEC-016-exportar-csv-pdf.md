@@ -1,7 +1,7 @@
 # SPEC-016: Exportar en CSV y PDF
 
 ## Status
-Draft
+Approved
 Path: Strict (crea archivos con datos de salud que la persona puede compartir fuera del dispositivo)
 
 ## Objective
@@ -90,6 +90,7 @@ nutricionista.
 
 ## Change Log
 - 2026-10-03: creación a partir de T-017 y del diseño "kcalcula ia UI".
+- 2026-10-03: **Approved por la usuaria** ("aprobadas", junto con SPEC-011 a SPEC-019). Los recorridos manuales en el teléfono se agrupan al final del lote.
 
 ## Review
 Informe del reviewer: pendiente.

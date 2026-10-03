@@ -1,7 +1,7 @@
 # SPEC-014: Progreso
 
 ## Status
-Draft
+Approved
 Path: Strict (cálculos nuevos en `packages/nutrition_core`: promedios y días en meta)
 
 ## Objective
@@ -80,6 +80,7 @@ Como persona que sigue un objetivo, quiero ver cómo me ha ido en promedio para 
 
 ## Change Log
 - 2026-10-03: creación a partir de T-015 y del diseño "kcalcula ia UI".
+- 2026-10-03: **Approved por la usuaria** ("aprobadas", junto con SPEC-011 a SPEC-019). Los recorridos manuales en el teléfono se agrupan al final del lote.
 
 ## Review
 Informe del reviewer: pendiente.

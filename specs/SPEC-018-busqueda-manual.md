@@ -1,7 +1,7 @@
 # SPEC-018: Búsqueda manual en el catálogo
 
 ## Status
-Draft
+Approved
 Path: Standard (búsqueda de solo lectura en el catálogo existente; la cantidad se resuelve con las
 reglas actuales de `nutrition_core`, sin cambiarlas)
 
@@ -77,6 +77,7 @@ cantidad, aunque la IA no me entienda.
 
 ## Change Log
 - 2026-10-03: creación a partir de T-019 y del diseño "kcalcula ia UI".
+- 2026-10-03: **Approved por la usuaria** ("aprobadas", junto con SPEC-011 a SPEC-019). Los recorridos manuales en el teléfono se agrupan al final del lote.
 
 ## Review
 Informe del reviewer: pendiente.

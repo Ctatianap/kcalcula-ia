@@ -1,7 +1,7 @@
 # SPEC-013: Historial (calendario)
 
 ## Status
-Draft
+Approved
 Path: Standard (lectura y presentación; usa la regla de estado de SPEC-011 sin cambiarla)
 
 ## Objective
@@ -75,6 +75,7 @@ qué comí cada día.
 
 ## Change Log
 - 2026-10-03: creación a partir de T-014 y del diseño "kcalcula ia UI".
+- 2026-10-03: **Approved por la usuaria** ("aprobadas", junto con SPEC-011 a SPEC-019). Los recorridos manuales en el teléfono se agrupan al final del lote.
 
 ## Review
 Informe del reviewer: pendiente.

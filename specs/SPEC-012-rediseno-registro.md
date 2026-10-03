@@ -1,7 +1,7 @@
 # SPEC-012: Rediseño del flujo de registro
 
 ## Status
-Draft
+Approved
 Path: Standard (presentación y flujo; no cambia prompts, esquemas de IA, cálculos ni datos que salen
 del dispositivo)
 
@@ -102,6 +102,7 @@ deje corregir antes de guardar.
 
 ## Change Log
 - 2026-10-03: creación a partir de T-013 y del diseño "kcalcula ia UI".
+- 2026-10-03: **Approved por la usuaria** ("aprobadas", junto con SPEC-011 a SPEC-019). Los recorridos manuales en el teléfono se agrupan al final del lote.
 
 ## Review
 Informe del reviewer: pendiente.

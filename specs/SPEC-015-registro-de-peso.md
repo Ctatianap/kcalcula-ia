@@ -1,7 +1,7 @@
 # SPEC-015: Registro de peso y tendencia
 
 ## Status
-Draft
+Approved
 Path: Strict (dato personal de salud nuevo, con historial, guardado en el dispositivo)
 
 ## Objective
@@ -86,6 +86,7 @@ o se mantiene.
 
 ## Change Log
 - 2026-10-03: creación a partir de T-016 y del diseño "kcalcula ia UI".
+- 2026-10-03: **Approved por la usuaria** ("aprobadas", junto con SPEC-011 a SPEC-019). Los recorridos manuales en el teléfono se agrupan al final del lote.
 
 ## Review
 Informe del reviewer: pendiente.

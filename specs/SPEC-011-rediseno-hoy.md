@@ -1,7 +1,7 @@
 # SPEC-011: Rediseño de "Hoy"
 
 ## Status
-Draft
+Approved
 Path: Strict (agrega a `packages/nutrition_core` la regla del estado del día frente a la meta)
 
 ## Objective
@@ -102,6 +102,7 @@ cómo voy en macros y cómo me fue los días anteriores de la semana.
 
 ## Change Log
 - 2026-10-03: creación a partir de T-012 y del diseño "kcalcula ia UI".
+- 2026-10-03: **Approved por la usuaria** ("aprobadas", junto con SPEC-011 a SPEC-019). Los recorridos manuales en el teléfono se agrupan al final del lote.
 
 ## Review
 Informe del reviewer: pendiente.
