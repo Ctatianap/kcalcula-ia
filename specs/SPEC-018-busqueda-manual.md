@@ -49,8 +49,8 @@ cantidad, aunque la IA no me entienda.
 
 ## Components / Files Affected
 - `app/lib/infra/catalog/catalog_repository.dart` (`search(query, limit)`).
-- `app/lib/features/review/` (búsqueda, cantidad, "Añadir"), `app/lib/features/capture/` (botón del
-  error).
+- `app/lib/features/review/` (búsqueda, cantidad, "Añadir" y el botón del error, que vive en
+  `meal_analysis_screen.dart` desde SPEC-012).
 
 ## Dependencies
 - SPEC-012.
@@ -110,6 +110,21 @@ Edge cases: tildes y mayúsculas, caracteres de FTS, desde 2 letras y con límit
   - La pantalla de error pasó a desplazamiento no perezoso (con el botón nuevo, "Volver" quedaba
     fuera de la vista en pantallas bajas).
   Status → Review.
+- 2026-10-03: reviewer **PASS** (commit e220c05; app 295/295), sin BLOCKER ni MAJOR. MINOR atendidos
+  antes de fusionar:
+  - accesibilidad: el campo tiene etiqueta ("Alimento") y los mensajes "Escribe al menos 2 letras."
+    y "No encontré ese alimento…" se anuncian (`liveRegion`);
+  - una sola regla de "2 letras" (`isSearchableQuery`: letras o números, sin espacios ni signos)
+    para la pantalla, el resolver y el catálogo; "a." muestra "Escribe al menos 2 letras.";
+  - orden alfabético sin tildes ("Ñame" junto a la n), con test;
+  - los resultados se calculan al escribir, no en cada `build`;
+  - se quitaron dos getters sin uso de `ReviewController`; "Components / Files Affected" corregido.
+  - Al backlog: `_normalize` no convierte "ü" (igual que `resolve`).
+  Fusionada en `develop` por la autorización única de la usuaria. Sigue en Review hasta el
+  recorrido manual en el teléfono.
 
 ## Review
-Informe del reviewer: pendiente.
+Informe del reviewer (2026-10-03, commit e220c05): **PASS**. AC1–AC6 con evidencia
+(`catalog_search_test.dart`, `manual_quantity_test.dart`, `food_search_flow_test.dart`); sin IA;
+gramos con `resolveGrams` y confianza con `itemConfidence` (sin reglas nuevas); consulta FTS
+parametrizada y con términos citados; catálogo real sin cambios. MINOR atendidos (ver Change Log).

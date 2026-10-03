@@ -186,6 +186,13 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     (hallazgo MINOR del reviewer de SPEC-016). Verificar en el teléfono antes de cambiarlo.
   dependencies: [T-017]
   spec_required: false
+- id: T-024
+  title: Normalizar "ü" en la búsqueda y la resolución
+  objective: >
+    `_normalize` (catálogo y resolver) quita tildes y "ñ" pero no "ü": "pingüino" se parte en dos
+    términos de FTS (hallazgo MINOR del reviewer de SPEC-018).
+  dependencies: [T-019]
+  spec_required: false
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
 - id: F3

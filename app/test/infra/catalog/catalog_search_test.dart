@@ -1,3 +1,4 @@
+import 'package:calorias_ia/infra/catalog/catalog_repository.dart';
 import 'package:calorias_ia/infra/food_resolution/food_query_resolver.dart';
 import 'package:calorias_ia/infra/storage/app_database.dart';
 import 'package:drift/native.dart';
@@ -65,5 +66,22 @@ void main() {
     expect(hits.first.id, 'personal:$id');
     expect(hits.first.energyKcal100g, 250);
     expect(hits.map((h) => h.nameEs), contains('Arepa'));
+  });
+
+  test('una sola regla de "2 letras": sin contar espacios ni signos', () {
+    expect(isSearchableQuery('a.'), isFalse);
+    expect(isSearchableQuery(' a '), isFalse);
+    expect(isSearchableQuery('ñu'), isTrue);
+    expect(isSearchableQuery('té'), isTrue);
+  });
+
+  test('orden alfabético sin tildes ("Ñame" junto a la n, no al final)', () {
+    final catalog = buildFixtureCatalog();
+    addTearDown(catalog.close);
+    expect(catalog.search('cocid').map((h) => h.nameEs), [
+      'Ahuyama cocida',
+      'Ñame cocido',
+      'Papa cocida',
+    ]);
   });
 }

@@ -101,11 +101,6 @@ class ReviewController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Para la búsqueda manual dentro del detalle (mismo resolver).
-  FoodQueryResolver get resolver => _resolver;
-
-  Map<QuantityUnit, double> get householdUnitMlByUnit => _householdUnits;
-
   /// Resolución de cada ítem contra el catálogo y los productos personales,
   /// sin cálculo.
   static List<FoodMatchResult> resolveAll(

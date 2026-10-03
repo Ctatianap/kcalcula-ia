@@ -58,6 +58,8 @@ void main() {
   ) async {
     await _openDetail(tester);
     await _openSearchFromDetail(tester);
+    await _search(tester, 'a.');
+    expect(find.text('Escribe al menos 2 letras.'), findsOneWidget);
     await _search(tester, 'chontaduro');
     expect(find.text(noSearchResultsMessage), findsOneWidget);
     expect(find.textContaining('Crear'), findsNothing);

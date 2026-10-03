@@ -129,8 +129,8 @@ class FoodQueryResolver {
   /// SPEC-018 R1/AC6: catálogo y productos personales (por nombre), hasta
   /// [limit] en total; los productos personales van primero.
   List<FoodSearchHit> search(String query, {int limit = 20}) {
+    if (!isSearchableQuery(query)) return const [];
     final normalized = _normalize(query);
-    if (normalized.length < 2) return const [];
     final personal = _personalProducts
         .where((p) => _normalize(p.nameEs).contains(normalized))
         .map(

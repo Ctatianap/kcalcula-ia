@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../infra/catalog/catalog_providers.dart';
+import '../../infra/catalog/catalog_repository.dart' show isSearchableQuery;
 import '../../infra/catalog/food_match_result.dart';
 import '../../infra/food_resolution/food_query_resolver.dart';
 import '../../infra/food_resolution/meal_draft.dart';
@@ -38,6 +39,18 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
   FoodQueryResolver? _resolver;
   bool _loadFailed = false;
 
+  /// Resultados calculados al escribir, no en cada `build`.
+  List<FoodSearchHit> _hits = const [];
+
+  void _search() {
+    final resolver = _resolver;
+    setState(
+      () => _hits = resolver == null
+          ? const []
+          : resolver.search(_query.text.trim()),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -57,6 +70,7 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
           personalProducts: products,
         );
       });
+      _search();
     } catch (_) {
       // SPEC-009: sin el texto de SQLite.
       if (mounted) setState(() => _loadFailed = true);
@@ -86,11 +100,8 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final resolver = _resolver;
     final query = _query.text.trim();
-    final hits = resolver == null
-        ? const <FoodSearchHit>[]
-        : resolver.search(query);
+    final hits = _hits;
     return Scaffold(
       appBar: AppBar(title: const Text('Buscar alimento')),
       body: _loadFailed
@@ -114,25 +125,33 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
                     autofocus: true,
                     textInputAction: TextInputAction.search,
                     decoration: const InputDecoration(
+                      labelText: 'Alimento',
                       hintText: 'Ej: arepa, tinto, pollo',
                       prefixIcon: Icon(Icons.search),
                     ),
-                    onChanged: (_) => setState(() {}),
+                    onChanged: (_) => _search(),
                   ),
                 ),
                 Expanded(
-                  child: query.length < 2
-                      ? const Padding(
-                          padding: EdgeInsets.all(20),
-                          child: Text(
-                            'Escribe al menos 2 letras.',
-                            style: TextStyle(color: KColors.textSecondary),
+                  child: !isSearchableQuery(query)
+                      ? Padding(
+                          padding: const EdgeInsets.all(20),
+                          // El lector de pantalla anuncia los cambios.
+                          child: Semantics(
+                            liveRegion: true,
+                            child: const Text(
+                              'Escribe al menos 2 letras.',
+                              style: TextStyle(color: KColors.textSecondary),
+                            ),
                           ),
                         )
                       : hits.isEmpty
-                      ? const Padding(
-                          padding: EdgeInsets.all(20),
-                          child: Text(noSearchResultsMessage),
+                      ? Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Semantics(
+                            liveRegion: true,
+                            child: const Text(noSearchResultsMessage),
+                          ),
                         )
                       : ListView.builder(
                           itemCount: hits.length,
