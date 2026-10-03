@@ -68,7 +68,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('¿Qué comiste?'), findsWidgets);
 
-    await tester.pageBack();
+    // La app está en es-CO: `pageBack` busca el tooltip "Back".
+    await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('nav-Progreso')));
     await tester.pumpAndSettle();

@@ -1,4 +1,4 @@
-export '../../ui/date_format_es.dart';
+export '../../format/date_format_es.dart';
 
 /// SPEC-011 R1: saludo según la hora local.
 String greetingFor(DateTime now) {

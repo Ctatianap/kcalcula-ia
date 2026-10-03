@@ -38,6 +38,7 @@ flowchart TD
 | `app/infra/ai_client` | Llamadas callable a `parseMeal` y `extractLabel` con App Check; mapeo de errores | Lógica de negocio |
 | `app/infra/catalog` | Consultas a `catalog.db` (FTS5), candidatos de alimentos y porciones | Calcular |
 | `app/infra/storage` | `user.db` con Drift: comidas, ítems, productos personales | — |
+| `app/infra/export` | SPEC-016: CSV (`;`, coma decimal, BOM), resumen PDF (librería `pdf`, Outfit embebida) y JSON; los escribe en el directorio temporal y los entrega al share sheet | Enviar archivos por su cuenta; calcular (promedios de `nutrition_core`) |
 | `packages/nutrition_core` | Unidades, resolución de cantidades a gramos, cálculo, confianza, validación de etiquetas | E/S, red, Flutter |
 | `functions/` | Validar entrada, aplicar prompt versionado, llamar al proveedor, validar salida | Persistir datos, registrar contenido, calcular nutrientes |
 | `data/build_catalog` | Generar `catalog.db` desde fuentes y CSV curados | Ejecutarse en la app |

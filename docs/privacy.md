@@ -21,7 +21,7 @@ Estado: borrador técnico. **Requiere revisión legal antes de publicar** (no es
 | Foto de etiqueta | Memoria / galería del usuario | Depende del proveedor de IA configurado (SPEC-004): con `AI_PROVIDER=ollama` (desarrollo, ver `docs/decisions/ADR-002-ia-local-vs-vertex.md`) la imagen se procesa en la máquina local y **no sale del dispositivo de desarrollo**; con `AI_PROVIDER=vertex` (producción) sí sale, igual que el texto | Cloud Function → proveedor de IA configurado (Vertex AI en producción) | Igual que el texto. La imagen se redimensiona/comprime en el dispositivo antes de enviarse (máx. ~1600 px, JPEG ~85 %); el backend nunca la guarda ni la registra (invariante 5), solo metadatos |
 | Token de App Check | Dispositivo | Sí | Firebase | Gestionado por Google |
 | Metadatos técnicos (latencia, tokens, códigos de error) | Cloud Logging | — | Google Cloud | Retención por defecto de Cloud Logging, POR VERIFICAR |
-| Exportación de datos del usuario (SPEC-006, JSON con comidas, productos personales, perfil y meta —SPEC-008— e historial de peso —SPEC-015—) | Archivo temporal en el dispositivo | Solo si el usuario decide compartirlo | El usuario elige el destino en el share sheet del sistema operativo — la app arma el archivo localmente y nunca lo transmite por su cuenta a ningún servidor propio ni de terceros | Archivo temporal; no es `user.db` ni un backup automático |
+| Exportación de datos del usuario (SPEC-006, JSON con comidas, productos personales, perfil y meta —SPEC-008— e historial de peso —SPEC-015—; SPEC-016: también CSV —una fila por alimento, con `source_ref`— y PDF —meta, promedios, días en meta, peso del periodo y comidas por día; **sin** fecha de nacimiento, sexo, estatura ni mantenimiento medido—, filtrables por periodo) | Archivo temporal en el dispositivo (generado localmente; el PDF con la librería `pdf`, sin red) | Solo si el usuario decide compartirlo | El usuario elige el destino en el share sheet del sistema operativo — la app arma el archivo localmente y nunca lo transmite por su cuenta a ningún servidor propio ni de terceros | Archivo temporal; no es `user.db` ni un backup automático |
 | Reporte de fallos (SPEC-007, Firebase Crashlytics) | Memoria, solo cuando ocurre un error no controlado | Sí, si el usuario aceptó la versión vigente de la política | Firebase Crashlytics (Google), fuera de Colombia | Retención por defecto de Crashlytics, POR VERIFICAR. **Nunca** incluye texto de comidas, nombres de producto, fotos ni rutas de archivos exportados — solo stack trace, versión de la app y metadata técnica del dispositivo. La recolección arranca desactivada y solo se activa tras confirmar consentimiento vigente (`ConsentRecord.policyVersion` == versión actual); se desactiva de nuevo al revocar el consentimiento. Los errores de `user.db` se envían **saneados** (SPEC-009): solo el tipo de error y el código de SQLite, nunca el mensaje, que trae la sentencia y sus parámetros (alimentos, cantidades, perfil). |
 
 ## Controles
@@ -42,7 +42,8 @@ existen en la app:
   meta y el historial de peso de `user.db`).
 - "Revocar consentimiento" en Ajustes, separado de borrar datos (Ley 1581 Art. 8) — re-bloquea la
   app hasta volver a aceptar, sin borrar los datos ya guardados.
-- "Exportar mis datos" en Ajustes: JSON local entregado al share sheet del sistema operativo — ver
+- "Exportar mis datos" en Ajustes (pantalla propia desde SPEC-016): CSV, PDF o JSON local entregado
+  al share sheet del sistema operativo — ver
   fila nueva del inventario arriba.
 - Borrador de política de privacidad completo, en español, accesible desde el onboarding y desde
   Ajustes (`app/assets/legal/privacy_policy_draft_es.md`).

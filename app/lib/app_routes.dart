@@ -15,6 +15,9 @@ abstract class AppRoutes {
   static const profile = '/profile';
   static const objective = '/objective';
 
+  /// SPEC-016: "Exportar mis datos" (CSV, PDF o JSON).
+  static const export = '/export';
+
   /// SPEC-010: "Hoy" ya pasado el control de consentimiento (`/` lo hace
   /// al arrancar). Las pestañas y el regreso tras registrar usan esta ruta.
   static const today = '/today';

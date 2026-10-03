@@ -1,6 +1,7 @@
-/// Fechas y etiquetas en es-CO compartidas por varias pantallas (sin
-/// depender de `intl`). Vive en `ui/` porque las features no se importan
-/// entre sí.
+/// Fechas y etiquetas en es-CO compartidas por varias pantallas y por
+/// `infra/export` (sin depender de `intl` ni de Flutter). Vive en `format/`,
+/// un módulo neutral, porque las features no se importan entre sí e `infra/`
+/// no depende de `ui/`.
 library;
 
 const weekdaysEs = [

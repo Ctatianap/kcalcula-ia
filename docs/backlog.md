@@ -170,6 +170,22 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   dependencies: [T-011]
   spec_required: false
   status: done  # hecho en la rama de SPEC-013 (el Historial lo mostraba con texto ×2); test en main_nav_test.dart
+- id: T-022
+  title: Borrar exportaciones temporales anteriores
+  objective: >
+    Los archivos de "Exportar mis datos" (JSON, CSV, PDF, con datos de salud) se quedan en el
+    directorio temporal después de compartirlos. Borrar los anteriores al empezar una exportación
+    nueva (hallazgo MINOR del reviewer de SPEC-016).
+  dependencies: [T-017]
+  spec_required: false
+- id: T-023
+  title: Idioma español declarado en iOS
+  objective: >
+    `ios/Runner/Info.plist` no declara `CFBundleLocalizations` (es). Material ya está en es-CO
+    (SPEC-016), pero los textos del sistema de iOS podrían seguir el idioma de desarrollo
+    (hallazgo MINOR del reviewer de SPEC-016). Verificar en el teléfono antes de cambiarlo.
+  dependencies: [T-017]
+  spec_required: false
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
 - id: F3
