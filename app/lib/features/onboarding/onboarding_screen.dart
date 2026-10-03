@@ -9,6 +9,10 @@ import 'onboarding_controller.dart';
 /// un `ConsentRecord` en `user.db` (ver `_RootGate` en `app.dart`). AC12: el
 /// texto de la casilla (b) nombra explícitamente el dato de salud, qué se
 /// envía, a quién y para qué — exigencia de PV-07 (Ley 1581 Art. 6-7).
+
+const acceptErrorMessage =
+    'No pude guardar tu consentimiento. Intenta de nuevo.';
+
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -19,6 +23,9 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   late final OnboardingController _controller;
   bool _accepting = false;
+
+  /// SPEC-009: fallo al guardar el consentimiento, con mensaje en español.
+  String? _acceptError;
 
   @override
   void initState() {
@@ -35,9 +42,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Future<void> _accept() async {
-    setState(() => _accepting = true);
+    setState(() {
+      _accepting = true;
+      _acceptError = null;
+    });
     try {
-      await _controller.accept();
+      try {
+        await _controller.accept();
+      } catch (_) {
+        if (mounted) setState(() => _acceptError = acceptErrorMessage);
+        return;
+      }
       if (!mounted) return;
       Navigator.of(context).pushReplacementNamed(AppRoutes.diary);
     } finally {
@@ -109,6 +124,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
+                if (_acceptError != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      _acceptError!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  ),
                 FilledButton(
                   onPressed: (_controller.canContinue && !_accepting)
                       ? _accept

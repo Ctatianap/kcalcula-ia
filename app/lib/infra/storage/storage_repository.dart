@@ -3,7 +3,8 @@ import 'package:drift/drift.dart';
 import 'app_database.dart';
 
 // SPEC-008: las features leen la meta sin depender de Drift directamente.
-export 'app_database.dart' show NutritionGoal, UserProfileData;
+export 'app_database.dart'
+    show ConsentRecordData, NutritionGoal, PersonalProduct, UserProfileData;
 
 /// Ítem ya calculado y confirmado por el usuario, listo para registrar
 /// (R11). Exactamente uno de `foodId`/`personalProductId` no es `null`

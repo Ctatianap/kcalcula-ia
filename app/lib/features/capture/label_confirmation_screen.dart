@@ -10,6 +10,10 @@ import 'label_confirmation_controller.dart';
 /// SPEC-004 R3, R4: pantalla de confirmación de una etiqueta transcrita.
 /// Todos los valores son editables; si Atwater falla, exige confirmación
 /// explícita (AC3) antes de poder guardar.
+
+const saveProductErrorMessage =
+    'No pude guardar el producto. Intenta de nuevo.';
+
 class LabelConfirmationScreen extends ConsumerStatefulWidget {
   final LabelExtractionDto extraction;
 
@@ -24,6 +28,9 @@ class _LabelConfirmationScreenState
     extends ConsumerState<LabelConfirmationScreen> {
   late LabelConfirmationController _controller;
   bool _saving = false;
+
+  /// SPEC-009 R3: fallo al guardar en `user.db`, sin el texto técnico.
+  String? _saveError;
 
   late final _nameController = TextEditingController();
   late final _servingController = TextEditingController();
@@ -74,9 +81,19 @@ class _LabelConfirmationScreenState
   }
 
   Future<void> _save() async {
-    setState(() => _saving = true);
+    setState(() {
+      _saving = true;
+      _saveError = null;
+    });
     try {
-      final productName = await _controller.save();
+      final String productName;
+      try {
+        productName = await _controller.save();
+      } catch (_) {
+        // R3: no se relanza; el texto de SQLite trae la etiqueta.
+        if (mounted) setState(() => _saveError = saveProductErrorMessage);
+        return;
+      }
       if (!mounted) return;
       // Mismo pipeline que texto/voz (R8): un ParsedMealDto de un solo
       // ítem con food_query = nombre exacto del producto recién guardado
@@ -231,6 +248,16 @@ class _LabelConfirmationScreenState
                 onChanged: (v) => _controller.setConsumedQuantity(v ?? 0),
               ),
               const SizedBox(height: 16),
+              if (_saveError != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    _saveError!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ),
               FilledButton(
                 onPressed: (_controller.canSave && !_saving) ? _save : null,
                 child: _saving

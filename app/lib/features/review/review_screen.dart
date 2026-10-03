@@ -7,6 +7,7 @@ import '../../infra/ai_client/parsed_meal_dto.dart';
 import '../../infra/catalog/catalog_providers.dart';
 import '../../infra/food_resolution/food_query_resolver.dart';
 import '../../infra/storage/storage_providers.dart';
+import '../../infra/storage/storage_repository.dart';
 import 'review_controller.dart';
 import 'review_item.dart';
 
@@ -25,6 +26,9 @@ const _mealTypeLabels = {
   'snack': 'Snack',
 };
 
+const registerErrorMessage = 'No pude guardar la comida. Intenta de nuevo.';
+const readErrorMessage = 'No pude leer tus datos. Intenta de nuevo.';
+
 class ReviewScreen extends ConsumerStatefulWidget {
   final ParsedMealDto parsedMeal;
 
@@ -35,6 +39,12 @@ class ReviewScreen extends ConsumerStatefulWidget {
 }
 
 class _ReviewScreenState extends ConsumerState<ReviewScreen> {
+  // SPEC-009 R2/R4: errores de `user.db` con mensaje en español, sin
+  // relanzar (el texto de SQLite trae los datos de la comida).
+  bool _loadFailed = false;
+  bool _registering = false;
+  String? _registerError;
+
   ReviewController? _controller;
 
   @override
@@ -49,8 +59,15 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
   /// siga siendo síncrono, igual que antes de esta SPEC.
   Future<void> _loadController() async {
     final storage = ref.read(storageRepositoryProvider);
-    final personalProducts = await storage.getAllPersonalProducts();
+    final List<PersonalProduct> personalProducts;
+    try {
+      personalProducts = await storage.getAllPersonalProducts();
+    } catch (_) {
+      if (mounted) setState(() => _loadFailed = true);
+      return;
+    }
     if (!mounted) return;
+    _loadFailed = false;
     setState(() {
       _controller = ReviewController(
         parsedMeal: widget.parsedMeal,
@@ -70,7 +87,21 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
   }
 
   Future<void> _register() async {
-    await _controller!.register();
+    setState(() {
+      _registering = true;
+      _registerError = null;
+    });
+    try {
+      await _controller!.register();
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _registering = false;
+          _registerError = registerErrorMessage;
+        });
+      }
+      return;
+    }
     // Vuelve al diario (no solo a capturar): captura y revisión son un
     // flujo de una sola pasada, no una pila que el usuario recorra hacia
     // atrás ítem por ítem.
@@ -85,7 +116,23 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
     final controller = _controller;
     return Scaffold(
       appBar: AppBar(title: const Text('Revisar')),
-      body: controller == null
+      body: _loadFailed
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(readErrorMessage),
+                  TextButton(
+                    onPressed: () {
+                      setState(() => _loadFailed = false);
+                      _loadController();
+                    },
+                    child: const Text('Reintentar'),
+                  ),
+                ],
+              ),
+            )
+          : controller == null
           ? const Center(child: CircularProgressIndicator())
           : ListenableBuilder(
               listenable: controller,
@@ -113,9 +160,21 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
                         ),
                       ),
                     ),
+                    if (_registerError != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          _registerError!,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                      ),
                     _ReviewSummary(
                       controller: controller,
-                      onRegister: controller.canRegister ? _register : null,
+                      onRegister: controller.canRegister && !_registering
+                          ? _register
+                          : null,
                     ),
                   ],
                 );
