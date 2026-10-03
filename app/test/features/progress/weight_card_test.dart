@@ -65,6 +65,52 @@ void main() {
     expect(weightChangeText(0.3), '+0,3 kg esta semana');
     expect(weightChangeText(0.04), 'sin cambios');
     expect(formatKg(62), '62,0 kg');
+    expect(weightChangeSemantics(-0.4), 'Bajaste 0,4 kg esta semana');
+    expect(weightChangeSemantics(0.3), 'Subiste 0,3 kg esta semana');
+  });
+
+  testWidgets('si el último registro tiene más de 7 días, se muestra su '
+      'fecha y no "esta semana"', (tester) async {
+    await _pump(
+      tester,
+      seed: (repo) async {
+        await repo.logWeight(day: DateTime(2026, 8, 20), kg: 63.0);
+        await repo.logWeight(day: DateTime(2026, 8, 27), kg: 62.5);
+      },
+    );
+    expect(find.byKey(const Key('weight-change')), findsNothing);
+    expect(find.text('Último registro: jueves 27 de agosto'), findsOneWidget);
+  });
+
+  testWidgets('accesibilidad: "Peso" es encabezado, el cambio se lee con '
+      'palabras y el gráfico con un resumen', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await _pump(
+      tester,
+      seed: (repo) async {
+        await repo.logWeight(day: DateTime(2026, 9, 26), kg: 62.4);
+        await repo.logWeight(day: DateTime(2026, 10, 3), kg: 62.0);
+      },
+    );
+    expect(
+      tester
+          .getSemantics(find.text('Peso'))
+          .getSemanticsData()
+          .flagsCollection
+          .isHeader,
+      isTrue,
+    );
+    expect(find.bySemanticsLabel('Bajaste 0,4 kg esta semana'), findsOneWidget);
+    await tester.tap(find.text('Mes'));
+    await tester.pumpAndSettle();
+    expect(
+      find.bySemanticsLabel(
+        'Gráfico de peso con 2 registros: de 62,4 kg el 26 de septiembre a '
+        '62,0 kg el 3 de octubre; mínimo 62,0 kg, máximo 62,4 kg.',
+      ),
+      findsOneWidget,
+    );
+    semantics.dispose();
   });
 
   testWidgets('AC1: 62,0 hoy y 62,4 hace 7 días → "62,0 kg" y "−0,4 kg esta '
@@ -179,6 +225,25 @@ void main() {
         child: const MaterialApp(home: ProgressScreen()),
       ),
     );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    // Gráfico en "Mes", diálogo y confirmación de borrado.
+    await tester.tap(find.text('Mes'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('weight-chart')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.ensureVisible(find.text('Anotar peso'));
+    await tester.tap(find.text('Anotar peso'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('weight-input')), '29');
+    await tester.tap(find.text('Guardar'));
+    await tester.pumpAndSettle();
+    expect(find.text(weightRangeMessage), findsOneWidget);
+    await tester.tap(find.text('Cancelar'));
+    await tester.pumpAndSettle();
+    final delete = find.byKey(const Key('weight-delete-3-10'));
+    await tester.ensureVisible(delete);
+    await tester.tap(delete);
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });

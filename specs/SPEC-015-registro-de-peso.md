@@ -123,6 +123,28 @@ el teléfono y ver la tendencia (usuaria).
   - Política v4 (nueva sección "Tu historial de peso") y el texto de confirmación de "Borrar todos
     mis datos" ahora nombra perfil, meta e historial de peso.
   Status → Review.
+- 2026-10-03: reviewer **PASS** (commit 8a84ba8; nutrition_core 91/91, app 248/248), sin BLOCKER ni
+  MAJOR. MINOR atendidos antes de fusionar:
+  - si el último registro tiene más de 7 días frente a hoy, la tarjeta muestra "Último registro:
+    <fecha>" en lugar de "… esta semana" (test);
+  - accesibilidad: "Peso" es encabezado, el cambio se lee con palabras ("Bajaste 0,4 kg esta
+    semana") y el gráfico con un resumen (registros, primero, último, mínimo y máximo); el detalle
+    queda en la lista accesible (test);
+  - diálogos con contenido desplazable: con texto ×2 el de "Anotar peso" se desbordaba 8 px; el test
+    de texto grande ahora cubre el gráfico en "Mes", el diálogo y la confirmación de borrado;
+  - `mounted` antes de cada mensaje que sigue a un `await`;
+  - `docs/privacy.md`: la fila de exportación nombra perfil, meta e historial de peso.
+  - **Decisión de producto para que la usuaria la confirme en el recorrido:** la referencia del
+    cambio se busca solo entre 1 y 14 días antes del último registro (más atrás no es "esta
+    semana").
+  - Aceptado: el recálculo de la meta vive en `infra/storage/goal_sync.dart`; si crece, irá a un
+    módulo de dominio compartido.
+  Fusionada en `develop` por la autorización única de la usuaria (incluidas las Strict). Sigue en
+  Review hasta el recorrido manual en el teléfono.
 
 ## Review
-Informe del reviewer: pendiente.
+Informe del reviewer (2026-10-03, commit 8a84ba8): **PASS**. AC1–AC7 con evidencia
+(`weight_trend_test.dart`, `weight_log_storage_test.dart`, `weight_card_test.dart`, política y
+onboarding); AC3 verificado como una sola transacción con rollback real; migración v6→v7 aditiva;
+privacidad y política v4 actualizadas, sin datos nuevos fuera del dispositivo. MINOR atendidos (ver
+Change Log).

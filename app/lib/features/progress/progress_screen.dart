@@ -69,10 +69,12 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
       final goalNotRecalculated = await ref
           .read(storageRepositoryProvider)
           .logWeight(day: ref.read(clockProvider)(), kg: kg);
-      if (goalNotRecalculated) _showMessage(weightGoalNotRecalculatedMessage);
+      if (goalNotRecalculated && mounted) {
+        _showMessage(weightGoalNotRecalculatedMessage);
+      }
     } catch (_) {
       // SPEC-009: sin relanzar (el texto de SQLite trae el peso).
-      _showMessage(weightSaveErrorMessage);
+      if (mounted) _showMessage(weightSaveErrorMessage);
       return;
     }
     if (mounted) setState(_load);
@@ -83,6 +85,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
+        scrollable: true,
         title: const Text('Borrar registro'),
         content: Text(
           '¿Borrar el peso del ${longDateEs(entry.date)} '
@@ -105,9 +108,11 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
       final goalNotRecalculated = await ref
           .read(storageRepositoryProvider)
           .deleteWeight(day: entry.date, today: ref.read(clockProvider)());
-      if (goalNotRecalculated) _showMessage(weightGoalNotRecalculatedMessage);
+      if (goalNotRecalculated && mounted) {
+        _showMessage(weightGoalNotRecalculatedMessage);
+      }
     } catch (_) {
-      _showMessage(weightDeleteErrorMessage);
+      if (mounted) _showMessage(weightDeleteErrorMessage);
       return;
     }
     if (mounted) setState(_load);
@@ -177,6 +182,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                       WeightCard(
                         allWeights: data.weights,
                         periodWeights: data.periodWeights,
+                        today: data.today,
                         onLogWeight: () => _logWeight(data.weights),
                         onDelete: _deleteWeight,
                       ),

@@ -25,6 +25,14 @@ String weightChangeText(double change) {
   return '$sign${formatMacroEs(rounded.abs())} kg esta semana';
 }
 
+/// Lectura para el lector de pantalla, sin depender de cómo pronuncie "−".
+String weightChangeSemantics(double change) {
+  final rounded = presentMacro(change);
+  if (rounded == 0) return 'Sin cambios esta semana';
+  final verb = rounded < 0 ? 'Bajaste' : 'Subiste';
+  return '$verb ${formatMacroEs(rounded.abs())} kg esta semana';
+}
+
 /// SPEC-015 R2: `null` si el texto no es un peso válido (30–300 kg, un
 /// decimal).
 double? parseWeightKg(String text) {
@@ -76,6 +84,8 @@ class _LogWeightDialogState extends State<_LogWeightDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      // Con texto grande el contenido se desplaza en vez de desbordarse.
+      scrollable: true,
       title: const Text('Anotar peso'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -116,6 +126,10 @@ class _LogWeightDialogState extends State<_LogWeightDialog> {
 class WeightCard extends StatelessWidget {
   final List<WeightEntry> allWeights;
   final List<WeightEntry> periodWeights;
+
+  /// Si el último registro tiene más de 7 días, "esta semana" ya no aplica:
+  /// se muestra su fecha en lugar del cambio.
+  final DateTime today;
   final VoidCallback onLogWeight;
   final ValueChanged<WeightEntry> onDelete;
 
@@ -123,6 +137,7 @@ class WeightCard extends StatelessWidget {
     super.key,
     required this.allWeights,
     required this.periodWeights,
+    required this.today,
     required this.onLogWeight,
     required this.onDelete,
   });
@@ -132,14 +147,17 @@ class WeightCard extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     const secondary = TextStyle(fontSize: 14, color: KColors.textSecondary);
     final latest = latestWeight(allWeights);
-    final change = weeklyWeightChange(allWeights);
+    final latestIsRecent =
+        latest != null &&
+        !latest.date.isBefore(DateTime(today.year, today.month, today.day - 7));
+    final change = latestIsRecent ? weeklyWeightChange(allWeights) : null;
     return KCard(
       radius: 28,
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Peso', style: text.titleMedium),
+          Semantics(header: true, child: Text('Peso', style: text.titleMedium)),
           const SizedBox(height: 4),
           if (latest == null)
             const Text('Todavía no anotas tu peso.', style: secondary)
@@ -150,9 +168,19 @@ class WeightCard extends StatelessWidget {
               style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w300),
             ),
             if (change != null)
+              Semantics(
+                label: weightChangeSemantics(change),
+                excludeSemantics: true,
+                child: Text(
+                  weightChangeText(change),
+                  key: const Key('weight-change'),
+                  style: secondary,
+                ),
+              )
+            else if (!latestIsRecent)
               Text(
-                weightChangeText(change),
-                key: const Key('weight-change'),
+                'Último registro: ${longDateEs(latest.date)}',
+                key: const Key('weight-last-date'),
                 style: secondary,
               ),
           ],
@@ -203,16 +231,20 @@ class _WeightLineChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = entries
-        .map(
-          (e) =>
-              '${e.date.day} de ${monthsEs[e.date.month - 1]}: ${formatKg(e.kg)}',
-        )
-        .join(', ');
+    // Resumen corto: el detalle está en la lista "Registros del periodo".
+    String at(WeightEntry e) =>
+        '${formatKg(e.kg)} el ${e.date.day} de ${monthsEs[e.date.month - 1]}';
+    final kgs = entries.map((e) => e.kg);
+    final minKg = kgs.reduce((a, b) => a < b ? a : b);
+    final maxKg = kgs.reduce((a, b) => a > b ? a : b);
+    final label =
+        'Gráfico de peso con ${entries.length} registros: de '
+        '${at(entries.first)} a ${at(entries.last)}; mínimo '
+        '${formatKg(minKg)}, máximo ${formatKg(maxKg)}.';
     return Semantics(
       key: const Key('weight-chart'),
       container: true,
-      label: 'Peso en el periodo. $label',
+      label: label,
       excludeSemantics: true,
       child: SizedBox(
         height: 90,
