@@ -116,54 +116,54 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     Tema global del diseño (paleta, tipografía Outfit embebida, tarjetas, botones, anillos de progreso)
     y navegación inferior Hoy / Historial / Progreso con botón + para registrar.
   dependencies: [T-008]
-  spec_required: true
+  spec_required: true    # specs/SPEC-010-sistema-visual.md
 - id: T-012
   title: Rediseño de "Hoy"
   objective: Semana con anillos por día, anillo de kcal, anillos de macros y tarjetas por comida.
   dependencies: [T-011, T-009]
-  spec_required: true
+  spec_required: true    # specs/SPEC-011-rediseno-hoy.md
 - id: T-013
   title: Rediseño del flujo de registro
   objective: >
     ¿Qué comiste? con pestañas Foto/Texto/Voz; Analizando con pasos visibles y Cancelar; Detalle con
     tipo de comida y sello "Base verificada"; Error de la IA con consejos y Reintentar.
   dependencies: [T-011]
-  spec_required: true
+  spec_required: true    # specs/SPEC-012-rediseno-registro.md
 - id: T-014
   title: Historial (calendario)
   objective: Calendario del mes con el estado de cada día frente a la meta y el detalle del día elegido.
   dependencies: [T-011, T-009]
-  spec_required: true
+  spec_required: true    # specs/SPEC-013-historial.md
 - id: T-015
   title: Progreso
   objective: Promedios de kcal y macros por semana, mes y 3 meses; días en meta (cálculo en nutrition_core).
   dependencies: [T-011, T-009]
-  spec_required: true    # Strict (nutrition_core)
+  spec_required: true    # specs/SPEC-014-progreso.md — Strict (nutrition_core)
 - id: T-016
   title: Registro de peso y tendencia
   objective: Registrar el peso con historial y mostrar su tendencia en Progreso; el perfil usa el último.
   dependencies: [T-015]
-  spec_required: true    # Strict (dato de salud nuevo con historial)
+  spec_required: true    # specs/SPEC-015-registro-de-peso.md — Strict (dato de salud nuevo con historial)
 - id: T-017
   title: Exportar en CSV y PDF
   objective: Formatos CSV (hoja de cálculo) y PDF (resumen para la nutricionista), con filtro por periodo.
   dependencies: [T-011]
-  spec_required: true    # Strict (archivo que sale del teléfono por decisión del usuario)
+  spec_required: true    # specs/SPEC-016-exportar-csv-pdf.md — Strict (archivo que sale del teléfono por decisión del usuario)
 - id: T-018
   title: Comidas recientes
   objective: Repetir una comida registrada antes desde "¿Qué comiste?" (parte de F2).
   dependencies: [T-013]
-  spec_required: true
+  spec_required: true    # specs/SPEC-017-comidas-recientes.md
 - id: T-019
   title: Búsqueda manual en el catálogo
   objective: Buscar y añadir alimentos del catálogo sin IA (desde el error de la IA y "Añadir" ingrediente).
   dependencies: [T-013]
-  spec_required: true
+  spec_required: true    # specs/SPEC-018-busqueda-manual.md
 - id: T-020
   title: Racha de días registrados
   objective: Contador de días seguidos con registros, en tono neutro (opcional).
   dependencies: [T-012]
-  spec_required: true
+  spec_required: true    # specs/SPEC-019-racha.md
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
 - id: F3
