@@ -29,9 +29,13 @@ momento — solo pasa por él, de ida y de vuelta, sin quedarse con una copia. L
 quedar registrado, para poder detectar fallas técnicas, son datos como cuánto tardó la respuesta o
 si hubo un error — nunca el contenido de lo que enviaste.
 
-Ni tu voz (se transcribe en tu propio teléfono, sin pasar por nuestro servidor) ni tus datos ya
-registrados (comidas, productos guardados, tu meta diaria y los datos para calcularla) salen jamás
-de tu dispositivo por decisión de la app.
+Tu voz nunca pasa por nuestro servidor: la convierte en texto el reconocimiento de voz del propio
+sistema operativo de tu teléfono. En Android ese servicio puede procesar el audio en servidores de
+Google (sin conexión a internet no funciona); en iPhone puede procesarse en servidores de Apple.
+Eso depende del sistema operativo, no de esta app, y la app no guarda el audio.
+
+Tus datos ya registrados (comidas, productos guardados, tu meta diaria y los datos para calcularla)
+nunca salen de tu dispositivo por decisión de la app.
 
 ## Tu meta diaria (opcional)
 

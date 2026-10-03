@@ -228,7 +228,9 @@ y cuánto me queda.
 - OQ3. ✅ Resuelta (2026-10-02, decisión del usuario): la sugerencia incluye kcal, proteína,
   carbohidratos y grasa (R3).
 - OQ4. ✅ Resuelta (2026-10-02): kcal 800–6.000; proteína, carbohidratos y grasa 0–1.000 g; peso
-  30–300 kg; estatura 120–230 cm; edad 18–100 años. Son validaciones de entrada (que el valor sea
+  30–300 kg; estatura 120–230 cm; edad **19**–100 años para la sugerencia (cambio del
+  2026-10-02: las ecuaciones de adultos de la DRI 2023 son para 19 años o más). Con 18 años la
+  meta se escribe a mano y se muestra "La sugerencia está disponible desde los 19 años". Son validaciones de entrada (que el valor sea
   plausible), no recomendaciones. El aviso de meta baja es R13, aparte.
 - OQ5. ✅ Resuelta (2026-10-02): sí, "~" en el consumido si alguna comida del día no es "Alta
   precisión" (R6, AC12).
@@ -278,6 +280,11 @@ y cuánto me queda.
 - 2026-10-02: **Approved por el usuario** ("aprobada", en el chat). Status → Implementing. La
   verificación humana de OQ9 sigue pendiente: los coeficientes de la DRI 2023 y los valores de la
   Res. 3803 no se escriben en el código hasta que esté hecha.
+
+- 2026-10-02: al implementar se encontró un hueco: la DRI 2023 para adultos aplica desde los 19
+  años y OQ4 aceptaba 18. El usuario aprueba: sugerencia de 19 a 100 años; a los 18, meta manual
+  (OQ4 ajustada). También aprueba corregir en la política v3 la frase sobre la voz ("se transcribe
+  en tu propio teléfono"), que la medición de SPEC-002 mostró inexacta en Android.
 
 ## Review
 Informe del reviewer: pendiente.
