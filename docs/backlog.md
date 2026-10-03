@@ -164,6 +164,11 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   objective: Contador de días seguidos con registros, en tono neutro (opcional).
   dependencies: [T-012]
   spec_required: true    # specs/SPEC-019-racha.md
+- id: T-021
+  title: Barra inferior con texto muy grande
+  objective: Que la barra Hoy/Historial/Progreso no se desborde con escala de texto 3,0 en 360 px (hallazgo del reviewer de SPEC-011; hoy se desborda 29 px).
+  dependencies: [T-011]
+  spec_required: false
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
 - id: F3
