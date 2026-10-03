@@ -3,7 +3,7 @@ import 'package:drift/drift.dart';
 import 'app_database.dart';
 
 // SPEC-008: las features leen la meta sin depender de Drift directamente.
-export 'app_database.dart' show NutritionGoal, GoalEstimationInput;
+export 'app_database.dart' show NutritionGoal, UserProfileData;
 
 /// Ítem ya calculado y confirmado por el usuario, listo para registrar
 /// (R11). Exactamente uno de `foodId`/`personalProductId` no es `null`
@@ -44,6 +44,17 @@ class MealItemRecord {
     this.sizeInput,
   });
 }
+
+/// SPEC-008: valores de la meta a guardar (kcal y gramos sin redondear,
+/// calculados en `nutrition_core`).
+typedef NutritionGoalValues = ({
+  String objective,
+  bool isManual,
+  double energyKcal,
+  double proteinG,
+  double carbsG,
+  double fatG,
+});
 
 class StorageRepository {
   final AppDatabase _db;
@@ -187,65 +198,63 @@ class StorageRepository {
       await _db.delete(_db.meals).go();
       await _db.delete(_db.personalProducts).go();
       await _db.delete(_db.nutritionGoals).go();
-      await _db.delete(_db.goalEstimationInputs).go();
+      await _db.delete(_db.userProfile).go();
     });
   }
 
-  /// SPEC-008 R1/R8: meta diaria vigente, o `null` si no hay.
+  /// SPEC-008 R1: perfil, o `null` si no se ha completado.
+  Future<UserProfileData?> getUserProfile() =>
+      _db.select(_db.userProfile).getSingleOrNull();
+
+  /// SPEC-008 R1/R9: guarda el perfil y, si se pasa, la meta recalculada,
+  /// en una sola transacción (o se guardan los dos, o ninguno).
+  Future<void> saveUserProfile({
+    required String sex,
+    required DateTime birthDate,
+    required double heightCm,
+    required double weightKg,
+    required String activityLevel,
+    NutritionGoalValues? recalculatedGoal,
+  }) {
+    return _db.transaction(() async {
+      await _db
+          .into(_db.userProfile)
+          .insertOnConflictUpdate(
+            UserProfileCompanion.insert(
+              id: const Value(0),
+              sex: sex,
+              birthDate: birthDate,
+              heightCm: heightCm,
+              weightKg: weightKg,
+              activityLevel: activityLevel,
+              updatedAt: DateTime.now(),
+            ),
+          );
+      if (recalculatedGoal != null) await saveNutritionGoal(recalculatedGoal);
+    });
+  }
+
+  /// SPEC-008 R8/R11: meta diaria vigente, o `null` si no hay.
   Future<NutritionGoal?> getNutritionGoal() =>
       _db.select(_db.nutritionGoals).getSingleOrNull();
 
-  /// SPEC-008 R1: guarda (o reemplaza) la meta única.
-  Future<void> saveNutritionGoal({
-    required double energyKcal,
-    double? proteinG,
-    double? carbsG,
-    double? fatG,
-  }) {
+  /// SPEC-008 R8/R10: guarda (o reemplaza) la meta única.
+  Future<void> saveNutritionGoal(NutritionGoalValues goal) {
     return _db
         .into(_db.nutritionGoals)
         .insertOnConflictUpdate(
           NutritionGoalsCompanion.insert(
             id: const Value(0),
-            energyKcal: energyKcal,
-            proteinG: Value(proteinG),
-            carbsG: Value(carbsG),
-            fatG: Value(fatG),
+            objective: goal.objective,
+            isManual: goal.isManual,
+            energyKcal: goal.energyKcal,
+            proteinG: goal.proteinG,
+            carbsG: goal.carbsG,
+            fatG: goal.fatG,
             updatedAt: DateTime.now(),
           ),
         );
   }
-
-  /// SPEC-008 R2/R9: datos de la última sugerencia, o `null`.
-  Future<GoalEstimationInput?> getGoalEstimationInputs() =>
-      _db.select(_db.goalEstimationInputs).getSingleOrNull();
-
-  /// SPEC-008 R8: solo se llama si el usuario usó la sugerencia.
-  Future<void> saveGoalEstimationInputs({
-    required double weightKg,
-    required double heightCm,
-    required int ageYears,
-    required String sex,
-    required String activityLevel,
-  }) {
-    return _db
-        .into(_db.goalEstimationInputs)
-        .insertOnConflictUpdate(
-          GoalEstimationInputsCompanion.insert(
-            id: const Value(0),
-            weightKg: weightKg,
-            heightCm: heightCm,
-            ageYears: ageYears,
-            sex: sex,
-            activityLevel: activityLevel,
-            updatedAt: DateTime.now(),
-          ),
-        );
-  }
-
-  /// SPEC-008 R9: borra los datos de la sugerencia sin tocar la meta.
-  Future<void> deleteGoalEstimationInputs() =>
-      _db.delete(_db.goalEstimationInputs).go();
 
   /// R7/AC7-AC9: instantánea completa en una forma directamente serializable
   /// a JSON (solo tipos primitivos y `DateTime`, que quien llame convierte
@@ -285,7 +294,7 @@ class StorageRepository {
 
     final personalProducts = await getAllPersonalProducts();
     final goal = await getNutritionGoal();
-    final estimationInputs = await getGoalEstimationInputs();
+    final profile = await getUserProfile();
 
     return {
       'exportedAt': DateTime.now().toIso8601String(),
@@ -294,21 +303,23 @@ class StorageRepository {
       'nutritionGoal': goal == null
           ? null
           : {
+              'objective': goal.objective,
+              'isManual': goal.isManual,
               'energyKcal': goal.energyKcal,
               'proteinG': goal.proteinG,
               'carbsG': goal.carbsG,
               'fatG': goal.fatG,
               'updatedAt': goal.updatedAt.toIso8601String(),
             },
-      'goalEstimationInputs': estimationInputs == null
+      'userProfile': profile == null
           ? null
           : {
-              'weightKg': estimationInputs.weightKg,
-              'heightCm': estimationInputs.heightCm,
-              'ageYears': estimationInputs.ageYears,
-              'sex': estimationInputs.sex,
-              'activityLevel': estimationInputs.activityLevel,
-              'updatedAt': estimationInputs.updatedAt.toIso8601String(),
+              'sex': profile.sex,
+              'birthDate': profile.birthDate.toIso8601String(),
+              'heightCm': profile.heightCm,
+              'weightKg': profile.weightKg,
+              'activityLevel': profile.activityLevel,
+              'updatedAt': profile.updatedAt.toIso8601String(),
             },
       'personalProducts': personalProducts
           .map(

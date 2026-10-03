@@ -34,20 +34,19 @@ sistema operativo de tu teléfono. En Android ese servicio puede procesar el aud
 Google (sin conexión a internet no funciona); en iPhone puede procesarse en servidores de Apple.
 Eso depende del sistema operativo, no de esta app, y la app no guarda el audio.
 
-Tus datos ya registrados (comidas, productos guardados, tu meta diaria y los datos para calcularla)
+Tus datos ya registrados (comidas, productos guardados, tu perfil y tu meta diaria)
 nunca salen de tu dispositivo por decisión de la app.
 
-## Tu meta diaria (opcional)
+## Tu perfil y tu meta diaria (opcional)
 
-Si fijas una meta diaria de calorías, proteína, carbohidratos o grasa, se guarda solo en tu
-teléfono. Si le pides a la app que te **sugiera** una meta, te pediremos tu peso, estatura, edad,
-sexo y nivel de actividad física. Los usamos únicamente para hacer ese cálculo, en tu propio
-teléfono, y los guardamos ahí para que no tengas que volver a escribirlos. **Nunca salen de tu
-dispositivo**: ni a nuestro servidor ni a la inteligencia artificial.
+Si usas "Mi perfil", la app guarda en tu teléfono tu sexo, fecha de nacimiento, estatura, peso y
+nivel de actividad física, para calcular ahí mismo tu metabolismo basal, tu mantenimiento y la meta
+del objetivo que elijas (con sus calorías, proteína, carbohidratos y grasa). **Estos datos nunca
+salen de tu dispositivo**: ni a nuestro servidor, ni a la inteligencia artificial, ni en los
+reportes de fallos.
 
-Solo se guardan si pides una sugerencia. Puedes borrarlos cuando quieras desde "Mi meta diaria"
-("Borrar mis datos para la sugerencia") sin perder tu meta, y "Borrar todos mis datos" también los
-elimina. La sugerencia es una estimación general, no una recomendación médica.
+Puedes cambiarlos cuando quieras desde "Mi perfil", y "Borrar todos mis datos" los elimina junto con
+tu meta. Los cálculos son estimaciones generales, no una recomendación médica.
 
 ## Si la app falla
 

@@ -80,32 +80,33 @@ class ConsentRecord extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-/// SPEC-008 R1/R8: fila única (id fijo en 0) con la meta diaria vigente.
-/// kcal obligatoria; macros opcionales (`null` = sin meta para ese macro).
-/// Sin historial: cambiar la meta cambia la referencia de todos los días.
-class NutritionGoals extends Table {
+/// SPEC-008 (v2) R1: perfil de la persona, fila única (id 0). Datos
+/// personales de salud: solo en el dispositivo (R12).
+class UserProfile extends Table {
   IntColumn get id => integer()();
-  RealColumn get energyKcal => real()();
-  RealColumn get proteinG => real().nullable()();
-  RealColumn get carbsG => real().nullable()();
-  RealColumn get fatG => real().nullable()();
+  TextColumn get sex => text()();
+  DateTimeColumn get birthDate => dateTime()();
+  RealColumn get heightCm => real()();
+  RealColumn get weightKg => real()();
+  TextColumn get activityLevel => text()();
   DateTimeColumn get updatedAt => dateTime()();
 
   @override
   Set<Column> get primaryKey => {id};
 }
 
-/// SPEC-008 R2/R9: datos con los que se calculó la sugerencia. Fila única
-/// (id 0), solo existe si el usuario pidió una sugerencia; se puede borrar
-/// sin tocar la meta. Datos personales de salud: nunca salen del
-/// dispositivo (R11).
-class GoalEstimationInputs extends Table {
+/// SPEC-008 (v2) R8–R10: meta diaria vigente, fila única (id 0), sin
+/// historial. `objective` es el `GoalObjective` del que salió (o cuyo
+/// reparto usa la meta manual); `isManual` = la persona escribió las kcal,
+/// así que no se recalcula sola al cambiar el perfil (R9).
+class NutritionGoals extends Table {
   IntColumn get id => integer()();
-  RealColumn get weightKg => real()();
-  RealColumn get heightCm => real()();
-  IntColumn get ageYears => integer()();
-  TextColumn get sex => text()();
-  TextColumn get activityLevel => text()();
+  TextColumn get objective => text()();
+  BoolColumn get isManual => boolean()();
+  RealColumn get energyKcal => real()();
+  RealColumn get proteinG => real()();
+  RealColumn get carbsG => real()();
+  RealColumn get fatG => real()();
   DateTimeColumn get updatedAt => dateTime()();
 
   @override
@@ -118,8 +119,8 @@ class GoalEstimationInputs extends Table {
     MealItems,
     PersonalProducts,
     ConsentRecord,
+    UserProfile,
     NutritionGoals,
-    GoalEstimationInputs,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -139,8 +140,8 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(consentRecord);
       }
       if (from < 4) {
+        await m.createTable(userProfile);
         await m.createTable(nutritionGoals);
-        await m.createTable(goalEstimationInputs);
       }
     },
   );

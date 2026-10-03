@@ -36,6 +36,15 @@ Future<void> _meal(
   items: [_item(kcal, confidence: confidence)],
 );
 
+NutritionGoalValues _goal(double kcal, {double proteinG = 100}) => (
+  objective: 'maintain',
+  isManual: false,
+  energyKcal: kcal,
+  proteinG: proteinG,
+  carbsG: 275,
+  fatG: 55.6,
+);
+
 Future<void> _pump(WidgetTester tester, AppDatabase db) async {
   await tester.pumpWidget(
     ProviderScope(
@@ -44,7 +53,7 @@ Future<void> _pump(WidgetTester tester, AppDatabase db) async {
         initialRoute: AppRoutes.diary,
         routes: {
           AppRoutes.diary: (_) => const DiaryScreen(),
-          AppRoutes.nutritionGoal: (_) =>
+          AppRoutes.objective: (_) =>
               const Scaffold(body: Text('Pantalla de meta')),
         },
       ),
@@ -94,7 +103,7 @@ void main() {
     await _pump(tester, db);
 
     expect(find.text('Total del día: 500 kcal'), findsOneWidget);
-    await tester.tap(find.text('Fijar una meta diaria'));
+    await tester.tap(find.text('Calcular mi meta'));
     await tester.pumpAndSettle();
     expect(find.text('Pantalla de meta'), findsOneWidget);
   });
@@ -105,17 +114,17 @@ void main() {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repo = StorageRepository(db);
-    await repo.saveNutritionGoal(energyKcal: 2000, proteinG: 100);
+    await repo.saveNutritionGoal(_goal(2000, proteinG: 100));
     await _meal(repo, 1249.6);
 
     await _pump(tester, db);
 
     expect(find.text('1.250 / 2.000 kcal · quedan 750'), findsOneWidget);
     expect(find.textContaining('Proteína:'), findsOneWidget);
-    expect(find.textContaining('Carbohidratos:'), findsNothing);
-    expect(find.textContaining('Grasa:'), findsNothing);
-    expect(find.byType(LinearProgressIndicator), findsNWidgets(2));
-    expect(find.text('Fijar una meta diaria'), findsNothing);
+    expect(find.textContaining('Carbohidratos:'), findsOneWidget);
+    expect(find.textContaining('Grasa:'), findsOneWidget);
+    expect(find.byType(LinearProgressIndicator), findsNWidgets(4));
+    expect(find.text('Calcular mi meta'), findsNothing);
   });
 
   testWidgets('AC12: una comida "Estimación" pone "~" en el consumido', (
@@ -124,7 +133,7 @@ void main() {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repo = StorageRepository(db);
-    await repo.saveNutritionGoal(energyKcal: 2000);
+    await repo.saveNutritionGoal(_goal(2000));
     await _meal(repo, 1000);
     await _meal(repo, 249.6, confidence: 'estimacion');
 
@@ -138,7 +147,7 @@ void main() {
   ) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    await StorageRepository(db).saveNutritionGoal(energyKcal: 2000);
+    await StorageRepository(db).saveNutritionGoal(_goal(2000));
 
     await _pump(tester, db);
 
@@ -152,7 +161,7 @@ void main() {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repo = StorageRepository(db);
-    await repo.saveNutritionGoal(energyKcal: 2000);
+    await repo.saveNutritionGoal(_goal(2000));
     await _meal(repo, 2150.2);
 
     await _pump(tester, db);
@@ -162,7 +171,7 @@ void main() {
       findsOneWidget,
     );
     final bar = tester.widget<LinearProgressIndicator>(
-      find.byType(LinearProgressIndicator),
+      find.byType(LinearProgressIndicator).first,
     );
     expect(bar.value, 1);
     expect(bar.color, isNull);

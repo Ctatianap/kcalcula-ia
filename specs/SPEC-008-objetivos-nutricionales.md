@@ -1,7 +1,7 @@
 # SPEC-008: Perfil, mantenimiento y objetivo nutricional
 
 ## Status
-Implementing
+Review
 Path: Strict (cálculos nuevos en `packages/nutrition_core`: metabolismo basal, mantenimiento,
 objetivo y reparto de macros; y datos personales de salud guardados en el dispositivo: peso,
 estatura, fecha de nacimiento, sexo y nivel de actividad)
@@ -204,6 +204,29 @@ peso o de temporada de actividad, todo se recalcula.
   con PAL de EFSA 2013 (opción B, con fuente). Si prefiere la escala de fitness (opción A, sin
   fuente), es un cambio de dos líneas y de la documentación.
 
+## Evidencia de Acceptance Criteria
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `packages/nutrition_core/test/energy_estimation_test.dart`, grupo "AC1" (3 casos de Harris y Benedict 1919, p. 230, ±1 kcal) |
+| AC2 | ✅ | `energy_estimation_test.dart`, grupo "AC2" (4 PAL de EFSA 2013) |
+| AC3 | ✅ | `energy_estimation_test.dart`, grupo "AC3" (rangos, NaN, infinito, edad 18–100) |
+| AC4 | ✅ | `packages/nutrition_core/test/goal_planning_test.dart` ("AC4…") |
+| AC5 | ✅ | `goal_planning_test.dart` (100 / 55,6 / 275 g; suma 4/9/4; repartos dentro de los AMDR) |
+| AC6 | ✅ | `app/test/features/goals/goals_flow_test.dart` ("AC6/AC7…", "AC6: fuera de rango…", "carga el perfil guardado…") |
+| AC7 | ✅ | `goals_flow_test.dart` ("AC6/AC7…": peso 63 → 70 y actividad ligera → alta, sin reiniciar la pantalla) |
+| AC8 | ✅ | `goals_flow_test.dart` ("AC8…": diario → "Calcular mi meta" → objetivo → meta → "0 / 1.776 kcal" y 4 barras) + `app/test/features/diary/diary_goal_test.dart` |
+| AC9 | ✅ | `goals_flow_test.dart`, grupo "AC9" (meta de un objetivo recalculada 1.776 → 1.883; meta manual fija, aviso y "Usar este valor") + `app/test/infra/storage/nutrition_goal_storage_test.dart` ("R9…") |
+| AC10 | ✅ | `goals_flow_test.dart` ("AC10…") + `packages/nutrition_core/test/goal_limits_test.dart` |
+| AC11 | ✅ | `goals_flow_test.dart` ("AC11: sin perfil…") + `diary_goal_test.dart` ("AC11: sin meta…") |
+| AC12 | ✅ | `diary_goal_test.dart` (textos, "~", por encima de la meta, barra con el color del tema) + `goal_progress_test.dart` |
+| AC13 | ✅ | `nutrition_goal_storage_test.dart` (borrar todo, exportar, migración v3 → v4) |
+| AC14 | ✅ | `goals_flow_test.dart` ("AC14…" en perfil y en objetivo: `takeException()` nulo, sin "Sqlite") |
+| AC15 | ✅ | Grep (2026-10-02): `app/lib/infra/ai_client`, `app/lib/infra/crash_reporting` y `functions/src` no mencionan perfil ni meta; `features/goals` no tiene `print`/`debugPrint`/`log`; los fallos de escritura no se relanzan (AC14) |
+| AC16 | ✅ | `app/test/integration/onboarding_gate_flow_test.dart` ("SPEC-008 AC13…": v2 → onboarding con v3) + `app/test/features/legal/privacy_policy_text_test.dart` (sección del perfil) |
+
+Verificado (2026-10-02, versión 2): `dart analyze` y `flutter analyze` sin issues; `nutrition_core`
+62/62; app 124/124. Pendiente: recorrido manual en el teléfono.
+
 ## Definition of Done
 - AC1–AC16 con evidencia enlazada en esta SPEC.
 - `dart analyze` y `dart test` (`nutrition_core`) y `flutter analyze` y `flutter test` (app), todo
@@ -264,6 +287,10 @@ peso o de temporada de actividad, todo se recalcula.
 
 - 2026-10-02: **versión 2 aprobada por la usuaria** ("aprobada, con el ajuste de porcentajes"),
   con Mantener y Subir masa en 20 / 25 / 55 %. Status → Implementing.
+
+- 2026-10-02: versión 2 implementada. Textos de actividad neutros en género ("Poca actividad",
+  "Actividad ligera", "Actividad moderada", "Actividad alta") en vez de "Sedentaria"/"Activa", por
+  delegación de la usuaria. Status → Review (falta el reviewer y el recorrido manual).
 
 ## Review
 Primera revisión (2026-10-02, subagente `reviewer`): **CHANGES_REQUESTED**.

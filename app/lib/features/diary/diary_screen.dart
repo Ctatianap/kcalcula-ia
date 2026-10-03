@@ -46,8 +46,8 @@ class _DiaryScreenState extends ConsumerState<DiaryScreen> {
     setState(_reload);
   }
 
-  Future<void> _openNutritionGoal() async {
-    await Navigator.of(context).pushNamed(AppRoutes.nutritionGoal);
+  Future<void> _openObjective() async {
+    await Navigator.of(context).pushNamed(AppRoutes.objective);
     setState(_reload);
   }
 
@@ -81,10 +81,7 @@ class _DiaryScreenState extends ConsumerState<DiaryScreen> {
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: summary.goal == null
-                    ? _NoGoalHeader(
-                        summary: summary,
-                        onSetGoal: _openNutritionGoal,
-                      )
+                    ? _NoGoalHeader(summary: summary, onSetGoal: _openObjective)
                     : _GoalHeader(summary: summary),
               ),
               Expanded(
@@ -123,10 +120,7 @@ class _NoGoalHeader extends StatelessWidget {
             'Total del día: ${presentKcal(summary.dayTotals.energyKcal)} kcal',
             style: Theme.of(context).textTheme.titleLarge,
           ),
-        TextButton(
-          onPressed: onSetGoal,
-          child: const Text('Fijar una meta diaria'),
-        ),
+        TextButton(onPressed: onSetGoal, child: const Text('Calcular mi meta')),
       ],
     );
   }
@@ -163,15 +157,14 @@ class _GoalHeader extends StatelessWidget {
           style: Theme.of(context).textTheme.titleMedium,
         ),
         for (final (label, consumed, target) in macros)
-          if (target != null)
-            _ProgressLine(
-              text: macroProgressText(
-                label,
-                GoalProgress(consumed: consumed, goal: target),
-                approximate: approx,
-              ),
-              progress: GoalProgress(consumed: consumed, goal: target),
+          _ProgressLine(
+            text: macroProgressText(
+              label,
+              GoalProgress(consumed: consumed, goal: target),
+              approximate: approx,
             ),
+            progress: GoalProgress(consumed: consumed, goal: target),
+          ),
       ],
     );
   }

@@ -93,19 +93,18 @@ kcal enteras (redondeo half-up) y macros con 1 decimal. Los valores estimados se
   grams, quantity_input, unit_input, size_input, quantity_basis, energy_kcal, protein_g, carbs_g, fat_g,
   confidence, source_ref)`
 - `personal_products(...)`: se define en la SPEC de etiquetas.
-- `nutrition_goals(id=0, energy_kcal, protein_g NULL, carbs_g NULL, fat_g NULL, updated_at)`: meta
-  diaria vigente, fila única, sin historial (SPEC-008).
-- `goal_estimation_inputs(id=0, weight_kg, height_cm, age_years, sex, activity_level, updated_at)`:
-  datos de la última sugerencia; solo existe si el usuario pidió una (SPEC-008).
+- `user_profile(id=0, sex, birth_date, height_cm, weight_kg, activity_level, updated_at)`: perfil
+  (SPEC-008).
+- `nutrition_goals(id=0, objective, is_manual, energy_kcal, protein_g, carbs_g, fat_g, updated_at)`:
+  meta diaria vigente, fila única, sin historial (SPEC-008).
 
 ## Objetivos (SPEC-008)
-- El progreso del día (`GoalProgress` en `nutrition_core`) resta sin redondear y redondea al
-  presentar. Por encima de la meta se muestra "N por encima de la meta", sin colores de alarma.
-- La sugerencia (opcional) estima las kcal de mantenimiento con las ecuaciones de gasto energético
-  total de las DRI 2023 de NASEM y reparte los macros con los rangos de la Res. 3803 de 2016; ver
-  `docs/research/2026-10-02-formula-gasto-energetico.md`. Todo se calcula en el dispositivo; nada
-  de esto sale de él.
-
+- Metabolismo basal: Harris-Benedict 1918. Mantenimiento: basal × PAL de EFSA 2013 (4 niveles).
+- Objetivo: −250 / −500 kcal, mantener, +10 / +20 %. Macros en % de las kcal según el objetivo
+  (decisión de producto dentro de los AMDR). Fuentes: `docs/research/2026-10-02-harris-benedict-actividad-objetivo.md`.
+- Todo en `nutrition_core`, en el dispositivo. La meta de un objetivo se recalcula al guardar el
+  perfil (en la misma transacción); la meta manual queda fija.
+- El progreso del día (`GoalProgress`) resta sin redondear y redondea al presentar, en tono neutro.
 ## Errores
 | Situación | Comportamiento |
 |---|---|
