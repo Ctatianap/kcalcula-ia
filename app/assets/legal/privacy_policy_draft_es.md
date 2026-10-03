@@ -8,7 +8,7 @@ para que sepas exactamente qué hace la app hoy.
 
 ## Qué hace esta app con tus datos
 
-Calorías IA no tiene cuentas de usuario. No hay nombre, correo ni identificador que te conecte con
+KCalcula IA no tiene cuentas de usuario. No hay nombre, correo ni identificador que te conecte con
 un servidor. Todo lo que registras (comidas, cantidades, calorías) vive únicamente en tu teléfono,
 en una base de datos local que nadie más puede leer salvo que tú compartas el archivo.
 
@@ -76,7 +76,7 @@ verificamos tu identidad ni tu edad con ningún documento — es una declaració
 ## Preguntas o quejas
 
 Si tienes preguntas sobre este borrador o quieres ejercer algún derecho sobre tus datos, escríbenos
-a **privacidad@caloriasia.app** (dirección de contacto pendiente de activar formalmente antes de
+a **privacidad@kcalcula.app** (dirección de contacto pendiente de activar formalmente antes de
 publicar la app).
 
 ## Copias de seguridad
