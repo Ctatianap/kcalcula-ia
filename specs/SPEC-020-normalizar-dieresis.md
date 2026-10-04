@@ -80,6 +80,8 @@ Como persona que escribe con ortografía completa, quiero que "agüita de panela
 - 2026-10-03: **Approved por la usuaria** ("aprobada la SPEC-020"). Status → Implementing.
 - 2026-10-03: implementada. `normalizeFoodText` en `app/lib/format/text_es.dart` reemplaza las dos
   copias de `_normalize` (catálogo y resolver). Status → Review.
+- 2026-10-03: reviewer PASS. Fusión en `develop` aprobada por la usuaria ("sí a las dos, fusiona").
+  Sigue en Review hasta el recorrido manual del lote; luego Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
