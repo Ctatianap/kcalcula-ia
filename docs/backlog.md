@@ -178,6 +178,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     nueva (hallazgo MINOR del reviewer de SPEC-016).
   dependencies: [T-017]
   spec_required: false
+  status: done  # 2026-10-04: ExportService borra solo sus propios archivos (por nombre) al empezar; tests en export_cleanup_test.dart
 - id: T-023
   title: Idioma español declarado en iOS
   objective: >
