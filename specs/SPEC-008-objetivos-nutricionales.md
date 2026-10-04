@@ -1,7 +1,7 @@
 # SPEC-008: Perfil, mantenimiento y objetivo nutricional
 
 ## Status
-Done
+Review
 Path: Strict (cálculos nuevos en `packages/nutrition_core`: metabolismo basal, mantenimiento,
 objetivo y reparto de macros; y datos personales de salud guardados en el dispositivo: peso,
 estatura, fecha de nacimiento, sexo y nivel de actividad)
@@ -354,11 +354,13 @@ issues; `nutrition_core` 63/63; app 139/139 (tras OQ10-A, el mantenimiento medid
   ("aprobado"), incluido el cambio de AC17 a `[widget + unit]`. Status Review → Done.
 
 - 2026-10-03: SPEC-011 reemplazó `diary_goal_test.dart` por `diary_screen_test.dart`; la evidencia de AC8, AC11 y AC12 apunta ahora a ese archivo (mismos casos, presentación nueva).
-- 2026-10-04: R1: al guardar el perfil se vuelve a la pantalla de origen (pedido de la usuaria tras
-  el recorrido en el teléfono: "al guardar el perfil debería redirigirme al menú de ajustes";
-  aceptado con "hagamos primero todo lo faltante"). Evidencia: `goals_flow_test.dart`
-  ("AC6/AC7…" y "AC9…fuera de rango…", que se queda en el perfil).
-
+- 2026-10-03: R1: al guardar el perfil se vuelve a la pantalla de origen; si hay un aviso que leer
+  (R9) se queda en el perfil. Pedido de la usuaria tras el recorrido en el teléfono ("al guardar el
+  perfil debería redirigirme al menú de ajustes") y **aprobado explícitamente** ("sí a las dos"),
+  aceptando que, al guardar por primera vez desde Ajustes, "Elegir mi objetivo" queda a un toque más
+  (Ajustes → Mi objetivo). Status Done → Review por el cambio. Evidencia: `goals_flow_test.dart`
+  ("AC6/AC7…", "R1: al guardar el perfil abierto desde Mi objetivo…" y "AC9…fuera de rango…", que
+  comprueba que se queda en el perfil).
 ## Review
 Primera revisión (2026-10-02, subagente `reviewer`): **CHANGES_REQUESTED**.
 - [MAJOR] Fallos de escritura en `user.db` llegaban a Crashlytics con los parámetros de SQLite.

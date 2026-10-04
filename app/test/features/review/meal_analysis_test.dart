@@ -468,6 +468,8 @@ void main() {
       find.text('No encontré alimentos en lo que escribiste'),
       findsOneWidget,
     );
+    // R6: sin alimentos sí es "no entendí".
+    expect(find.text('No pude entender tu comida'), findsOneWidget);
   });
 
   testWidgets('texto grande (×2) en 360 px: captura y detalle sin '

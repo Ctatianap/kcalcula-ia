@@ -110,7 +110,7 @@ deje corregir antes de guardar.
 | AC3 | mismo archivo › "AC3: Cancelar vuelve con el texto intacto y la respuesta tardía no navega ni guarda" (widget) y "AC3: tras cancelar, una respuesta tardía se ignora" (unit) |
 | AC4 | mismo archivo › "AC4: el tipo de comida se cambia con botones y se guarda; −/+ ajusta gramos y kcal" y "AC4: \"Corregir\" vuelve a \"¿Qué comiste?\" con el texto" (app completa con `user.db` en memoria); `test/features/review/review_screen_test.dart` › AC8 |
 | AC5 | mismo archivo › "AC5: el sello \"Base verificada\" aparece…" y "AC5: sin sello si un ítem queda sin resolver; Guardar sigue deshabilitado" |
-| AC6 | mismo archivo › "AC6: con la IA en timeout se ve el error con 3 consejos; \"Reintentar\" envía el mismo texto" y "AC6: \"Volver\" desde el error regresa con el texto" |
+| AC6 | mismo archivo › "AC6: con la IA en timeout se ve el error con 3 consejos; \"Reintentar\" envía el mismo texto" y "AC6: \"Volver\" desde el error regresa con el texto"; título según la causa: "R6: el título del error depende de la causa" y "edge case: la IA sin alimentos…" |
 | AC7 | `test/integration/capture_to_review_flow_test.dart`, `voice_to_review_flow_test.dart`, `label_to_review_flow_test.dart`, `storage_errors_test.dart` adaptados (pestañas, "Guardar", total en `meal-detail-kcal`) y verdes |
 
 Edge cases: doble toque en Analizar ("edge case: un doble toque en Analizar abre un solo análisis"),
@@ -157,7 +157,7 @@ Manual: recorrido en el teléfono pendiente (lo hace la usuaria).
     (cosmético); `mealTypeLabels` sigue en `ui/date_format_es.dart`.
   Fusionada en `develop` por la autorización única de la usuaria. Sigue en Review hasta el
   recorrido manual en el teléfono.
-- 2026-10-04: R6 y AC6: el título del error depende de la causa. En el teléfono, un fallo del backend
+- 2026-10-03: R6 y AC6: el título del error depende de la causa. En el teléfono, un fallo del backend
   (sin funciones desplegadas, App Check) se mostraba como "No pude entender tu comida" y hacía
   pensar que la IA no entendió. Propuesto en la sesión y aceptado por la usuaria ("hagamos primero
   todo lo faltante"). Evidencia: `meal_analysis_test.dart` ("AC6…" y "R6: el título del error

@@ -237,6 +237,23 @@ void main() {
       expect(find.text('Mi perfil'), findsOneWidget);
     });
 
+    testWidgets('R1: al guardar el perfil abierto desde Mi objetivo, vuelve '
+        'a Mi objetivo con las opciones cargadas', (tester) async {
+      final db = await _pump(tester, AppRoutes.objective);
+      addTearDown(db.close);
+      await tester.tap(find.text('Completar mi perfil'));
+      await tester.pumpAndSettle();
+
+      await _fillProfile(tester);
+      await tester.tap(find.widgetWithText(FilledButton, 'Guardar perfil'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ProfileScreen), findsNothing);
+      expect(find.byType(ObjectiveScreen), findsOneWidget);
+      expect(find.byKey(const Key('objective-loseFat')), findsOneWidget);
+      expect(find.text('Perfil guardado.'), findsOneWidget);
+    });
+
     testWidgets(
       'AC8: elegir un objetivo lo guarda como meta y el diario la muestra',
       (tester) async {
@@ -366,6 +383,8 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.text(goalNotRecalculatedMessage), findsOneWidget);
+        // R1: con un aviso que leer, se queda en el perfil.
+        expect(find.byType(ProfileScreen), findsOneWidget);
         expect((await repo.getNutritionGoal())!.energyKcal, 3000);
       },
     );
