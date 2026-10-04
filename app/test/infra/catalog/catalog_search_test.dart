@@ -122,6 +122,10 @@ void main() {
       expect(withMark, describe(catalog.resolve('aguita de prueba')));
       expect(withMark, contains('pinguino_de_prueba'));
       expect(
+        describe(catalog.resolve('agüita')),
+        describe(catalog.resolve('aguita')),
+      );
+      expect(
         describe(catalog.resolve('Pingüino de prueba')),
         describe(catalog.resolve('pinguino de prueba')),
       );

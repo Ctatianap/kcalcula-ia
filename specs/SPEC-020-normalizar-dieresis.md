@@ -91,4 +91,11 @@ Como persona que escribe con ortografía completa, quiero que "agüita de panela
 | Edge | ✅ | "Edge: solo "ü" no es buscable"; `normalizeFoodText` con "ü" al inicio, en medio, al final y "Ü" |
 
 ## Review
-Informe del reviewer: pendiente.
+Revisión (2026-10-03, commit ac819ce): **PASS**. AC1–AC4 y el caso borde cumplidos; el catálogo real
+y `data/build_catalog` sin cambios; invariantes respetadas; Open Question reproducida con sqlite3.
+Hallazgos MINOR:
+- Orden de imports en `catalog_repository.dart` y AC2 con el literal "agüita": corregidos.
+- La coincidencia exacta no quita tildes del lado del catálogo ("Café" da ambiguous con un solo
+  candidato); ya pasaba antes con 32 alimentos reales. Fuera de alcance: **T-025** en el backlog.
+- Tercera copia del normalizador en `data/build_catalog/lib/validators.dart`: comentario que la enlaza
+  y **T-026** en el backlog.

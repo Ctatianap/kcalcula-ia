@@ -1,9 +1,7 @@
 import 'package:nutrition_core/nutrition_core.dart';
-
-import '../../format/text_es.dart';
-
 import 'package:sqlite3/sqlite3.dart';
 
+import '../../format/text_es.dart';
 import 'food_match_result.dart';
 
 /// Máximo de candidatos que se muestran cuando un `food_query` es ambiguo
