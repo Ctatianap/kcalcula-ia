@@ -193,13 +193,18 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     `_normalize` (catálogo y resolver) quita tildes y "ñ" pero no "ü": "pingüino" se parte en dos
     términos de FTS (hallazgo MINOR del reviewer de SPEC-018).
   dependencies: [T-019]
-  spec_required: false
+  spec_required: true    # specs/SPEC-020-normalizar-dieresis.md — Strict (resolución de alimentos; antes anotada como Fast Path por error)
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
+  # SPECs (Draft, 2026-10-04): specs/SPEC-021-foto-del-plato.md (Strict),
+  # specs/SPEC-022-comidas-frecuentes-y-favoritas.md, specs/SPEC-023-confianza-visual.md
 - id: F3
   title: Fase 3 — corrección conversacional, marcas, historial avanzado
+  # SPECs (Draft, 2026-10-04): specs/SPEC-024-correccion-conversacional.md (Strict),
+  # specs/SPEC-025-marcas.md (Strict), specs/SPEC-026-historial-avanzado.md
 - id: F4
   title: Fase 4 — Samsung Health y ecosistemas de salud
+  # SPEC (Draft, 2026-10-04, para cuando se retome): specs/SPEC-027-salud-conectada.md (Strict)
   status: pospuesta  # decisión de la usuaria (2026-10-03): sin integraciones con otras apps en el
                      # MVP; el mantenimiento medido sigue siendo manual (SPEC-008 R4). Investigación
                      # hecha: docs/research/2026-10-03-samsung-health-health-connect.md (PV-12).
