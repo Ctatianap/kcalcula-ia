@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:calorias_ia/format/text_es.dart';
 import 'package:calorias_ia/infra/catalog/catalog_repository.dart';
 import 'package:calorias_ia/infra/catalog/food_match_result.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sqlite3/sqlite3.dart';
 
 /// SPEC-003 AC6: `CatalogRepository.resolve(...)` (sin cambios de código)
 /// resuelve correctamente 5 `food_query` elegidos al azar entre los
@@ -34,6 +36,35 @@ void main() {
         reason: '"${entry.key}" debería resolver a "${entry.value}"',
       );
       expect((result as FoodMatched).food.id, entry.value);
+    }
+  });
+
+  test('SPEC-028 AC2: los nombres y sinónimos con tilde, "ñ" o "ü" se '
+      'reconocen directamente, con y sin marcas', () {
+    final raw = sqlite3.open(dbPath, mode: OpenMode.readOnly);
+    addTearDown(raw.close);
+    final terms = raw.select('''
+      SELECT id AS food_id, name_es AS term FROM foods
+      UNION ALL
+      SELECT food_id, term FROM food_synonyms
+    ''');
+    final marked = [
+      for (final row in terms)
+        if (normalizeFoodText(row['term'] as String) !=
+            (row['term'] as String).trim().toLowerCase())
+          (row['food_id'] as String, row['term'] as String),
+    ];
+    // Medición de la SPEC (2026-10-03): 32 términos con marcas.
+    expect(marked.length, greaterThanOrEqualTo(32));
+
+    final repo = CatalogRepository.openFile(dbPath);
+    addTearDown(repo.close);
+    for (final (foodId, term) in marked) {
+      for (final query in [term, normalizeFoodText(term)]) {
+        final result = repo.resolve(query);
+        expect(result, isA<FoodMatched>(), reason: '"$query" → $foodId');
+        expect((result as FoodMatched).food.id, foodId, reason: query);
+      }
     }
   });
 }

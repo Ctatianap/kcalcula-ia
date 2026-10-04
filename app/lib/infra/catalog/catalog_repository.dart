@@ -27,6 +27,23 @@ class CatalogRepository {
 
   void close() => _db.close();
 
+  /// SPEC-028 R1: nombre y sinónimos normalizados con [normalizeFoodText]
+  /// → alimentos. Se arma una vez; el esquema de `catalog.db` no cambia.
+  late final Map<String, Set<String>> _exactIndex = () {
+    final index = <String, Set<String>>{};
+    final rows = _db.select('''
+      SELECT id AS food_id, name_es AS term FROM foods
+      UNION ALL
+      SELECT food_id, term FROM food_synonyms
+    ''');
+    for (final row in rows) {
+      index
+          .putIfAbsent(normalizeFoodText(row['term'] as String), () => {})
+          .add(row['food_id'] as String);
+    }
+    return index;
+  }();
+
   String get catalogVersion {
     final rows = _db.select('SELECT catalog_version FROM meta LIMIT 1');
     return rows.isEmpty
@@ -41,20 +58,7 @@ class CatalogRepository {
     final normalized = normalizeFoodText(foodQuery);
     if (normalized.isEmpty) return FoodNotFound();
 
-    final exactIds = _db
-        .select(
-          '''
-          SELECT DISTINCT food_id FROM (
-            SELECT id AS food_id, lower(name_es) AS term FROM foods
-            UNION ALL
-            SELECT food_id, lower(term) AS term FROM food_synonyms
-          )
-          WHERE term = ?
-          ''',
-          [normalized],
-        )
-        .map((row) => row['food_id'] as String)
-        .toSet();
+    final exactIds = _exactIndex[normalized] ?? const <String>{};
 
     if (exactIds.length == 1) {
       final food = getFoodById(exactIds.first);

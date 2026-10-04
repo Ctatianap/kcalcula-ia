@@ -1,7 +1,7 @@
 # SPEC-028: Coincidencia exacta con tildes
 
 ## Status
-Draft
+Review
 Path: Strict (cambia qué alimento se resuelve contra el catálogo; skill `nutrition-data`)
 
 ## Objective
@@ -91,6 +91,20 @@ sin hacerme elegir de una lista de una sola opción.
 
 ## Change Log
 - 2026-10-03: creación a partir de T-025 (incluye T-026).
+- 2026-10-03: **Approved por la usuaria** ("aprobada la SPEC-028"). Status → Implementing.
+- 2026-10-03: implementada. Índice normalizado `_exactIndex` en `CatalogRepository` (se arma una vez,
+  en Dart); `normalizeFoodTerm` en `build_catalog` con "ü" y regla nueva: un sinónimo no puede
+  coincidir sin tildes con el nombre de otro alimento. El catálogo real construye sin errores
+  (`catalog_version` 2026-10-03-2). Status → Review.
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/infra/catalog/catalog_repository_test.dart` › "AC1: "café", "cafe" y "CAFÉ" dan matched…" |
+| AC2 | ✅ | `app/test/integration/catalog_real_db_test.dart` › "SPEC-028 AC2…": recorre los términos con marcas del `catalog.db` real (32) y prueba cada uno con y sin marcas |
+| AC3 | ✅ | `catalog_repository_test.dart` › "AC3: si el término sin tildes es de dos alimentos, no hay matched" |
+| AC4 | ✅ | `data/build_catalog/test/validators_test.dart` › "SPEC-028 AC4…" (mensaje con el término y los dos alimentos) y "normalizeFoodTerm, mismos casos…"; `dart run` del catálogo real sin errores |
+| AC5 | ✅ | app: analyze sin avisos, 323/323; `build_catalog`: 20/20. Ningún test existente cambió de expectativa (ninguno esperaba `ambiguous` de un solo candidato) |
 
 ## Review
 Informe del reviewer: pendiente.
