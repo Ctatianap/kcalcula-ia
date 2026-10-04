@@ -104,6 +104,9 @@ CatalogRepository buildFixtureCatalog({
   food('papa_cocida', 'Papa cocida', 87);
   food('name_cocido', 'Ñame cocido', 116);
   food('ahuyama_cocida', 'Ahuyama cocida', 20);
+  // SPEC-020: nombre y sinónimo con "ü" (valores de prueba).
+  food('pinguino_de_prueba', 'Pingüino de prueba', 50);
+  synonym('pinguino_de_prueba', 'agüita de prueba');
 
   db.execute(
     "INSERT INTO household_units (unit, ml, source_ref) VALUES ('cucharada', 15, 'fixture')",

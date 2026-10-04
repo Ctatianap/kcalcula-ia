@@ -1,7 +1,7 @@
 # SPEC-020: Búsqueda y resolución con "ü"
 
 ## Status
-Draft
+Review
 Path: Strict (toca la lógica de resolución de alimentos contra el catálogo; skill `nutrition-data`)
 
 ## Objective
@@ -66,9 +66,10 @@ Como persona que escribe con ortografía completa, quiero que "agüita de panela
 - Otros diacríticos poco usados en es-CO (`ç`, `à`…), sinónimos nuevos, cambios en `build_catalog`.
 
 ## Open Questions
-- ¿El tokenizador FTS5 del `catalog.db` real (`unicode61`) ya quita la diéresis del índice? Se
-  verifica en la implementación con una consulta de solo lectura; si no la quita, el alcance pasaría
-  a incluir `data/build_catalog` y se volvería a pedir aprobación.
+- Resuelta (2026-10-03): el tokenizador por defecto de FTS5 (`unicode61`, `remove_diacritics=1`)
+  ya quita la diéresis al indexar: en una tabla FTS5 con "Pingüino de prueba", `MATCH 'pinguino'` y
+  `MATCH '"pinguino"*'` encuentran la fila, y `"ping" "ino"` no. Solo hacía falta normalizar la
+  consulta; `data/build_catalog` y `catalog.db` no cambian.
 
 ## Definition of Done
 - AC1–AC4 con evidencia · analyze y tests verdes · reviewer PASS enlazado · aprobación de la usuaria
@@ -76,6 +77,27 @@ Como persona que escribe con ortografía completa, quiero que "agüita de panela
 
 ## Change Log
 - 2026-10-04: creación a partir de T-024 (antes Fast Path; corregido a Strict).
+- 2026-10-03: **Approved por la usuaria** ("aprobada la SPEC-020"). Status → Implementing.
+- 2026-10-03: implementada. `normalizeFoodText` en `app/lib/format/text_es.dart` reemplaza las dos
+  copias de `_normalize` (catálogo y resolver). Status → Review.
+- 2026-10-03: reviewer PASS. Fusión en `develop` aprobada por la usuaria ("sí a las dos, fusiona").
+  Sigue en Review hasta el recorrido manual del lote; luego Done.
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/infra/catalog/catalog_search_test.dart` › "AC1: "pingüino", "pinguino" y "PINGÜINO"…" (fixture "Pingüino de prueba", solo en tests) |
+| AC2 | ✅ | mismo archivo › "AC2: resolve("agüita") y resolve("aguita") dan lo mismo" |
+| AC3 | ✅ | mismo archivo › "AC3: un producto personal con "ü" aparece al buscar sin ella" |
+| AC4 | ✅ | suite completa de la app sin cambiar expectativas existentes: analyze sin avisos, 317/317 |
+| Edge | ✅ | "Edge: solo "ü" no es buscable"; `normalizeFoodText` con "ü" al inicio, en medio, al final y "Ü" |
 
 ## Review
-Informe del reviewer: pendiente.
+Revisión (2026-10-03, commit ac819ce): **PASS**. AC1–AC4 y el caso borde cumplidos; el catálogo real
+y `data/build_catalog` sin cambios; invariantes respetadas; Open Question reproducida con sqlite3.
+Hallazgos MINOR:
+- Orden de imports en `catalog_repository.dart` y AC2 con el literal "agüita": corregidos.
+- La coincidencia exacta no quita tildes del lado del catálogo ("Café" da ambiguous con un solo
+  candidato); ya pasaba antes con 32 alimentos reales. Fuera de alcance: **T-025** en el backlog.
+- Tercera copia del normalizador en `data/build_catalog/lib/validators.dart`: comentario que la enlaza
+  y **T-026** en el backlog.

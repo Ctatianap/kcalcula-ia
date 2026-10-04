@@ -13,6 +13,9 @@ class ValidationIssue {
       '${severity == IssueSeverity.error ? "ERROR" : "WARNING"}: $message';
 }
 
+// Copia de `normalizeFoodText` (app/lib/format/text_es.dart, SPEC-020); este
+// paquete no depende de la app. Sin "ü" mientras ningún alimento la tenga
+// (T-026 en docs/backlog.md).
 String _normalize(String text) {
   const withAccents = 'áéíóúÁÉÍÓÚñÑ';
   const withoutAccents = 'aeiouAEIOUnN';
