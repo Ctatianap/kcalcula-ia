@@ -32,12 +32,18 @@ class AnalysisInProgress extends MealAnalysisState {
 }
 
 /// R6/R7: `isAiError` distingue el fallo de la IA (con consejos) del fallo
-/// al leer `user.db` (SPEC-009).
+/// al leer `user.db` (SPEC-009). `aiErrorType` elige el título: solo una
+/// respuesta que no se entendió dice "No pude entender tu comida".
 class AnalysisFailed extends MealAnalysisState {
   final String message;
   final bool isAiError;
+  final AiClientErrorType aiErrorType;
 
-  const AnalysisFailed(this.message, {required this.isAiError});
+  const AnalysisFailed(
+    this.message, {
+    required this.isAiError,
+    this.aiErrorType = AiClientErrorType.unknown,
+  });
 }
 
 class AnalysisReady extends MealAnalysisState {
@@ -103,7 +109,13 @@ class MealAnalysisController extends ChangeNotifier {
         parsed = await _aiClient.parseMeal(text: text);
       } on AiClientException catch (error) {
         if (_isCurrent(run)) {
-          _set(AnalysisFailed(error.userMessage, isAiError: true));
+          _set(
+            AnalysisFailed(
+              error.userMessage,
+              isAiError: true,
+              aiErrorType: error.type,
+            ),
+          );
         }
         return;
       } catch (_) {
@@ -114,7 +126,13 @@ class MealAnalysisController extends ChangeNotifier {
       }
       if (!_isCurrent(run)) return;
       if (parsed.items.isEmpty) {
-        _set(const AnalysisFailed(noFoodsMessage, isAiError: true));
+        _set(
+          const AnalysisFailed(
+            noFoodsMessage,
+            isAiError: true,
+            aiErrorType: AiClientErrorType.invalidOutput,
+          ),
+        );
         return;
       }
       _parsed = parsed;

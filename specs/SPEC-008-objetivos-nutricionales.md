@@ -40,7 +40,9 @@ peso o de temporada de actividad, todo se recalcula.
 - R1. **Mi perfil** (desde Ajustes, desde "Mi objetivo" y, sin meta, desde el enlace del diario): sexo (femenino o masculino, lo usa la
   fórmula), fecha de nacimiento (se muestra la edad calculada), estatura (cm), peso (kg) y nivel de
   actividad. Todo es editable en cualquier momento. Rangos válidos: peso 30–300 kg, estatura
-  120–230 cm, edad 18–100 años. Fuera de rango, mensaje en español y no se guarda.
+  120–230 cm, edad 18–100 años. Fuera de rango, mensaje en español y no se guarda. Al guardar,
+  vuelve a la pantalla desde donde se abrió con el aviso "Perfil guardado."; si hay un aviso que
+  leer en el perfil (R9, meta no recalculada), se queda en él.
 - R2. **Niveles de actividad** (incluye el NEAT), descritos por días de ejercicio a la semana,
   con la escala de factores de las calculadoras de fitness (la de fitgeneration):
   - "Sin ejercicio": poco o nada de ejercicio, trabajo sentado (× 1,2).
@@ -352,6 +354,10 @@ issues; `nutrition_core` 63/63; app 139/139 (tras OQ10-A, el mantenimiento medid
   ("aprobado"), incluido el cambio de AC17 a `[widget + unit]`. Status Review → Done.
 
 - 2026-10-03: SPEC-011 reemplazó `diary_goal_test.dart` por `diary_screen_test.dart`; la evidencia de AC8, AC11 y AC12 apunta ahora a ese archivo (mismos casos, presentación nueva).
+- 2026-10-04: R1: al guardar el perfil se vuelve a la pantalla de origen (pedido de la usuaria tras
+  el recorrido en el teléfono: "al guardar el perfil debería redirigirme al menú de ajustes";
+  aceptado con "hagamos primero todo lo faltante"). Evidencia: `goals_flow_test.dart`
+  ("AC6/AC7…" y "AC9…fuera de rango…", que se queda en el perfil).
 
 ## Review
 Primera revisión (2026-10-02, subagente `reviewer`): **CHANGES_REQUESTED**.

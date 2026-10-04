@@ -42,7 +42,9 @@ deje corregir antes de guardar.
 - R5. **Sello "Base verificada"**: aparece si todos los ítems salen del catálogo o de una etiqueta
   confirmada, es decir, si todos tienen `source_ref` (invariante 8). Si algún ítem no se resolvió,
   no aparece y se sigue sin poder guardar (como hoy).
-- R6. **"Algo salió mal"** (fallo de la IA o del parseo): ilustración, "No pude entender tu comida",
+- R6. **"Algo salió mal"** (fallo de la IA o del parseo): ilustración, un título según la causa
+  ("No pude entender tu comida" si la respuesta no se entendió o no trajo alimentos; "No pude
+  conectarme" sin red o con timeout; "No pude analizar tu comida" en otro fallo),
   "No se guardó nada en tu diario." y tres consejos: revisar la conexión, describir cada alimento
   con su cantidad y, si es foto, acercarse con buena luz. Botón "Reintentar" (vuelve a enviar el
   mismo texto) y Volver. El botón "Buscar en la base manualmente" es SPEC-018.
@@ -60,7 +62,7 @@ deje corregir antes de guardar.
   gramos y las kcal como hoy; "Corregir" vuelve con el texto `[widget + integration]`.
 - AC5. Sello: visible con todos los ítems resueltos; oculto si alguno queda sin resolver
   `[widget]`.
-- AC6. Error: con la IA en timeout se ve "No pude entender tu comida" con los 3 consejos; "Reintentar"
+- AC6. Error: con la IA en timeout se ve "No pude conectarme" con los 3 consejos; "Reintentar"
   vuelve a enviar el mismo texto `[widget]`.
 - AC7. Los flujos de texto, voz y etiqueta (`test/integration/*_flow_test.dart`) siguen verdes,
   adaptados a los nuevos controles `[integration]`.
@@ -155,6 +157,11 @@ Manual: recorrido en el teléfono pendiente (lo hace la usuaria).
     (cosmético); `mealTypeLabels` sigue en `ui/date_format_es.dart`.
   Fusionada en `develop` por la autorización única de la usuaria. Sigue en Review hasta el
   recorrido manual en el teléfono.
+- 2026-10-04: R6 y AC6: el título del error depende de la causa. En el teléfono, un fallo del backend
+  (sin funciones desplegadas, App Check) se mostraba como "No pude entender tu comida" y hacía
+  pensar que la IA no entendió. Propuesto en la sesión y aceptado por la usuaria ("hagamos primero
+  todo lo faltante"). Evidencia: `meal_analysis_test.dart` ("AC6…" y "R6: el título del error
+  depende de la causa").
 
 ## Review
 Informe del reviewer (2026-10-03, commit 21d39ac): **PASS**. AC1–AC7 cumplidos con evidencia en tests

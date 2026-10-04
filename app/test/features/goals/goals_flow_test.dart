@@ -137,7 +137,10 @@ void main() {
       final profile = await StorageRepository(db).getUserProfile();
       expect(profile!.weightKg, 70);
       expect(profile.activityLevel, 'veryActive');
-      expect(find.text('Elegir mi objetivo'), findsOneWidget);
+      // R1: al guardar vuelve a la pantalla anterior, con el aviso.
+      expect(find.byType(ProfileScreen), findsNothing);
+      expect(find.byType(DiaryScreen), findsOneWidget);
+      expect(find.text('Perfil guardado.'), findsOneWidget);
     });
 
     testWidgets('AC6: fuera de rango → mensaje y no se puede guardar', (

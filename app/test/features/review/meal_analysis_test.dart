@@ -421,7 +421,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Algo salió mal'), findsOneWidget);
-    expect(find.text('No pude entender tu comida'), findsOneWidget);
+    // Un timeout no es "no entendí": el título dice que no hubo conexión.
+    expect(find.text('No pude conectarme'), findsOneWidget);
+    expect(find.text('No pude entender tu comida'), findsNothing);
     expect(find.text('No se guardó nada en tu diario.'), findsOneWidget);
     // R7: el mensaje de red de siempre, dentro de esta pantalla.
     expect(find.textContaining('Sin conexión'), findsOneWidget);
@@ -491,5 +493,21 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Detalle de comida'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  test('R6: el título del error depende de la causa', () {
+    expect(
+      analysisErrorTitle(AiClientErrorType.invalidOutput),
+      'No pude entender tu comida',
+    );
+    expect(analysisErrorTitle(AiClientErrorType.network), 'No pude conectarme');
+    expect(
+      analysisErrorTitle(AiClientErrorType.appCheck),
+      'No pude analizar tu comida',
+    );
+    expect(
+      analysisErrorTitle(AiClientErrorType.unknown),
+      'No pude analizar tu comida',
+    );
   });
 }
