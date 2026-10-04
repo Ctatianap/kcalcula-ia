@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:path/path.dart' as p;
 import 'package:pdf/widgets.dart' as pw;
 
 import '../sharing/sharing_service.dart';
@@ -23,6 +24,14 @@ Future<PdfFonts> loadPdfFonts() async {
   final bold = await rootBundle.load('assets/fonts/Outfit-Medium.ttf');
   return (regular: pw.Font.ttf(regular), bold: pw.Font.ttf(bold));
 }
+
+/// T-022: nombres que crea [ExportService] (JSON, CSV y PDF).
+final _exportFileName = RegExp(
+  r'^(calorias_ia_export_.+\.json|kcalcula_ia_comidas_.+\.csv|'
+  r'kcalcula_ia_resumen_.+\.pdf)$',
+);
+
+bool isExportFileName(String name) => _exportFileName.hasMatch(name);
 
 class ExportCounts {
   final int meals;
@@ -61,10 +70,33 @@ class ExportService {
     return ExportCounts(meals: meals.length, days: days.length);
   }
 
+  /// T-022: los archivos de exportaciones anteriores (con datos de salud)
+  /// se borran al empezar una nueva. Solo los que crea esta app, por su
+  /// nombre; nunca otros archivos del directorio. Un fallo al borrar no
+  /// impide exportar.
+  Future<void> deletePreviousExports() async {
+    try {
+      final dir = Directory(_directoryPath);
+      if (!await dir.exists()) return;
+      await for (final entity in dir.list()) {
+        if (entity is File && isExportFileName(p.basename(entity.path))) {
+          try {
+            await entity.delete();
+          } catch (_) {
+            // Ver comentario arriba.
+          }
+        }
+      }
+    } catch (_) {
+      // Ver comentario arriba.
+    }
+  }
+
   /// Devuelve la ruta del archivo compartido, o `null` si no había comidas
   /// en el periodo (CSV y PDF; AC6: no se crea archivo). El JSON siempre
   /// exporta todo, sin filtro.
   Future<String?> export(ExportFormat format, ExportRange range) async {
+    await deletePreviousExports();
     final stamp = _clock().toIso8601String().replaceAll(':', '-');
     final String path;
     switch (format) {
