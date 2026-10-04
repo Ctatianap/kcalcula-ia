@@ -1,5 +1,6 @@
 import 'package:nutrition_core/nutrition_core.dart';
 
+import '../../format/text_es.dart';
 import '../catalog/catalog_repository.dart';
 import '../catalog/food_match_result.dart';
 import '../storage/app_database.dart' show PersonalProduct;
@@ -44,16 +45,6 @@ FoodCatalogEntry personalProductToFoodCatalogEntry(PersonalProduct product) =>
       ],
     );
 
-String _normalize(String text) {
-  const withAccents = 'áéíóúÁÉÍÓÚñÑ';
-  const withoutAccents = 'aeiouAEIOUnN';
-  var result = text.trim().toLowerCase();
-  for (var i = 0; i < withAccents.length; i++) {
-    result = result.replaceAll(withAccents[i], withoutAccents[i].toLowerCase());
-  }
-  return result;
-}
-
 /// Combina `catalog.db` (vía [CatalogRepository]) con los productos
 /// personales del usuario bajo las mismas reglas `matched`/`ambiguous`/
 /// `not_found` que ya existían solo para el catálogo (R8 de
@@ -81,10 +72,10 @@ class FoodQueryResolver {
       _catalog.householdUnitMlByUnit();
 
   List<FoodCatalogEntry> _matchingPersonalProducts(String foodQuery) {
-    final normalized = _normalize(foodQuery);
+    final normalized = normalizeFoodText(foodQuery);
     if (normalized.isEmpty) return const [];
     return _personalProducts
-        .where((p) => _normalize(p.nameEs).contains(normalized))
+        .where((p) => normalizeFoodText(p.nameEs).contains(normalized))
         .map(personalProductToFoodCatalogEntry)
         .toList();
   }
@@ -130,9 +121,9 @@ class FoodQueryResolver {
   /// [limit] en total; los productos personales van primero.
   List<FoodSearchHit> search(String query, {int limit = 20}) {
     if (!isSearchableQuery(query)) return const [];
-    final normalized = _normalize(query);
+    final normalized = normalizeFoodText(query);
     final personal = _personalProducts
-        .where((p) => _normalize(p.nameEs).contains(normalized))
+        .where((p) => normalizeFoodText(p.nameEs).contains(normalized))
         .map(
           (p) => FoodSearchHit(
             id: '$personalProductIdPrefix${p.id}',

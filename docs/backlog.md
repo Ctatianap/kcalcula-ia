@@ -194,6 +194,21 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     términos de FTS (hallazgo MINOR del reviewer de SPEC-018).
   dependencies: [T-019]
   spec_required: true    # specs/SPEC-020-normalizar-dieresis.md — Strict (resolución de alimentos; antes anotada como Fast Path por error)
+- id: T-025
+  title: Coincidencia exacta con tildes en el catálogo
+  objective: >
+    `CatalogRepository.resolve` compara la consulta normalizada con `lower(name_es)`/`lower(term)`
+    sin quitar tildes, "ñ" ni "ü": "Café" o "Plátano" nunca dan `matched` y la persona tiene que
+    elegir entre un solo candidato (32 alimentos reales afectados). Hallazgo del reviewer de SPEC-020.
+  dependencies: [T-024]
+  spec_required: true    # Strict: cambia qué alimento se resuelve
+- id: T-026
+  title: Normalizador de build_catalog con "ü"
+  objective: >
+    `data/build_catalog/lib/validators.dart` tiene su propia copia de `_normalize` sin "ü". Alinearla
+    con `normalizeFoodText` cuando entre al catálogo un alimento con diéresis (o junto con T-025).
+  dependencies: [T-024]
+  spec_required: false
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
   # SPECs (Draft, 2026-10-04): specs/SPEC-021-foto-del-plato.md (Strict),

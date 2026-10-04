@@ -1,6 +1,7 @@
 import 'package:nutrition_core/nutrition_core.dart';
 import 'package:sqlite3/sqlite3.dart';
 
+import '../../format/text_es.dart';
 import 'food_match_result.dart';
 
 /// Máximo de candidatos que se muestran cuando un `food_query` es ambiguo
@@ -37,7 +38,7 @@ class CatalogRepository {
   /// por nombre o sinónimo), `ambiguous` (1-3+ resultados de FTS5, se
   /// muestran hasta 3) o `not_found` (0 resultados).
   FoodMatchResult resolve(String foodQuery) {
-    final normalized = _normalize(foodQuery);
+    final normalized = normalizeFoodText(foodQuery);
     if (normalized.isEmpty) return FoodNotFound();
 
     final exactIds = _db
@@ -87,7 +88,7 @@ class CatalogRepository {
   /// encuentra el café. Hasta [limit] alimentos, por nombre.
   List<FoodSearchHit> search(String query, {int limit = 20}) {
     if (!isSearchableQuery(query)) return const [];
-    final matchQuery = _ftsPrefixQuery(_normalize(query));
+    final matchQuery = _ftsPrefixQuery(normalizeFoodText(query));
     if (matchQuery.isEmpty) return const [];
     final hits = _db
         .select(
@@ -109,7 +110,10 @@ class CatalogRepository {
         .toList();
     // Orden alfabético sin tildes ("Ñame" junto a la n, no al final, como
     // haría la colación binaria de SQLite).
-    hits.sort((a, b) => _normalize(a.nameEs).compareTo(_normalize(b.nameEs)));
+    hits.sort(
+      (a, b) =>
+          normalizeFoodText(a.nameEs).compareTo(normalizeFoodText(b.nameEs)),
+    );
     return hits.take(limit).toList();
   }
 
@@ -163,17 +167,7 @@ class CatalogRepository {
 /// SPEC-018 R1: se busca desde 2 letras o números (sin contar espacios ni
 /// signos). Única regla para la pantalla, el resolver y el catálogo.
 bool isSearchableQuery(String query) =>
-    _normalize(query).replaceAll(RegExp('[^a-z0-9]'), '').length >= 2;
-
-String _normalize(String text) {
-  const withAccents = 'áéíóúÁÉÍÓÚñÑ';
-  const withoutAccents = 'aeiouAEIOUnN';
-  var result = text.trim().toLowerCase();
-  for (var i = 0; i < withAccents.length; i++) {
-    result = result.replaceAll(withAccents[i], withoutAccents[i].toLowerCase());
-  }
-  return result;
-}
+    normalizeFoodText(query).replaceAll(RegExp('[^a-z0-9]'), '').length >= 2;
 
 /// Como [_ftsQuery], pero cada término busca por prefijo (`"arep"*`).
 String _ftsPrefixQuery(String normalized) {
