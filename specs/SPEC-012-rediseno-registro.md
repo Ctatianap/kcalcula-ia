@@ -42,7 +42,9 @@ deje corregir antes de guardar.
 - R5. **Sello "Base verificada"**: aparece si todos los ítems salen del catálogo o de una etiqueta
   confirmada, es decir, si todos tienen `source_ref` (invariante 8). Si algún ítem no se resolvió,
   no aparece y se sigue sin poder guardar (como hoy).
-- R6. **"Algo salió mal"** (fallo de la IA o del parseo): ilustración, "No pude entender tu comida",
+- R6. **"Algo salió mal"** (fallo de la IA o del parseo): ilustración, un título según la causa
+  ("No pude entender tu comida" si la respuesta no se entendió o no trajo alimentos; "No pude
+  conectarme" sin red o con timeout; "No pude analizar tu comida" en otro fallo),
   "No se guardó nada en tu diario." y tres consejos: revisar la conexión, describir cada alimento
   con su cantidad y, si es foto, acercarse con buena luz. Botón "Reintentar" (vuelve a enviar el
   mismo texto) y Volver. El botón "Buscar en la base manualmente" es SPEC-018.
@@ -60,7 +62,7 @@ deje corregir antes de guardar.
   gramos y las kcal como hoy; "Corregir" vuelve con el texto `[widget + integration]`.
 - AC5. Sello: visible con todos los ítems resueltos; oculto si alguno queda sin resolver
   `[widget]`.
-- AC6. Error: con la IA en timeout se ve "No pude entender tu comida" con los 3 consejos; "Reintentar"
+- AC6. Error: con la IA en timeout se ve "No pude conectarme" con los 3 consejos; "Reintentar"
   vuelve a enviar el mismo texto `[widget]`.
 - AC7. Los flujos de texto, voz y etiqueta (`test/integration/*_flow_test.dart`) siguen verdes,
   adaptados a los nuevos controles `[integration]`.
@@ -108,7 +110,7 @@ deje corregir antes de guardar.
 | AC3 | mismo archivo › "AC3: Cancelar vuelve con el texto intacto y la respuesta tardía no navega ni guarda" (widget) y "AC3: tras cancelar, una respuesta tardía se ignora" (unit) |
 | AC4 | mismo archivo › "AC4: el tipo de comida se cambia con botones y se guarda; −/+ ajusta gramos y kcal" y "AC4: \"Corregir\" vuelve a \"¿Qué comiste?\" con el texto" (app completa con `user.db` en memoria); `test/features/review/review_screen_test.dart` › AC8 |
 | AC5 | mismo archivo › "AC5: el sello \"Base verificada\" aparece…" y "AC5: sin sello si un ítem queda sin resolver; Guardar sigue deshabilitado" |
-| AC6 | mismo archivo › "AC6: con la IA en timeout se ve el error con 3 consejos; \"Reintentar\" envía el mismo texto" y "AC6: \"Volver\" desde el error regresa con el texto" |
+| AC6 | mismo archivo › "AC6: con la IA en timeout se ve el error con 3 consejos; \"Reintentar\" envía el mismo texto" y "AC6: \"Volver\" desde el error regresa con el texto"; título según la causa: "R6: el título del error depende de la causa" y "edge case: la IA sin alimentos…" |
 | AC7 | `test/integration/capture_to_review_flow_test.dart`, `voice_to_review_flow_test.dart`, `label_to_review_flow_test.dart`, `storage_errors_test.dart` adaptados (pestañas, "Guardar", total en `meal-detail-kcal`) y verdes |
 
 Edge cases: doble toque en Analizar ("edge case: un doble toque en Analizar abre un solo análisis"),
@@ -155,6 +157,12 @@ Manual: recorrido en el teléfono pendiente (lo hace la usuaria).
     (cosmético); `mealTypeLabels` sigue en `ui/date_format_es.dart`.
   Fusionada en `develop` por la autorización única de la usuaria. Sigue en Review hasta el
   recorrido manual en el teléfono.
+- 2026-10-03: R6 y AC6: el título del error depende de la causa. En el teléfono, un fallo del backend
+  (sin funciones desplegadas, App Check) se mostraba como "No pude entender tu comida" y hacía
+  pensar que la IA no entendió. Propuesto en la sesión y aceptado por la usuaria ("hagamos primero
+  todo lo faltante"). Evidencia: `meal_analysis_test.dart` ("AC6…" y "R6: el título del error
+  depende de la causa").
+- 2026-10-03: reviewer **PASS** del cambio de R6/AC6 (commit fc2b844). Fusionado en `develop`.
 
 ## Review
 Informe del reviewer (2026-10-03, commit 21d39ac): **PASS**. AC1–AC7 cumplidos con evidencia en tests

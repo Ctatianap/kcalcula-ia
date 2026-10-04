@@ -46,11 +46,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     super.dispose();
   }
 
+  /// SPEC-008 R1: al guardar, vuelve a la pantalla desde donde se abrió
+  /// (Ajustes, Objetivo o Hoy) y el aviso se ve allí. Si hay un aviso que
+  /// leer aquí (la meta no se recalculó, R9), se queda en el perfil.
   Future<void> _save() async {
     final saved = await _controller.save();
     if (saved && mounted) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Perfil guardado.')));
+      if (_controller.infoMessage == null) Navigator.of(context).maybePop();
     }
   }
 

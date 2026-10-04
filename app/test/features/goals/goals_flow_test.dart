@@ -137,7 +137,10 @@ void main() {
       final profile = await StorageRepository(db).getUserProfile();
       expect(profile!.weightKg, 70);
       expect(profile.activityLevel, 'veryActive');
-      expect(find.text('Elegir mi objetivo'), findsOneWidget);
+      // R1: al guardar vuelve a la pantalla anterior, con el aviso.
+      expect(find.byType(ProfileScreen), findsNothing);
+      expect(find.byType(DiaryScreen), findsOneWidget);
+      expect(find.text('Perfil guardado.'), findsOneWidget);
     });
 
     testWidgets('AC6: fuera de rango → mensaje y no se puede guardar', (
@@ -232,6 +235,23 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Mi perfil'), findsOneWidget);
+    });
+
+    testWidgets('R1: al guardar el perfil abierto desde Mi objetivo, vuelve '
+        'a Mi objetivo con las opciones cargadas', (tester) async {
+      final db = await _pump(tester, AppRoutes.objective);
+      addTearDown(db.close);
+      await tester.tap(find.text('Completar mi perfil'));
+      await tester.pumpAndSettle();
+
+      await _fillProfile(tester);
+      await tester.tap(find.widgetWithText(FilledButton, 'Guardar perfil'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ProfileScreen), findsNothing);
+      expect(find.byType(ObjectiveScreen), findsOneWidget);
+      expect(find.byKey(const Key('objective-loseFat')), findsOneWidget);
+      expect(find.text('Perfil guardado.'), findsOneWidget);
     });
 
     testWidgets(
@@ -363,6 +383,8 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.text(goalNotRecalculatedMessage), findsOneWidget);
+        // R1: con un aviso que leer, se queda en el perfil.
+        expect(find.byType(ProfileScreen), findsOneWidget);
         expect((await repo.getNutritionGoal())!.energyKcal, 3000);
       },
     );

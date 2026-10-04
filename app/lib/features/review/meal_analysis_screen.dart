@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_routes.dart';
+import '../../infra/ai_client/ai_client_errors.dart';
 import '../../infra/ai_client/ai_client_providers.dart';
 import '../../infra/food_resolution/meal_draft.dart';
 import '../../infra/catalog/catalog_providers.dart';
@@ -78,13 +79,15 @@ class _MealAnalysisScreenState extends ConsumerState<MealAnalysisScreen> {
           completedSteps: completedSteps,
           onCancel: _back,
         ),
-        AnalysisFailed(:final message, :final isAiError) => AnalysisErrorView(
-          message: message,
-          isAiError: isAiError,
-          onRetry: _controller.run,
-          onBack: _back,
-          onSearchManually: isAiError ? _searchManually : null,
-        ),
+        AnalysisFailed(:final message, :final isAiError, :final aiErrorType) =>
+          AnalysisErrorView(
+            message: message,
+            isAiError: isAiError,
+            aiErrorType: aiErrorType,
+            onRetry: _controller.run,
+            onBack: _back,
+            onSearchManually: isAiError ? _searchManually : null,
+          ),
         AnalysisReady(:final review) => MealDetailView(
           controller: review,
           onCorrect: _back,
@@ -216,10 +219,20 @@ const analysisErrorTips = [
   'Si es una foto, acércate a la tabla y busca buena luz.',
 ];
 
+/// R6: título según la causa; solo una respuesta que no se entendió dice
+/// "No pude entender tu comida".
+String analysisErrorTitle(AiClientErrorType type) => switch (type) {
+  AiClientErrorType.invalidOutput => 'No pude entender tu comida',
+  AiClientErrorType.network => 'No pude conectarme',
+  AiClientErrorType.appCheck ||
+  AiClientErrorType.unknown => 'No pude analizar tu comida',
+};
+
 /// R6/R7: fallo de la IA o del parseo, con el mensaje específico.
 class AnalysisErrorView extends StatelessWidget {
   final String message;
   final bool isAiError;
+  final AiClientErrorType aiErrorType;
   final VoidCallback onRetry;
   final VoidCallback onBack;
 
@@ -230,6 +243,7 @@ class AnalysisErrorView extends StatelessWidget {
     super.key,
     required this.message,
     required this.isAiError,
+    this.aiErrorType = AiClientErrorType.unknown,
     required this.onRetry,
     required this.onBack,
     this.onSearchManually,
@@ -268,7 +282,7 @@ class AnalysisErrorView extends StatelessWidget {
               const SizedBox(height: 20),
               Text(
                 isAiError
-                    ? 'No pude entender tu comida'
+                    ? analysisErrorTitle(aiErrorType)
                     : 'No pude leer tus datos',
                 textAlign: TextAlign.center,
                 style: textTheme.titleLarge,
