@@ -115,11 +115,10 @@ List<ValidationIssue> validateSynonyms(
 
   // SPEC-028 R3: un sinónimo no puede coincidir (sin tildes) con el nombre
   // de otro alimento; si no, la coincidencia exacta de la app elegiría en
-  // silencio.
+  // silencio. Solo se miran los términos que son de algún sinónimo: dos
+  // nombres iguales ya los reporta `validateFoods`.
   for (final food in foods) {
-    termToFoodIds
-        .putIfAbsent(normalizeFoodTerm(food.nameEs), () => {})
-        .add(food.id);
+    termToFoodIds[normalizeFoodTerm(food.nameEs)]?.add(food.id);
   }
 
   for (final entry in termToFoodIds.entries) {

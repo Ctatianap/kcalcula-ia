@@ -103,9 +103,8 @@ void main() {
       ], foods);
       expect(issues, hasLength(1));
       expect(issues.single.severity, IssueSeverity.error);
-      expect(issues.single.message, contains('papa de prueba'));
-      expect(issues.single.message, contains('papa'));
-      expect(issues.single.message, contains('otro'));
+      expect(issues.single.message, contains('"papa de prueba"'));
+      expect(issues.single.message, contains('(otro, papa)'));
     });
 
     test('SPEC-028: el sinónimo igual al nombre de su propio alimento no '
@@ -115,6 +114,15 @@ void main() {
         const SynonymRow(foodId: 'cafe', term: 'cafe'),
       ], foods);
       expect(issues, isEmpty);
+    });
+
+    test('SPEC-028: dos nombres iguales sin sinónimos no se reportan aquí '
+        '(ya lo hace validateFoods)', () {
+      final foods = [
+        _food(id: 'a', nameEs: 'Café'),
+        _food(id: 'b', nameEs: 'cafe'),
+      ];
+      expect(validateSynonyms(const [], foods), isEmpty);
     });
 
     test('el mismo alimento puede repetir su propio término sin error', () {

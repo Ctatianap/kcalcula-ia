@@ -104,7 +104,16 @@ sin hacerme elegir de una lista de una sola opción.
 | AC2 | ✅ | `app/test/integration/catalog_real_db_test.dart` › "SPEC-028 AC2…": recorre los términos con marcas del `catalog.db` real (32) y prueba cada uno con y sin marcas |
 | AC3 | ✅ | `catalog_repository_test.dart` › "AC3: si el término sin tildes es de dos alimentos, no hay matched" |
 | AC4 | ✅ | `data/build_catalog/test/validators_test.dart` › "SPEC-028 AC4…" (mensaje con el término y los dos alimentos) y "normalizeFoodTerm, mismos casos…"; `dart run` del catálogo real sin errores |
-| AC5 | ✅ | app: analyze sin avisos, 323/323; `build_catalog`: 20/20. Ningún test existente cambió de expectativa (ninguno esperaba `ambiguous` de un solo candidato) |
+| AC5 | ✅ | app: analyze sin avisos, 324/324; `build_catalog`: 21/21. Ningún test existente cambió de expectativa (ninguno esperaba `ambiguous` de un solo candidato) |
 
 ## Review
-Informe del reviewer: pendiente.
+Revisión (2026-10-03, commit 9c9dd74): **PASS**. AC1–AC5 cumplidos; `data/curated/` sin cambios y el
+build real con 0 filas añadidas, eliminadas o cambiadas; normalizadores idénticos; invariantes
+respetadas. Hallazgos MINOR, corregidos:
+- AC4: el test comprueba el término exacto y los dos ids (`(otro, papa)`).
+- El validador ya no repite como "food_synonyms" un choque entre dos nombres (lo reporta
+  `validateFoods`); test nuevo.
+- AC3 comprueba que sigue por FTS5: `ambiguous` con los dos candidatos.
+- Caso de paréntesis probado contra el catálogo real ("maiz tierno (choclo)" da matched; "maiz
+  tierno" no).
+- AC2 usa "al menos 32" para tolerar que el catálogo crezca (nota, sin cambio).

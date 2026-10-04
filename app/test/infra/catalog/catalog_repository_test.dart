@@ -97,15 +97,24 @@ void main() {
       final catalog = CatalogRepository(db);
       addTearDown(catalog.close);
 
-      expect(catalog.resolve('papa de prueba'), isNot(isA<FoodMatched>()));
-      expect(catalog.resolve('papá de prueba'), isNot(isA<FoodMatched>()));
+      for (final query in ['papa de prueba', 'papá de prueba']) {
+        // R2: sin matched; sigue por FTS5 con los dos candidatos.
+        final result = catalog.resolve(query);
+        expect(result, isA<FoodAmbiguous>(), reason: query);
+        expect((result as FoodAmbiguous).candidates.map((c) => c.id).toSet(), {
+          'papa_tilde',
+          'otro',
+        });
+      }
     });
 
-    test('Edge: con paréntesis exige el texto completo; el resto sigue por '
-        'FTS', () {
-      final catalog = buildFixtureCatalog();
-      addTearDown(catalog.close);
-      expect(catalog.resolve('cafe con leche'), isNot(isA<FoodMatched>()));
-    });
+    test(
+      'Edge: un texto parcial no es coincidencia exacta y sigue por FTS',
+      () {
+        final catalog = buildFixtureCatalog();
+        addTearDown(catalog.close);
+        expect(catalog.resolve('cafe con leche'), isNot(isA<FoodMatched>()));
+      },
+    );
   });
 }

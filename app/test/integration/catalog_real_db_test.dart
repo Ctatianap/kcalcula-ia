@@ -67,4 +67,13 @@ void main() {
       }
     }
   });
+
+  test('SPEC-028 Edge: con paréntesis exige el texto completo', () {
+    final repo = CatalogRepository.openFile(dbPath);
+    addTearDown(repo.close);
+    final full = repo.resolve('maiz tierno (choclo)');
+    expect(full, isA<FoodMatched>());
+    expect((full as FoodMatched).food.id, 'maiz_tierno');
+    expect(repo.resolve('maiz tierno'), isNot(isA<FoodMatched>()));
+  });
 }
