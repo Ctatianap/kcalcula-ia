@@ -361,6 +361,10 @@ issues; `nutrition_core` 63/63; app 139/139 (tras OQ10-A, el mantenimiento medid
   (Ajustes → Mi objetivo). Status Done → Review por el cambio. Evidencia: `goals_flow_test.dart`
   ("AC6/AC7…", "R1: al guardar el perfil abierto desde Mi objetivo…" y "AC9…fuera de rango…", que
   comprueba que se queda en el perfil).
+- 2026-10-03: reviewer **PASS** del cambio de R1 (commit fc2b844, 319/319). Fusionado en `develop`
+  con la aprobación de la usuaria. Vuelve a Done tras comprobarlo en el teléfono (Ajustes → Mi
+  perfil → Guardar perfil).
+
 ## Review
 Primera revisión (2026-10-02, subagente `reviewer`): **CHANGES_REQUESTED**.
 - [MAJOR] Fallos de escritura en `user.db` llegaban a Crashlytics con los parámetros de SQLite.

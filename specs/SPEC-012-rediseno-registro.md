@@ -162,6 +162,7 @@ Manual: recorrido en el teléfono pendiente (lo hace la usuaria).
   pensar que la IA no entendió. Propuesto en la sesión y aceptado por la usuaria ("hagamos primero
   todo lo faltante"). Evidencia: `meal_analysis_test.dart` ("AC6…" y "R6: el título del error
   depende de la causa").
+- 2026-10-03: reviewer **PASS** del cambio de R6/AC6 (commit fc2b844). Fusionado en `develop`.
 
 ## Review
 Informe del reviewer (2026-10-03, commit 21d39ac): **PASS**. AC1–AC7 cumplidos con evidencia en tests
