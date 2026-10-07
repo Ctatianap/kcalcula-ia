@@ -38,7 +38,9 @@ class AiClient {
       (data) async {
         final callable = functions.httpsCallable(
           'extractLabel',
-          options: HttpsCallableOptions(timeout: const Duration(seconds: 10)),
+          // SPEC-029: igual que `timeoutSeconds` de `extractLabel` (Vertex
+          // tarda p95 21 s con una etiqueta).
+          options: HttpsCallableOptions(timeout: const Duration(seconds: 60)),
         );
         final result = await callable.call<Map<String, dynamic>>(data);
         return result.data;
