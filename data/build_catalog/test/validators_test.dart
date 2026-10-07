@@ -92,6 +92,39 @@ void main() {
       expect(issues, isNotEmpty);
     });
 
+    test('SPEC-028 AC4: un sinónimo que coincide sin tildes con el nombre de '
+        'otro alimento falla y nombra el término y los dos alimentos', () {
+      final foods = [
+        _food(id: 'papa', nameEs: 'Papá de prueba'),
+        _food(id: 'otro', nameEs: 'otro'),
+      ];
+      final issues = validateSynonyms([
+        const SynonymRow(foodId: 'otro', term: 'Papa de prueba'),
+      ], foods);
+      expect(issues, hasLength(1));
+      expect(issues.single.severity, IssueSeverity.error);
+      expect(issues.single.message, contains('"papa de prueba"'));
+      expect(issues.single.message, contains('(otro, papa)'));
+    });
+
+    test('SPEC-028: el sinónimo igual al nombre de su propio alimento no '
+        'falla', () {
+      final foods = [_food(id: 'cafe', nameEs: 'Café')];
+      final issues = validateSynonyms([
+        const SynonymRow(foodId: 'cafe', term: 'cafe'),
+      ], foods);
+      expect(issues, isEmpty);
+    });
+
+    test('SPEC-028: dos nombres iguales sin sinónimos no se reportan aquí '
+        '(ya lo hace validateFoods)', () {
+      final foods = [
+        _food(id: 'a', nameEs: 'Café'),
+        _food(id: 'b', nameEs: 'cafe'),
+      ];
+      expect(validateSynonyms(const [], foods), isEmpty);
+    });
+
     test('el mismo alimento puede repetir su propio término sin error', () {
       final foods = [_food(id: 'a')];
       final issues = validateSynonyms([
@@ -176,5 +209,14 @@ void main() {
       ], foods);
       expect(issues, isEmpty);
     });
+  });
+
+  test('SPEC-028: normalizeFoodTerm, mismos casos que normalizeFoodText de '
+      'la app', () {
+    expect(normalizeFoodTerm(' PINGÜINO '), 'pinguino');
+    expect(normalizeFoodTerm('Ñame cocido'), 'name cocido');
+    expect(normalizeFoodTerm('Café'), 'cafe');
+    expect(normalizeFoodTerm('üa'), 'ua');
+    expect(normalizeFoodTerm('agüü'), 'aguu');
   });
 }

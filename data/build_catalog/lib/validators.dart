@@ -13,15 +13,15 @@ class ValidationIssue {
       '${severity == IssueSeverity.error ? "ERROR" : "WARNING"}: $message';
 }
 
-// Copia de `normalizeFoodText` (app/lib/format/text_es.dart, SPEC-020); este
-// paquete no depende de la app. Sin "ü" mientras ningún alimento la tenga
-// (T-026 en docs/backlog.md).
-String _normalize(String text) {
-  const withAccents = 'áéíóúÁÉÍÓÚñÑ';
-  const withoutAccents = 'aeiouAEIOUnN';
+// Copia idéntica de `normalizeFoodText` (app/lib/format/text_es.dart,
+// SPEC-020/SPEC-028): este paquete no depende de la app. Los dos tests
+// ("normalizeFoodText…" y "normalize…") usan los mismos casos.
+String normalizeFoodTerm(String text) {
+  const withMarks = 'áéíóúüñ';
+  const withoutMarks = 'aeiouun';
   var result = text.trim().toLowerCase();
-  for (var i = 0; i < withAccents.length; i++) {
-    result = result.replaceAll(withAccents[i], withoutAccents[i].toLowerCase());
+  for (var i = 0; i < withMarks.length; i++) {
+    result = result.replaceAll(withMarks[i], withoutMarks[i]);
   }
   return result;
 }
@@ -47,7 +47,7 @@ List<ValidationIssue> validateFoods(List<FoodRow> foods) {
       );
     }
 
-    final normalizedName = _normalize(food.nameEs);
+    final normalizedName = normalizeFoodTerm(food.nameEs);
     final existing = namesSeen[normalizedName];
     if (existing != null) {
       issues.add(
@@ -109,8 +109,16 @@ List<ValidationIssue> validateSynonyms(
       );
       continue;
     }
-    final normalizedTerm = _normalize(synonym.term);
+    final normalizedTerm = normalizeFoodTerm(synonym.term);
     termToFoodIds.putIfAbsent(normalizedTerm, () => {}).add(synonym.foodId);
+  }
+
+  // SPEC-028 R3: un sinónimo no puede coincidir (sin tildes) con el nombre
+  // de otro alimento; si no, la coincidencia exacta de la app elegiría en
+  // silencio. Solo se miran los términos que son de algún sinónimo: dos
+  // nombres iguales ya los reporta `validateFoods`.
+  for (final food in foods) {
+    termToFoodIds[normalizeFoodTerm(food.nameEs)]?.add(food.id);
   }
 
   for (final entry in termToFoodIds.entries) {
