@@ -1,7 +1,7 @@
 # SPEC-029: Vertex AI en el backend desplegado de desarrollo
 
 ## Status
-Implementing
+Review
 Path: Strict (proveedor de IA real; el texto y la foto de la etiqueta salen del dispositivo hacia
 Google; cuesta dinero; skill `ai-pipeline`)
 
@@ -226,6 +226,27 @@ la IA real lo entienda, para no depender de las frases de prueba.
   dio `roles/aiplatform.user`. Firebase avisó que no hay política de limpieza de imágenes en
   Artifact Registry (costo pequeño mensual). La usuaria registró el token de depuración de su
   Motorola en App Check.
+- 2026-10-07: prueba en el teléfono (AC1, AC2, AC3, AC8, AC10) y AC5 en el emulador. El token de
+  depuración se había registrado en la app Android vieja (`com.caloriasia.calorias_ia`); se
+  registró por API en la correcta y la usuaria quitó las dos apps viejas (Android e iOS) de
+  Firebase. **Incidente:** al manejar el selector de fotos por `adb`, un toque cayó sobre una foto
+  personal de la galería de la usuaria y se envió a `extractLabel` (Vertex AI); el backend no la
+  guardó ni la registró. Se le informó de inmediato; desde entonces la usuaria elige las fotos.
+  Status → Review.
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | 2026-10-07, Motorola edge 50 pro, backend desplegado: "un caldo de costilla con arepa y un jugo de mora" → Detalle con los tres ítems (arepa y jugo de mora resueltos; caldo de costilla "No encontrado en la base": falta en el catálogo, no es fallo de la IA). Log: `parseMeal`, `gemini-2.5-flash`, 5,1 s, 651/269 tokens, `valid: true` |
+| AC2 | ✅ con observación | Etiqueta real ("mini palitos de queso") → "Confirmar etiqueta" con los valores transcritos; Atwater dentro de ±20 %. La usuaria vio valores que parecen tomados de la columna "por 100 g" y no de la porción: se revisa aparte con su foto (T-030). No dejaba guardar al escribir "1,4": SPEC-030 |
+| AC3 | ✅ | Cloud Logging de `parsemeal` y `extractlabel`: solo `requestId`, `promptVersion`, `modelId`, `latencyMs`, `tokensInput/Output` y `valid`. Buscar "caldo", "costilla", "mora", "palitos" y "queso" en los logs: 0 coincidencias |
+| AC4 | ✅ | 47 casos: 46 válidos y `label_52` con 429 de cuota; repetido con `--case=label_52`: válido, 17/17 campos → 47/47. Campos 96,1 % (Ollama 73,0 %); 2 campos puntuados inventados en `label_38` (aceptado por la usuaria); latencia p50 8,5 s, p95 21,2 s. Baseline sin guardar (falta aprobación de la usuaria) |
+| AC5 | ✅ | Unit: `functions/src/ai/provider_name.test.ts` (6 tests). Manual: emulador sin `AI_PROVIDER`, cargando `.env.kcalcula-ia-dev` y `.env.local` → `parseMeal` con token de App Check válido responde `items: []` y el log dice `modelId: "fake"` |
+| AC6 | ✅ | functions 57/57; prompts, `schemas.ts` y `vertex.ts` sin cambios frente a `develop` |
+| AC7 | ✅ | ADR-002 (Actualización 2026-10-07), `docs/privacy.md` (foto de etiqueta), `docs/architecture.md` (proveedor por ambiente y timeouts), CLAUDE.md (Comandos) |
+| AC8 | ✅ | `timeoutSeconds: 60` en `extractLabel` y 60 s en `AiClient`; `parseMeal` sigue en 10 s. La etiqueta real tardó 17,9 s y se leyó sin error de tiempo agotado |
+| AC9 | ✅ | `gcloud functions list`: `parseMeal`, `extractLabel` (`us-east1`) y `healthCheck` (`us-central1`, sin región fija desde T-000) en `ACTIVE` |
+| AC10 | ✅ | Tras registrar el token en la app Android correcta (`com.kcalcula.app`), Cloud Logging muestra `verifications.app: VALID` y desaparece el error de App Check en `flutter run` |
 
 ## Review
 Informe del reviewer:
