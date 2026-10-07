@@ -211,6 +211,13 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   dependencies: [T-024]
   status: done  # SPEC-028 (R3)
   spec_required: false   # cubierta por SPEC-028 (R3), junto con T-025
+- id: T-029
+  title: Decimales con coma en "Confirmar etiqueta"
+  objective: >
+    `_NumberField` usa `double.tryParse`: "1,4" queda vacío y no deja guardar, sin explicación.
+    Encontrado al probar SPEC-029 en el teléfono (2026-10-07).
+  dependencies: []
+  spec_required: true    # specs/SPEC-030-decimales-con-coma-en-etiqueta.md — Standard
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
   # SPECs (Draft, 2026-10-04): specs/SPEC-021-foto-del-plato.md (Strict),
