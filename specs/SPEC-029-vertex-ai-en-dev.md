@@ -1,7 +1,7 @@
 # SPEC-029: Vertex AI en el backend desplegado de desarrollo
 
 ## Status
-Draft
+Implementing
 Path: Strict (proveedor de IA real; el texto y la foto de la etiqueta salen del dispositivo hacia
 Google; cuesta dinero; skill `ai-pipeline`)
 
@@ -146,6 +146,9 @@ la IA real lo entienda, para no depender de las frases de prueba.
 ## Change Log
 - 2026-10-07: creación a pedido de la usuaria ("hagamos lo de vertex para que ya nos funcione la
   ia"). Backlog T-027.
+- 2026-10-07: **Approved por la usuaria** ("aprobada la SPEC-029, sigue"), con las recomendaciones
+  de OQ1 (alerta de USD 5 al mes, avisos al 50/90/100 %) y OQ2 (desactivar la caché de datos).
+  Status → Implementing.
 
 ## Review
 Informe del reviewer:
