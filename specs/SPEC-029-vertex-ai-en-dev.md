@@ -150,7 +150,7 @@ la IA real lo entienda, para no depender de las frases de prueba.
 ## Tests Required
 - Unit: AC6 (la suite existente con `fake`).
 - Eval: AC4.
-- Manual: AC1, AC2, AC3, AC5, AC7.
+- Manual: AC1, AC2, AC3, AC5, AC7, AC8, AC9, AC10.
 
 ## Out of Scope
 - El proyecto de producción `kcalcula-ia` y la salida al mercado.
@@ -177,7 +177,7 @@ la IA real lo entienda, para no depender de las frases de prueba.
   (`lib/emulator/functionsEmulator.js`).
 
 ## Definition of Done
-- AC1–AC7 con evidencia · build y tests de `functions` verdes · evals de etiquetas con esquema
+- AC1–AC10 con evidencia · build y tests de `functions` verdes · evals de etiquetas con esquema
   100 % · reviewer PASS enlazado · ADR-002, privacy y architecture actualizados · aprobación de la
   usuaria (Strict).
 
@@ -232,15 +232,18 @@ la IA real lo entienda, para no depender de las frases de prueba.
   Firebase. **Incidente:** al manejar el selector de fotos por `adb`, un toque cayó sobre una foto
   personal de la galería de la usuaria y se envió a `extractLabel` (Vertex AI); el backend no la
   guardó ni la registró. Se le informó de inmediato; desde entonces la usuaria elige las fotos.
+  Riesgo residual: la caché de Vertex ya estaba desactivada, pero el registro de abuso de Google
+  (PV-03) pudo retener la imagen y no se puede borrar desde el proyecto. Regla preventiva
+  permanente en `docs/privacy.md` (Controles).
   Status → Review.
 
 ## Verificación
 | AC | Estado | Evidencia |
 |----|--------|-----------|
 | AC1 | ✅ | 2026-10-07, Motorola edge 50 pro, backend desplegado: "un caldo de costilla con arepa y un jugo de mora" → Detalle con los tres ítems (arepa y jugo de mora resueltos; caldo de costilla "No encontrado en la base": falta en el catálogo, no es fallo de la IA). Log: `parseMeal`, `gemini-2.5-flash`, 5,1 s, 651/269 tokens, `valid: true` |
-| AC2 | ✅ con observación | Etiqueta real ("mini palitos de queso") → "Confirmar etiqueta" con los valores transcritos; Atwater dentro de ±20 %. La usuaria vio valores que parecen tomados de la columna "por 100 g" y no de la porción: se revisa aparte con su foto (T-030). No dejaba guardar al escribir "1,4": SPEC-030 |
+| AC2 | ✅ con observación | Etiqueta real ("mini palitos de queso") → "Confirmar etiqueta" con los valores transcritos; Atwater dentro de ±20 %. Porción 20 g, mostrada y válida para la regla de porción obligatoria. La usuaria vio valores que parecen tomados de la columna "por 100 g" y no de la porción: se revisa aparte con su foto (T-030). No dejaba guardar al escribir "1,4": SPEC-030 |
 | AC3 | ✅ | Cloud Logging de `parsemeal` y `extractlabel`: solo `requestId`, `promptVersion`, `modelId`, `latencyMs`, `tokensInput/Output` y `valid`. Buscar "caldo", "costilla", "mora", "palitos" y "queso" en los logs: 0 coincidencias |
-| AC4 | ✅ | 47 casos: 46 válidos y `label_52` con 429 de cuota; repetido con `--case=label_52`: válido, 17/17 campos → 47/47. Campos 96,1 % (Ollama 73,0 %); 2 campos puntuados inventados en `label_38` (aceptado por la usuaria); latencia p50 8,5 s, p95 21,2 s. Baseline sin guardar (falta aprobación de la usuaria) |
+| AC4 | ✅ | 47 casos: 46 válidos y `label_52` con 429 de cuota; repetido con `--case=label_52`: válido, 17/17 campos → 47/47. Campos 96,1 % (Ollama 73,0 %); 2 campos puntuados inventados en `label_38` (aceptado por la usuaria); latencia p50 8,5 s y p95 21,2 s (Ollama: 5,8 s y 6,4 s); tokens promedio 2.851 de entrada y 239 de salida (Ollama: 1.566 y 248). La usuaria aprobó guardar el baseline: `evals/baselines/extract_label.v1__vertex__gemini-2.5-flash__2026-10-07.json` (corrida completa con `--save`: 47/47 válidos, campos 713/742 = 96,1 %, 2 inventados, tokens 2.851/240, latencia p50 12,1 s y **p95 34,0 s**, más lenta que la primera corrida; ver T-028) |
 | AC5 | ✅ | Unit: `functions/src/ai/provider_name.test.ts` (6 tests). Manual: emulador sin `AI_PROVIDER`, cargando `.env.kcalcula-ia-dev` y `.env.local` → `parseMeal` con token de App Check válido responde `items: []` y el log dice `modelId: "fake"` |
 | AC6 | ✅ | functions 57/57; prompts, `schemas.ts` y `vertex.ts` sin cambios frente a `develop` |
 | AC7 | ✅ | ADR-002 (Actualización 2026-10-07), `docs/privacy.md` (foto de etiqueta), `docs/architecture.md` (proveedor por ambiente y timeouts), CLAUDE.md (Comandos) |

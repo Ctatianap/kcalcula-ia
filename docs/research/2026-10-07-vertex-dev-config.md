@@ -218,3 +218,10 @@ pero estos comandos concretos no se probaron.)
   una prueba manual en la versión instalada de `firebase-tools`.
 - R3: dar `roles/aiplatform.user` a la cuenta de Compute y no depender del rol Editor automático; a futuro,
   considerar una cuenta de servicio dedicada para `parseMeal`/`extractLabel`.
+
+## Resolución (2026-10-07, SPEC-029)
+El conflicto de OQ3/R4 se resolvió sin `AI_PROVIDER` en `.env.kcalcula-ia-dev`: el archivo usa
+`DEPLOYED_AI_PROVIDER=vertex` y el código lo ignora en el emulador (`functions/src/ai/provider_name.ts`).
+Lo que esta nota dice sobre `.env.kcalcula-ia-dev` con `AI_PROVIDER=vertex` describe el problema, no
+la configuración final. La caché se desactivó con el PATCH de OQ2 y la lectura posterior dio
+`"disableCache": true`.
