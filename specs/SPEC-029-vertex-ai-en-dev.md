@@ -1,7 +1,7 @@
 # SPEC-029: Vertex AI en el backend desplegado de desarrollo
 
 ## Status
-Review
+Done
 Path: Strict (proveedor de IA real; el texto y la foto de la etiqueta salen del dispositivo hacia
 Google; cuesta dinero; skill `ai-pipeline`)
 
@@ -244,6 +244,7 @@ la IA real lo entienda, para no depender de las frases de prueba.
   las pruebas). R5 actualizado. Los umbrales de aviso no se confirmaron por escrito.
 - 2026-10-07: re-revisión del reviewer **PASS**; sus 3 MINOR corregidos (OQ1 resuelta, latencia de
   etiquetas en Edge Cases, sección Review). Falta la aprobación de la usuaria para fusionar (Strict).
+- 2026-10-07: **la usuaria aprueba fusionar** ("aprobado, fusiona a develop"). Status → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |

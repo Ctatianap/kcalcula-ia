@@ -218,6 +218,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     teléfono la IA solo reconoce las 10 frases de prueba. Pasar a `gemini-2.5-flash` en Vertex AI.
     Decisión de la usuaria del 2026-10-07 (adelanta ADR-002).
   dependencies: []
+  status: done  # SPEC-029
   spec_required: true    # specs/SPEC-029-vertex-ai-en-dev.md — Strict (datos fuera del dispositivo, costo)
 - id: T-028
   title: Medir gemini-2.5-flash sin razonamiento para bajar la latencia
