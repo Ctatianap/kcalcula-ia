@@ -149,6 +149,17 @@ la IA real lo entienda, para no depender de las frases de prueba.
 - 2026-10-07: **Approved por la usuaria** ("aprobada la SPEC-029, sigue"), con las recomendaciones
   de OQ1 (alerta de USD 5 al mes, avisos al 50/90/100 %) y OQ2 (desactivar la caché de datos).
   Status → Implementing.
+- 2026-10-07: hallazgos que contradicen la SPEC; implementación detenida a la espera de la usuaria.
+  (1) Evals de etiquetas con Vertex (AC4, sin guardar baseline): esquema 46/47 (el caso que falla,
+  `label_52`, es un 429 RESOURCE_EXHAUSTED de cuota, no una salida inválida); campos 697/725
+  (96,1 %; Ollama: 73,0 %); 2 campos puntuados inventados (`label_38`, azúcar 0 donde se esperaba
+  null); latencia p50 8,5 s, p95 21,2 s, máximo 37,6 s; 13 de 46 casos pasan de 10 s, así que con
+  el timeout actual (10 s en la función y en la app) fallaría cerca de 1 de cada 4 etiquetas.
+  (2) `docs/research/2026-10-07-vertex-dev-config.md` (OQ3): el emulador carga
+  `.env.kcalcula-ia-dev` y los valores de los `.env` ganan sobre la variable del shell, así que R4
+  no se puede cumplir sin cambiar código: sin `.env.local` el emulador usaría Vertex; con
+  `AI_PROVIDER=fake` en `.env.local`, `AI_PROVIDER=ollama` en la línea de comandos dejaría de
+  funcionar.
 
 ## Review
 Informe del reviewer:
