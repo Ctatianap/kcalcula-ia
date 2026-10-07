@@ -211,6 +211,14 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   dependencies: [T-024]
   status: done  # SPEC-028 (R3)
   spec_required: false   # cubierta por SPEC-028 (R3), junto con T-025
+- id: T-027
+  title: Vertex AI en el backend desplegado de desarrollo
+  objective: >
+    El backend desplegado en `kcalcula-ia-dev` usa `fake` (sin `AI_PROVIDER`), así que en el
+    teléfono la IA solo reconoce las 10 frases de prueba. Pasar a `gemini-2.5-flash` en Vertex AI.
+    Decisión de la usuaria del 2026-10-07 (adelanta ADR-002).
+  dependencies: []
+  spec_required: true    # specs/SPEC-029-vertex-ai-en-dev.md — Strict (datos fuera del dispositivo, costo)
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
   # SPECs (Draft, 2026-10-04): specs/SPEC-021-foto-del-plato.md (Strict),
