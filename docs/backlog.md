@@ -231,6 +231,14 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     Strict (parámetros del modelo, skill `ai-pipeline`).
   dependencies: [T-027]
   spec_required: true
+- id: T-029
+  title: Decimales con coma en "Confirmar etiqueta"
+  objective: >
+    `_NumberField` usa `double.tryParse`: "1,4" queda vacío y no deja guardar, sin explicación.
+    Encontrado al probar SPEC-029 en el teléfono (2026-10-07).
+  dependencies: []
+  status: done  # SPEC-030
+  spec_required: true    # specs/SPEC-030-decimales-con-coma-en-etiqueta.md — Standard
 - id: T-030
   title: La IA mezcla valores de porción y de "por 100 g" en una etiqueta
   objective: >
@@ -239,6 +247,15 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     un error del prompt `label_extraction.v1` (Strict, `ai-pipeline`) o de esa etiqueta.
   dependencies: [T-027]
   spec_required: true
+- id: T-031
+  title: "¿Cuánto comiste?" no se actualiza en pantalla al cambiar la porción
+  objective: >
+    En "Confirmar etiqueta", cambiar la porción actualiza `consumedQuantity` en el controlador
+    (SPEC-004 R5) pero el campo sigue mostrando el valor anterior. Hallazgo del reviewer de
+    SPEC-030, **confirmado en el teléfono** (2026-10-07): porción 27 → 30 y el campo sigue en 27.
+    La app registraría 30 g mientras la persona ve 27: cambia la cantidad guardada.
+  dependencies: []
+  spec_required: true    # cambia la cantidad que se registra; Standard
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
   # SPECs (Draft, 2026-10-04): specs/SPEC-021-foto-del-plato.md (Strict),

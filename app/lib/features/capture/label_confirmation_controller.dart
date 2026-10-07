@@ -99,15 +99,21 @@ class LabelConfirmationController extends ChangeNotifier {
   /// R3: porción obligatoria y positiva, los 4 macros presentes (el usuario
   /// completó cualquier campo no legible), cantidad consumida > 0, y si
   /// Atwater falla, confirmación explícita.
-  bool get canSave =>
-      productName.trim().isNotEmpty &&
-      isValidServingGrams(servingQuantity) &&
-      energyKcal != null &&
-      proteinG != null &&
-      carbsG != null &&
-      fatG != null &&
-      consumedQuantity > 0 &&
-      (!needsAtwaterConfirmation || _atwaterConfirmedDespiteWarning);
+  bool get canSave => missingForSave.isEmpty;
+
+  /// SPEC-030 R4: lo que falta para poder guardar, en el orden de la
+  /// pantalla; vacío si `canSave`.
+  List<String> get missingForSave => [
+    if (productName.trim().isEmpty) 'nombre del producto',
+    if (!isValidServingGrams(servingQuantity)) 'porción',
+    if (energyKcal == null) 'calorías',
+    if (proteinG == null) 'proteína',
+    if (carbsG == null) 'carbohidratos',
+    if (fatG == null) 'grasa',
+    if (consumedQuantity <= 0) 'cuánto comiste',
+    if (needsAtwaterConfirmation && !_atwaterConfirmedDespiteWarning)
+      'confirmar que los valores son correctos',
+  ];
 
   void setProductName(String value) {
     productName = value;

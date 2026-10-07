@@ -5,6 +5,7 @@ import '../../app_routes.dart';
 import '../../infra/ai_client/label_extraction_dto.dart';
 import '../../infra/ai_client/parsed_meal_dto.dart';
 import '../../infra/storage/storage_providers.dart';
+import '../../ui/number_input_es.dart';
 import 'label_confirmation_controller.dart';
 
 /// SPEC-004 R3, R4: pantalla de confirmación de una etiqueta transcrita.
@@ -13,6 +14,13 @@ import 'label_confirmation_controller.dart';
 
 const saveProductErrorMessage =
     'No pude guardar el producto. Intenta de nuevo.';
+
+/// SPEC-030 R3.
+const labelNumberErrorMessage =
+    'Escribe un número con máximo 2 decimales, por ejemplo 1,4.';
+
+/// SPEC-030 R1: decimales permitidos en los campos de la etiqueta.
+const _labelMaxDecimals = 2;
 
 class LabelConfirmationScreen extends ConsumerStatefulWidget {
   final LabelExtractionDto extraction;
@@ -62,7 +70,11 @@ class _LabelConfirmationScreenState
     _consumedController.text = _numberText(_controller.consumedQuantity);
   }
 
-  String _numberText(double? value) => value == null ? '' : value.toString();
+  /// SPEC-030 R2: se muestra con coma y redondeado; el controlador guarda
+  /// el valor original mientras no se edite el campo.
+  String _numberText(double? value) => value == null
+      ? ''
+      : formatDecimalEs(value, maxDecimals: _labelMaxDecimals);
 
   @override
   void dispose() {
@@ -258,6 +270,16 @@ class _LabelConfirmationScreenState
                     ),
                   ),
                 ),
+              if (_controller.missingForSave.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    'Falta: ${_controller.missingForSave.join(', ')}.',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
               FilledButton(
                 onPressed: (_controller.canSave && !_saving) ? _save : null,
                 child: _saving
@@ -318,13 +340,27 @@ class _NumberField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: TextField(
-        controller: controller,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        decoration: InputDecoration(
-          labelText: unreadable ? '$label (no se pudo leer)' : label,
-        ),
-        onChanged: (text) => onChanged(double.tryParse(text)),
+      // SPEC-030 R3: el error depende del texto del campo, no del
+      // controlador de la pantalla.
+      child: ValueListenableBuilder<TextEditingValue>(
+        valueListenable: controller,
+        builder: (context, value, _) {
+          final text = value.text.trim();
+          final invalid =
+              text.isNotEmpty &&
+              parseDecimalUpTo(text, maxDecimals: _labelMaxDecimals) == null;
+          return TextField(
+            controller: controller,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(
+              labelText: unreadable ? '$label (no se pudo leer)' : label,
+              errorText: invalid ? labelNumberErrorMessage : null,
+            ),
+            onChanged: (text) => onChanged(
+              parseDecimalUpTo(text, maxDecimals: _labelMaxDecimals),
+            ),
+          );
+        },
       ),
     );
   }
