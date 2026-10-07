@@ -251,9 +251,10 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   objective: >
     En "Confirmar etiqueta", cambiar la porción actualiza `consumedQuantity` en el controlador
     (SPEC-004 R5) pero el campo sigue mostrando el valor anterior. Hallazgo del reviewer de
-    SPEC-030; confirmar en el teléfono antes de corregir.
+    SPEC-030, **confirmado en el teléfono** (2026-10-07): porción 27 → 30 y el campo sigue en 27.
+    La app registraría 30 g mientras la persona ve 27: cambia la cantidad guardada.
   dependencies: []
-  spec_required: false
+  spec_required: true    # cambia la cantidad que se registra; Standard
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
   # SPECs (Draft, 2026-10-04): specs/SPEC-021-foto-del-plato.md (Strict),

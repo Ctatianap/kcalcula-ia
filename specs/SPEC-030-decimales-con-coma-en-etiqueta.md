@@ -1,7 +1,7 @@
 # SPEC-030: Decimales con coma en "Confirmar etiqueta"
 
 ## Status
-Implementing
+Review
 Path: Standard (corrige la entrada de números de una pantalla; no cambia `nutrition_core`, la IA
 ni el catálogo)
 
@@ -110,6 +110,7 @@ quedarme sin poder guardar y sin saber por qué.
   (`parseDecimal` delega con un decimal); `_NumberField` con error de R3; `missingForSave` en el
   controlador y texto "Falta: …" encima del botón. Falta la prueba manual en el teléfono.
 - 2026-10-07: reviewer PASS; sus 4 MINOR atendidos (ver Review). Falta la prueba manual en el teléfono.
+- 2026-10-07: prueba manual en el teléfono hecha (ver Verificación). Status → Review.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -119,7 +120,7 @@ quedarme sin poder guardar y sin saber por qué.
 | AC3 | ✅ | `app/test/ui/number_input_es_test.dart` (parser y formato: "1.200", "1,234", "1,", ",5", "-1" no válidos; "1,2", "0,25", "0", "14360" válidos) y `label_confirmation_screen_test.dart` › "SPEC-030 AC3…" (mensaje de R3 y sodio guardado como `null`) |
 | AC4 | ✅ | `label_confirmation_screen_test.dart` › "SPEC-030 AC4: \"Falta: proteína.\" hasta completarla" |
 | AC5 | ✅ | app: analyze sin avisos, 338/338 (tras los MINOR del reviewer). Expectativas cambiadas, como prevé el AC: "AC2/AC4: muestra los valores transcritos, editables" pasa de "140.0" y "30.0" a "140" y "30" (R2). `parseDecimal` conserva su comportamiento (test "parseDecimal sigue aceptando solo un decimal") |
-| Manual | ⏳ | Confirmar una etiqueta real en el teléfono escribiendo con coma |
+| Manual | ✅ | 2026-10-07, Motorola edge 50 pro, etiqueta real elegida por la usuaria: los valores de la IA salen con coma ("2,8", "0,2", "1,3", "1,8"); "Falta: nombre del producto." porque la IA no lo leyó; proteína "1,4" deja Guardar activo; sodio "1.200" muestra el mensaje de R3; proteína vacía → "Falta: proteína." y Guardar deshabilitado. No se guardó el producto de prueba |
 
 ## Review
 Revisión (2026-10-07, subagente `reviewer`, sobre `ca79df9`): **PASS**. AC1–AC5 con evidencia; app
