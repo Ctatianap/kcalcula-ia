@@ -110,7 +110,7 @@ class LabelConfirmationController extends ChangeNotifier {
     if (proteinG == null) 'proteína',
     if (carbsG == null) 'carbohidratos',
     if (fatG == null) 'grasa',
-    if (consumedQuantity <= 0) '¿Cuánto comiste?',
+    if (consumedQuantity <= 0) 'cuánto comiste',
     if (needsAtwaterConfirmation && !_atwaterConfirmedDespiteWarning)
       'confirmar que los valores son correctos',
   ];

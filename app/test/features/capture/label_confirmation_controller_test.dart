@@ -149,4 +149,52 @@ void main() {
     );
     expect(controller.consumedQuantity, 30);
   });
+
+  group('SPEC-030 R4: missingForSave', () {
+    test('lista lo que falta en el orden de la pantalla', () {
+      final controller = LabelConfirmationController(
+        extraction: _extraction(
+          productName: null,
+          servingSize: null,
+          perServing: const LabelNutrientSetDto(
+            energyKcal: null,
+            proteinG: null,
+            carbsG: null,
+            fatG: null,
+          ),
+        ),
+        storage: storage,
+      );
+      expect(controller.missingForSave, [
+        'nombre del producto',
+        'porción',
+        'calorías',
+        'proteína',
+        'carbohidratos',
+        'grasa',
+        'cuánto comiste',
+      ]);
+      expect(controller.canSave, isFalse);
+    });
+
+    test('Atwater sin confirmar es lo único que falta, hasta confirmarlo', () {
+      final controller = LabelConfirmationController(
+        extraction: _extraction(
+          perServing: const LabelNutrientSetDto(
+            energyKcal: 500,
+            proteinG: 1,
+            carbsG: 1,
+            fatG: 1,
+          ),
+        ),
+        storage: storage,
+      );
+      expect(controller.missingForSave, [
+        'confirmar que los valores son correctos',
+      ]);
+      controller.setAtwaterConfirmedDespiteWarning(true);
+      expect(controller.missingForSave, isEmpty);
+      expect(controller.canSave, isTrue);
+    });
+  });
 }

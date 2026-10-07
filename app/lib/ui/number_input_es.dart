@@ -23,6 +23,8 @@ double? parseDecimalUpTo(String text, {required int maxDecimals}) {
 /// SPEC-030 R2: número para mostrar en es-CO, con coma, hasta
 /// [maxDecimals] decimales y sin ceros de más ("15", "2,9", "1,78").
 /// Solo presentación: no cambia el valor guardado (invariante 3).
+/// Espera valores no negativos y de magnitud normal (los de una etiqueta):
+/// un negativo diminuto da "-0" y desde 1e21 sale notación exponencial.
 String formatDecimalEs(double value, {int maxDecimals = 2}) {
   var text = value.toStringAsFixed(maxDecimals);
   if (text.contains('.')) {

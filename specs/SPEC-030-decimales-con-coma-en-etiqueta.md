@@ -36,8 +36,8 @@ quedarme sin poder guardar y sin saber por qué.
 - R3. Un texto no válido ("1.200", "1,234", "abc") muestra debajo del campo: "Escribe un número
   con máximo 2 decimales, por ejemplo 1,4." y el campo cuenta como vacío.
 - R4. Si **Guardar y continuar** está deshabilitado, un texto encima del botón dice qué falta, en
-  este orden: nombre del producto, porción, calorías, proteína, carbohidratos, grasa, "¿Cuánto
-  comiste?", o la confirmación de Atwater. Ejemplo: "Falta: proteína."
+  este orden: nombre del producto, porción, calorías, proteína, carbohidratos, grasa, "cuánto
+  comiste", o la confirmación de Atwater. Ejemplo: "Falta: proteína."
 - R5. El parser es una función compartida en `app/lib/ui/number_input_es.dart` con su número de
   decimales como parámetro. `parseDecimal` (un decimal) no cambia para las demás pantallas.
 
@@ -109,6 +109,7 @@ quedarme sin poder guardar y sin saber por qué.
 - 2026-10-07: implementada. `parseDecimalUpTo` y `formatDecimalEs` en `app/lib/ui/number_input_es.dart`
   (`parseDecimal` delega con un decimal); `_NumberField` con error de R3; `missingForSave` en el
   controlador y texto "Falta: …" encima del botón. Falta la prueba manual en el teléfono.
+- 2026-10-07: reviewer PASS; sus 4 MINOR atendidos (ver Review). Falta la prueba manual en el teléfono.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -117,8 +118,16 @@ quedarme sin poder guardar y sin saber por qué.
 | AC2 | ✅ | mismo archivo › "SPEC-030 AC2…": muestra "15", "2,9" y "1,78"; sin editar se guarda `carbsG100 == 1.7799999999999998` |
 | AC3 | ✅ | `app/test/ui/number_input_es_test.dart` (parser y formato: "1.200", "1,234", "1,", ",5", "-1" no válidos; "1,2", "0,25", "0", "14360" válidos) y `label_confirmation_screen_test.dart` › "SPEC-030 AC3…" (mensaje de R3 y sodio guardado como `null`) |
 | AC4 | ✅ | `label_confirmation_screen_test.dart` › "SPEC-030 AC4: \"Falta: proteína.\" hasta completarla" |
-| AC5 | ✅ | app: analyze sin avisos, 336/336. Expectativas cambiadas, como prevé el AC: "AC2/AC4: muestra los valores transcritos, editables" pasa de "140.0" y "30.0" a "140" y "30" (R2). `parseDecimal` conserva su comportamiento (test "parseDecimal sigue aceptando solo un decimal") |
+| AC5 | ✅ | app: analyze sin avisos, 338/338 (tras los MINOR del reviewer). Expectativas cambiadas, como prevé el AC: "AC2/AC4: muestra los valores transcritos, editables" pasa de "140.0" y "30.0" a "140" y "30" (R2). `parseDecimal` conserva su comportamiento (test "parseDecimal sigue aceptando solo un decimal") |
 | Manual | ⏳ | Confirmar una etiqueta real en el teléfono escribiendo con coma |
 
 ## Review
-Informe del reviewer:
+Revisión (2026-10-07, subagente `reviewer`, sobre `ca79df9`): **PASS**. AC1–AC5 con evidencia; app
+analyze sin avisos y 336/336; `missingForSave` equivale al `canSave` anterior; invariantes 2 y 3
+respetadas; la prueba manual pendiente no bloquea. 4 MINOR:
+- "Falta: ¿Cuánto comiste?." (signo y punto): ahora "cuánto comiste".
+- Sin test del orden con varios faltantes ni del ítem de Atwater: 2 tests nuevos en
+  `label_confirmation_controller_test.dart` (338/338).
+- `formatDecimalEs` con negativos diminutos o ≥1e21: documentado en la función.
+- Heredado de SPEC-004: al cambiar la porción, el campo "¿Cuánto comiste?" no actualiza su texto
+  aunque el controlador sí: T-031 en el backlog.

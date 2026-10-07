@@ -246,6 +246,14 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     un error del prompt `label_extraction.v1` (Strict, `ai-pipeline`) o de esa etiqueta.
   dependencies: [T-027]
   spec_required: true
+- id: T-031
+  title: "¿Cuánto comiste?" no se actualiza en pantalla al cambiar la porción
+  objective: >
+    En "Confirmar etiqueta", cambiar la porción actualiza `consumedQuantity` en el controlador
+    (SPEC-004 R5) pero el campo sigue mostrando el valor anterior. Hallazgo del reviewer de
+    SPEC-030; confirmar en el teléfono antes de corregir.
+  dependencies: []
+  spec_required: false
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
   # SPECs (Draft, 2026-10-04): specs/SPEC-021-foto-del-plato.md (Strict),
