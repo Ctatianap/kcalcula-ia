@@ -132,8 +132,8 @@ la IA real lo entienda, para no depender de las frases de prueba.
 - **Falta el permiso de Vertex** (R3): la función falla. La app debe mostrar el error de IA en
   español, con "Reintentar" y "Buscar en la base manualmente" (SPEC-012 y SPEC-018), sin trazas.
   Se comprueba de paso en AC1 si ocurre.
-- **Vertex tarda más que el tiempo límite** (texto: p95 5,8 s contra 10 s; etiqueta: p95 21 s y
-  máximo 37,6 s contra 60 s): la app muestra el error de tiempo agotado que ya existe.
+- **Vertex tarda más que el tiempo límite** (texto: p95 5,8 s contra 10 s; etiqueta: p95 21–34 s
+  según la corrida y máximo 37,6 s contra 60 s; con el reintento puede pasar de 60 s, ver T-028): la app muestra el error de tiempo agotado que ya existe.
 - **Respuesta inválida del modelo**: un reintento y luego `ai-invalid-output`, como hoy.
 - **Sin red en el teléfono**: igual que hoy.
 - **Cuota de Vertex agotada o facturación desactivada**: error de IA en la app; la alerta de
@@ -162,10 +162,9 @@ la IA real lo entienda, para no depender de las frases de prueba.
   2026-10-02.
 
 ## Open Questions
-- OQ1. **Monto de la alerta de presupuesto (R5).** Recomendación: USD 5 al mes, con avisos al 50 %,
-  90 % y 100 %. Con unas 650 tokens de entrada y 170 de salida por análisis de texto, son miles de
-  análisis antes de llegar a USD 1 (el precio en Vertex sigue POR VERIFICAR, PV-02). La alerta
-  avisa, **no corta** el gasto.
+- OQ1. **Monto de la alerta de presupuesto (R5).** Resuelta (2026-10-07): 5.000 COP al mes por
+  decisión de la usuaria ("5000 mil por ahora"); umbrales sin confirmar por escrito. Ver R5. (La
+  recomendación inicial era USD 5 con avisos al 50/90/100 %.)
 - OQ2. **Caché de datos de Vertex.** Se desactiva (decisión de la usuaria) con
   `PATCH .../v1/projects/kcalcula-ia-dev/cacheConfig` y `disableCache: true`, que aplica a todo el
   proyecto (`docs/research/2026-10-07-vertex-dev-config.md`, confianza media-alta). La lectura del
@@ -186,7 +185,7 @@ la IA real lo entienda, para no depender de las frases de prueba.
 - 2026-10-07: creación a pedido de la usuaria ("hagamos lo de vertex para que ya nos funcione la
   ia"). Backlog T-027.
 - 2026-10-07: **Approved por la usuaria** ("aprobada la SPEC-029, sigue"), con las recomendaciones
-  de OQ1 (alerta de USD 5 al mes, avisos al 50/90/100 %) y OQ2 (desactivar la caché de datos).
+  de OQ1 (alerta de USD 5 al mes, avisos al 50/90/100 %; luego cambiada a 5.000 COP, ver R5) y OQ2 (desactivar la caché de datos).
   Status → Implementing.
 - 2026-10-07: hallazgos que contradicen la SPEC; implementación detenida a la espera de la usuaria.
   (1) Evals de etiquetas con Vertex (AC4, sin guardar baseline): esquema 46/47 (el caso que falla,
@@ -243,6 +242,8 @@ la IA real lo entienda, para no depender de las frases de prueba.
   alerta a 5000 pesos"), por debajo de los USD 5 de OQ1.
 - 2026-10-07: la usuaria decide dejar la alerta en 5.000 COP "por ahora" (avisos tempranos durante
   las pruebas). R5 actualizado. Los umbrales de aviso no se confirmaron por escrito.
+- 2026-10-07: re-revisión del reviewer **PASS**; sus 3 MINOR corregidos (OQ1 resuelta, latencia de
+  etiquetas en Edge Cases, sección Review). Falta la aprobación de la usuaria para fusionar (Strict).
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -259,4 +260,15 @@ la IA real lo entienda, para no depender de las frases de prueba.
 | AC10 | ✅ | Tras registrar el token en la app Android correcta (`com.kcalcula.app`), Cloud Logging muestra `verifications.app: VALID` y desaparece el error de App Check en `flutter run` |
 
 ## Review
-Informe del reviewer:
+Primera revisión (2026-10-07, subagente `reviewer`, sobre `bf25377`): **CHANGES_REQUESTED**.
+- [MAJOR] Sin evidencia de la alerta de presupuesto de R5. Resuelto: la usuaria la ajustó a 5.000
+  COP (R5 y Change Log).
+- 9 MINOR documentales (tokens y latencia de Ollama en AC4; `DEPLOYED_AI_PROVIDER` en ADR-002;
+  claves del `.env` en architecture y CLAUDE.md; caché desactivada en privacy; texto de AC9; porción
+  en AC2; riesgo residual y regla preventiva del incidente; Tests Required y DoD; reintento en
+  T-028). Corregidos en `d0f4ee0`, `84efaa7` y `ae0c069`.
+
+Re-revisión (2026-10-07, sobre `ae0c069`): **PASS**. AC1–AC10 cumplidos (AC2 con observación,
+seguida en T-030); functions 57/57, app 324/324, analyze sin avisos; prompt, esquema y `vertex.ts`
+sin cambios; sin secretos en el diff. 3 MINOR (OQ1, latencia en Edge Cases, esta sección),
+corregidos después.
