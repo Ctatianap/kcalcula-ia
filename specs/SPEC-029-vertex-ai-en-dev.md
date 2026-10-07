@@ -44,8 +44,10 @@ la IA real lo entienda, para no depender de las frases de prueba.
   emulador, CI y los tests no llaman a Vertex ni cuestan dinero. El proveedor se crea en la primera
   llamada, no al cargar el módulo, para que `firebase deploy` no lea los params de Vertex.
 - R2. **Configuración del despliegue de `kcalcula-ia-dev`** en `functions/.env.kcalcula-ia-dev`
-  (ignorado por git; sin secretos): `DEPLOYED_AI_PROVIDER=vertex`, `VERTEX_PROJECT_ID=kcalcula-ia-dev`.
-  Modelo y región quedan en sus valores por defecto (`gemini-2.5-flash`, `us-east1`). **Lo crea la
+  (ignorado por git; sin secretos): `DEPLOYED_AI_PROVIDER=vertex`, `VERTEX_PROJECT_ID=kcalcula-ia-dev`,
+  `VERTEX_LOCATION=us-east1` y `GEMINI_MODEL_ID=gemini-2.5-flash` (los mismos valores por defecto del
+  código: `firebase deploy --non-interactive` exige todos los params en el `.env` aunque tengan
+  `default`). **Lo crea la
   usuaria**: la invariante 7 no me deja escribir archivos `.env`.
 - R3. **Permisos:** la cuenta de servicio con la que corren `parseMeal` y `extractLabel` tiene el
   rol `roles/aiplatform.user` en `kcalcula-ia-dev`, y la API de Vertex AI está habilitada.
@@ -214,6 +216,9 @@ la IA real lo entienda, para no depender de las frases de prueba.
   `disableCache: true` terminó bien y la nueva lectura devuelve `"disableCache": true`, sin
   `retentionConfig` (el `DURABLE` desapareció). El rol de Vertex no se pudo dar todavía: la cuenta
   de servicio de Compute **aún no existe**; se crea al habilitar las APIs del primer despliegue (R10).
+- 2026-10-07: primer `firebase deploy` detenido antes de subir nada: habilitó Cloud Functions,
+  Cloud Build, Artifact Registry y Extensions, y luego pidió `VERTEX_LOCATION` y `GEMINI_MODEL_ID`
+  en el `.env`. R2 ahora los incluye.
 
 ## Review
 Informe del reviewer:
