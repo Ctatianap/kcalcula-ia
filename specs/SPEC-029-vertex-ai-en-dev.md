@@ -95,8 +95,8 @@ la IA real lo entienda, para no depender de las frases de prueba.
 - AC6. `npm --prefix functions run build && npm --prefix functions test` verdes. Ningún prompt,
   esquema ni adaptador cambia (`git diff develop -- functions/src/ai/prompts functions/src/ai/schemas.ts
   functions/src/ai/vertex.ts` vacío) `[unit]`.
-- AC9. `gcloud functions list --project=kcalcula-ia-dev --regions=us-east1` muestra `parseMeal`,
-  `extractLabel` y `healthCheck` en estado `ACTIVE` `[manual]`.
+- AC9. `gcloud functions list --project=kcalcula-ia-dev` muestra `parseMeal` y `extractLabel` en
+  `us-east1` y `healthCheck` en `us-central1`, todas `ACTIVE` `[manual]`.
 - AC10. En `flutter run` ya no aparecen `Failed to exchange debug token` ni el 403 de la API de App
   Check; AC1 cubre que la llamada pasa `enforceAppCheck` `[manual]`.
 - AC8. `extractLabel` tiene `timeoutSeconds: 60` y la app espera 60 s; `parseMeal` sigue en 10 s.
@@ -236,6 +236,10 @@ la IA real lo entienda, para no depender de las frases de prueba.
   (PV-03) pudo retener la imagen y no se puede borrar desde el proyecto. Regla preventiva
   permanente en `docs/privacy.md` (Controles).
   Status → Review.
+- 2026-10-07: reviewer **CHANGES_REQUESTED** (1 MAJOR: sin evidencia de la alerta de presupuesto;
+  9 MINOR documentales, corregidos en d0f4ee0). La usuaria **aprueba el cambio de texto de AC9**
+  ("apruebo el cambio de AC9") y ajusta la alerta en GCP Billing a **5.000 pesos** ("ya ajusté la
+  alerta a 5000 pesos"), por debajo de los USD 5 de OQ1.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -248,7 +252,7 @@ la IA real lo entienda, para no depender de las frases de prueba.
 | AC6 | ✅ | functions 57/57; prompts, `schemas.ts` y `vertex.ts` sin cambios frente a `develop` |
 | AC7 | ✅ | ADR-002 (Actualización 2026-10-07), `docs/privacy.md` (foto de etiqueta), `docs/architecture.md` (proveedor por ambiente y timeouts), CLAUDE.md (Comandos) |
 | AC8 | ✅ | `timeoutSeconds: 60` en `extractLabel` y 60 s en `AiClient`; `parseMeal` sigue en 10 s. La etiqueta real tardó 17,9 s y se leyó sin error de tiempo agotado |
-| AC9 | ✅ | `gcloud functions list`: `parseMeal`, `extractLabel` (`us-east1`) y `healthCheck` (`us-central1`, sin región fija desde T-000) en `ACTIVE` |
+| AC9 | ✅ | `gcloud functions list --project=kcalcula-ia-dev`: `parseMeal` y `extractLabel` en `us-east1`, `healthCheck` en `us-central1` (sin región fija desde T-000), las tres `ACTIVE` |
 | AC10 | ✅ | Tras registrar el token en la app Android correcta (`com.kcalcula.app`), Cloud Logging muestra `verifications.app: VALID` y desaparece el error de App Check en `flutter run` |
 
 ## Review
