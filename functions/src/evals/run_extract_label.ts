@@ -17,6 +17,7 @@
  * Uso:
  *   AI_PROVIDER=ollama OLLAMA_MODEL=gemma4:e4b npm --prefix functions run evals:extract-label -- --save
  *   AI_PROVIDER=vertex VERTEX_PROJECT_ID=<proyecto real> npm --prefix functions run evals:extract-label -- --save
+ *   ... evals:extract-label -- --case=label_52   (un solo caso; no usar con --save)
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -208,7 +209,13 @@ async function main(): Promise<void> {
   const datasetDir = join(__dirname, "../../../evals/datasets/extract_label.v1");
   const casesPath = join(datasetDir, "cases.jsonl");
   const raw = readFileSync(casesPath, "utf-8").trim();
-  const cases: EvalCase[] = raw.length === 0 ? [] : raw.split("\n").map((line) => JSON.parse(line));
+  const allCases: EvalCase[] = raw.length === 0 ? [] : raw.split("\n").map((line) => JSON.parse(line));
+  // `--case=<id>`: corre solo ese caso (p. ej. para repetir un 429 de cuota, SPEC-029).
+  const onlyCase = process.argv.find((arg) => arg.startsWith("--case="))?.slice("--case=".length);
+  if (onlyCase && process.argv.includes("--save")) {
+    throw new Error("--case no se puede combinar con --save: un baseline cubre todo el dataset.");
+  }
+  const cases = onlyCase ? allCases.filter((c) => c.id === onlyCase) : allCases;
 
   const results: CaseResult[] = [];
 

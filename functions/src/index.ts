@@ -9,6 +9,7 @@ import { createFakeAiProvider } from "./ai/fake.js";
 import { buildExtractLabelHandler, buildParseMealHandler } from "./ai/handler.js";
 import { createOllamaProvider } from "./ai/ollama.js";
 import type { AiProvider } from "./ai/provider.js";
+import { resolveProviderName } from "./ai/provider_name.js";
 import { createVertexAiProvider } from "./ai/vertex.js";
 import { ping } from "./ping.js";
 
@@ -26,19 +27,18 @@ import { ping } from "./ping.js";
 setGlobalOptions({ maxInstances: 10 });
 
 /**
- * `fake` por defecto (sin costo). `AI_PROVIDER=ollama` usa un modelo local
- * (gratis, mientras el proyecto sigue en MVP) — ver
- * docs/decisions/ADR-002-ia-local-vs-vertex.md. `AI_PROVIDER=vertex` sí
- * cuesta dinero real: solo para cuando se decida pasar a producción o para
- * los evals puntuales de AC11.
+ * `fake` por defecto (sin costo). `ollama` usa un modelo local (gratis) —
+ * ver docs/decisions/ADR-002-ia-local-vs-vertex.md. `vertex` sí cuesta
+ * dinero real: el backend desplegado de `kcalcula-ia-dev` lo usa desde
+ * SPEC-029. Cómo se elige: `resolveProviderName`.
  */
 function selectProvider(): AiProvider {
-  switch (process.env.AI_PROVIDER) {
+  switch (resolveProviderName(process.env)) {
     case "vertex": {
       const project = vertexProjectIdParam.value();
       if (!project) {
         throw new Error(
-          "AI_PROVIDER=vertex requiere VERTEX_PROJECT_ID configurado (un proyecto real de GCP con Vertex AI habilitado).",
+          "El proveedor vertex requiere VERTEX_PROJECT_ID configurado (un proyecto real de GCP con Vertex AI habilitado).",
         );
       }
       return createVertexAiProvider({
@@ -58,8 +58,16 @@ function selectProvider(): AiProvider {
 }
 
 // Una sola instancia: evita crear dos clientes (Vertex/Ollama) para el
-// mismo proveedor cuando ambos callables comparten configuración.
-const aiProvider = selectProvider();
+// mismo proveedor cuando ambos callables comparten configuración. Se crea
+// en la primera llamada, no al cargar el módulo: `firebase deploy` carga el
+// código para descubrir las funciones y ahí no debe leer los params de
+// Vertex ni crear su cliente (SPEC-029).
+let selectedProvider: AiProvider | undefined;
+const aiProvider: AiProvider = {
+  parseMeal: (input) => (selectedProvider ??= selectProvider()).parseMeal(input),
+  extractLabel: (input) =>
+    (selectedProvider ??= selectProvider()).extractLabel(input),
+};
 
 export const parseMeal = onCall(
   {
@@ -74,7 +82,9 @@ export const extractLabel = onCall(
   {
     region: "us-east1",
     enforceAppCheck: true,
-    timeoutSeconds: 10,
+    // SPEC-029: con Vertex, leer una etiqueta tarda p50 8,5 s y p95 21 s
+    // (evals del 2026-10-07); con 10 s fallaría 1 de cada 4.
+    timeoutSeconds: 60,
   },
   buildExtractLabelHandler(aiProvider),
 );

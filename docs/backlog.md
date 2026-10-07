@@ -211,6 +211,26 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   dependencies: [T-024]
   status: done  # SPEC-028 (R3)
   spec_required: false   # cubierta por SPEC-028 (R3), junto con T-025
+- id: T-027
+  title: Vertex AI en el backend desplegado de desarrollo
+  objective: >
+    El backend desplegado en `kcalcula-ia-dev` usa `fake` (sin `AI_PROVIDER`), así que en el
+    teléfono la IA solo reconoce las 10 frases de prueba. Pasar a `gemini-2.5-flash` en Vertex AI.
+    Decisión de la usuaria del 2026-10-07 (adelanta ADR-002).
+  dependencies: []
+  status: done  # SPEC-029
+  spec_required: true    # specs/SPEC-029-vertex-ai-en-dev.md — Strict (datos fuera del dispositivo, costo)
+- id: T-028
+  title: Medir gemini-2.5-flash sin razonamiento para bajar la latencia
+  objective: >
+    Con Vertex, leer una etiqueta tarda p50 8,5–12,1 s y p95 21–34 s según la corrida (SPEC-029,
+    evals y baseline del 2026-10-07): el p95 ya se acerca a los 60 s del timeout.
+    Probar `thinkingBudget: 0` en `vertex.ts` y comparar latencia, precisión y campos inventados
+    con el baseline en `parse_meal` y `extract_label`. Con el reintento por salida inválida, una
+    etiqueta lenta (máximo 37,6 s) puede pasar de los 60 s de `extractLabel` (reviewer de SPEC-029).
+    Strict (parámetros del modelo, skill `ai-pipeline`).
+  dependencies: [T-027]
+  spec_required: true
 - id: T-029
   title: Decimales con coma en "Confirmar etiqueta"
   objective: >
@@ -218,6 +238,14 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     Encontrado al probar SPEC-029 en el teléfono (2026-10-07).
   dependencies: []
   spec_required: true    # specs/SPEC-030-decimales-con-coma-en-etiqueta.md — Standard
+- id: T-030
+  title: La IA mezcla valores de porción y de "por 100 g" en una etiqueta
+  objective: >
+    Al probar SPEC-029 con una etiqueta real ("mini palitos de queso") la usuaria vio en
+    "Confirmar etiqueta" valores que parecen de la columna "por 100 g". Revisar con su foto si es
+    un error del prompt `label_extraction.v1` (Strict, `ai-pipeline`) o de esa etiqueta.
+  dependencies: [T-027]
+  spec_required: true
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
   # SPECs (Draft, 2026-10-04): specs/SPEC-021-foto-del-plato.md (Strict),
