@@ -54,8 +54,9 @@ la IA real lo entienda, para no depender de las frases de prueba.
 - R4. **El emulador no pasa a Vertex por accidente.** El emulador sí carga
   `functions/.env.kcalcula-ia-dev` (OQ3), pero ignora `DEPLOYED_AI_PROVIDER` (R1). Los comandos de
   CLAUDE.md siguen valiendo, con `AI_PROVIDER` en la línea de comandos.
-- R5. **Control de gasto:** la alerta de presupuesto de SPEC-007 queda en USD 5 al mes con avisos al
-  50/90/100 % (la usuaria la revisa y ajusta; no se crea otra). `maxInstances: 10` no cambia.
+- R5. **Control de gasto:** la alerta de presupuesto de SPEC-007 queda en **5.000 COP al mes**
+  (≈ USD 1,2; decisión de la usuaria del 2026-10-07, por debajo de los USD 5 de OQ1; no se crea
+  otra). Solo avisa, no corta el gasto. `maxInstances: 10` no cambia.
 - R6. **Evals de etiquetas con Vertex:** `extract_label.v1` se corre con `AI_PROVIDER=vertex`.
   Exige esquema válido en el 100 % de los casos. El resultado se guarda como baseline solo si la
   usuaria lo aprueba.
@@ -240,6 +241,8 @@ la IA real lo entienda, para no depender de las frases de prueba.
   9 MINOR documentales, corregidos en d0f4ee0). La usuaria **aprueba el cambio de texto de AC9**
   ("apruebo el cambio de AC9") y ajusta la alerta en GCP Billing a **5.000 pesos** ("ya ajusté la
   alerta a 5000 pesos"), por debajo de los USD 5 de OQ1.
+- 2026-10-07: la usuaria decide dejar la alerta en 5.000 COP "por ahora" (avisos tempranos durante
+  las pruebas). R5 actualizado. Los umbrales de aviso no se confirmaron por escrito.
 
 ## Verificación
 | AC | Estado | Evidencia |

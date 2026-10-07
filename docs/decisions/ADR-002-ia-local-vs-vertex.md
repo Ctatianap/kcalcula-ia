@@ -54,7 +54,7 @@ el backend desplegado no puede usar Ollama (corre en el PC, no en la nube), así
 app en el teléfono solo reconocía las frases de prueba. Desde SPEC-029, `kcalcula-ia-dev` usa
 `DEPLOYED_AI_PROVIDER=vertex` en `functions/.env.kcalcula-ia-dev` (`gemini-2.5-flash`, `us-east1`;
 `AI_PROVIDER` no, porque el emulador también carga ese archivo y pasaría a Vertex), con timeouts de
-10 s en `parseMeal` y 60 s en `extractLabel`, con una alerta de presupuesto de USD 5 al mes
+10 s en `parseMeal` y 60 s en `extractLabel`, con una alerta de presupuesto de 5.000 COP al mes (≈ USD 1,2; decisión de la usuaria, por ahora)
 y la caché de datos de Vertex desactivada. Ollama sigue disponible para el emulador local, y `fake`
 sigue siendo el valor por defecto del código (emulador, CI y tests sin costo). El proyecto de
 producción `kcalcula-ia` queda para cuando la app salga al mercado.
