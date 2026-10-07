@@ -210,6 +210,10 @@ la IA real lo entienda, para no depender de las frases de prueba.
   Draft hasta que la usuaria lo apruebe.
 - 2026-10-07: **Approved por la usuaria** el cambio (R10, R11, R5, AC9, AC10) ("aprobado"). Status →
   Implementing.
+- 2026-10-07: API de App Check habilitada. Caché de Vertex desactivada: el PATCH con
+  `disableCache: true` terminó bien y la nueva lectura devuelve `"disableCache": true`, sin
+  `retentionConfig` (el `DURABLE` desapareció). El rol de Vertex no se pudo dar todavía: la cuenta
+  de servicio de Compute **aún no existe**; se crea al habilitar las APIs del primer despliegue (R10).
 
 ## Review
 Informe del reviewer:
