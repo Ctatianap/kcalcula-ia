@@ -219,6 +219,13 @@ la IA real lo entienda, para no depender de las frases de prueba.
 - 2026-10-07: primer `firebase deploy` detenido antes de subir nada: habilitó Cloud Functions,
   Cloud Build, Artifact Registry y Extensions, y luego pidió `VERTEX_LOCATION` y `GEMINI_MODEL_ID`
   en el `.env`. R2 ahora los incluye.
+- 2026-10-07: primer despliegue hecho (`firebase deploy --only functions`, confirmado por la
+  usuaria): habilitó además Cloud Run y Eventarc; `parseMeal` y `extractLabel` en `us-east1`,
+  `healthCheck` en `us-central1` (no fija región; está así desde T-000). Las tres están `ACTIVE` con
+  la cuenta `21657152152-compute@developer.gserviceaccount.com`, que ya tenía `roles/editor`; se le
+  dio `roles/aiplatform.user`. Firebase avisó que no hay política de limpieza de imágenes en
+  Artifact Registry (costo pequeño mensual). La usuaria registró el token de depuración de su
+  Motorola en App Check.
 
 ## Review
 Informe del reviewer:
