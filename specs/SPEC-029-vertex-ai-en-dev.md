@@ -1,7 +1,7 @@
 # SPEC-029: Vertex AI en el backend desplegado de desarrollo
 
 ## Status
-Draft
+Implementing
 Path: Strict (proveedor de IA real; el texto y la foto de la etiqueta salen del dispositivo hacia
 Google; cuesta dinero; skill `ai-pipeline`)
 
@@ -208,6 +208,8 @@ la IA real lo entienda, para no depender de las frases de prueba.
   Check no está habilitada. Se añaden R10 (primer despliegue), R11 (App Check y token de
   depuración), AC9 y AC10; R5 reutiliza la alerta de SPEC-007; OQ2 anota `DURABLE`. Status →
   Draft hasta que la usuaria lo apruebe.
+- 2026-10-07: **Approved por la usuaria** el cambio (R10, R11, R5, AC9, AC10) ("aprobado"). Status →
+  Implementing.
 
 ## Review
 Informe del reviewer:
