@@ -201,6 +201,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     sin quitar tildes, "ñ" ni "ü": "Café" o "Plátano" nunca dan `matched` y la persona tiene que
     elegir entre un solo candidato (32 alimentos reales afectados). Hallazgo del reviewer de SPEC-020.
   dependencies: [T-024]
+  status: done  # SPEC-028
   spec_required: true    # specs/SPEC-028-coincidencia-exacta-con-tildes.md — Strict (incluye T-026)
 - id: T-026
   title: Normalizador de build_catalog con "ü"
@@ -208,6 +209,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     `data/build_catalog/lib/validators.dart` tiene su propia copia de `_normalize` sin "ü". Alinearla
     con `normalizeFoodText` cuando entre al catálogo un alimento con diéresis (o junto con T-025).
   dependencies: [T-024]
+  status: done  # SPEC-028 (R3)
   spec_required: false   # cubierta por SPEC-028 (R3), junto con T-025
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual

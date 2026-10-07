@@ -1,7 +1,7 @@
 # SPEC-028: Coincidencia exacta con tildes
 
 ## Status
-Review
+Done
 Path: Strict (cambia qué alimento se resuelve contra el catálogo; skill `nutrition-data`)
 
 ## Objective
@@ -96,6 +96,8 @@ sin hacerme elegir de una lista de una sola opción.
   en Dart); `normalizeFoodTerm` en `build_catalog` con "ü" y regla nueva: un sinónimo no puede
   coincidir sin tildes con el nombre de otro alimento. El catálogo real construye sin errores
   (`catalog_version` 2026-10-03-2). Status → Review.
+- 2026-10-07: reviewer PASS; analyze y tests verdes en `1b5042c` (app 324/324, build_catalog 21/21).
+  **Aprobada la fusión por la usuaria** ("aprobado, fusiona a develop"). Status → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
