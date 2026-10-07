@@ -1,7 +1,7 @@
 # SPEC-016: Exportar en CSV y PDF
 
 ## Status
-Review
+Done
 Path: Strict (crea archivos con datos de salud que la persona puede compartir fuera del dispositivo)
 
 ## Objective
@@ -148,6 +148,9 @@ una hoja de cálculo y el PDF en el teléfono (usuaria).
     declarado en iOS (`CFBundleLocalizations`).
   Fusionada en `develop` por la autorización única de la usuaria (incluidas las Strict). Sigue en
   Review hasta los pasos manuales en el teléfono.
+- 2026-10-07: recorrido manual en el teléfono (Motorola edge 50 pro, Android 16, build debug de
+  `develop` en `dc92f55`). La usuaria lo dio por bueno ("si ya creo que el resto esta bien").
+  Status Review → Done.
 
 ## Review
 Informe del reviewer (2026-10-03, commit 1a91efa): **PASS**. AC1–AC6 con evidencia; AC3 con

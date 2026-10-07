@@ -1,7 +1,7 @@
 # SPEC-013: Historial (calendario)
 
 ## Status
-Review
+Done
 Path: Standard → tratada como Strict al implementar: añade a `nutrition_core` el "% de tu meta"
 (`GoalProgress.ratio` y `presentPercent`, con casos de referencia). La regla de estado de SPEC-011 no cambia.
 
@@ -120,6 +120,9 @@ Edge cases: grilla desde el lunes, error de lectura con Reintentar, texto ×2 en
 - 2026-10-03: re-revisión del reviewer: **PASS** (commit 25efa94; nutrition_core 75/75, app 219/219).
   Fusionada en `develop` por la autorización única de la usuaria. Sigue en Review hasta el
   recorrido manual en el teléfono.
+- 2026-10-07: recorrido manual en el teléfono (Motorola edge 50 pro, Android 16, build debug de
+  `develop` en `dc92f55`). La usuaria lo dio por bueno ("si ya creo que el resto esta bien").
+  Status Review → Done.
 
 ## Review
 Re-revisión (2026-10-03, commit 25efa94): **PASS**. AC1–AC5 con evidencia en

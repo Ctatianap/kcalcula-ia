@@ -1,7 +1,7 @@
 # SPEC-019: Racha de días registrados
 
 ## Status
-Review
+Done
 Path: Standard (cuenta días con registros; no es un cálculo nutricional)
 
 ## Objective
@@ -88,6 +88,9 @@ Manual: recorrido en el teléfono (usuaria).
     (Colombia no tiene horario de verano).
   Fusionada en `develop` por la autorización única de la usuaria. Sigue en Review hasta el
   recorrido manual en el teléfono.
+- 2026-10-07: recorrido manual en el teléfono (Motorola edge 50 pro, Android 16, build debug de
+  `develop` en `dc92f55`). La usuaria lo dio por bueno ("si ya creo que el resto esta bien").
+  Status Review → Done.
 
 ## Review
 Informe del reviewer (2026-10-03, commit 9b7811e): **PASS**. AC1–AC3 con evidencia en

@@ -1,7 +1,7 @@
 # SPEC-017: Comidas recientes
 
 ## Status
-Review
+Done
 Path: Standard (reutiliza el catálogo y el cálculo existentes; no llama a la IA)
 
 ## Objective
@@ -111,6 +111,9 @@ Además: R5 sin comidas previas (unit y widget), texto ×2 en 360 px.
     reglas cambien después.
   Fusionada en `develop` por la autorización única de la usuaria. Sigue en Review hasta el
   recorrido manual en el teléfono.
+- 2026-10-07: recorrido manual en el teléfono (Motorola edge 50 pro, Android 16, build debug de
+  `develop` en `dc92f55`). La usuaria lo dio por bueno ("si ya creo que el resto esta bien").
+  Status Review → Done.
 
 ## Review
 Informe del reviewer (2026-10-03, commit c50775b): **PASS**. AC1–AC5 con evidencia

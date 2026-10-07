@@ -1,7 +1,7 @@
 # SPEC-010: Sistema visual y navegación
 
 ## Status
-Review
+Done
 Path: Standard (solo presentación: no toca `nutrition_core`, la IA, el catálogo ni lo que sale del
 dispositivo. La fuente se embebe para no descargarla de internet; ver Security & Privacy).
 
@@ -143,7 +143,7 @@ Historial y Progreso y un botón para registrar, para usarla a diario sin esfuer
 | AC5 | ✅ | `app/test/ui/theme_test.dart`, grupo "AC5" (7 pares, todos ≥ 4,5:1; el menor, 4,87) y "R6/R7: cada estado del día contrasta ≥ 3:1" (elementos gráficos, WCAG 1.4.11). Los colores de macros y de estado se usan solo en elementos gráficos acompañados de texto con contraste suficiente, nunca como color de texto |
 | AC6 | ✅ | `main_nav_test.dart` ("AC6…") |
 | AC7 | ✅ | `flutter analyze` sin issues; `flutter test` 175/175 (2026-10-03, tras la revisión) |
-| AC8 | ⏳ | Recorrido manual en el teléfono: se hace al final del lote (decisión de la usuaria) |
+| AC8 | ✅ | Recorrido manual de la usuaria en el teléfono (2026-10-07, Motorola edge 50 pro) |
 
 Decisión de implementación: los botones primario y secundario de R3 son `FilledButton` y
 `OutlinedButton` con el estilo del tema (56 px, radio 28), no widgets nuevos; el encabezado usa el
@@ -180,6 +180,9 @@ texto "Hoy" ahora buscan el título de la pantalla, porque "Hoy" también está 
 - 2026-10-03: reviewer **PASS** en la re-revisión (`84297da`, 175/175). Sus 2 MINOR quedaron
   documentados (Edge Cases y un comentario en `app.dart`). Se fusiona en `develop` para las SPECs
   siguientes; el Status queda en Review hasta el recorrido manual (AC8) del final del lote.
+- 2026-10-07: recorrido manual en el teléfono (Motorola edge 50 pro, Android 16, build debug de
+  `develop` en `dc92f55`). La usuaria lo dio por bueno ("si ya creo que el resto esta bien").
+  Status Review → Done.
 
 ## Review
 Primera revisión (2026-10-03, `0dbce13`): **CHANGES_REQUESTED**.

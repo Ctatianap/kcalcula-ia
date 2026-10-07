@@ -1,7 +1,7 @@
 # SPEC-012: Rediseño del flujo de registro
 
 ## Status
-Review
+Done
 Path: Standard (presentación y flujo; no cambia prompts, esquemas de IA, cálculos ni datos que salen
 del dispositivo)
 
@@ -163,6 +163,9 @@ Manual: recorrido en el teléfono pendiente (lo hace la usuaria).
   todo lo faltante"). Evidencia: `meal_analysis_test.dart` ("AC6…" y "R6: el título del error
   depende de la causa").
 - 2026-10-03: reviewer **PASS** del cambio de R6/AC6 (commit fc2b844). Fusionado en `develop`.
+- 2026-10-07: recorrido manual en el teléfono (Motorola edge 50 pro, Android 16, build debug de
+  `develop` en `dc92f55`). La usuaria lo dio por bueno ("si ya creo que el resto esta bien").
+  Status Review → Done.
 
 ## Review
 Informe del reviewer (2026-10-03, commit 21d39ac): **PASS**. AC1–AC7 cumplidos con evidencia en tests

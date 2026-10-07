@@ -1,7 +1,7 @@
 # SPEC-020: Búsqueda y resolución con "ü"
 
 ## Status
-Review
+Done
 Path: Strict (toca la lógica de resolución de alimentos contra el catálogo; skill `nutrition-data`)
 
 ## Objective
@@ -82,6 +82,9 @@ Como persona que escribe con ortografía completa, quiero que "agüita de panela
   copias de `_normalize` (catálogo y resolver). Status → Review.
 - 2026-10-03: reviewer PASS. Fusión en `develop` aprobada por la usuaria ("sí a las dos, fusiona").
   Sigue en Review hasta el recorrido manual del lote; luego Done.
+- 2026-10-07: recorrido manual en el teléfono (Motorola edge 50 pro, Android 16, build debug de
+  `develop` en `dc92f55`). La usuaria lo dio por bueno ("si ya creo que el resto esta bien").
+  Status Review → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |

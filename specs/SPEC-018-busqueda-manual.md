@@ -1,7 +1,7 @@
 # SPEC-018: Búsqueda manual en el catálogo
 
 ## Status
-Review
+Done
 Path: Standard (búsqueda de solo lectura en el catálogo existente; la cantidad se resuelve con las
 reglas actuales de `nutrition_core`, sin cambiarlas)
 
@@ -122,6 +122,9 @@ Edge cases: tildes y mayúsculas, caracteres de FTS, desde 2 letras y con límit
   - Al backlog: `_normalize` no convierte "ü" (igual que `resolve`).
   Fusionada en `develop` por la autorización única de la usuaria. Sigue en Review hasta el
   recorrido manual en el teléfono.
+- 2026-10-07: recorrido manual en el teléfono (Motorola edge 50 pro, Android 16, build debug de
+  `develop` en `dc92f55`). La usuaria lo dio por bueno ("si ya creo que el resto esta bien").
+  Status Review → Done.
 
 ## Review
 Informe del reviewer (2026-10-03, commit e220c05): **PASS**. AC1–AC6 con evidencia

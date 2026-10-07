@@ -1,7 +1,7 @@
 # SPEC-014: Progreso
 
 ## Status
-Review
+Done
 Path: Strict (cálculos nuevos en `packages/nutrition_core`: promedios y días en meta)
 
 ## Objective
@@ -115,6 +115,9 @@ Además: texto ×2 en 360 px sin desbordes. Manual: recorrido en el teléfono pe
   - línea en blanco antes de "Progreso" en `docs/architecture.md`.
   Fusionada en `develop` por la autorización única de la usuaria (incluidas las Strict). Sigue en
   Review hasta el recorrido manual en el teléfono.
+- 2026-10-07: recorrido manual en el teléfono (Motorola edge 50 pro, Android 16, build debug de
+  `develop` en `dc92f55`). La usuaria lo dio por bueno ("si ya creo que el resto esta bien").
+  Status Review → Done.
 
 ## Review
 Informe del reviewer (2026-10-03, commit 6817352): **PASS**. AC1–AC6 con evidencia

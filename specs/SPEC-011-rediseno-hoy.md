@@ -1,7 +1,7 @@
 # SPEC-011: Rediseño de "Hoy"
 
 ## Status
-Review
+Done
 Path: Strict (agrega a `packages/nutrition_core` la regla del estado del día frente a la meta)
 
 ## Objective
@@ -151,6 +151,9 @@ Decisiones de implementación:
 - 2026-10-03: re-revisión del reviewer: **PASS** (commit a3aa3d7; nutrition_core 72/72, app
   184/184). Fusionada en `develop` por la autorización única de la usuaria ("todo está aprobado solo
   por esta vez", ver `docs/cloud-handoff.md`). Sigue en Review hasta el recorrido manual del lote.
+- 2026-10-07: recorrido manual en el teléfono (Motorola edge 50 pro, Android 16, build debug de
+  `develop` en `dc92f55`). La usuaria lo dio por bueno ("si ya creo que el resto esta bien").
+  Status Review → Done.
 
 ## Review
 Re-revisión (2026-10-03, commit a3aa3d7): **PASS**. AC1–AC7 cumplidos con evidencia en tests.

@@ -1,7 +1,7 @@
 # SPEC-008: Perfil, mantenimiento y objetivo nutricional
 
 ## Status
-Review
+Done
 Path: Strict (cálculos nuevos en `packages/nutrition_core`: metabolismo basal, mantenimiento,
 objetivo y reparto de macros; y datos personales de salud guardados en el dispositivo: peso,
 estatura, fecha de nacimiento, sexo y nivel de actividad)
@@ -364,6 +364,9 @@ issues; `nutrition_core` 63/63; app 139/139 (tras OQ10-A, el mantenimiento medid
 - 2026-10-03: reviewer **PASS** del cambio de R1 (commit fc2b844, 319/319). Fusionado en `develop`
   con la aprobación de la usuaria. Vuelve a Done tras comprobarlo en el teléfono (Ajustes → Mi
   perfil → Guardar perfil).
+- 2026-10-07: recorrido manual en el teléfono (Motorola edge 50 pro, Android 16, build debug de
+  `develop` en `dc92f55`). La usuaria lo dio por bueno ("si ya creo que el resto esta bien").
+  Status Review → Done.
 
 ## Review
 Primera revisión (2026-10-02, subagente `reviewer`): **CHANGES_REQUESTED**.

@@ -1,7 +1,7 @@
 # SPEC-015: Registro de peso y tendencia
 
 ## Status
-Review
+Done
 Path: Strict (dato personal de salud nuevo, con historial, guardado en el dispositivo)
 
 ## Objective
@@ -141,6 +141,9 @@ el teléfono y ver la tendencia (usuaria).
     módulo de dominio compartido.
   Fusionada en `develop` por la autorización única de la usuaria (incluidas las Strict). Sigue en
   Review hasta el recorrido manual en el teléfono.
+- 2026-10-07: recorrido manual en el teléfono (Motorola edge 50 pro, Android 16, build debug de
+  `develop` en `dc92f55`). La usuaria lo dio por bueno ("si ya creo que el resto esta bien").
+  Status Review → Done.
 
 ## Review
 Informe del reviewer (2026-10-03, commit 8a84ba8): **PASS**. AC1–AC7 con evidencia
