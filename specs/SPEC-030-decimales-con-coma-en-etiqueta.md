@@ -106,6 +106,19 @@ quedarme sin poder guardar y sin saber por qué.
 - 2026-10-07: **Approved por la usuaria** ("aprobada la SPEC-030"). Se implementa después de cerrar
   SPEC-029.
 - 2026-10-07: SPEC-029 fusionada; Status → Implementing.
+- 2026-10-07: implementada. `parseDecimalUpTo` y `formatDecimalEs` en `app/lib/ui/number_input_es.dart`
+  (`parseDecimal` delega con un decimal); `_NumberField` con error de R3; `missingForSave` en el
+  controlador y texto "Falta: …" encima del botón. Falta la prueba manual en el teléfono.
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/features/capture/label_confirmation_screen_test.dart` › "SPEC-030 AC1: \"1,4\" …" y "… \"1.4\" …": habilita Guardar y lo guardado por 100 g es 1,4 × 100/30 |
+| AC2 | ✅ | mismo archivo › "SPEC-030 AC2…": muestra "15", "2,9" y "1,78"; sin editar se guarda `carbsG100 == 1.7799999999999998` |
+| AC3 | ✅ | `app/test/ui/number_input_es_test.dart` (parser y formato: "1.200", "1,234", "1,", ",5", "-1" no válidos; "1,2", "0,25", "0", "14360" válidos) y `label_confirmation_screen_test.dart` › "SPEC-030 AC3…" (mensaje de R3 y sodio guardado como `null`) |
+| AC4 | ✅ | `label_confirmation_screen_test.dart` › "SPEC-030 AC4: \"Falta: proteína.\" hasta completarla" |
+| AC5 | ✅ | app: analyze sin avisos, 336/336. Expectativas cambiadas, como prevé el AC: "AC2/AC4: muestra los valores transcritos, editables" pasa de "140.0" y "30.0" a "140" y "30" (R2). `parseDecimal` conserva su comportamiento (test "parseDecimal sigue aceptando solo un decimal") |
+| Manual | ⏳ | Confirmar una etiqueta real en el teléfono escribiendo con coma |
 
 ## Review
 Informe del reviewer:
