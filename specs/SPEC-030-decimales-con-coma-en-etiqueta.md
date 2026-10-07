@@ -1,7 +1,7 @@
 # SPEC-030: Decimales con coma en "Confirmar etiqueta"
 
 ## Status
-Approved
+Implementing
 Path: Standard (corrige la entrada de números de una pantalla; no cambia `nutrition_core`, la IA
 ni el catálogo)
 
@@ -105,6 +105,7 @@ quedarme sin poder guardar y sin saber por qué.
   encontrado al probar SPEC-029. Backlog T-029.
 - 2026-10-07: **Approved por la usuaria** ("aprobada la SPEC-030"). Se implementa después de cerrar
   SPEC-029.
+- 2026-10-07: SPEC-029 fusionada; Status → Implementing.
 
 ## Review
 Informe del reviewer:
