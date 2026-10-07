@@ -31,24 +31,28 @@ Como persona que usa la app en su teléfono, quiero escribir, dictar o fotografi
 la IA real lo entienda, para no depender de las frases de prueba.
 
 ## Requirements
-- R1. **Sin cambios de código en la selección del proveedor.** `AI_PROVIDER` sigue teniendo `fake`
-  por defecto: sin configuración, el emulador, CI y los tests no llaman a Vertex ni cuestan dinero.
+- R1. **Proveedor según el ambiente** (`functions/src/ai/provider_name.ts`). En el emulador
+  (`FUNCTIONS_EMULATOR=true`) solo cuenta `AI_PROVIDER`. Desplegado cuenta `DEPLOYED_AI_PROVIDER` y,
+  si no está, `AI_PROVIDER`. Sin configuración o con un valor desconocido: `fake`, así que el
+  emulador, CI y los tests no llaman a Vertex ni cuestan dinero. El proveedor se crea en la primera
+  llamada, no al cargar el módulo, para que `firebase deploy` no lea los params de Vertex.
 - R2. **Configuración del despliegue de `kcalcula-ia-dev`** en `functions/.env.kcalcula-ia-dev`
-  (ignorado por git; sin secretos): `AI_PROVIDER=vertex`, `VERTEX_PROJECT_ID=kcalcula-ia-dev`.
+  (ignorado por git; sin secretos): `DEPLOYED_AI_PROVIDER=vertex`, `VERTEX_PROJECT_ID=kcalcula-ia-dev`.
   Modelo y región quedan en sus valores por defecto (`gemini-2.5-flash`, `us-east1`). **Lo crea la
   usuaria**: la invariante 7 no me deja escribir archivos `.env`.
 - R3. **Permisos:** la cuenta de servicio con la que corren `parseMeal` y `extractLabel` tiene el
   rol `roles/aiplatform.user` en `kcalcula-ia-dev`, y la API de Vertex AI está habilitada.
-- R4. **El emulador no pasa a Vertex por accidente.** Si el emulador lee
-  `functions/.env.kcalcula-ia-dev` (POR VERIFICAR, ver Open Questions), `functions/.env.local`
-  define `AI_PROVIDER=fake` para que gane en local. Los comandos de CLAUDE.md siguen valiendo, con
-  la variable explícita en la línea de comandos.
+- R4. **El emulador no pasa a Vertex por accidente.** El emulador sí carga
+  `functions/.env.kcalcula-ia-dev` (OQ3), pero ignora `DEPLOYED_AI_PROVIDER` (R1). Los comandos de
+  CLAUDE.md siguen valiendo, con `AI_PROVIDER` en la línea de comandos.
 - R5. **Control de gasto:** se crea una alerta de presupuesto mensual en la cuenta de facturación de
   `kcalcula-ia-dev` (acción de la usuaria; monto en Open Questions). `maxInstances: 10` no cambia.
 - R6. **Evals de etiquetas con Vertex:** `extract_label.v1` se corre con `AI_PROVIDER=vertex`.
   Exige esquema válido en el 100 % de los casos. El resultado se guarda como baseline solo si la
   usuaria lo aprueba.
 - R7. **Logs:** solo metadatos (invariante 5). Se comprueba en Cloud Logging después del despliegue.
+- R9. **Tiempo límite de las etiquetas:** `extractLabel` pasa de 10 s a 60 s, en la función
+  (`timeoutSeconds`) y en la app (`HttpsCallableOptions`). `parseMeal` se queda en 10 s.
 - R8. **Documentación:** ADR-002 registra el cambio de decisión (Vertex en dev desde 2026-10-07).
   `docs/privacy.md` deja de decir que la foto "no sale del dispositivo de desarrollo" en dev: con
   este cambio sale hacia Vertex AI, igual que el texto. `docs/architecture.md` y CLAUDE.md
@@ -65,12 +69,19 @@ la IA real lo entienda, para no depender de las frases de prueba.
   versión del prompt, la latencia y los tokens, y **no** contienen el texto escrito ni la imagen
   `[manual]`.
 - AC4. `AI_PROVIDER=vertex VERTEX_PROJECT_ID=kcalcula-ia-dev npm --prefix functions run
-  evals:extract-label` → esquema válido 47/47. Se informan la latencia p50/p95 y los tokens, y se
+  evals:extract-label` → esquema válido 47/47. Un caso que falle por cuota (429) se repite solo
+  con `--case=<id>` y cuenta si sale válido. Se informan la latencia p50/p95 y los tokens, y se
   comparan con el baseline de Ollama `[eval]`.
-- AC5. `firebase emulators:start --only functions` sin variables, con una frase fuera de los
-  fixtures → `items: []`, es decir, `fake` y sin costo `[manual]`.
+- AC5. `resolveProviderName`: sin variables → `fake`; desplegado con `DEPLOYED_AI_PROVIDER=vertex`
+  → `vertex`; en el emulador con `DEPLOYED_AI_PROVIDER=vertex` → `fake`, y con
+  `AI_PROVIDER=ollama` → `ollama` `[unit]`. Además, el emulador sin variables con
+  `.env.kcalcula-ia-dev` creado responde `items: []` a una frase fuera de los fixtures `[manual]`.
 - AC6. `npm --prefix functions run build && npm --prefix functions test` verdes. Ningún prompt,
-  esquema ni adaptador cambia (`git diff develop -- functions/src` vacío) `[unit]`.
+  esquema ni adaptador cambia (`git diff develop -- functions/src/ai/prompts functions/src/ai/schemas.ts
+  functions/src/ai/vertex.ts` vacío) `[unit]`.
+- AC8. `extractLabel` tiene `timeoutSeconds: 60` y la app espera 60 s; `parseMeal` sigue en 10 s.
+  Una etiqueta real en el teléfono que tarde más de 10 s se lee sin error de tiempo agotado
+  `[manual]`.
 - AC7. Los documentos de R8 están actualizados y el reviewer lo comprueba `[manual]`.
 
 ## Technical Constraints
@@ -83,7 +94,9 @@ la IA real lo entienda, para no depender de las frases de prueba.
 
 ## Components / Files Affected
 - `functions/.env.kcalcula-ia-dev` (lo crea la usuaria; fuera de git).
-- `functions/.env.local` (lo revisa la usuaria si R4 aplica).
+- `functions/src/ai/provider_name.ts` (+ test), `functions/src/index.ts` (selección perezosa y
+  timeout), `app/lib/infra/ai_client/ai_client.dart` (timeout),
+  `functions/src/evals/run_extract_label.ts` (`--case`).
 - `docs/decisions/ADR-002-ia-local-vs-vertex.md`, `docs/privacy.md`, `docs/architecture.md`,
   `CLAUDE.md` (Comandos).
 - `evals/baselines/extract_label.v1__vertex__gemini-2.5-flash__<fecha>.json` (si se aprueba).
@@ -98,9 +111,8 @@ la IA real lo entienda, para no depender de las frases de prueba.
 - **Falta el permiso de Vertex** (R3): la función falla. La app debe mostrar el error de IA en
   español, con "Reintentar" y "Buscar en la base manualmente" (SPEC-012 y SPEC-018), sin trazas.
   Se comprueba de paso en AC1 si ocurre.
-- **Vertex tarda más que el `timeoutSeconds: 10`** (p95 de 5,8 s en texto; la imagen puede tardar
-  más): la app muestra el error de tiempo agotado que ya existe. Si AC4 da un p95 de etiquetas
-  cercano a 10 s, se abre una pregunta para subir el timeout de `extractLabel` (no se cambia aquí).
+- **Vertex tarda más que el tiempo límite** (texto: p95 5,8 s contra 10 s; etiqueta: p95 21 s y
+  máximo 37,6 s contra 60 s): la app muestra el error de tiempo agotado que ya existe.
 - **Respuesta inválida del modelo**: un reintento y luego `ai-invalid-output`, como hoy.
 - **Sin red en el teléfono**: igual que hoy.
 - **Cuota de Vertex agotada o facturación desactivada**: error de IA en la app; la alerta de
@@ -122,7 +134,8 @@ la IA real lo entienda, para no depender de las frases de prueba.
 
 ## Out of Scope
 - El proyecto de producción `kcalcula-ia` y la salida al mercado.
-- Cambiar el prompt, el esquema, el modelo, la región o el timeout.
+- Cambiar el prompt, el esquema, el modelo, la región o el timeout de `parseMeal`.
+- Desactivar el razonamiento ("thinking") de `gemini-2.5-flash` para bajar la latencia: T-028.
 - Pedir a Google la excepción del registro de abuso.
 - Volver a correr el baseline de `parse_meal` con Vertex: el modelo y el prompt son los mismos del
   2026-10-02.
@@ -132,11 +145,13 @@ la IA real lo entienda, para no depender de las frases de prueba.
   90 % y 100 %. Con unas 650 tokens de entrada y 170 de salida por análisis de texto, son miles de
   análisis antes de llegar a USD 1 (el precio en Vertex sigue POR VERIFICAR, PV-02). La alerta
   avisa, **no corta** el gasto.
-- OQ2. **Caché de datos de Vertex.** `docs/privacy.md` dice que se puede desactivar a nivel de
-  proyecto para retención cero. Recomendación: desactivarla en `kcalcula-ia-dev` como parte de esta
-  SPEC. El procedimiento exacto está POR VERIFICAR (subagente `researcher`).
-- OQ3. **¿El emulador carga `.env.kcalcula-ia-dev`?** POR VERIFICAR (`researcher`). Según la
-  respuesta se aplica R4 o no.
+- OQ2. **Caché de datos de Vertex.** Resuelta: se desactiva (decisión de la usuaria) con
+  `PATCH .../v1/projects/kcalcula-ia-dev/cacheConfig` y `disableCache: true`, que aplica a todo el
+  proyecto (`docs/research/2026-10-07-vertex-dev-config.md`, confianza media-alta).
+- OQ3. **¿El emulador carga `.env.kcalcula-ia-dev`?** Resuelta
+  (`docs/research/2026-10-07-vertex-dev-config.md`): sí, y los `.env` ganan sobre el shell. Por eso
+  R1 usa `DEPLOYED_AI_PROVIDER`. `FUNCTIONS_EMULATOR="true"` confirmado en `firebase-tools` 15.31.0
+  (`lib/emulator/functionsEmulator.js`).
 
 ## Definition of Done
 - AC1–AC7 con evidencia · build y tests de `functions` verdes · evals de etiquetas con esquema
@@ -160,6 +175,14 @@ la IA real lo entienda, para no depender de las frases de prueba.
   no se puede cumplir sin cambiar código: sin `.env.local` el emulador usaría Vertex; con
   `AI_PROVIDER=fake` en `.env.local`, `AI_PROVIDER=ollama` en la línea de comandos dejaría de
   funcionar.
+
+- 2026-10-07: **la usuaria aprueba los cuatro cambios** ("aprobad"): R1 y R4 con
+  `DEPLOYED_AI_PROVIDER` y selección por ambiente (cambia código); R9 timeout de 60 s en
+  `extractLabel`; AC4 repite un 429 con `--case`; acepta como regresión conocida los 2 campos
+  inventados de `label_38` (azúcar 0 sin estar impreso; la persona confirma los valores) y abre T-028
+  (razonamiento del modelo). Status sigue en Implementing.
+- 2026-10-07: implementados R1, R4 y R9; `--case` en el runner. `label_52` repetido: válido, 17/17
+  campos. functions 57/57; app analyze sin avisos y 324/324.
 
 ## Review
 Informe del reviewer:

@@ -154,7 +154,7 @@ kcal enteras (redondeo half-up) y macros con 1 decimal. Los valores estimados se
 | Situación | Comportamiento |
 |---|---|
 | Sin red | Mensaje en español con opción de reintentar; el texto ya escrito se conserva |
-| Timeout del proveedor (10 s) | Igual que sin red |
+| Timeout del proveedor (10 s el texto; 60 s la etiqueta, SPEC-029) | Igual que sin red |
 | `ai-invalid-output` | "No pude entender la comida, ¿puedes reformularla?" |
 | Sin alimentos detectados | "No encontré alimentos en lo que escribiste" |
 | App Check inválido | Error genérico; se registra solo el código |
@@ -162,10 +162,10 @@ kcal enteras (redondeo half-up) y macros con 1 decimal. Los valores estimados se
 ## Backend: controles
 - App Check obligatorio en funciones callable. En desarrollo se usa el proveedor de depuración.
 - Entrada: texto de 1–500 caracteres; imagen ≤ tamaño definido en la SPEC de etiquetas.
-- `maxInstances` acotado, timeout de 10 s hacia el proveedor, alertas de presupuesto en Google Cloud.
+- `maxInstances` acotado, timeout de 10 s hacia el proveedor (60 s en `extractLabel`, SPEC-029), alertas de presupuesto en Google Cloud.
 - Modelo y región por configuración (POR VERIFICAR, ver `docs/research/POR-VERIFICAR.md`).
-- Proveedor de IA por ambiente (`AI_PROVIDER`, `fake` por defecto; SPEC-029): el backend desplegado
-  en `kcalcula-ia-dev` usa `vertex` (`gemini-2.5-flash`, `us-east1`) con la configuración de
-  `functions/.env.kcalcula-ia-dev` (fuera de git, sin secretos) y la cuenta de servicio de Functions
-  con `roles/aiplatform.user`. El emulador, CI y los tests usan `fake` salvo que se pida otro
-  proveedor en la línea de comandos.
+- Proveedor de IA por ambiente (`fake` por defecto; SPEC-029, `functions/src/ai/provider_name.ts`):
+  el backend desplegado en `kcalcula-ia-dev` usa `vertex` (`gemini-2.5-flash`, `us-east1`) por
+  `DEPLOYED_AI_PROVIDER=vertex` y `VERTEX_PROJECT_ID` en `functions/.env.kcalcula-ia-dev` (fuera de
+  git, sin secretos), con la cuenta de servicio de Functions y `roles/aiplatform.user`. El emulador
+  ignora `DEPLOYED_AI_PROVIDER` y solo obedece `AI_PROVIDER` (línea de comandos o `.env.local`).

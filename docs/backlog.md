@@ -219,6 +219,15 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     Decisión de la usuaria del 2026-10-07 (adelanta ADR-002).
   dependencies: []
   spec_required: true    # specs/SPEC-029-vertex-ai-en-dev.md — Strict (datos fuera del dispositivo, costo)
+- id: T-028
+  title: Medir gemini-2.5-flash sin razonamiento para bajar la latencia
+  objective: >
+    Con Vertex, leer una etiqueta tarda p50 8,5 s y p95 21 s (SPEC-029, evals del 2026-10-07).
+    Probar `thinkingBudget: 0` en `vertex.ts` y comparar latencia, precisión y campos inventados
+    con el baseline en `parse_meal` y `extract_label`. Strict (parámetros del modelo, skill
+    `ai-pipeline`).
+  dependencies: [T-027]
+  spec_required: true
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
   # SPECs (Draft, 2026-10-04): specs/SPEC-021-foto-del-plato.md (Strict),
