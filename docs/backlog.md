@@ -237,6 +237,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     `_NumberField` usa `double.tryParse`: "1,4" queda vacío y no deja guardar, sin explicación.
     Encontrado al probar SPEC-029 en el teléfono (2026-10-07).
   dependencies: []
+  status: done  # SPEC-030
   spec_required: true    # specs/SPEC-030-decimales-con-coma-en-etiqueta.md — Standard
 - id: T-030
   title: La IA mezcla valores de porción y de "por 100 g" en una etiqueta

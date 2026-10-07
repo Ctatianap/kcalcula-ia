@@ -1,7 +1,7 @@
 # SPEC-030: Decimales con coma en "Confirmar etiqueta"
 
 ## Status
-Review
+Done
 Path: Standard (corrige la entrada de números de una pantalla; no cambia `nutrition_core`, la IA
 ni el catálogo)
 
@@ -111,6 +111,7 @@ quedarme sin poder guardar y sin saber por qué.
   controlador y texto "Falta: …" encima del botón. Falta la prueba manual en el teléfono.
 - 2026-10-07: reviewer PASS; sus 4 MINOR atendidos (ver Review). Falta la prueba manual en el teléfono.
 - 2026-10-07: prueba manual en el teléfono hecha (ver Verificación). Status → Review.
+- 2026-10-07: **la usuaria aprueba fusionar** ("aprobado, fusiona a develop"). Status → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
