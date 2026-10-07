@@ -105,6 +105,8 @@ specs/  docs/
 - Emulador con IA real local (gratis, MVP — ver ADR-002): `AI_PROVIDER=ollama OLLAMA_MODEL=gemma4:e4b firebase emulators:start --only functions`
   (requiere `brew install ollama && ollama pull gemma4:e4b` una vez).
 - Emulador con Vertex AI real (cuesta dinero): `AI_PROVIDER=vertex VERTEX_PROJECT_ID=<proyecto> firebase emulators:start --only functions`
+- Backend desplegado de `kcalcula-ia-dev`: usa Vertex AI (SPEC-029) por `functions/.env.kcalcula-ia-dev`,
+  que crea la usuaria (fuera de git). `firebase deploy --only functions` requiere confirmación.
 - Catálogo: `cd data/build_catalog && dart run` (regenera `app/assets/catalog/catalog.db`)
 Si un comando aún no existe, créalo en la tarea que lo necesite y actualiza esta lista.
 

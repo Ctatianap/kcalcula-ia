@@ -1,6 +1,6 @@
 # ADR-002 — Modelo local (Ollama) durante el MVP, Vertex AI antes de salir al mercado
 
-Estado: Aceptado · Fecha: 2026-09-27
+Estado: Aceptado, modificado el 2026-10-07 (ver Actualización) · Fecha: 2026-09-27
 
 ## Contexto
 D7 de ADR-001 ya deja el proveedor de IA detrás de un adaptador (`AiProvider`) con Gemini vía
@@ -47,3 +47,12 @@ para beta"), o antes si el usuario decide correr los evals reales de AC11 sobre 
   desarrollador prueba la app.
 - Requiere que quien desarrolle tenga Ollama instalado y el modelo descargado localmente
   (`brew install ollama && ollama pull gemma4:e4b`); no es parte del build reproducible de CI.
+
+## Actualización 2026-10-07 — Vertex AI en el backend desplegado de desarrollo
+La usuaria adelantó el cambio a Vertex AI ("hagamos lo de vertex para que ya nos funcione la ia"):
+el backend desplegado no puede usar Ollama (corre en el PC, no en la nube), así que con `fake` la
+app en el teléfono solo reconocía las frases de prueba. Desde SPEC-029, `kcalcula-ia-dev` usa
+`AI_PROVIDER=vertex` (`gemini-2.5-flash`, `us-east1`), con una alerta de presupuesto de USD 5 al mes
+y la caché de datos de Vertex desactivada. Ollama sigue disponible para el emulador local, y `fake`
+sigue siendo el valor por defecto del código (emulador, CI y tests sin costo). El proyecto de
+producción `kcalcula-ia` queda para cuando la app salga al mercado.

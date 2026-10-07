@@ -164,3 +164,8 @@ kcal enteras (redondeo half-up) y macros con 1 decimal. Los valores estimados se
 - Entrada: texto de 1–500 caracteres; imagen ≤ tamaño definido en la SPEC de etiquetas.
 - `maxInstances` acotado, timeout de 10 s hacia el proveedor, alertas de presupuesto en Google Cloud.
 - Modelo y región por configuración (POR VERIFICAR, ver `docs/research/POR-VERIFICAR.md`).
+- Proveedor de IA por ambiente (`AI_PROVIDER`, `fake` por defecto; SPEC-029): el backend desplegado
+  en `kcalcula-ia-dev` usa `vertex` (`gemini-2.5-flash`, `us-east1`) con la configuración de
+  `functions/.env.kcalcula-ia-dev` (fuera de git, sin secretos) y la cuenta de servicio de Functions
+  con `roles/aiplatform.user`. El emulador, CI y los tests usan `fake` salvo que se pida otro
+  proveedor en la línea de comandos.
