@@ -1,7 +1,7 @@
 # SPEC-030: Decimales con coma en "Confirmar etiqueta"
 
 ## Status
-Draft
+Approved
 Path: Standard (corrige la entrada de números de una pantalla; no cambia `nutrition_core`, la IA
 ni el catálogo)
 
@@ -103,6 +103,8 @@ quedarme sin poder guardar y sin saber por qué.
 ## Change Log
 - 2026-10-07: creación a pedido de la usuaria ("sí, redacta la SPEC-030"), a partir del fallo
   encontrado al probar SPEC-029. Backlog T-029.
+- 2026-10-07: **Approved por la usuaria** ("aprobada la SPEC-030"). Se implementa después de cerrar
+  SPEC-029.
 
 ## Review
 Informe del reviewer:
