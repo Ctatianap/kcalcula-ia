@@ -1,7 +1,7 @@
 # SPEC-033: Etiqueta y mis productos por ingrediente
 
 ## Status
-Draft
+Implementing
 Path: Standard (la persona elige a mano el alimento de un ingrediente, como en SPEC-018; reutiliza
 `extractLabel` y las reglas de `nutrition_core` sin cambiarlas; no cambia prompts, esquemas ni
 `catalog.db`)
@@ -138,6 +138,7 @@ volver a fotografiar todo cada día.
 
 ## Change Log
 - 2026-10-07: creación a pedido de la usuaria ("sí, me sirve, redacta la SPEC-033"). Backlog T-033.
+- 2026-10-07: **Approved por la usuaria** ("aprobada la SPEC-033"). Status → Implementing.
 
 ## Review
 Informe del reviewer:
