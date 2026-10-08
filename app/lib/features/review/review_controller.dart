@@ -11,6 +11,10 @@ import 'review_item.dart';
 
 /// R12: asignación de `meal_type` por hora local cuando la IA no lo pudo
 /// inferir del texto.
+/// SPEC-026: `sourceId` de un alimento armado con la instantánea de un ítem
+/// guardado.
+const _snapshotSourceId = 'snapshot';
+
 String assignMealTypeByHour(DateTime at) {
   final hour = at.hour;
   if (hour >= 5 && hour <= 10) return 'desayuno';
@@ -30,6 +34,15 @@ class ReviewController extends ChangeNotifier {
 
   late List<ReviewItem> _items;
   late String mealType;
+
+  /// SPEC-026: id de la comida guardada que se está editando; `null` al
+  /// registrar una nueva.
+  int? editingMealId;
+
+  /// SPEC-026 R2: fecha y hora de la comida (en modo edición, la guardada).
+  DateTime? eatenAt;
+
+  bool get isEditing => editingMealId != null;
 
   ReviewController({
     required ParsedMealDto parsedMeal,
@@ -55,6 +68,86 @@ class ReviewController extends ChangeNotifier {
   /// SPEC-017: comida con los alimentos y gramos ya resueltos (Recientes),
   /// sin IA. El tipo de comida se asigna por la hora actual; un alimento que
   /// ya no existe se omite. Las kcal se recalculan con el catálogo actual.
+  /// SPEC-026 R1: el Detalle de una comida guardada. Cada ítem conserva su
+  /// instantánea (`savedSnapshot`) hasta que la persona lo cambie. Si su
+  /// alimento ya no existe (producto borrado), se arma uno con los valores
+  /// de la instantánea para poder ajustar los gramos.
+  ReviewController.forEdit({
+    required MealWithItems meal,
+    required FoodQueryResolver resolver,
+    required StorageRepository storage,
+  }) : _resolver = resolver,
+       // ignore: prefer_initializing_formals
+       _storage = storage,
+       _householdUnits = resolver.householdUnitMlByUnit() {
+    editingMealId = meal.meal.id;
+    eatenAt = meal.meal.eatenAt;
+    mealType = meal.meal.mealType ?? assignMealTypeByHour(meal.meal.eatenAt);
+    _items = [for (final item in meal.items) _savedReviewItem(item, resolver)];
+  }
+
+  static ReviewItem _savedReviewItem(
+    MealItem item,
+    FoodQueryResolver resolver,
+  ) {
+    final foodId = item.personalProductId != null
+        ? '$personalProductIdPrefix${item.personalProductId}'
+        : item.foodId;
+    final food =
+        (foodId == null ? null : resolver.getFoodById(foodId)) ??
+        _snapshotFood(item);
+    return ReviewItem(
+      mention: item.mention,
+      foodQuery: item.nameSnapshot,
+      isVague: false,
+      quantityRaw: item.quantityInput,
+      unitRaw: item.unitInput,
+      sizeRaw: item.sizeInput,
+      status: ReviewItemStatus.matched,
+      food: food,
+      grams: item.grams,
+      basis:
+          QuantityBasis.values.asNameMap()[item.quantityBasis] ??
+          QuantityBasis.explicitWeight,
+      confidence:
+          ConfidenceLevel.values.asNameMap()[item.confidence] ??
+          ConfidenceLevel.estimacion,
+      // AC4: la instantánea, no el catálogo actual.
+      nutrients: (
+        energyKcal: item.energyKcal,
+        proteinG: item.proteinG,
+        carbsG: item.carbsG,
+        fatG: item.fatG,
+      ),
+      savedSnapshot: item,
+    );
+  }
+
+  /// Alimento armado con los valores guardados (por 100 g), para un ítem
+  /// cuyo alimento ya no existe. Mismo criterio que `_per100()` de
+  /// "Confirmar etiqueta": una conversión de la instantánea, no un dato
+  /// nuevo.
+  static FoodCatalogEntry _snapshotFood(MealItem item) {
+    final factor = item.grams > 0 ? 100 / item.grams : 0.0;
+    return FoodCatalogEntry(
+      id: 'snapshot:${item.id}',
+      nameEs: item.nameSnapshot,
+      sourceId: _snapshotSourceId,
+      sourceRef: item.sourceRef,
+      energyKcal100g: item.energyKcal * factor,
+      proteinG100g: item.proteinG * factor,
+      carbsG100g: item.carbsG * factor,
+      fatG100g: item.fatG * factor,
+      portions: const [],
+    );
+  }
+
+  /// SPEC-026 R2: fecha y hora nuevas (quien llama impide las futuras).
+  void setEatenAt(DateTime value) {
+    eatenAt = value;
+    notifyListeners();
+  }
+
   ReviewController.fromDraft({
     required MealDraft draft,
     required FoodQueryResolver resolver,
@@ -352,6 +445,8 @@ class ReviewController extends ChangeNotifier {
     _items[index] = item.copyWith(
       grams: grams,
       nutrients: calculateItemNutrients(item.food!, grams),
+      // SPEC-026 AC4: editado → se guarda con los valores actuales.
+      keepSnapshot: false,
     );
     notifyListeners();
   }
@@ -371,11 +466,17 @@ class ReviewController extends ChangeNotifier {
     final records = _items
         .where((item) => item.status == ReviewItemStatus.matched)
         .map((item) {
+          // SPEC-026 AC4: un ítem no tocado se guarda tal como estaba.
+          final saved = item.savedSnapshot;
+          if (saved != null) return _recordFromSnapshot(saved);
           final food = item.food!;
           final personalId = personalProductIdFrom(food.id);
+          // SPEC-026: un alimento armado con la instantánea (su producto se
+          // borró) no tiene id que guardar.
+          final fromSnapshot = food.sourceId == _snapshotSourceId;
           return MealItemRecord(
             mention: item.mention,
-            foodId: personalId == null ? food.id : null,
+            foodId: personalId == null && !fromSnapshot ? food.id : null,
             personalProductId: personalId,
             nameSnapshot: food.nameEs,
             grams: item.grams,
@@ -393,6 +494,20 @@ class ReviewController extends ChangeNotifier {
         })
         .toList();
 
+    final editingId = editingMealId;
+    if (editingId != null) {
+      // SPEC-026 R2: la misma comida, en una transacción.
+      return _storage
+          .updateMeal(
+            id: editingId,
+            eatenAt: this.eatenAt ?? eatenAt ?? DateTime.now(),
+            mealType: mealType,
+            confidence: confidence.name,
+            catalogVersion: _resolver.catalogVersion,
+            items: records,
+          )
+          .then((_) => editingId);
+    }
     return _storage.registerMeal(
       eatenAt: eatenAt ?? DateTime.now(),
       mealType: mealType,
@@ -401,4 +516,31 @@ class ReviewController extends ChangeNotifier {
       items: records,
     );
   }
+
+  /// SPEC-026 R3: borra la comida que se está editando.
+  Future<void> deleteEditedMeal() {
+    final id = editingMealId;
+    if (id == null) throw StateError('No hay una comida guardada abierta.');
+    return _storage.deleteMeal(id);
+  }
+
+  static MealItemRecord _recordFromSnapshot(MealItem saved) => MealItemRecord(
+    mention: saved.mention,
+    foodId: saved.foodId,
+    personalProductId: saved.personalProductId == null
+        ? null
+        : int.tryParse(saved.personalProductId!),
+    nameSnapshot: saved.nameSnapshot,
+    grams: saved.grams,
+    quantityInput: saved.quantityInput,
+    unitInput: saved.unitInput,
+    sizeInput: saved.sizeInput,
+    quantityBasis: saved.quantityBasis,
+    energyKcal: saved.energyKcal,
+    proteinG: saved.proteinG,
+    carbsG: saved.carbsG,
+    fatG: saved.fatG,
+    confidence: saved.confidence,
+    sourceRef: saved.sourceRef,
+  );
 }

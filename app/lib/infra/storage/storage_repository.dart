@@ -91,36 +91,86 @@ class StorageRepository {
               catalogVersion: catalogVersion,
             ),
           );
-
-      for (var i = 0; i < items.length; i++) {
-        final item = items[i];
-        await _db
-            .into(_db.mealItems)
-            .insert(
-              MealItemsCompanion.insert(
-                mealId: mealId,
-                position: i,
-                mention: item.mention,
-                nameSnapshot: item.nameSnapshot,
-                grams: item.grams,
-                quantityBasis: item.quantityBasis,
-                energyKcal: item.energyKcal,
-                proteinG: item.proteinG,
-                carbsG: item.carbsG,
-                fatG: item.fatG,
-                confidence: item.confidence,
-                sourceRef: item.sourceRef,
-                foodId: Value(item.foodId),
-                personalProductId: Value(item.personalProductId?.toString()),
-                quantityInput: Value(item.quantityInput),
-                unitInput: Value(item.unitInput),
-                sizeInput: Value(item.sizeInput),
-              ),
-            );
-      }
-
+      await _insertItems(mealId, items);
       return mealId;
     });
+  }
+
+  /// SPEC-026 R1: una comida guardada con sus ítems, o `null` si ya no
+  /// existe.
+  Future<MealWithItems?> getMealWithItems(int id) async {
+    final meal = await (_db.select(
+      _db.meals,
+    )..where((m) => m.id.equals(id))).getSingleOrNull();
+    if (meal == null) return null;
+    return (await _withItems([meal])).single;
+  }
+
+  /// SPEC-026 R2: reemplaza la comida [id] (mismo `id`) en una sola
+  /// transacción: sus ítems, fecha y hora, tipo y confianza. `updated_at`
+  /// cambia.
+  Future<void> updateMeal({
+    required int id,
+    required DateTime eatenAt,
+    required String? mealType,
+    required String confidence,
+    required String catalogVersion,
+    required List<MealItemRecord> items,
+  }) {
+    return _db.transaction(() async {
+      await (_db.update(_db.meals)..where((m) => m.id.equals(id))).write(
+        MealsCompanion(
+          eatenAt: Value(eatenAt),
+          mealType: Value(mealType),
+          confidence: Value(confidence),
+          catalogVersion: Value(catalogVersion),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+      await (_db.delete(
+        _db.mealItems,
+      )..where((item) => item.mealId.equals(id))).go();
+      await _insertItems(id, items);
+    });
+  }
+
+  /// SPEC-026 R3: borra la comida y sus ítems.
+  Future<void> deleteMeal(int id) {
+    return _db.transaction(() async {
+      await (_db.delete(
+        _db.mealItems,
+      )..where((item) => item.mealId.equals(id))).go();
+      await (_db.delete(_db.meals)..where((m) => m.id.equals(id))).go();
+    });
+  }
+
+  Future<void> _insertItems(int mealId, List<MealItemRecord> items) async {
+    for (var i = 0; i < items.length; i++) {
+      final item = items[i];
+      await _db
+          .into(_db.mealItems)
+          .insert(
+            MealItemsCompanion.insert(
+              mealId: mealId,
+              position: i,
+              mention: item.mention,
+              nameSnapshot: item.nameSnapshot,
+              grams: item.grams,
+              quantityBasis: item.quantityBasis,
+              energyKcal: item.energyKcal,
+              proteinG: item.proteinG,
+              carbsG: item.carbsG,
+              fatG: item.fatG,
+              confidence: item.confidence,
+              sourceRef: item.sourceRef,
+              foodId: Value(item.foodId),
+              personalProductId: Value(item.personalProductId?.toString()),
+              quantityInput: Value(item.quantityInput),
+              unitInput: Value(item.unitInput),
+              sizeInput: Value(item.sizeInput),
+            ),
+          );
+    }
   }
 
   /// SPEC-004 R7: guarda un producto personal confirmado. Devuelve su `id`
