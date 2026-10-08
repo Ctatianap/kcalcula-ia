@@ -298,6 +298,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     producto aunque ese alias funcione al registrar por texto (SPEC-034 R4). Hallazgo del reviewer de
     SPEC-034. Cambia el comportamiento de la búsqueda: Standard.
   dependencies: [T-034]
+  status: done  # SPEC-035
   spec_required: true    # specs/SPEC-035-buscar-por-alias.md — Standard
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual

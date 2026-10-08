@@ -1,7 +1,7 @@
 # SPEC-035: Buscar mis productos también por sus nombres alternativos
 
 ## Status
-Implementing
+Done
 Path: Standard (búsqueda manual de solo lectura; no cambia `resolve`, el catálogo ni `nutrition_core`)
 
 ## Objective
@@ -82,6 +82,7 @@ nombre exacto que le puse.
 - 2026-10-07: implementada: `search` con alias, "Buscar alimento" y "Elegir de mis productos" leen los
   alias. 400/400.
 - 2026-10-07: reviewer PASS; MINOR corregidos. 401/401. Falta la prueba manual.
+- 2026-10-07: prueba manual hecha y **aprobación de la usuaria** ("aprobada"). Status → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -91,7 +92,7 @@ nombre exacto que le puse.
 | AC3 | ✅ | mismo archivo › "AC3…" ("Buscar alimento") |
 | AC4 | ✅ | mismo archivo › "AC4…" (filtra por alias, oculta "Leche" y muestra "También: mi pan, pan integral") |
 | AC5 | ✅ | app: analyze sin avisos, 401/401; ningún test existente cambió. Caso borde: "un alias que también está en el catálogo sale primero" |
-| Manual | ⏳ | Buscar "mi pan" en "Buscar alimento" en el teléfono |
+| Manual | ✅ | 2026-10-07, en el Motorola de la usuaria (versión de `419dedf`), desde "Añadir ingrediente": "mi leche" encuentra "leche deslactosada Colanta" en "Buscar alimento". Se volvió atrás sin agregar nada |
 
 ## Review
 Revisión (2026-10-07, subagente `reviewer`, sobre `c785409`): **PASS**. AC1–AC5 con evidencia; `resolve`
