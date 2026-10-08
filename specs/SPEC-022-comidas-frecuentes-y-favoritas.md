@@ -1,7 +1,7 @@
 # SPEC-022: Comidas frecuentes y favoritas
 
 ## Status
-Draft
+Implementing
 Path: Standard (reutiliza catálogo, cálculo y el flujo sin IA de SPEC-017; no cambia datos que salen)
 
 ## Objective
@@ -91,6 +91,32 @@ que registré.
 - 2026-10-08: actualizada antes de pedir aprobación: migración v8 → v9 (el esquema avanzó con SPEC-034),
   favorita también desde el menú de mantener presionada (SPEC-037) y con productos personales; tabla de
   ítems; preguntas abiertas resueltas con la opción recomendada. AC8 nuevo.
+- 2026-10-08: **Approved por la usuaria** ("aprobada"). Status → Implementing.
+- 2026-10-08: implementada. Detalles menores:
+  - Las favoritas guardan alimentos, gramos, cantidad tal como se expresó, base y confianza, **no**
+    valores nutricionales: se calculan con el catálogo actual al abrirlas (R4).
+  - Duplicada = mismos alimentos con los mismos gramos (la definición de SPEC-017), en cualquier orden.
+  - En "¿Qué comiste?", mantener presionada una tarjeta abre una hoja con la acción ("Guardar como
+    favorita" o "Quitar de favoritas"). Una favorita que no se puede abrir también se puede quitar.
+  - En el detalle de una comida guardada, el botón se desactiva mientras haya cambios sin guardar (como
+    "Repetir hoy").
+  - El nombre por defecto es la lista de alimentos ("Huevo y Arepa"); el campo limita a 40 caracteres.
+  - Tests de migración de SPEC-008/015/034 que comparaban la versión con 8 ahora esperan 9 (la versión
+    vigente); no cambia lo que verifican.
+  - app 488/488.
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/infra/food_resolution/frequent_and_favorite_meals_test.dart` › "AC1…" y "R1: empate…"; `app/test/features/capture/favorite_meals_flow_test.dart` › "AC1…" |
+| AC2 | ✅ | `frequent_and_favorite_meals_test.dart` › "AC2…" |
+| AC3 | ✅ | `favorite_meals_flow_test.dart` › "AC3…" (guardar con nombre, primero, duplicada, quitar); almacenamiento en `frequent_and_favorite_meals_test.dart` › "AC3 (almacenamiento)…" |
+| AC4 | ✅ | `favorite_meals_flow_test.dart` › "AC4…" (fake que falla si se llama a la IA; hora actual) |
+| AC5 | ✅ | `frequent_and_favorite_meals_test.dart` › "AC5…" (migración v8 → v9, exportar, borrar todo) |
+| AC6 | ✅ | `favorite_meals_flow_test.dart` › "AC6…" y la prueba de lógica |
+| AC7 | ✅ | `favorite_meals_flow_test.dart` › "AC7…" |
+| AC8 | ✅ | `app/test/features/diary/meal_long_press_test.dart` › "SPEC-022 AC8…" |
+| Manual | ⏳ | Recorrido en el teléfono, pendiente |
 
 ## Review
 Informe del reviewer: pendiente.

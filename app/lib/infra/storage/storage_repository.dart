@@ -9,6 +9,8 @@ import 'goal_sync.dart';
 export 'app_database.dart'
     show
         ConsentRecordData,
+        FavoriteMeal,
+        FavoriteMealItem,
         Meal,
         MealItem,
         NutritionGoal,
@@ -66,6 +68,49 @@ typedef NutritionGoalValues = ({
   double carbsG,
   double fatG,
 });
+
+/// SPEC-022: un alimento de una favorita, como en `MealDraftItem`
+/// (`foodId` del catálogo o `personal:<id>`).
+class FavoriteMealItemRecord {
+  final String foodId;
+  final String mention;
+  final double grams;
+  final double? quantityInput;
+  final String? unitInput;
+  final String? sizeInput;
+  final String quantityBasis;
+  final String confidence;
+
+  const FavoriteMealItemRecord({
+    required this.foodId,
+    required this.mention,
+    required this.grams,
+    required this.quantityBasis,
+    required this.confidence,
+    this.quantityInput,
+    this.unitInput,
+    this.sizeInput,
+  });
+}
+
+/// SPEC-022 R2 / Edge Cases: resultado de "Guardar como favorita".
+enum SaveFavoriteResult { saved, duplicate, limitReached }
+
+/// SPEC-022 R2: hasta 10 favoritas.
+const maxFavoriteMeals = 10;
+
+/// SPEC-022: una favorita con sus alimentos.
+class FavoriteMealWithItems {
+  final FavoriteMeal favorite;
+  final List<FavoriteMealItem> items;
+
+  const FavoriteMealWithItems({required this.favorite, required this.items});
+}
+
+/// SPEC-017/022: "la misma comida" = los mismos alimentos con los mismos
+/// gramos, sin importar el orden.
+String mealKeyOf(Iterable<({String foodId, double grams})> items) =>
+    (items.map((i) => '${i.foodId}@${i.grams}').toList()..sort()).join('|');
 
 class StorageRepository {
   final AppDatabase _db;
@@ -352,6 +397,92 @@ class StorageRepository {
       await _db.delete(_db.userProfile).go();
       // SPEC-015 R6.
       await _db.delete(_db.weightLog).go();
+      // SPEC-022 R3: los ítems antes que la favorita (referencia).
+      await _db.delete(_db.favoriteMealItems).go();
+      await _db.delete(_db.favoriteMeals).go();
+    });
+  }
+
+  /// SPEC-022 R2: favoritas, de la más nueva a la más antigua, con sus
+  /// alimentos en orden.
+  Future<List<FavoriteMealWithItems>> favoriteMeals() async {
+    final favorites =
+        await (_db.select(_db.favoriteMeals)..orderBy([
+              (f) => OrderingTerm.desc(f.createdAt),
+              (f) => OrderingTerm.desc(f.id),
+            ]))
+            .get();
+    if (favorites.isEmpty) return const [];
+    final items =
+        await (_db.select(_db.favoriteMealItems)..orderBy([
+              (i) => OrderingTerm.asc(i.favoriteId),
+              (i) => OrderingTerm.asc(i.position),
+            ]))
+            .get();
+    final byFavorite = <int, List<FavoriteMealItem>>{};
+    for (final item in items) {
+      byFavorite.putIfAbsent(item.favoriteId, () => []).add(item);
+    }
+    return [
+      for (final f in favorites)
+        FavoriteMealWithItems(favorite: f, items: byFavorite[f.id] ?? const []),
+    ];
+  }
+
+  /// SPEC-022 R2: guarda una favorita, salvo que ya haya
+  /// [maxFavoriteMeals] o que ya exista una con los mismos alimentos y
+  /// gramos.
+  Future<SaveFavoriteResult> saveFavoriteMeal({
+    required String name,
+    required List<FavoriteMealItemRecord> items,
+  }) {
+    return _db.transaction(() async {
+      final existing = await favoriteMeals();
+      final key = mealKeyOf(
+        items.map((i) => (foodId: i.foodId, grams: i.grams)),
+      );
+      if (existing.any(
+        (f) =>
+            mealKeyOf(f.items.map((i) => (foodId: i.foodId, grams: i.grams))) ==
+            key,
+      )) {
+        return SaveFavoriteResult.duplicate;
+      }
+      if (existing.length >= maxFavoriteMeals) {
+        return SaveFavoriteResult.limitReached;
+      }
+      final id = await _db
+          .into(_db.favoriteMeals)
+          .insert(FavoriteMealsCompanion.insert(name: name));
+      for (final (position, item) in items.indexed) {
+        await _db
+            .into(_db.favoriteMealItems)
+            .insert(
+              FavoriteMealItemsCompanion.insert(
+                favoriteId: id,
+                position: position,
+                foodId: item.foodId,
+                mention: item.mention,
+                grams: item.grams,
+                quantityInput: Value(item.quantityInput),
+                unitInput: Value(item.unitInput),
+                sizeInput: Value(item.sizeInput),
+                quantityBasis: item.quantityBasis,
+                confidence: item.confidence,
+              ),
+            );
+      }
+      return SaveFavoriteResult.saved;
+    });
+  }
+
+  /// SPEC-022 R2: quitar una favorita (no toca las comidas guardadas).
+  Future<void> deleteFavoriteMeal(int id) {
+    return _db.transaction(() async {
+      await (_db.delete(
+        _db.favoriteMealItems,
+      )..where((i) => i.favoriteId.equals(id))).go();
+      await (_db.delete(_db.favoriteMeals)..where((f) => f.id.equals(id))).go();
     });
   }
 
@@ -456,6 +587,7 @@ class StorageRepository {
     final goal = await getNutritionGoal();
     final profile = await getUserProfile();
     final weights = await weightEntries();
+    final favorites = await favoriteMeals();
 
     return {
       'exportedAt': DateTime.now().toIso8601String(),
@@ -486,6 +618,24 @@ class StorageRepository {
       // SPEC-015 R6.
       'weightLog': weights
           .map((w) => {'day': w.day.toIso8601String(), 'weightKg': w.weightKg})
+          .toList(),
+      // SPEC-022 R3.
+      'favoriteMeals': favorites
+          .map(
+            (f) => {
+              'name': f.favorite.name,
+              'createdAt': f.favorite.createdAt.toIso8601String(),
+              'items': f.items
+                  .map(
+                    (i) => {
+                      'foodId': i.foodId,
+                      'mention': i.mention,
+                      'grams': i.grams,
+                    },
+                  )
+                  .toList(),
+            },
+          )
           .toList(),
       'personalProducts': personalProducts
           .map(

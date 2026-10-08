@@ -13,6 +13,7 @@ import '../../ui/components/meal_actions.dart';
 import '../../format/date_format_es.dart';
 import '../../format/text_es.dart';
 import '../../ui/number_input_es.dart';
+import '../../ui/favorite_flow.dart' show saveFavoriteAction;
 import '../../ui/theme.dart';
 import 'food_search_screen.dart';
 import 'personal_product_picker_screen.dart';
@@ -98,12 +99,16 @@ class MealDetailView extends ConsumerStatefulWidget {
   /// SPEC-038 R2: "Repetir hoy" u "Repetir ahora".
   final String repeatLabel;
 
+  /// SPEC-022 R2: "Guardar como favorita" en una comida guardada.
+  final VoidCallback? onSaveFavorite;
+
   const MealDetailView({
     super.key,
     required this.controller,
     required this.onCorrect,
     this.onRepeatToday,
     this.repeatLabel = repeatTodayLabel,
+    this.onSaveFavorite,
   });
 
   @override
@@ -409,6 +414,19 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
                               : repeat,
                           icon: const Icon(Icons.replay),
                           label: Text(widget.repeatLabel),
+                        ),
+                      ],
+                      if (widget.onSaveFavorite case final save?) ...[
+                        const SizedBox(height: 10),
+                        OutlinedButton.icon(
+                          key: const Key('meal-detail-save-favorite'),
+                          // Se guarda lo que está registrado, no lo que se
+                          // está corrigiendo (SPEC-022 Open Questions).
+                          onPressed: _registering || controller.hasChanges
+                              ? null
+                              : save,
+                          icon: const Icon(Icons.star_outline),
+                          label: const Text(saveFavoriteAction),
                         ),
                       ],
                     ],

@@ -69,6 +69,14 @@ Al tocar una, el detalle se abre con un `MealDraft` (alimentos y gramos ya resue
 cantidad y la confianza que dieron las reglas al registrarla), **sin llamar a la IA**; se guarda como
 una comida nueva con la hora actual. Una comida con un alimento que ya no existe no aparece.
 
+**Favoritas y frecuentes (SPEC-022).** `loadQuickMeals` arma, en una sola lectura, las favoritas
+(hasta 10, primero), las recientes y las frecuentes: comidas distintas registradas al menos 3 veces en
+los últimos 60 días, de la más repetida a la menos, sin repetir las que ya están en Recientes. Las
+favoritas guardan solo alimentos y gramos (no valores nutricionales): se abren con el catálogo actual
+como un `MealDraft`, igual que una reciente; si algún alimento ya no existe, se muestran con un aviso y
+no se abren. "Guardar como favorita" vive en `ui/favorite_flow.dart` (Hoy, Historial, el detalle de una
+comida guardada y "¿Qué comiste?").
+
 ## Flujo: búsqueda manual (SPEC-018)
 "Buscar alimento" (desde "Añadir ingrediente" en el detalle o "Buscar en la base manualmente" en el
 error de la IA) busca en `catalog.db` con FTS5 por prefijo (nombre y sinónimos, desde 2 letras,
@@ -118,6 +126,9 @@ kcal enteras (redondeo half-up) y macros con 1 decimal. Los valores estimados se
 - `personal_products(..., serving_unit)` y `personal_product_aliases(product_id, term)`: productos de
   etiquetas confirmadas (SPEC-004/033) con su unidad y los nombres con que la persona los llama
   (SPEC-034, `user.db` v8).
+- `favorite_meals(id, name, created_at)` y `favorite_meal_items(favorite_id, position, food_id,
+  mention, grams, quantity_input, unit_input, size_input, quantity_basis, confidence)`: comidas
+  favoritas (SPEC-022, `user.db` v9). `food_id` es el id del catálogo o `personal:<id>`.
 - `user_profile(id=0, sex, birth_date, height_cm, weight_kg, activity_level,
   measured_maintenance_kcal NULL, updated_at)`: perfil (SPEC-008, `user.db` v6).
 - `nutrition_goals(id=0, objective, is_manual, energy_kcal, protein_g, carbs_g, fat_g, updated_at)`:
