@@ -1,7 +1,7 @@
 # SPEC-039: Medir gemini-2.5-flash sin razonamiento
 
 ## Status
-Draft
+Implementing
 Path: Strict (parámetros del modelo de IA; skill `ai-pipeline`; evals con Vertex real, cuestan dinero)
 
 ## Objective
@@ -105,6 +105,7 @@ Como persona que fotografía etiquetas, quiero que la lectura tarde menos sin qu
 
 ## Change Log
 - 2026-10-08: creación a pedido de la usuaria ("sigamos con la T-028"). Backlog T-028.
+- 2026-10-08: **Approved por la usuaria** ("aprobada"). Status → Implementing.
 
 ## Review
 Informe del reviewer:
