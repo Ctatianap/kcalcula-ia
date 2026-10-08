@@ -1,7 +1,7 @@
 # SPEC-041: Fecha de nacimiento con selectores de día, mes y año
 
 ## Status
-Implementing
+Done
 Path: Standard (solo cambia cómo se ingresa la fecha en "Mi perfil"; la edad y los cálculos siguen igual)
 
 ## Objective
@@ -94,6 +94,8 @@ no pelear con el teclado.
 - 2026-10-08: reviewer PASS condicionado solo a AC8 (manual). MINOR corregidos: `Semantics(label:)` en
   cada selector y test de "Día/Mes/Año" para el lector de pantalla; test de AC2 con 1990-03-15 dentro
   de cada selector; caso de 17 años en el controlador con fecha fija. 463/463.
+- 2026-10-08: prueba manual (AC8) hecha por la usuaria en su S25: "el perfil quedó bien". Con eso el PASS
+  del reviewer queda firme. Status → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -105,7 +107,7 @@ no pelear con el teclado.
 | AC5 | ✅ | mismo archivo › "AC5: años…" (controlador) y "AC5 + AC6…" (pantalla) |
 | AC6 | ✅ | mismo archivo › "AC5 + AC6…" |
 | AC7 | ✅ | `goals_flow_test.dart` 23/23 con los selectores; app 463/463 |
-| AC8 | ⏳ | Prueba manual en el Samsung de la usuaria, pendiente |
+| AC8 | ✅ | 2026-10-08, en el S25 Ultra de la usuaria (versión de prueba con SPEC-040 + SPEC-041, `6c4a469`): eligió la fecha con los selectores y guardó sin teclado ("el perfil quedó bien") |
 
 ## Review
 Revisión (2026-10-08, subagente `reviewer`, sobre `0a681fa`): **PASS condicionado a AC8** (manual); el
