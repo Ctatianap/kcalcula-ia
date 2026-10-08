@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../app_routes.dart';
-import '../../infra/storage/storage_repository.dart' show MealWithItems;
+import '../../infra/catalog/catalog_repository.dart' show isSearchableQuery;
+import '../../infra/storage/storage_repository.dart'
+    show MealDaySearchHit, MealWithItems;
 import '../../infra/clock.dart';
 import '../../infra/storage/storage_providers.dart';
 import '../../ui/meal_actions_flow.dart';
@@ -54,6 +56,35 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
   void _load() {
     _future = loadHistoryMonth(ref.read(storageRepositoryProvider), _month);
+  }
+
+  /// SPEC-036: búsqueda por alimento.
+  final _search = TextEditingController();
+  Future<List<MealDaySearchHit>>? _searchFuture;
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String text) {
+    setState(() {
+      _searchFuture = text.trim().isEmpty
+          ? null
+          : ref.read(storageRepositoryProvider).searchMealDays(text);
+    });
+  }
+
+  /// SPEC-036 R1: abrir un día encontrado en el calendario.
+  void _openFoundDay(DateTime day) {
+    setState(() {
+      _search.clear();
+      _searchFuture = null;
+      _month = DateTime(day.year, day.month);
+      _selected = day;
+      _load();
+    });
   }
 
   bool get _isCurrentMonth =>
@@ -110,45 +141,87 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _MonthHeader(
-                    month: _month,
-                    canGoNext: !_isCurrentMonth,
-                    onPrevious: () => _changeMonth(-1),
-                    onNext: () => _changeMonth(1),
-                  ),
-                  const SizedBox(height: 8),
-                  _CalendarGrid(
-                    data: data,
-                    today: _today,
-                    selected: selected,
-                    onSelect: (day) => setState(() => _selected = day),
-                  ),
-                  const SizedBox(height: 12),
-                  _Legend(hasGoal: data.goal != null),
-                  const SizedBox(height: 16),
-                  if (selected == null)
-                    Text(
-                      'Toca un día para ver qué comiste.',
-                      style: Theme.of(context).textTheme.bodyMedium
-                          ?.copyWith(color: KColors.textSecondary),
-                    )
-                  else
-                    _DayDetail(
-                      date: selected,
-                      day: data.days[selected.day],
-                      goal: data.goal?.energyKcal,
-                      // SPEC-037: "Repetir hoy" solo en otros días.
-                      onMealLongPress: (meal, position) => handleMealLongPress(
-                        context,
-                        ref,
-                        meal: meal,
-                        position: position,
-                        canRepeatToday: selected != _today,
-                        onChanged: () {
-                          if (mounted) setState(_load);
-                        },
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4, bottom: 8),
+                    child: TextField(
+                      key: const Key('history-search'),
+                      controller: _search,
+                      textInputAction: TextInputAction.search,
+                      decoration: InputDecoration(
+                        labelText: 'Buscar en tus comidas',
+                        hintText: 'Ej: arepa',
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: _search.text.isEmpty
+                            ? null
+                            : IconButton(
+                                tooltip: 'Borrar búsqueda',
+                                icon: const Icon(Icons.close),
+                                onPressed: () {
+                                  _search.clear();
+                                  _onSearchChanged('');
+                                },
+                              ),
                       ),
+                      onChanged: _onSearchChanged,
                     ),
+                  ),
+                  if (_search.text.trim().isNotEmpty &&
+                      !isSearchableQuery(_search.text))
+                    // Edge case: menos de 2 letras, no se busca (SPEC-018).
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Semantics(
+                        liveRegion: true,
+                        child: const Text(
+                          'Escribe al menos 2 letras.',
+                          style: TextStyle(color: KColors.textSecondary),
+                        ),
+                      ),
+                    )
+                  else if (_searchFuture case final search?)
+                    _SearchResults(future: search, onOpenDay: _openFoundDay)
+                  else ...[
+                    _MonthHeader(
+                      month: _month,
+                      canGoNext: !_isCurrentMonth,
+                      onPrevious: () => _changeMonth(-1),
+                      onNext: () => _changeMonth(1),
+                    ),
+                    const SizedBox(height: 8),
+                    _CalendarGrid(
+                      data: data,
+                      today: _today,
+                      selected: selected,
+                      onSelect: (day) => setState(() => _selected = day),
+                    ),
+                    const SizedBox(height: 12),
+                    _Legend(hasGoal: data.goal != null),
+                    const SizedBox(height: 16),
+                    if (selected == null)
+                      Text(
+                        'Toca un día para ver qué comiste.',
+                        style: Theme.of(context).textTheme.bodyMedium
+                            ?.copyWith(color: KColors.textSecondary),
+                      )
+                    else
+                      _DayDetail(
+                        date: selected,
+                        day: data.days[selected.day],
+                        goal: data.goal?.energyKcal,
+                        // SPEC-037: "Repetir hoy" solo en otros días.
+                        onMealLongPress: (meal, position) =>
+                            handleMealLongPress(
+                              context,
+                              ref,
+                              meal: meal,
+                              position: position,
+                              canRepeatToday: selected != _today,
+                              onChanged: () {
+                                if (mounted) setState(_load);
+                              },
+                            ),
+                      ),
+                  ],
                 ],
               ),
             );
@@ -542,6 +615,65 @@ class _DayDetail extends StatelessWidget {
           const SizedBox(height: 10),
         ],
       ],
+    );
+  }
+}
+
+/// SPEC-036 R1/R2: días con ese alimento, del más reciente al más antiguo.
+const noFoodInHistoryMessage = 'No encontré comidas con ese alimento.';
+
+class _SearchResults extends StatelessWidget {
+  final Future<List<MealDaySearchHit>> future;
+  final ValueChanged<DateTime> onOpenDay;
+
+  const _SearchResults({required this.future, required this.onOpenDay});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<MealDaySearchHit>>(
+      future: future,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          // SPEC-009: sin el texto de SQLite.
+          return const Padding(
+            padding: EdgeInsets.all(8),
+            child: Text('No pude leer tus datos. Intenta de nuevo.'),
+          );
+        }
+        final hits = snapshot.data;
+        if (hits == null) {
+          return const Padding(
+            padding: EdgeInsets.all(16),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (hits.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.all(8),
+            child: Semantics(
+              liveRegion: true,
+              child: const Text(noFoodInHistoryMessage),
+            ),
+          );
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final hit in hits)
+              ListTile(
+                key: Key('history-search-${hit.day.toIso8601String()}'),
+                contentPadding: EdgeInsets.zero,
+                title: Text(longDateEs(hit.day)),
+                subtitle: Text(
+                  hit.foods.join(', '),
+                  style: const TextStyle(color: KColors.textSecondary),
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => onOpenDay(hit.day),
+              ),
+          ],
+        );
+      },
     );
   }
 }

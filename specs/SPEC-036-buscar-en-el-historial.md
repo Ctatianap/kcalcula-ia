@@ -57,6 +57,19 @@ Como persona que quiere saber cuándo comió arepa, quiero buscarlo en el histor
 ## Change Log
 - 2026-10-08: creación al separar R5/AC5 de SPEC-026. Pendiente de aprobación de la usuaria.
 - 2026-10-08: **Approved por la usuaria** ("aprobada la SPEC-036"). Status → Implementing.
+- 2026-10-08: implementada. `StorageRepository.searchMealDays` (comparación normalizada en Dart, regla
+  de 2 letras de SPEC-018, hasta 50 días); campo "Buscar en tus comidas" en Historial que reemplaza el
+  calendario mientras hay búsqueda; tocar un día lo abre en el calendario.
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/features/history/history_search_test.dart` › "AC1: días con arepa…" (repositorio: orden, sin repetir) y "AC1: buscar \"arepa\" lista los días y tocar uno lo abre en el calendario" (widget) |
+| AC2 | ✅ | mismo archivo › "AC2: sin resultados, el mensaje" |
+| AC3 | ✅ | mismo archivo › "AC3: \"Arepa\" y \"arepá\" dan lo mismo" |
+| Edge | ✅ | "menos de 2 letras…" (repositorio y pantalla: "Escribe al menos 2 letras."), "hasta 50 días", "borrar la búsqueda vuelve al calendario" |
+| Tests | ✅ | app: analyze sin avisos, 441/441; ningún test existente cambió |
+| Manual | ⏳ | Buscar un alimento en el Historial en el teléfono |
 
 ## Review
 Informe del reviewer:
