@@ -1,7 +1,7 @@
 # SPEC-035: Buscar mis productos también por sus nombres alternativos
 
 ## Status
-Draft
+Implementing
 Path: Standard (búsqueda manual de solo lectura; no cambia `resolve`, el catálogo ni `nutrition_core`)
 
 ## Objective
@@ -78,6 +78,7 @@ nombre exacto que le puse.
 
 ## Change Log
 - 2026-10-07: creación a pedido de la usuaria ("sigamos con eso"). Backlog T-036.
+- 2026-10-07: **Approved por la usuaria** ("aprobado"). Status → Implementing.
 
 ## Review
 Informe del reviewer:
