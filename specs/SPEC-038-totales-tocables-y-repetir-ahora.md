@@ -1,7 +1,7 @@
 # SPEC-038: Totales por tipo que se pueden tocar y "Repetir ahora"
 
 ## Status
-Draft
+Implementing
 Path: Standard (navegación y una acción más sobre comidas guardadas; reutiliza SPEC-026/037; no sale
 ningún dato)
 
@@ -92,6 +92,7 @@ desayuno y poder repetirlo, aunque sea de hoy.
 
 ## Change Log
 - 2026-10-08: creación a pedido de la usuaria ("sí, redacta la SPEC con las dos").
+- 2026-10-08: **Approved por la usuaria** ("aprobada la SPEC-038"). Status → Implementing.
 
 ## Review
 Informe del reviewer:
