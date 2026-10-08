@@ -53,7 +53,10 @@ void main() {
     expect(find.text('Café'), findsOneWidget);
   });
 
-  testWidgets('AC5: sin resultados → mensaje (sin sugerir crear uno)', (
+  // SPEC-040 R6: desde "Añadir ingrediente" el mensaje sugiere la etiqueta;
+  // desde el error de análisis sigue el de R5
+  // (`add_ingredient_with_label_test.dart`).
+  testWidgets('AC5: sin resultados → mensaje (SPEC-040 R6 desde el Detalle)', (
     tester,
   ) async {
     await _openDetail(tester);
@@ -61,7 +64,7 @@ void main() {
     await _search(tester, 'a.');
     expect(find.text('Escribe al menos 2 letras.'), findsOneWidget);
     await _search(tester, 'chontaduro');
-    expect(find.text(noSearchResultsMessage), findsOneWidget);
+    expect(find.text(noSearchResultsWithLabelMessage), findsOneWidget);
     expect(find.textContaining('Crear'), findsNothing);
   });
 

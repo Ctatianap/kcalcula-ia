@@ -318,6 +318,13 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   dependencies: [T-037]
   status: done  # SPEC-038
   spec_required: true    # specs/SPEC-038-totales-tocables-y-repetir-ahora.md — Standard
+- id: T-039
+  title: Añadir un ingrediente nuevo con su etiqueta
+  objective: >
+    Hallazgo de la usuaria en el S25 (2026-10-08): "Añadir ingrediente" solo busca en el catálogo y en
+    Mis productos; un producto empacado nuevo no se puede añadir. Botón "Añadir con etiqueta".
+  dependencies: [T-033]
+  spec_required: true    # specs/SPEC-040-anadir-ingrediente-con-etiqueta.md — Standard
 - id: T-040
   title: Fecha de nacimiento con selectores de día, mes y año
   objective: >

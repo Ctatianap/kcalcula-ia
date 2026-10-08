@@ -125,6 +125,8 @@ Edge cases: tildes y mayúsculas, caracteres de FTS, desde 2 letras y con límit
 - 2026-10-07: recorrido manual en el teléfono (Motorola edge 50 pro, Android 16, build debug de
   `develop` en `dc92f55`). La usuaria lo dio por bueno ("si ya creo que el resto esta bien").
   Status Review → Done.
+- 2026-10-08: SPEC-040 R6 (aprobada por la usuaria) reemplaza R5 solo en "Buscar alimento" abierto desde
+  "Añadir ingrediente": el mensaje sugiere añadirlo con su etiqueta. Desde el error de la IA, R5 sigue igual.
 
 ## Review
 Informe del reviewer (2026-10-03, commit e220c05): **PASS**. AC1–AC6 con evidencia

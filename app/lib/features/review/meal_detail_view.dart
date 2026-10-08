@@ -6,6 +6,7 @@ import '../../app_routes.dart';
 import '../../infra/clock.dart';
 import '../../infra/food_resolution/food_query_resolver.dart';
 import '../../infra/food_resolution/ingredient_label_result.dart';
+import '../../infra/storage/app_database.dart' show PersonalProduct;
 import '../../infra/storage/storage_providers.dart';
 import '../../ui/components/k_card.dart';
 import '../../ui/components/meal_actions.dart';
@@ -42,6 +43,11 @@ const removeIngredientAction = 'Quitar';
 const loadProductErrorMessage =
     'No pude leer el producto que guardaste. Elígelo en «Elegir de mis '
     'productos».';
+
+/// SPEC-040: el producto guardado con su etiqueta no se pudo añadir.
+const addProductErrorMessage =
+    'No pude añadir el producto que guardaste. Búscalo en «Añadir '
+    'ingrediente».';
 
 String _portionsText(double portions) =>
     '${formatDecimalEs(portions, maxDecimals: 1)} '
@@ -113,8 +119,42 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
   String? _ingredientError;
 
   Future<void> _addIngredient() async {
-    final item = await pickFoodManually(context);
-    if (item != null && mounted) widget.controller.addDraftItem(item);
+    setState(() => _ingredientError = null);
+    final pick = await pickIngredient(context);
+    if (pick == null || !mounted) return;
+    switch (pick) {
+      case PickedFood(:final item):
+        widget.controller.addDraftItem(item);
+      case PickedLabelProduct(:final result):
+        await _addLabelProduct(result);
+    }
+  }
+
+  /// SPEC-033/040: el producto recién guardado con su etiqueta, o `null`
+  /// si no se pudo leer (SPEC-009: sin el texto de SQLite).
+  Future<PersonalProduct?> _savedProduct(int id) async {
+    try {
+      return await ref
+          .read(storageRepositoryProvider)
+          .getPersonalProductById(id);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// SPEC-040 R3: el producto recién guardado, como ingrediente nuevo.
+  Future<void> _addLabelProduct(IngredientLabelResult result) async {
+    final product = await _savedProduct(result.productId);
+    if (!mounted) return;
+    final added =
+        product != null &&
+        widget.controller.addLabelProduct(
+          personalProductToFoodCatalogEntry(product),
+          quantity: result.quantity,
+          unit: result.unit,
+          servingUnit: product.servingUnit,
+        );
+    if (!added) setState(() => _ingredientError = addProductErrorMessage);
   }
 
   /// SPEC-033 R2: etiqueta de este ingrediente; vuelve aquí con el
@@ -127,23 +167,19 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
       arguments: item.foodQuery,
     );
     if (result == null || !mounted) return;
-    try {
-      final product = await ref
-          .read(storageRepositoryProvider)
-          .getPersonalProductById(result.productId);
-      if (product == null) throw StateError('producto no encontrado');
-      if (!mounted) return;
-      widget.controller.replaceFood(
-        index,
-        personalProductToFoodCatalogEntry(product),
-        fallbackQuantity: result.quantity,
-        fallbackUnit: result.unit,
-        servingUnit: product.servingUnit,
-      );
-    } catch (_) {
-      // SPEC-009: sin el texto de SQLite.
-      if (mounted) setState(() => _ingredientError = loadProductErrorMessage);
+    final product = await _savedProduct(result.productId);
+    if (!mounted) return;
+    if (product == null) {
+      setState(() => _ingredientError = loadProductErrorMessage);
+      return;
     }
+    widget.controller.replaceFood(
+      index,
+      personalProductToFoodCatalogEntry(product),
+      fallbackQuantity: result.quantity,
+      fallbackUnit: result.unit,
+      servingUnit: product.servingUnit,
+    );
   }
 
   /// SPEC-033 R4: un producto ya guardado, sin foto y sin IA.
