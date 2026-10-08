@@ -315,6 +315,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     Pedido de la usuaria (2026-10-08): las filas "Desayuno 345 kcal…" del Historial llevan a esas
     comidas, y una comida de hoy se puede repetir a la hora actual.
   dependencies: [T-037]
+  status: done  # SPEC-038
   spec_required: true    # specs/SPEC-038-totales-tocables-y-repetir-ahora.md — Standard
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual

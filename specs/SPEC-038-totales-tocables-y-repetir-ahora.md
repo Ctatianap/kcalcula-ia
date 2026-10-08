@@ -1,7 +1,7 @@
 # SPEC-038: Totales por tipo que se pueden tocar y "Repetir ahora"
 
 ## Status
-Review
+Done
 Path: Standard (navegación y una acción más sobre comidas guardadas; reutiliza SPEC-026/037; no sale
 ningún dato)
 
@@ -98,6 +98,8 @@ desayuno y poder repetirlo, aunque sea de hoy.
   SPEC-037 y en "Editar comida"; `ReviewScreen` arma el borrador también para comidas de hoy.
 - 2026-10-08: reviewer PASS; MINOR corregidos (ver Review). 451/451. Prueba manual hecha. Status →
   Review.
+- 2026-10-08: **la usuaria aprueba fusionar y hacer push** ("sí, fusiona la 038 y haz push"). Status →
+  Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
