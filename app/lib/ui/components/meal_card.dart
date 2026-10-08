@@ -86,7 +86,11 @@ class MealCard extends StatelessWidget {
       onLongPress: longPress == null ? null : openMenu,
       child: Semantics(
         button: true,
-        hint: longPress == null ? 'Toca para editar o borrar' : mealCardHint,
+        hint: switch ((onTap != null, longPress != null)) {
+          (true, true) => mealCardHint,
+          (true, false) => 'Toca para editar o borrar',
+          (false, _) => longPressOnlyHint,
+        },
         // SPEC-037 R4: el menú también para el lector de pantalla.
         customSemanticsActions: longPress == null
             ? null

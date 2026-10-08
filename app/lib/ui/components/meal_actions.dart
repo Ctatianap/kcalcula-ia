@@ -21,6 +21,7 @@ const deleteMealAction = 'Eliminar comida';
 /// SPEC-037 R4.
 const mealCardHint = 'Toca para editar. Mantén presionado para más opciones';
 const moreOptionsAction = 'Más opciones';
+const longPressOnlyHint = 'Mantén presionado para más opciones';
 
 enum MealAction { edit, repeatToday, delete }
 

@@ -27,7 +27,9 @@ const registerErrorMessage = 'No pude guardar la comida. Intenta de nuevo.';
 
 /// SPEC-026.
 const futureMealMessage = 'La comida no puede quedar en el futuro.';
-const repeatTodayLabel = 'Repetir hoy';
+
+/// SPEC-026 R4 (mismo texto que el menú de SPEC-037).
+const repeatTodayLabel = repeatTodayAction;
 
 /// SPEC-026 R2/AC2: una comida no puede quedar en el futuro.
 String? validateEatenAt(DateTime chosen, DateTime now) =>

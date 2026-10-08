@@ -12,12 +12,12 @@ import 'components/meal_actions.dart';
 
 /// SPEC-037: el menú al mantener presionada una comida, compartido por Hoy
 /// e Historial (las features no se importan entre sí).
-const repeatUnavailableMessage =
-    'No puedo repetir esta comida: algún alimento ya no está en la base.';
-
+///
 /// Muestra el menú en [position] y hace la acción elegida. Llama a
 /// [onChanged] cuando la comida se borró o se volvió de editarla/repetirla,
-/// para que la pantalla se recargue.
+/// para que la pantalla se recargue. "Repetir hoy" solo aparece si
+/// [canRepeatToday] y todos sus alimentos siguen existiendo (como en
+/// SPEC-026 R4).
 Future<void> handleMealLongPress(
   BuildContext context,
   WidgetRef ref, {
@@ -26,47 +26,41 @@ Future<void> handleMealLongPress(
   required bool canRepeatToday,
   required VoidCallback onChanged,
 }) async {
+  final storage = ref.read(storageRepositoryProvider);
+  MealDraft? repeatDraft;
+  if (canRepeatToday) {
+    try {
+      repeatDraft = await loadRepeatDraft(
+        storage,
+        (products) => FoodQueryResolver(
+          catalog: ref.read(catalogRepositoryProvider),
+          personalProducts: products,
+        ),
+        meal,
+      );
+    } catch (_) {
+      // SPEC-009: sin "Repetir hoy" si no se pudo leer; el resto del menú
+      // funciona.
+      repeatDraft = null;
+    }
+  }
+  if (!context.mounted) return;
   final action = await showMealActionsMenu(
     context,
     position: position,
-    canRepeatToday: canRepeatToday,
+    canRepeatToday: repeatDraft != null,
   );
   if (action == null || !context.mounted) return;
   final navigator = Navigator.of(context);
   final messenger = ScaffoldMessenger.of(context);
-  final storage = ref.read(storageRepositoryProvider);
   switch (action) {
     case MealAction.edit:
       await navigator.pushNamed(AppRoutes.editMeal, arguments: meal.meal.id);
       onChanged();
     case MealAction.repeatToday:
-      final MealDraft? draft;
-      try {
-        draft = await loadRepeatDraft(
-          storage,
-          (products) => FoodQueryResolver(
-            catalog: ref.read(catalogRepositoryProvider),
-            personalProducts: products,
-          ),
-          meal,
-        );
-      } catch (_) {
-        // SPEC-009: sin el texto de SQLite.
-        messenger.showSnackBar(
-          const SnackBar(content: Text(repeatUnavailableMessage)),
-        );
-        return;
-      }
-      if (draft == null) {
-        messenger.showSnackBar(
-          const SnackBar(content: Text(repeatUnavailableMessage)),
-        );
-        return;
-      }
-      await navigator.pushNamed(AppRoutes.review, arguments: draft);
+      await navigator.pushNamed(AppRoutes.review, arguments: repeatDraft);
       onChanged();
     case MealAction.delete:
-      if (!context.mounted) return;
       final confirmed = await confirmDeleteMeal(
         context,
         mealType: meal.meal.mealType,

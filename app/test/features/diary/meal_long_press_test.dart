@@ -10,6 +10,7 @@ import 'package:calorias_ia/ui/components/meal_actions.dart';
 import 'package:calorias_ia/ui/components/meal_card.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -177,6 +178,43 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(MealCard), findsNothing);
       expect(find.text(mealDeletedMessage), findsOneWidget);
+      // R2: el día ya no tiene registros (ni kcal ni tarjetas).
+      expect(find.byKey(const Key('history-kcal')), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'R1: sin "Repetir hoy" si algún alimento ya no existe (como SPEC-026 R4)',
+    (tester) async {
+      await _pump(
+        tester,
+        home: HistoryScreen(initialDay: DateTime(2026, 10, 7)),
+        seed: (repo) => repo.registerMeal(
+          eatenAt: DateTime(2026, 10, 7, 13),
+          mealType: 'cena',
+          confidence: 'altaPrecision',
+          catalogVersion: 'test-1',
+          items: const [
+            MealItemRecord(
+              mention: 'pan',
+              personalProductId: 999, // producto borrado
+              nameSnapshot: 'Pan',
+              grams: 50,
+              quantityBasis: 'label',
+              energyKcal: 130,
+              proteinG: 4.5,
+              carbsG: 24,
+              fatG: 1.5,
+              confidence: 'altaPrecision',
+              sourceRef: 'test',
+            ),
+          ],
+        ),
+      );
+      await _longPress(tester, 'Cena');
+      expect(find.text(editMealAction), findsOneWidget);
+      expect(find.text(repeatTodayAction), findsNothing);
+      expect(find.text(deleteMealAction), findsOneWidget);
     },
   );
 
@@ -243,7 +281,14 @@ void main() {
     );
     final data = node.getSemanticsData();
     expect(data.hint, mealCardHint);
-    expect(data.customSemanticsActionIds, isNotEmpty);
+    expect(
+      data.customSemanticsActionIds,
+      contains(
+        CustomSemanticsAction.getIdentifier(
+          const CustomSemanticsAction(label: moreOptionsAction),
+        ),
+      ),
+    );
     handle.dispose();
   });
 }

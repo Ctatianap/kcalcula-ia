@@ -26,7 +26,8 @@ Como persona que registró una comida por error, quiero dejarla presionada y eli
   **Historial** abre un menú emergente junto a la tarjeta, con el mismo estilo del menú ⋮ de los
   ingredientes:
   - **"Editar comida"**: abre "Editar comida" (igual que tocarla);
-  - **"Repetir hoy"**: solo en comidas de otros días (SPEC-026 R4);
+  - **"Repetir hoy"**: solo en comidas de otros días cuyos alimentos siguen existiendo (como SPEC-026
+    R4: si falta alguno, la opción no aparece);
   - **"Eliminar comida"**: en color de error, al final.
 - R2. **Eliminar:** pide la misma confirmación de SPEC-026 R3 ("¿Borrar el almuerzo de las 13:00?" /
   "¿Borrar la cena…?"). Al confirmar borra la comida y sus ítems, **se queda en la misma pantalla**, la
@@ -99,6 +100,8 @@ Como persona que registró una comida por error, quiero dejarla presionada y eli
   en `app/lib/ui/components/meal_actions.dart`; flujo compartido `app/lib/ui/meal_actions_flow.dart`
   (Hoy e Historial); `loadRepeatDraft` en `infra/food_resolution/recent_meals.dart`; "Editar comida"
   usa la confirmación compartida.
+- 2026-10-08: reviewer PASS; 6 MINOR corregidos (ver Review). R1 aclarado sin cambiar su alcance
+  ("Repetir hoy" como SPEC-026 R4). 433/433.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -109,9 +112,19 @@ Como persona que registró una comida por error, quiero dejarla presionada y eli
 | AC4 | ✅ | mismo archivo › "AC4: en Historial (ayer)…" ("¿Borrar la cena de las 13:00?", el día se actualiza) y "AC4: \"Repetir hoy\" desde Historial abre el Detalle" |
 | AC5 | ✅ | mismo archivo › "AC5…" |
 | AC6 | ✅ | mismo archivo › "AC6…" |
-| R4 | ✅ | mismo archivo › "R4…" (hint y acción "Más opciones") |
-| AC7 | ✅ | app: analyze sin avisos, 432/432. Cambio en tests existentes: `edit_meal_test.dart` importa `mealWithArticle` y `deleteMealErrorMessage` desde `app/lib/ui/components/meal_actions.dart` (se movieron ahí, R6) |
+| R4 | ✅ | mismo archivo › "R4…" (hint y la acción con la etiqueta exacta "Más opciones") |
+| R1 | ✅ | mismo archivo › "R1: sin \"Repetir hoy\" si algún alimento ya no existe…" |
+| AC7 | ✅ | app: analyze sin avisos, 433/433. Cambio en tests existentes: `edit_meal_test.dart` importa `mealWithArticle` y `deleteMealErrorMessage` desde `app/lib/ui/components/meal_actions.dart` (se movieron ahí, R6) |
 | Manual | ⏳ | Mantener presionada una comida en el teléfono y eliminarla |
 
 ## Review
-Informe del reviewer:
+Revisión (2026-10-08, subagente `reviewer`, sobre `6576189`): **PASS**. AC1–AC7 y R4/R5 con evidencia;
+`context.mounted`, `Navigator` y `ScaffoldMessenger` capturados antes de los `await`; errores SPEC-009;
+sin cálculos, IA ni datos nuevos. 6 MINOR, corregidos:
+- `ui/*_flow.dart` usa `infra/`: documentado en `docs/architecture.md` (Interfaz).
+- "Repetir hoy" mostraba un mensaje nuevo si faltaba un alimento: ahora no aparece en el menú, como
+  SPEC-026 R4 (aclarado en R1, sin comportamiento nuevo); test.
+- R4: el test comprueba la etiqueta exacta "Más opciones".
+- AC4: tras borrar, el día de Historial queda sin kcal.
+- "Repetir hoy" con una sola constante (`repeatTodayAction`).
+- El hint de `MealCard` se deriva de los dos callbacks.
