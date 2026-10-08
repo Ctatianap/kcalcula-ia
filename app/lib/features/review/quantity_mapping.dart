@@ -21,3 +21,17 @@ SizeDescriptor? mapSize(String? raw) => switch (raw) {
   'grande' => SizeDescriptor.grande,
   _ => null,
 };
+
+/// T-042: la confianza de una cantidad resuelta, con la regla de
+/// `nutrition_core` (invariante 4). Un producto personal en g/ml es
+/// "etiqueta con cantidad en g/ml".
+ConfidenceLevel confidenceOfResolution(
+  QuantityResolution resolution, {
+  required bool isVague,
+}) => itemConfidence(
+  basis: resolution.basis,
+  isVague: isVague,
+  usedCuratedEstimatePortion: resolution.usedCuratedEstimatePortion,
+  usedDensityFallback: resolution.usedDensityFallback,
+  hasLabelGramsOrMl: resolution.basis == QuantityBasis.label,
+);
