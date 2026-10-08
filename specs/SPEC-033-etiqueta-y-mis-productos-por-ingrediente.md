@@ -1,7 +1,7 @@
 # SPEC-033: Etiqueta y mis productos por ingrediente
 
 ## Status
-Draft
+Implementing
 Path: Standard (la persona elige a mano el alimento de un ingrediente, como en SPEC-018; reutiliza
 `extractLabel` y las reglas de `nutrition_core` sin cambiarlas; no cambia prompts, esquemas ni
 `catalog.db`)
@@ -167,6 +167,8 @@ volver a fotografiar todo cada día.
   propuestos: R8 y AC8 nuevos; R4 reescrito para la pantalla propia "Mis productos" (hallazgo del
   reviewer); sección Known Limitations (ml mostrados en g; g → porciones en la app, T-035). Status →
   Draft hasta que la usuaria apruebe.
+- 2026-10-07: **la usuaria aprueba los cambios** ("aprobados los cambios de la SPEC-033"): R8, AC8, R4
+  y Known Limitations. Status → Implementing.
 
 ## Verificación
 | AC | Estado | Evidencia |
