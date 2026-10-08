@@ -373,5 +373,60 @@ void main() {
         expect(find.text('cantidad=45.0'), findsOneWidget);
       },
     );
+
+    testWidgets('caso borde: porción ilegible completada después', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        const LabelExtractionDto(
+          productName: 'Sin porción',
+          servingSize: null,
+          perServing: LabelNutrientSetDto(
+            energyKcal: 70,
+            proteinG: 2.8,
+            carbsG: 15,
+            fatG: 0.2,
+          ),
+          per100: null,
+          unreadableFields: ['serving_size'],
+        ),
+      );
+      expect(_fieldText(tester, _consumedField()), '');
+
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Porción (no se pudo leer)'),
+        '30',
+      );
+      await tester.pump();
+      expect(_fieldText(tester, _consumedField()), '30');
+    });
+
+    testWidgets(
+      'caso borde: "¿Cuánto comiste?" borrado deja de seguir a la porción',
+      (tester) async {
+        await _pump(tester, _serving27Extraction);
+        await tester.enterText(_consumedField(), '45');
+        await tester.pump();
+        await tester.enterText(_consumedField(), '');
+        await tester.pump();
+        await tester.enterText(_servingField(), '30');
+        await tester.pump();
+
+        expect(_fieldText(tester, _consumedField()), '');
+        expect(find.text('Falta: cuánto comiste.'), findsOneWidget);
+      },
+    );
+
+    testWidgets('caso borde: porción "1.200" deja "¿Cuánto comiste?" vacío', (
+      tester,
+    ) async {
+      await _pump(tester, _serving27Extraction);
+      await tester.enterText(_servingField(), '1.200');
+      await tester.pump();
+
+      expect(_fieldText(tester, _consumedField()), '');
+      expect(find.text('Falta: porción, cuánto comiste.'), findsOneWidget);
+    });
   });
 }

@@ -30,7 +30,9 @@ para registrar lo que veo.
 - R3. Cuando la persona edita "¿Cuánto comiste?", deja de seguir a la porción (como hoy en el
   controlador) y la pantalla no vuelve a reescribir ese campo.
 - R4. Siempre se registra lo que muestra el campo: el valor de `consumedQuantity` al guardar
-  coincide con el texto de "¿Cuánto comiste?" (interpretado como en SPEC-030).
+  coincide con el texto de "¿Cuánto comiste?" (interpretado como en SPEC-030). Si la porción viene
+  de la IA con más de 2 decimales, el campo la muestra redondeada y se registra el valor original
+  (invariante 3; igual que en SPEC-030).
 
 ## Acceptance Criteria
 - AC1. Una etiqueta con porción de 27 g; cambiar la porción a "30" → "¿Cuánto comiste?" muestra
@@ -88,6 +90,8 @@ para registrar lo que veo.
 - 2026-10-07: **Approved por la usuaria** ("aprobada"). Status → Implementing.
 - 2026-10-07: implementada. `_onServingChanged` en la pantalla reescribe "¿Cuánto comiste?" mientras
   `consumedQuantityTouchedByUser` sea falso; `_consumedText` deja el campo vacío si la cantidad es 0.
+- 2026-10-07: reviewer PASS; MINOR atendidos (ver Review). R4 aclarado sin cambiar su alcance. Falta la
+  prueba manual: el teléfono se desconectó del PC.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -96,8 +100,15 @@ para registrar lo que veo.
 | AC2 | ✅ | mismo archivo › "SPEC-031 AC2…" |
 | AC3 | ✅ | mismo archivo › "SPEC-031 AC3…": campo vacío, "Falta: porción, cuánto comiste." y Guardar deshabilitado |
 | AC4 | ✅ | mismo archivo › "SPEC-031 AC4…": "45" se mantiene y se registra 45 |
-| AC5 | ✅ | app: analyze sin avisos, 342/342; ninguna expectativa existente cambió (la pantalla falsa de Revisar añade una línea con la cantidad; "Revisar (mock)" sigue igual). Sin el arreglo, AC1–AC3 fallan |
+| AC5 | ✅ | app: analyze sin avisos, 345/345 (tras los MINOR del reviewer); ninguna expectativa existente cambió (la pantalla falsa de Revisar añade una línea con la cantidad; "Revisar (mock)" sigue igual). Sin el arreglo, AC1–AC3 fallan |
 | Manual | ⏳ | Cambiar la porción en el teléfono |
 
 ## Review
-Informe del reviewer:
+Revisión (2026-10-07, subagente `reviewer`, sobre `f4b1253`): **PASS**. AC1–AC5 con evidencia; app
+analyze sin avisos y 342/342; la regla de la cantidad sigue en el controlador (SPEC-004 R5); asignar
+`.text` no marca la cantidad como editada. 3 MINOR:
+- Sin tests de los casos borde: 3 tests nuevos (porción ilegible completada después, "¿Cuánto
+  comiste?" borrado, porción "1.200"); 345/345.
+- Porción de la IA con más de 2 decimales: se muestra redondeada y se registra la original; aclarado
+  en R4.
+- La pantalla falsa de Revisar usa `items.first`: aceptable en el test, sin cambio.
