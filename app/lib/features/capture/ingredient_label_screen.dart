@@ -16,11 +16,11 @@ final ingredientLabelCaptureControllerProvider =
       LabelCaptureController.new,
     );
 
+const writeValuesButtonLabel = 'Escribir los valores';
+
 /// SPEC-033 R2: foto de la etiqueta de un ingrediente del Detalle →
 /// `extractLabel` → "Confirmar etiqueta" (invariante 2) → devuelve un
 /// [IngredientLabelResult], o `null` si la persona sale sin guardar.
-const writeValuesButtonLabel = 'Escribir los valores';
-
 class IngredientLabelScreen extends ConsumerWidget {
   final String ingredientName;
 

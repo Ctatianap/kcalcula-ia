@@ -150,7 +150,7 @@ volver a fotografiar todo cada día.
 - Ninguna.
 
 ## Definition of Done
-- AC1–AC7 con evidencia · analyze y tests verdes en `app` · prueba manual · reviewer PASS enlazado.
+- AC1–AC8 con evidencia · analyze y tests verdes en `app` · prueba manual · reviewer PASS enlazado.
 
 ## Change Log
 - 2026-10-07: creación a pedido de la usuaria ("sí, me sirve, redacta la SPEC-033"). Backlog T-033.
@@ -171,11 +171,14 @@ volver a fotografiar todo cada día.
   y Known Limitations. Status → Implementing.
 - 2026-10-07: R8 implementado: botón "Escribir los valores" en `IngredientLabelScreen`, "Confirmar
   etiqueta" con `manualEntry` (formulario vacío, `source_ref` propio). 371/371.
+- 2026-10-07: re-revisión del reviewer **PASS**; 4 MINOR corregidos (`source_ref` de los dos modos en
+  los tests, comentario de `IngredientLabelScreen`, `origin` en `save()`, DoD hasta AC8 y nota de AC1).
+  Falta la prueba manual en el teléfono.
 
 ## Verificación
 | AC | Estado | Evidencia |
 |----|--------|-----------|
-| AC1 | ✅ | `app/test/features/review/ingredient_actions_test.dart` › "AC1…": "Usar etiqueta" → "Tomar foto" (fake) → "Usar en este ingrediente" → vuelve al Detalle; "Arepa" pasa a "Pan de prueba", los huevos siguen en 100 g, hay 1 producto personal en `user.db`, 1 llamada a `extractLabel` y 0 a `parseMeal`. Integración: `app/test/integration/ingredient_label_route_test.dart` (la ruta `AppRoutes.ingredientLabel` de `MyApp` abre `IngredientLabelScreen`) |
+| AC1 | ✅ | `app/test/features/review/ingredient_actions_test.dart` › "AC1…": "Usar etiqueta" → "Tomar foto" (fake) → "Usar en este ingrediente" → vuelve al Detalle; "Arepa" pasa a "Pan de prueba", los huevos siguen en 100 g, hay 1 producto personal en `user.db`, 1 llamada a `extractLabel` y 0 a `parseMeal`. El test usa "una arepa" en vez de "pan y medio": el comportamiento verificado es el mismo (cantidad en `unidad` sin porción equivalente). Comprueba también el `source_ref` del modo normal. Integración: `app/test/integration/ingredient_label_route_test.dart` (la ruta `AppRoutes.ingredientLabel` de `MyApp` abre `IngredientLabelScreen`) |
 | AC2 | ✅ | mismo archivo › "AC2…": "Leche deslactosada" (porción 200 ml) con "250 ml" → el ingrediente muestra 250 g (densidad desconocida = 1, como hoy) y 113 kcal (45 × 2,5); 0 llamadas a la IA |
 | AC3 | ✅ | mismo archivo › "AC3…": "1 scoop" (unidad sin porción "unidad") con "2" porciones en "Confirmar etiqueta" → "2 porciones · 60 g" (no la porción por defecto), destacado. Además: "R3: sin cantidad dicha…" (3 porciones → 81 g) |
 | AC4 | ✅ | mismo archivo › "AC4…": "Pan tajado" 27 g → 4 × "+" (media porción) → "3 porciones · 81 g" y 210 kcal; "Ver en g" → "81 g" |
@@ -203,3 +206,7 @@ Revisión (2026-10-07, subagente `reviewer`, sobre `e00c44e`): **CHANGES_REQUEST
   caso sin cantidad dicha.
 - MINOR pendientes de la usuaria (propuestos en el Change Log): texto de R4 ("Mis productos" propia),
   productos en ml mostrados en g (limitación conocida), g → porciones fuera de `nutrition_core`.
+
+Re-revisión (2026-10-07, sobre `dfbe82c`): **PASS**. MAJOR y MINOR anteriores resueltos; AC1–AC8 con
+evidencia; R8 sin IA y con la misma validación; invariantes 1, 2, 3 y 8 respetadas; sin imports entre
+features. 4 MINOR, corregidos después (ver Change Log).

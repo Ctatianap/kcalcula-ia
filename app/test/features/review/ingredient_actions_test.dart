@@ -227,6 +227,13 @@ void main() {
         () => pumped.db.select(pumped.db.personalProducts).get(),
       );
       expect(products!.single.nameEs, 'Pan de prueba');
+      // Invariante 8: el modo normal sigue diciendo que lo transcribió la IA.
+      expect(
+        products.single.sourceRef,
+        startsWith(
+          'Etiqueta transcrita por IA y confirmada por el usuario el ',
+        ),
+      );
       expect(pumped.calls.extractLabel, 1);
       expect(pumped.calls.parseMeal, 0);
     },
@@ -552,7 +559,10 @@ void main() {
       final products = await tester.runAsync(
         () => pumped.db.select(pumped.db.personalProducts).get(),
       );
-      expect(products!.single.sourceRef, contains('escritos por el usuario'));
+      expect(
+        products!.single.sourceRef,
+        startsWith('Valores de la etiqueta escritos por el usuario el '),
+      );
     },
   );
 }

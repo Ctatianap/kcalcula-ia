@@ -310,6 +310,10 @@ class LabelConfirmationController extends ChangeNotifier {
       );
     }
     final per100 = _per100();
+    // Invariante 8: de dónde salen los valores (SPEC-033 R8).
+    final origin = manualEntry
+        ? 'Valores de la etiqueta escritos por el usuario el '
+        : 'Etiqueta transcrita por IA y confirmada por el usuario el ';
     savedProductId = await _storage.savePersonalProduct(
       nameEs: productName.trim(),
       energyKcal100: per100.energyKcal,
@@ -321,7 +325,7 @@ class LabelConfirmationController extends ChangeNotifier {
       sodiumMg100: per100.sodiumMg,
       servingGrams: servingQuantity!,
       sourceRef:
-          '${manualEntry ? 'Valores de la etiqueta escritos por el usuario el ' : 'Etiqueta transcrita por IA y confirmada por el usuario el '}'
+          '$origin'
           '${DateTime.now().toIso8601String().substring(0, 10)}'
           '${productName.trim().isEmpty ? '' : ' — producto: ${productName.trim()}'}.',
     );
