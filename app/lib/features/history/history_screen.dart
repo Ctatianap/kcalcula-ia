@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nutrition_core/nutrition_core.dart';
 
+import '../../app_routes.dart';
 import '../../infra/clock.dart';
 import '../../infra/storage/storage_providers.dart';
 import '../../ui/components/k_card.dart';
@@ -510,6 +511,10 @@ class _DayDetail extends StatelessWidget {
                 (name: i.nameSnapshot, grams: i.grams),
             ],
             totals: meal.totals,
+            // SPEC-026 R1.
+            onTap: () =>
+                Navigator.of(context)
+                    .pushNamed(AppRoutes.editMeal, arguments: meal.meal.id),
           ),
           const SizedBox(height: 10),
         ],

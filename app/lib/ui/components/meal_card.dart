@@ -14,18 +14,22 @@ class MealCard extends StatelessWidget {
   final List<({String name, double grams})> items;
   final NutrientTotals totals;
 
+  /// SPEC-026 R1: abre la comida para editarla.
+  final VoidCallback? onTap;
+
   const MealCard({
     super.key,
     required this.label,
     required this.time,
     required this.items,
     required this.totals,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     const secondary = TextStyle(fontSize: 13, color: KColors.textSecondary);
-    return KCard(
+    final card = KCard(
       radius: 22,
       padding: const EdgeInsets.all(14),
       child: Column(
@@ -64,6 +68,16 @@ class MealCard extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+    if (onTap == null) return card;
+    return InkWell(
+      borderRadius: BorderRadius.circular(22),
+      onTap: onTap,
+      child: Semantics(
+        button: true,
+        hint: 'Toca para editar o borrar',
+        child: card,
       ),
     );
   }

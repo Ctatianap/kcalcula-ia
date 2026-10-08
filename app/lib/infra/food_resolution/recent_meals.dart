@@ -54,28 +54,11 @@ List<RecentMeal> buildRecentMeals(
     ];
     if (foods.any((f) => f == null)) continue;
 
-    final items = <MealDraftItem>[];
-    final nutrients = <NutrientTotals>[];
-    for (final (index, item) in meal.items.indexed) {
-      final food = foods[index]!;
-      nutrients.add(calculateItemNutrients(food, item.grams));
-      items.add(
-        MealDraftItem(
-          foodId: food.id,
-          mention: item.mention,
-          grams: item.grams,
-          basis:
-              QuantityBasis.values.asNameMap()[item.quantityBasis] ??
-              QuantityBasis.explicitWeight,
-          confidence:
-              ConfidenceLevel.values.asNameMap()[item.confidence] ??
-              ConfidenceLevel.estimacion,
-          quantityInput: item.quantityInput,
-          unitInput: item.unitInput,
-          sizeInput: item.sizeInput,
-        ),
-      );
-    }
+    final items = draftFromMeal(meal, resolver)!.items;
+    final nutrients = [
+      for (final (index, item) in meal.items.indexed)
+        calculateItemNutrients(foods[index]!, item.grams),
+    ];
     result.add(
       RecentMeal(
         draft: MealDraft(items),
@@ -101,4 +84,31 @@ Future<List<RecentMeal>> loadRecentMeals(
   if (meals.isEmpty) return const [];
   final resolver = resolverFor(await storage.getAllPersonalProducts());
   return buildRecentMeals(meals, resolver);
+}
+
+/// SPEC-017 R1 / SPEC-026 R4: la comida guardada como un borrador para
+/// repetirla (sin IA), o `null` si alguno de sus alimentos ya no existe.
+MealDraft? draftFromMeal(MealWithItems meal, FoodQueryResolver resolver) {
+  final items = <MealDraftItem>[];
+  for (final item in meal.items) {
+    final food = resolver.getFoodById(_foodIdOf(item));
+    if (food == null) return null;
+    items.add(
+      MealDraftItem(
+        foodId: food.id,
+        mention: item.mention,
+        grams: item.grams,
+        basis:
+            QuantityBasis.values.asNameMap()[item.quantityBasis] ??
+            QuantityBasis.explicitWeight,
+        confidence:
+            ConfidenceLevel.values.asNameMap()[item.confidence] ??
+            ConfidenceLevel.estimacion,
+        quantityInput: item.quantityInput,
+        unitInput: item.unitInput,
+        sizeInput: item.sizeInput,
+      ),
+    );
+  }
+  return MealDraft(items);
 }
