@@ -1,7 +1,7 @@
 # SPEC-042: Conversiones de porciones y "por 100 g" en nutrition_core
 
 ## Status
-Implementing
+Review
 Path: Strict (toca `nutrition_core`: cálculo y unidades)
 
 ## Objective
@@ -103,6 +103,11 @@ que un cambio de reglas no deje cuentas distintas en distintas pantallas.
   la app las usa en los seis lugares. Detalle: `portionsOf` con una porción de 0 g daba infinito y
   ahora da `null` (no ocurre: la porción guardada siempre es > 0 por `isValidServingGrams`).
   nutrition_core 105/105, app 451/451 sin cambiar expectativas.
+- 2026-10-08: reviewer PASS. Se documenta el otro cambio con entradas imposibles: si una etiqueta trajera
+  porción ≤ 0 y solo la columna "por 100 g", los nutrientes por porción quedan vacíos en vez de 0 o
+  negativos (no ocurre: `label_extraction.v1` exige `quantity` positiva, `functions/src/ai/schemas.ts`).
+  Con 0 g en una instantánea queda 0 (antes `-0.0` con valores negativos). Status → Review: falta la
+  aprobación explícita de la usuaria para fusionar (Strict).
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -113,4 +118,7 @@ que un cambio de reglas no deje cuentas distintas en distintas pantallas.
 | AC4 | ✅ | `dart analyze` y `flutter analyze`: sin avisos |
 
 ## Review
-Informe del reviewer:
+Revisión (2026-10-08, subagente `reviewer`, sobre `8bac636`): **PASS**. AC1–AC4 con evidencia; misma
+aritmética y mismo orden de operaciones; entradas inválidas conservadas; ningún test existente cambió;
+`nutrition_core` sin Flutter ni red; en `app/lib` solo quedan cuentas de UI (altura de barra, paso del
+stepper). MINOR atendidos (Change Log).
