@@ -318,6 +318,14 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   dependencies: [T-037]
   status: done  # SPEC-038
   spec_required: true    # specs/SPEC-038-totales-tocables-y-repetir-ahora.md — Standard
+- id: T-040
+  title: Fecha de nacimiento con selectores de día, mes y año
+  objective: >
+    Hallazgo de la usuaria en su Samsung (2026-10-08): el campo de texto de la fecha de nacimiento abre
+    un teclado sin "/". Tres selectores (día, mes y año), sin teclado.
+  dependencies: [T-009]
+  status: done  # SPEC-041
+  spec_required: true    # specs/SPEC-041-fecha-de-nacimiento-con-selectores.md — Standard
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
   # SPECs (Draft, 2026-10-04): specs/SPEC-021-foto-del-plato.md (Strict),

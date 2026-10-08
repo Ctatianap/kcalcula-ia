@@ -97,12 +97,34 @@ Future<AppDatabase> _pump(
   return database;
 }
 
+/// SPEC-041: elige [text] en el selector [key].
+Future<void> _select(WidgetTester tester, String key, String text) async {
+  await tester.tap(find.byKey(Key(key)));
+  await tester.pumpAndSettle();
+  // El menú construye solo las opciones visibles.
+  final menu = find.byType(Scrollable).last;
+  final option = find.descendant(of: menu, matching: find.text(text));
+  // Abre en la opción elegida: la buscada puede estar arriba o abajo.
+  try {
+    await tester.scrollUntilVisible(option, 100, scrollable: menu);
+  } on StateError {
+    await tester.scrollUntilVisible(option, -100, scrollable: menu);
+  }
+  await tester.pumpAndSettle();
+  await tester.tap(option);
+  await tester.pumpAndSettle();
+}
+
+/// SPEC-041: día, mes y año en los selectores.
+Future<void> _selectBirthDate(WidgetTester tester, DateTime d) async {
+  await _select(tester, 'profile-birth-year', '${d.year}');
+  await _select(tester, 'profile-birth-month', monthNamesEs[d.month - 1]);
+  await _select(tester, 'profile-birth-day', '${d.day}');
+}
+
 Future<void> _fillProfile(WidgetTester tester) async {
   await tester.tap(find.text('Femenino'));
-  await tester.enterText(
-    find.byKey(const Key('profile-birth-date')),
-    formatBirthDate(_birth30),
-  );
+  await _selectBirthDate(tester, _birth30);
   await tester.enterText(find.byKey(const Key('profile-height')), '165');
   await tester.enterText(find.byKey(const Key('profile-weight')), '63');
   await tester.tap(find.text('Actividad ligera'));
@@ -151,24 +173,20 @@ void main() {
       await _fillProfile(tester);
 
       await tester.enterText(find.byKey(const Key('profile-weight')), '25');
-      await tester.enterText(
-        find.byKey(const Key('profile-birth-date')),
-        '31/02/1990',
-      );
       await tester.pump();
-
       expect(find.text(weightRangeMessage), findsOneWidget);
-      expect(find.text(birthDateFormatMessage), findsOneWidget);
       final save = find.widgetWithText(FilledButton, 'Guardar perfil');
       expect(tester.widget<FilledButton>(save).onPressed, isNull);
 
-      final teen = DateTime(DateTime.now().year - 17, 1, 1);
-      await tester.enterText(
-        find.byKey(const Key('profile-birth-date')),
-        formatBirthDate(teen),
-      );
-      await tester.pump();
-      expect(find.text(ageRangeMessage), findsOneWidget);
+      // Nació el 31 de diciembre del año más reciente de la lista: aún
+      // tiene 17 años (salvo el propio 31 de diciembre).
+      final now = DateTime.now();
+      if (!(now.month == 12 && now.day == 31)) {
+        await _select(tester, 'profile-birth-year', '${now.year - 18}');
+        await _select(tester, 'profile-birth-month', 'diciembre');
+        await _select(tester, 'profile-birth-day', '31');
+        expect(find.text(ageRangeMessage), findsOneWidget);
+      }
     });
 
     testWidgets('carga el perfil guardado para editarlo', (tester) async {
@@ -179,7 +197,10 @@ void main() {
       await _pump(tester, AppRoutes.profile, db: db);
 
       expect(find.text('63,5'), findsOneWidget);
-      expect(find.text(formatBirthDate(_birth30)), findsOneWidget);
+      // SPEC-041 AC2: los selectores muestran la fecha guardada.
+      expect(find.text('${_birth30.year}'), findsOneWidget);
+      expect(find.text('enero'), findsOneWidget);
+      expect(find.text('1'), findsOneWidget);
     });
 
     testWidgets('AC14: si guardar el perfil falla, mensaje y sin relanzar', (

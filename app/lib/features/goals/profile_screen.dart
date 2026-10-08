@@ -17,7 +17,6 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   late final ProfileController _controller;
-  final _birthDate = TextEditingController();
   final _height = TextEditingController();
   final _weight = TextEditingController();
   final _measured = TextEditingController();
@@ -29,7 +28,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       storage: ref.read(storageRepositoryProvider),
     );
     _controller.load().then((_) {
-      _birthDate.text = _controller.birthDateText;
       _height.text = _controller.heightText;
       _weight.text = _controller.weightText;
       _measured.text = _controller.measuredText;
@@ -39,7 +37,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   void dispose() {
     _controller.dispose();
-    _birthDate.dispose();
     _height.dispose();
     _weight.dispose();
     _measured.dispose();
@@ -93,17 +90,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 },
               ),
               const SizedBox(height: 12),
-              TextField(
-                key: const Key('profile-birth-date'),
-                controller: _birthDate,
-                keyboardType: TextInputType.datetime,
-                decoration: InputDecoration(
-                  labelText: 'Fecha de nacimiento (dd/mm/aaaa)',
-                  helperText: c.age == null ? null : '${c.age} años',
-                  errorText: c.birthDateError,
-                ),
-                onChanged: c.setBirthDate,
-              ),
+              _BirthDatePicker(controller: c),
               TextField(
                 key: const Key('profile-height'),
                 controller: _height,
@@ -168,7 +155,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               if (c.loadFailed)
                 TextButton(
                   onPressed: () => c.load().then((_) {
-                    _birthDate.text = c.birthDateText;
                     _height.text = c.heightText;
                     _weight.text = c.weightText;
                   }),
@@ -256,4 +242,124 @@ class _StartingPoint extends StatelessWidget {
       ),
     );
   }
+}
+
+/// SPEC-041: fecha de nacimiento en tres selectores (día, mes y año), sin
+/// teclado.
+class _BirthDatePicker extends StatelessWidget {
+  final ProfileController controller;
+
+  const _BirthDatePicker({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = controller;
+    final error = c.birthDateError;
+    final age = c.age;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Fecha de nacimiento'),
+        const SizedBox(height: 4),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 2,
+              child: _Select(
+                key: const Key('profile-birth-day'),
+                label: 'Día',
+                value: c.birthDay,
+                options: {for (final d in c.birthDays) d: '$d'},
+                onChanged: c.setBirthDay,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 4,
+              child: _Select(
+                key: const Key('profile-birth-month'),
+                label: 'Mes',
+                value: c.birthMonth,
+                options: {
+                  for (final (i, name) in monthNamesEs.indexed) i + 1: name,
+                },
+                onChanged: c.setBirthMonth,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 3,
+              child: _Select(
+                key: const Key('profile-birth-year'),
+                label: 'Año',
+                value: c.birthYear,
+                options: {for (final y in c.birthYears) y: '$y'},
+                onChanged: c.setBirthYear,
+              ),
+            ),
+          ],
+        ),
+        if (error != null || age != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4, left: 12),
+            child: error != null
+                ? Text(
+                    error,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                      fontSize: 12,
+                    ),
+                  )
+                : Text('$age años', style: const TextStyle(fontSize: 12)),
+          ),
+      ],
+    );
+  }
+}
+
+/// Un selector con etiqueta (el lector de pantalla la anuncia).
+class _Select extends StatelessWidget {
+  final String label;
+  final int? value;
+  final Map<int, String> options;
+  final ValueChanged<int> onChanged;
+
+  const _Select({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.options,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) => InputDecorator(
+    decoration: InputDecoration(
+      labelText: label,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+    ),
+    child: DropdownButtonHideUnderline(
+      // El lector de pantalla anuncia "Día", "Mes" o "Año" con el valor.
+      child: Semantics(
+        label: label,
+        child: DropdownButton<int>(
+          value: options.containsKey(value) ? value : null,
+          isExpanded: true,
+          isDense: true,
+          menuMaxHeight: 320,
+          items: [
+            for (final MapEntry(:key, value: text) in options.entries)
+              DropdownMenuItem(
+                value: key,
+                child: Text(text, overflow: TextOverflow.ellipsis),
+              ),
+          ],
+          onChanged: (v) {
+            if (v != null) onChanged(v);
+          },
+        ),
+      ),
+    ),
+  );
 }
