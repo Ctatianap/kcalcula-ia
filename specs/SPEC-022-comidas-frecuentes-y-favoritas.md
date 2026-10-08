@@ -1,7 +1,7 @@
 # SPEC-022: Comidas frecuentes y favoritas
 
 ## Status
-Implementing
+Done
 Path: Standard (reutiliza catálogo, cálculo y el flujo sin IA de SPEC-017; no cambia datos que salen)
 
 ## Objective
@@ -110,6 +110,7 @@ que registré.
   `saveFavoriteAction` en un solo lugar; el repositorio recorta el nombre a 40 caracteres y rechaza
   nombre vacío o sin alimentos; tests de esos casos y de los errores de guardar y quitar (SPEC-009).
   app 491/491.
+- 2026-10-08: recorrido manual en el Motorola (Verificación). Status → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -122,11 +123,11 @@ que registré.
 | AC6 | ✅ | `favorite_meals_flow_test.dart` › "AC6…" y la prueba de lógica |
 | AC7 | ✅ | `favorite_meals_flow_test.dart` › "AC7…" |
 | AC8 | ✅ | `app/test/features/diary/meal_long_press_test.dart` › "SPEC-022 AC8…" |
-| Manual | ⏳ | Recorrido en el teléfono, pendiente |
+| Manual | ✅ | 2026-10-08, en el Motorola de la usuaria (versión de `cb3031e`): Hoy → mantener presionado el desayuno → "Guardar como favorita" → nombre "Desayuno de siempre" → "Guardada en favoritas."; en "¿Qué comiste?" sale primero en Favoritas (~345 kcal); al tocarla abre el detalle con los mismos alimentos y la hora actual (no se guardó); mantener presionada → "Quitar de favoritas" la saca ("Quitada de favoritas."). Frecuentes no aparece: no hay comidas repetidas 3 veces en 60 días en ese teléfono |
 
 ## Review
 Revisión (2026-10-08, subagente `reviewer`, sobre `78aa1f8`): **PASS**. AC1–AC8 con evidencia; las
 favoritas no guardan valores nutricionales y se calculan con `nutrition_core` y el catálogo actual;
 fronteras entre features respetadas; migración desde v8 y versiones viejas; borrar todo y exportar;
 errores en español sin texto de SQLite; nada sale del dispositivo; `docs/privacy.md` y
-`docs/architecture.md` al día. MINOR corregidos (Change Log). Falta el recorrido manual en el teléfono.
+`docs/architecture.md` al día. MINOR corregidos (Change Log). Recorrido manual hecho después (Verificación).
