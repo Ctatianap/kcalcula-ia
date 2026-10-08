@@ -1,7 +1,7 @@
 # SPEC-037: Menú al mantener presionada una comida
 
 ## Status
-Draft
+Implementing
 Path: Standard (gesto nuevo en Hoy e Historial; reutiliza borrar y editar de SPEC-026; no sale ningún
 dato)
 
@@ -94,6 +94,7 @@ Como persona que registró una comida por error, quiero dejarla presionada y eli
 
 ## Change Log
 - 2026-10-08: creación a pedido de la usuaria (gesto para eliminar una comida).
+- 2026-10-08: **Approved por la usuaria** ("aprobada la SPEC-037"). Status → Implementing.
 
 ## Review
 Informe del reviewer:
