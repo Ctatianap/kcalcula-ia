@@ -281,7 +281,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     la persona los llama ("mi pan") y que tengan prioridad sobre el catálogo al reconocer el texto.
     Strict (cambia la resolución de alimentos).
   dependencies: [T-033]
-  spec_required: true
+  spec_required: true    # specs/SPEC-034-mis-productos.md — Strict
 - id: T-035
   title: Conversión g → porciones en nutrition_core
   objective: >
