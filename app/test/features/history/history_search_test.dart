@@ -71,6 +71,15 @@ void main() {
       expect(b.map((h) => h.day), a.map((h) => h.day));
     });
 
+    test('cada palabra por prefijo, como SPEC-018', () async {
+      // "queso arepa" encuentra "Arepa de queso" (orden distinto).
+      final both = await repo.searchMealDays('queso arepa');
+      expect(both.map((h) => h.day), [DateTime(2026, 9, 20)]);
+      // "pa" no encuentra "Arepa" por la mitad de la palabra; sí "Pan".
+      final pa = await repo.searchMealDays('pa');
+      expect(pa.map((h) => h.day), [DateTime(2026, 10, 6)]);
+    });
+
     test('menos de 2 letras no busca', () async {
       expect(await repo.searchMealDays('a'), isEmpty);
     });

@@ -4,6 +4,8 @@ import 'package:sqlite3/sqlite3.dart';
 import '../../format/text_es.dart';
 import 'food_match_result.dart';
 
+export '../../format/text_es.dart' show isSearchableQuery;
+
 /// Máximo de candidatos que se muestran cuando un `food_query` es ambiguo
 /// (R10: "hasta 3 candidatos").
 const _maxAmbiguousCandidates = 3;
@@ -167,11 +169,6 @@ class CatalogRepository {
     return map;
   }
 }
-
-/// SPEC-018 R1: se busca desde 2 letras o números (sin contar espacios ni
-/// signos). Única regla para la pantalla, el resolver y el catálogo.
-bool isSearchableQuery(String query) =>
-    normalizeFoodText(query).replaceAll(RegExp('[^a-z0-9]'), '').length >= 2;
 
 /// Como [_ftsQuery], pero cada término busca por prefijo (`"arep"*`).
 String _ftsPrefixQuery(String normalized) {

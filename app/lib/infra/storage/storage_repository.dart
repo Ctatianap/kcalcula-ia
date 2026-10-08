@@ -144,20 +144,15 @@ class StorageRepository {
     String query, {
     int limit = 50,
   }) async {
-    // Misma regla que "Buscar alimento" (SPEC-018): 2 letras o números.
-    final normalized = normalizeFoodText(query);
-    if (normalized.replaceAll(RegExp('[^a-z0-9]'), '').length < 2) {
-      return const [];
-    }
+    // Mismas reglas que "Buscar alimento" (SPEC-018).
+    if (!isSearchableQuery(query)) return const [];
     final rows = await (_db.select(_db.mealItems).join([
       innerJoin(_db.meals, _db.meals.id.equalsExp(_db.mealItems.mealId)),
     ])..orderBy([OrderingTerm.desc(_db.meals.eatenAt)])).get();
     final byDay = <DateTime, List<String>>{};
     for (final row in rows) {
       final item = row.readTable(_db.mealItems);
-      if (!normalizeFoodText(item.nameSnapshot).contains(normalized)) {
-        continue;
-      }
+      if (!matchesWordPrefixes(item.nameSnapshot, query)) continue;
       final at = row.readTable(_db.meals).eatenAt;
       final day = DateTime(at.year, at.month, at.day);
       if (!byDay.containsKey(day) && byDay.length >= limit) continue;

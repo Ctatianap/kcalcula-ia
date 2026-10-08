@@ -1,5 +1,4 @@
 import 'package:calorias_ia/format/text_es.dart';
-import 'package:calorias_ia/infra/catalog/catalog_repository.dart';
 import 'package:calorias_ia/infra/catalog/food_match_result.dart';
 import 'package:calorias_ia/infra/food_resolution/food_query_resolver.dart';
 import 'package:calorias_ia/infra/storage/app_database.dart';

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../app_routes.dart';
-import '../../infra/catalog/catalog_repository.dart' show isSearchableQuery;
+import '../../format/text_es.dart' show isSearchableQuery;
 import '../../infra/storage/storage_repository.dart'
     show MealDaySearchHit, MealWithItems;
 import '../../infra/clock.dart';
@@ -78,6 +78,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
   /// SPEC-036 R1: abrir un día encontrado en el calendario.
   void _openFoundDay(DateTime day) {
+    FocusScope.of(context).unfocus();
     setState(() {
       _search.clear();
       _searchFuture = null;
@@ -98,6 +99,31 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     });
   }
 
+  Widget _searchField() => Padding(
+    padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
+    child: TextField(
+      key: const Key('history-search'),
+      controller: _search,
+      textInputAction: TextInputAction.search,
+      decoration: InputDecoration(
+        labelText: 'Buscar en tus comidas',
+        hintText: 'Ej: arepa',
+        prefixIcon: const Icon(Icons.search),
+        suffixIcon: _search.text.isEmpty
+            ? null
+            : IconButton(
+                tooltip: 'Borrar búsqueda',
+                icon: const Icon(Icons.close),
+                onPressed: () {
+                  _search.clear();
+                  _onSearchChanged('');
+                },
+              ),
+      ),
+      onChanged: _onSearchChanged,
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     // Atrás vuelve a Hoy en vez de cerrar la app (SPEC-010, Edge Cases).
@@ -112,120 +138,111 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           current: MainTab.history,
           onAdd: () => openCaptureFromTab(context),
         ),
-        body: FutureBuilder<HistoryMonth>(
-          future: _future,
-          builder: (context, snapshot) {
-            // SPEC-009 R4: una lectura fallida no deja el spinner.
-            if (snapshot.hasError) {
-              return Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('No pude leer tus datos. Intenta de nuevo.'),
-                    TextButton(
-                      onPressed: () => setState(_load),
-                      child: const Text('Reintentar'),
-                    ),
-                  ],
-                ),
-              );
-            }
-            final data = snapshot.data;
-            if (data == null ||
-                snapshot.connectionState != ConnectionState.done) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            final selected = _selected;
-            return SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4, bottom: 8),
-                    child: TextField(
-                      key: const Key('history-search'),
-                      controller: _search,
-                      textInputAction: TextInputAction.search,
-                      decoration: InputDecoration(
-                        labelText: 'Buscar en tus comidas',
-                        hintText: 'Ej: arepa',
-                        prefixIcon: const Icon(Icons.search),
-                        suffixIcon: _search.text.isEmpty
-                            ? null
-                            : IconButton(
-                                tooltip: 'Borrar búsqueda',
-                                icon: const Icon(Icons.close),
-                                onPressed: () {
-                                  _search.clear();
-                                  _onSearchChanged('');
-                                },
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // SPEC-036: fuera de la carga del mes, para que no desaparezca.
+            _searchField(),
+            Expanded(
+              child: FutureBuilder<HistoryMonth>(
+                future: _future,
+                builder: (context, snapshot) {
+                  // SPEC-009 R4: una lectura fallida no deja el spinner.
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'No pude leer tus datos. Intenta de nuevo.',
+                          ),
+                          TextButton(
+                            onPressed: () => setState(_load),
+                            child: const Text('Reintentar'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  final data = snapshot.data;
+                  if (data == null ||
+                      snapshot.connectionState != ConnectionState.done) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  final selected = _selected;
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (_search.text.trim().isNotEmpty &&
+                            !isSearchableQuery(_search.text))
+                          // Edge case: menos de 2 letras, no se busca (SPEC-018).
+                          Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Semantics(
+                              liveRegion: true,
+                              child: const Text(
+                                'Escribe al menos 2 letras.',
+                                style: TextStyle(color: KColors.textSecondary),
                               ),
-                      ),
-                      onChanged: _onSearchChanged,
-                    ),
-                  ),
-                  if (_search.text.trim().isNotEmpty &&
-                      !isSearchableQuery(_search.text))
-                    // Edge case: menos de 2 letras, no se busca (SPEC-018).
-                    Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Semantics(
-                        liveRegion: true,
-                        child: const Text(
-                          'Escribe al menos 2 letras.',
-                          style: TextStyle(color: KColors.textSecondary),
-                        ),
-                      ),
-                    )
-                  else if (_searchFuture case final search?)
-                    _SearchResults(future: search, onOpenDay: _openFoundDay)
-                  else ...[
-                    _MonthHeader(
-                      month: _month,
-                      canGoNext: !_isCurrentMonth,
-                      onPrevious: () => _changeMonth(-1),
-                      onNext: () => _changeMonth(1),
-                    ),
-                    const SizedBox(height: 8),
-                    _CalendarGrid(
-                      data: data,
-                      today: _today,
-                      selected: selected,
-                      onSelect: (day) => setState(() => _selected = day),
-                    ),
-                    const SizedBox(height: 12),
-                    _Legend(hasGoal: data.goal != null),
-                    const SizedBox(height: 16),
-                    if (selected == null)
-                      Text(
-                        'Toca un día para ver qué comiste.',
-                        style: Theme.of(context).textTheme.bodyMedium
-                            ?.copyWith(color: KColors.textSecondary),
-                      )
-                    else
-                      _DayDetail(
-                        date: selected,
-                        day: data.days[selected.day],
-                        goal: data.goal?.energyKcal,
-                        // SPEC-037: "Repetir hoy" solo en otros días.
-                        onMealLongPress: (meal, position) =>
-                            handleMealLongPress(
-                              context,
-                              ref,
-                              meal: meal,
-                              position: position,
-                              canRepeatToday: selected != _today,
-                              onChanged: () {
-                                if (mounted) setState(_load);
-                              },
                             ),
-                      ),
-                  ],
-                ],
+                          )
+                        else if (_searchFuture case final search?)
+                          _SearchResults(
+                            future: search,
+                            onOpenDay: _openFoundDay,
+                            onRetry: () => _onSearchChanged(_search.text),
+                          )
+                        else ...[
+                          _MonthHeader(
+                            month: _month,
+                            canGoNext: !_isCurrentMonth,
+                            onPrevious: () => _changeMonth(-1),
+                            onNext: () => _changeMonth(1),
+                          ),
+                          const SizedBox(height: 8),
+                          _CalendarGrid(
+                            data: data,
+                            today: _today,
+                            selected: selected,
+                            onSelect: (day) => setState(() => _selected = day),
+                          ),
+                          const SizedBox(height: 12),
+                          _Legend(hasGoal: data.goal != null),
+                          const SizedBox(height: 16),
+                          if (selected == null)
+                            Text(
+                              'Toca un día para ver qué comiste.',
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(color: KColors.textSecondary),
+                            )
+                          else
+                            _DayDetail(
+                              date: selected,
+                              day: data.days[selected.day],
+                              goal: data.goal?.energyKcal,
+                              // SPEC-037: "Repetir hoy" solo en otros días.
+                              onMealLongPress: (meal, position) =>
+                                  handleMealLongPress(
+                                    context,
+                                    ref,
+                                    meal: meal,
+                                    position: position,
+                                    canRepeatToday: selected != _today,
+                                    onChanged: () {
+                                      if (mounted) setState(_load);
+                                    },
+                                  ),
+                            ),
+                        ],
+                      ],
+                    ),
+                  );
+                },
               ),
-            );
-          },
+            ),
+          ],
         ),
       ),
     );
@@ -625,8 +642,13 @@ const noFoodInHistoryMessage = 'No encontré comidas con ese alimento.';
 class _SearchResults extends StatelessWidget {
   final Future<List<MealDaySearchHit>> future;
   final ValueChanged<DateTime> onOpenDay;
+  final VoidCallback onRetry;
 
-  const _SearchResults({required this.future, required this.onOpenDay});
+  const _SearchResults({
+    required this.future,
+    required this.onOpenDay,
+    required this.onRetry,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -634,10 +656,23 @@ class _SearchResults extends StatelessWidget {
       future: future,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          // SPEC-009: sin el texto de SQLite.
-          return const Padding(
-            padding: EdgeInsets.all(8),
-            child: Text('No pude leer tus datos. Intenta de nuevo.'),
+          // SPEC-009 R4: sin el texto de SQLite, con "Reintentar".
+          return Padding(
+            padding: const EdgeInsets.all(8),
+            child: Semantics(
+              liveRegion: true,
+              child: Row(
+                children: [
+                  const Expanded(
+                    child: Text('No pude leer tus datos. Intenta de nuevo.'),
+                  ),
+                  TextButton(
+                    onPressed: onRetry,
+                    child: const Text('Reintentar'),
+                  ),
+                ],
+              ),
+            ),
           );
         }
         final hits = snapshot.data;
