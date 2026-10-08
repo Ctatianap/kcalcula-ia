@@ -571,5 +571,32 @@ void main() {
       await _tapSave(tester);
       expect(find.text('Revisar (mock)'), findsOneWidget);
     });
+
+    testWidgets(
+      'caso borde: etiqueta en ml → selector "ml" y "2 porciones = 400 ml"',
+      (tester) async {
+        await _pump(
+          tester,
+          const LabelExtractionDto(
+            productName: 'Bebida',
+            servingSize: LabelServingSizeDto(quantity: 200, unit: 'ml'),
+            perServing: LabelNutrientSetDto(
+              energyKcal: 90,
+              proteinG: 6,
+              carbsG: 10,
+              fatG: 3,
+            ),
+            per100: null,
+            unreadableFields: [],
+          ),
+        );
+        expect(
+          tester.widget<Text>(find.byKey(consumedUnitServingKey)).data,
+          'ml',
+        );
+        await typePortions(tester, '2');
+        expect(find.text('2 porciones = 400 ml'), findsOneWidget);
+      },
+    );
   });
 }

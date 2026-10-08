@@ -141,9 +141,12 @@ class LabelConfirmationController extends ChangeNotifier {
   void setConsumedUnit(ConsumedUnit unit) {
     if (unit == consumedUnit) return;
     if (unit == ConsumedUnit.servingUnit) {
-      // Cambiar de unidad no es editar la cantidad: en g/ml sigue a la
-      // porción mientras la persona no escriba otra (SPEC-031 R1).
+      // Con 1 porción, pasar a g/ml no es editar la cantidad: sigue a la
+      // porción mientras la persona no escriba otra (SPEC-031 R1). Con otro
+      // número de porciones, esa cantidad es una elección de la persona y
+      // no se reescribe al cambiar la porción (SPEC-032 R2).
       consumedQuantity = registeredQuantity;
+      if (portionsCount != 1) _consumedQuantityTouchedByUser = true;
     } else if (isValidServingGrams(servingQuantity)) {
       portionsCount = consumedQuantity / servingQuantity!;
     }

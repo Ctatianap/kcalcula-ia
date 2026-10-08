@@ -124,6 +124,7 @@ registrar antes de seguir, para no adivinar.
   `_per100()` compartido por `save()` y `preview` (`resolveGrams` + `calculateItemNutrients`).
   Pantalla: `SegmentedButton`, `_Preview`, botón "Revisar comida". Tarjetas de macros extraídas de
   "Hoy" a `app/lib/ui/components/macro_cards.dart` (sin cambio visual).
+- 2026-10-07: reviewer PASS; 6 MINOR corregidos (ver Review); el de AC5 espera a la usuaria.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -135,8 +136,21 @@ registrar antes de seguir, para no adivinar.
 | AC5 | ✅ | "SPEC-032 AC5: con meta…" y "…sin meta, solo los gramos". Nota: las tarjetas muestran "de 123,0 g" (un decimal, `formatMacroEs`), igual que "Hoy", porque usan el mismo componente (`app/lib/ui/components/macro_cards.dart`) |
 | AC6 | ✅ | "SPEC-032 AC6: sin proteína no hay vista previa" |
 | AC7 | ✅ | "SPEC-032 AC7…": botón "Revisar comida", la línea de R6 y navega a Revisar |
-| AC8 | ✅ | app: analyze sin avisos, 354/354. Expectativas cambiadas: el texto del botón (`reviewMealButtonLabel`) en `label_confirmation_screen_test.dart`, `integration/label_to_review_flow_test.dart` y `integration/storage_errors_test.dart`; "AC2/AC4: muestra los valores transcritos" (antes "30" dos veces; ahora "30" en la porción y "1" en porciones); los tests de SPEC-004 AC5 y de SPEC-031 y el flujo "comí 45 g" pasan primero a g (`_toGrams`); el helper `_tapSave` cierra el teclado antes de tocar el botón. Tests de "Hoy" sin cambios tras extraer las tarjetas |
+| AC8 | ✅ | app: analyze sin avisos, 360/360 (tras los MINOR del reviewer). Expectativas cambiadas: el texto del botón (`reviewMealButtonLabel`) en `label_confirmation_screen_test.dart`, `integration/label_to_review_flow_test.dart` y `integration/storage_errors_test.dart`; "AC2/AC4: muestra los valores transcritos" (antes "30" dos veces; ahora "30" en la porción y "1" en porciones); los tests de SPEC-004 AC5 y de SPEC-031 y el flujo "comí 45 g" pasan primero a g (`_toGrams`); el helper `_tapSave` cierra el teclado antes de tocar el botón. Tests de "Hoy" sin cambios tras extraer las tarjetas |
 | Manual | ⏳ | "3 porciones" del pan en el teléfono |
 
 ## Review
-Informe del reviewer:
+Revisión (2026-10-07, subagente `reviewer`, sobre `63ea37f`): **PASS**. AC1–AC8 cumplidos (AC5 con
+desvío de formato documentado); la vista previa coincide con Revisar (mismo `_per100()`,
+`resolveGrams` y `calculateItemNutrients`); sin imports entre features; "Hoy" sin cambio visual.
+7 MINOR:
+- "3 porciones" → g → cambiar la porción reescribía a 1 porción: ahora, con un número de porciones
+  distinto de 1, pasar a g cuenta como cantidad elegida (test).
+- Error al leer la meta sin manejar: `catchError`, la vista previa sigue sin meta.
+- La equivalencia usaba gramos con la unidad "ml": usa `registeredQuantity`.
+- Import completo de `app_database.dart`: `show NutritionGoal`.
+- Test de paridad sin pasar por guardar: ahora guarda, lee, convierte con
+  `personalProductToFoodCatalogEntry` y resuelve con `resolveGrams`.
+- Casos borde sin test: "0" porciones, porción no válida con porciones, etiqueta en ml (controlador
+  y pantalla).
+- AC5 dice "de 123 g" y se muestra "de 123,0 g": cambio de texto propuesto a la usuaria.

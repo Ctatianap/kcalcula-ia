@@ -5,7 +5,7 @@ import 'package:nutrition_core/nutrition_core.dart';
 import '../../app_routes.dart';
 import '../../infra/ai_client/label_extraction_dto.dart';
 import '../../infra/ai_client/parsed_meal_dto.dart';
-import '../../infra/storage/app_database.dart';
+import '../../infra/storage/app_database.dart' show NutritionGoal;
 import '../../infra/storage/storage_providers.dart';
 import '../../ui/components/macro_cards.dart';
 import '../../ui/theme.dart';
@@ -85,9 +85,15 @@ class _LabelConfirmationScreenState
     _sugarController.text = _numberText(_controller.sugarG);
     _sodiumController.text = _numberText(_controller.sodiumMg);
     _consumedController.text = _consumedText();
-    ref.read(storageRepositoryProvider).getNutritionGoal().then((goal) {
-      if (mounted) setState(() => _goal = goal);
-    });
+    // SPEC-032 R4: sin meta (o si no se pudo leer), la vista previa muestra
+    // solo los gramos; un fallo aquí no debe molestar a la persona.
+    ref
+        .read(storageRepositoryProvider)
+        .getNutritionGoal()
+        .then((goal) {
+          if (mounted) setState(() => _goal = goal);
+        })
+        .catchError((Object _) {});
   }
 
   bool get _inPortions => _controller.consumedUnit == ConsumedUnit.portions;
@@ -333,7 +339,7 @@ class _LabelConfirmationScreenState
               if (_controller.preview case final preview?)
                 _Preview(
                   portions: _inPortions ? _controller.portionsCount : null,
-                  grams: preview.grams,
+                  quantity: _controller.registeredQuantity,
                   unit: _controller.servingUnit,
                   nutrients: preview.nutrients,
                   goal: _goal,
@@ -456,14 +462,16 @@ class _NumberField extends StatelessWidget {
 /// `nutrition_core` (invariante 3).
 class _Preview extends StatelessWidget {
   final double? portions;
-  final double grams;
+
+  /// Cantidad registrada en la unidad de la etiqueta (g o ml).
+  final double quantity;
   final String unit;
   final NutrientTotals nutrients;
   final NutritionGoal? goal;
 
   const _Preview({
     required this.portions,
-    required this.grams,
+    required this.quantity,
     required this.unit,
     required this.nutrients,
     required this.goal,
@@ -476,7 +484,7 @@ class _Preview extends StatelessWidget {
         ? null
         : '${formatDecimalEs(portions!)} '
               '${portions == 1 ? 'porción' : 'porciones'} = '
-              '${formatDecimalEs(grams, maxDecimals: 1)} $unit';
+              '${formatDecimalEs(quantity, maxDecimals: 1)} $unit';
     return Padding(
       padding: const EdgeInsets.only(top: 12),
       child: Column(

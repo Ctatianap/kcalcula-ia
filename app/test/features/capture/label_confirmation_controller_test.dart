@@ -202,7 +202,7 @@ void main() {
 
   test(
     'SPEC-032 AC4: la vista previa da lo mismo que Revisar para 3 porciones',
-    () {
+    () async {
       final controller = LabelConfirmationController(
         extraction: _extraction(
           servingSize: const LabelServingSizeDto(quantity: 27, unit: 'g'),
@@ -217,24 +217,78 @@ void main() {
       );
       controller.setPortionsCount(3);
       expect(controller.registeredQuantity, 81);
-
-      // Revisar: producto personal guardado (por 100 g) → FoodCatalogEntry.
-      final factor = 100 / 27;
-      final food = FoodCatalogEntry(
-        id: 'personal:1',
-        nameEs: 'Producto de prueba',
-        sourceId: personalProductSourceId,
-        sourceRef: 'x',
-        energyKcal100g: 70 * factor,
-        proteinG100g: 2.8 * factor,
-        carbsG100g: 15 * factor,
-        fatG100g: 0.2 * factor,
-        portions: const [],
-      );
-      final expected = calculateItemNutrients(food, 81);
       final preview = controller.preview!;
-      expect(preview.grams, 81);
-      expect(preview.nutrients, expected);
+
+      // Revisar: el producto guardado, leído y convertido como en la app,
+      // con la misma resolución de cantidad (SPEC-004 R6).
+      await controller.save();
+      final saved = (await storage.getAllPersonalProducts()).single;
+      final food = personalProductToFoodCatalogEntry(saved);
+      final grams = resolveGrams(
+        input: const QuantityInput(
+          quantity: 81,
+          unit: QuantityUnit.gramos,
+          isVague: false,
+        ),
+        food: food,
+        isLabelProduct: true,
+      ).grams!;
+      expect(preview.grams, grams);
+      expect(preview.nutrients, calculateItemNutrients(food, grams));
     },
   );
+
+  group('SPEC-032 casos borde', () {
+    LabelConfirmationController controller27() => LabelConfirmationController(
+      extraction: _extraction(
+        servingSize: const LabelServingSizeDto(quantity: 27, unit: 'g'),
+      ),
+      storage: storage,
+    );
+
+    test('3 porciones → g → cambiar la porción no reescribe los 81 g', () {
+      final c = controller27()..setPortionsCount(3);
+      c.setConsumedUnit(ConsumedUnit.servingUnit);
+      expect(c.registeredQuantity, 81);
+      c.setServingQuantity(30);
+      expect(c.registeredQuantity, 81);
+    });
+
+    test('1 porción → g sigue a la porción (SPEC-031)', () {
+      final c = controller27()..setConsumedUnit(ConsumedUnit.servingUnit);
+      c.setServingQuantity(30);
+      expect(c.registeredQuantity, 30);
+    });
+
+    test('"0" porciones: falta cuánto comiste y no hay vista previa', () {
+      final c = controller27()..setPortionsCount(0);
+      expect(c.missingForSave, ['cuánto comiste']);
+      expect(c.preview, isNull);
+    });
+
+    test('porciones sin porción válida: falta porción y cuánto comiste', () {
+      final c = controller27()..setServingQuantity(null);
+      expect(c.registeredQuantity, 0);
+      expect(c.missingForSave, ['porción', 'cuánto comiste']);
+      expect(c.preview, isNull);
+    });
+
+    test('etiqueta en ml: 2 porciones de 200 ml registran 400 ml', () {
+      final c = LabelConfirmationController(
+        extraction: _extraction(
+          servingSize: const LabelServingSizeDto(quantity: 200, unit: 'ml'),
+          perServing: const LabelNutrientSetDto(
+            energyKcal: 90,
+            proteinG: 6,
+            carbsG: 10,
+            fatG: 3,
+          ),
+        ),
+        storage: storage,
+      )..setPortionsCount(2);
+      expect(c.registeredQuantity, 400);
+      expect(c.servingUnit, 'ml');
+      expect(c.preview, isNotNull);
+    });
+  });
 }
