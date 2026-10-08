@@ -1,7 +1,7 @@
 # SPEC-026: Editar, borrar y repetir comidas guardadas
 
 ## Status
-Implementing
+Done
 Path: Standard (cambia comidas guardadas en `user.db`; recalcula con `nutrition_core` sin reglas
 nuevas; no sale ningún dato)
 
@@ -105,6 +105,8 @@ que mis promedios sean reales.
     "Editar comida", fecha y hora con "Cambiar", "Borrar comida", "Guardar cambios" y "Repetir hoy".
 - 2026-10-08: reviewer CHANGES_REQUESTED (1 MAJOR de evidencia, 10 MINOR); corregidos (ver Review).
   422/422.
+- 2026-10-08: re-revisión PASS; MINOR corregidos (423/423). Prueba manual de la usuaria y **aprobación
+  para fusionar** ("ya lo probé, funciona, fusiona la 026"). Status → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -119,7 +121,7 @@ que mis promedios sean reales.
 | AC8 | ✅ | mismo archivo › "AC8…": "Elegir de mis productos" en el huevo → "Guardar cambios" → mismo `id`, el huevo es el producto y la arepa conserva su instantánea (proteína 6,5 g; el catálogo daría 6,509) |
 | Docs | ✅ | `docs/architecture.md` (Modelo de datos: edición de comidas guardadas; tablas de SPEC-034) |
 | Tests | ✅ | app: analyze sin avisos, 423/423; ningún test existente cambió |
-| Manual | ⏳ | Editar, borrar y repetir una comida en el teléfono |
+| Manual | ✅ | 2026-10-08, la usuaria en su Motorola con la versión de `e99c519`: "ya lo probé, funciona" |
 
 ## Review
 Revisión (2026-10-08, subagente `reviewer`, sobre `57b9fbf`): **CHANGES_REQUESTED**.
