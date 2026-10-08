@@ -33,6 +33,9 @@ class _PersonalProductPickerScreenState
     extends ConsumerState<PersonalProductPickerScreen> {
   final _query = TextEditingController();
   List<PersonalProduct>? _products;
+
+  /// SPEC-035 R3: nombres alternativos por id de producto.
+  Map<int, List<String>> _aliases = const {};
   bool _loadFailed = false;
 
   @override
@@ -43,9 +46,9 @@ class _PersonalProductPickerScreenState
 
   Future<void> _load() async {
     try {
-      final products = await ref
-          .read(storageRepositoryProvider)
-          .getAllPersonalProducts();
+      final storage = ref.read(storageRepositoryProvider);
+      final products = await storage.getAllPersonalProducts();
+      final aliases = await storage.getPersonalProductAliases();
       products.sort(
         (a, b) =>
             normalizeFoodText(a.nameEs).compareTo(normalizeFoodText(b.nameEs)),
@@ -53,6 +56,7 @@ class _PersonalProductPickerScreenState
       if (mounted) {
         setState(() {
           _products = products;
+          _aliases = aliases;
           _loadFailed = false;
         });
       }
@@ -76,7 +80,11 @@ class _PersonalProductPickerScreenState
         ? const <PersonalProduct>[]
         : [
             for (final p in products)
-              if (query.isEmpty || normalizeFoodText(p.nameEs).contains(query))
+              if (query.isEmpty ||
+                  normalizeFoodText(p.nameEs).contains(query) ||
+                  (_aliases[p.id] ?? const []).any(
+                    (a) => normalizeFoodText(a).contains(query),
+                  ))
                 p,
           ];
     return Scaffold(
@@ -133,9 +141,12 @@ class _PersonalProductPickerScreenState
                         title: Text(product.nameEs),
                         subtitle: Text(
                           '1 porción = ${formatMacroEs(product.servingGrams)} ${product.servingUnit} · '
-                          '${formatThousandsEs(presentKcal(kcal))} kcal',
+                          '${formatThousandsEs(presentKcal(kcal))} kcal'
+                          '${(_aliases[product.id] ?? const []).isEmpty ? '' : '\nTambién: ${_aliases[product.id]!.join(', ')}'}',
                           style: const TextStyle(color: KColors.textSecondary),
                         ),
+                        isThreeLine:
+                            (_aliases[product.id] ?? const []).isNotEmpty,
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () => Navigator.of(
                           context,

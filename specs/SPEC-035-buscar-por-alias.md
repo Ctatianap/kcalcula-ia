@@ -79,6 +79,18 @@ nombre exacto que le puse.
 ## Change Log
 - 2026-10-07: creación a pedido de la usuaria ("sigamos con eso"). Backlog T-036.
 - 2026-10-07: **Approved por la usuaria** ("aprobado"). Status → Implementing.
+- 2026-10-07: implementada: `search` con alias, "Buscar alimento" y "Elegir de mis productos" leen los
+  alias. 400/400.
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/features/review/search_by_alias_test.dart` › "AC1…" |
+| AC2 | ✅ | mismo archivo › "AC2…" ("pan" está en el nombre y en dos alias: una sola vez) |
+| AC3 | ✅ | mismo archivo › "AC3…" ("Buscar alimento") |
+| AC4 | ✅ | mismo archivo › "AC4…" (filtra por alias, oculta "Leche" y muestra "También: mi pan, pan integral") |
+| AC5 | ✅ | app: analyze sin avisos, 400/400; ningún test existente cambió |
+| Manual | ⏳ | Buscar "mi pan" en "Buscar alimento" en el teléfono |
 
 ## Review
 Informe del reviewer:

@@ -59,15 +59,17 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
 
   Future<void> _load() async {
     try {
-      final products = await ref
-          .read(storageRepositoryProvider)
-          .getAllPersonalProducts();
+      final storage = ref.read(storageRepositoryProvider);
+      final products = await storage.getAllPersonalProducts();
+      // SPEC-035 R2: también por los nombres con que la persona los llama.
+      final aliases = await storage.getPersonalProductAliases();
       if (!mounted) return;
       setState(() {
         _loadFailed = false;
         _resolver = FoodQueryResolver(
           catalog: ref.read(catalogRepositoryProvider),
           personalProducts: products,
+          aliases: aliases,
         );
       });
       _search();
