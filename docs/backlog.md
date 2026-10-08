@@ -281,6 +281,14 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     Strict (cambia la resolución de alimentos).
   dependencies: [T-033]
   spec_required: true
+- id: T-035
+  title: Conversión g → porciones en nutrition_core
+  objective: >
+    SPEC-032 (`label_confirmation_controller.dart`) y SPEC-033 (`ReviewController.portionsOf`) dividen
+    gramos entre la porción en la app para mostrar porciones. Moverlo a `nutrition_core` con casos de
+    referencia (hallazgo del reviewer de SPEC-033). Strict.
+  dependencies: [T-033]
+  spec_required: true
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
   # SPECs (Draft, 2026-10-04): specs/SPEC-021-foto-del-plato.md (Strict),

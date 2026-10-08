@@ -1,7 +1,7 @@
 # SPEC-033: Etiqueta y mis productos por ingrediente
 
 ## Status
-Implementing
+Draft
 Path: Standard (la persona elige a mano el alimento de un ingrediente, como en SPEC-018; reutiliza
 `extractLabel` y las reglas de `nutrition_core` sin cambiarlas; no cambia prompts, esquemas ni
 `catalog.db`)
@@ -50,8 +50,9 @@ volver a fotografiar todo cada día.
   (por ejemplo "250 ml", "2 porciones"), se usa. Si no (por ejemplo "1 scoop" sin porción "scoop"),
   se usa la cantidad elegida en "Confirmar etiqueta" (SPEC-032: porciones o g/ml) y el ingrediente
   queda destacado para revisar, como hoy.
-- R4. **Elegir de mis productos.** Abre la búsqueda de SPEC-018 mostrando **solo productos
-  personales** (todos, ordenados por nombre, sin escribir nada; filtra al escribir). Al elegir uno,
+- R4. **Elegir de mis productos.** Abre **"Mis productos"**, una pantalla con el estilo de "Buscar
+  alimento" (SPEC-018) que muestra **solo productos personales** (todos, ordenados por nombre, sin
+  escribir nada; filtra al escribir). La búsqueda de SPEC-018 no cambia. Al elegir uno,
   el ingrediente cambia a ese producto con la cantidad de R3. Sin productos guardados: "Aún no tienes
   productos guardados. Usa la etiqueta de un ingrediente para guardar el primero."
 - R5. **Cantidad en porciones por ingrediente.** Un ingrediente con producto personal muestra su
@@ -60,6 +61,11 @@ volver a fotografiar todo cada día.
 - R6. **Sin IA de más.** "Elegir de mis productos" no llama a ninguna función de IA. "Usar etiqueta"
   hace exactamente una llamada a `extractLabel` por foto. Ninguna acción vuelve a llamar a
   `parseMeal`.
+- R8. **Escribir los valores a mano.** En "Usar etiqueta", además de "Tomar foto" y "Elegir de la
+  galería", el botón **"Escribir los valores"** abre "Confirmar etiqueta" vacía (nombre = el del
+  ingrediente) **sin llamar a la IA**. Se valida igual (porción obligatoria, Atwater ±20 %) y se
+  guarda como producto personal con `source_ref` "Valores de la etiqueta escritos por el usuario el
+  {fecha}".
 - R7. **Navegación sin imports entre features.** El Detalle (feature `review`) abre la captura de
   etiqueta (feature `capture`) por ruta con nombre y recibe el resultado (el id del producto
   personal) al volver.
@@ -79,6 +85,9 @@ volver a fotografiar todo cada día.
 - AC5. "Elegir de mis productos" sin productos guardados → el mensaje de R4 `[widget]`.
 - AC6. Un ingrediente "No encontrado en la base" ("un caldo de costilla") también tiene las dos acciones
   y, al usar una etiqueta, pasa a encontrado `[widget]`.
+- AC8. "Usar etiqueta" → "Escribir los valores" → completar porción 30 g, 120 kcal, P 24, C 3, G 1,5
+  → "Usar en este ingrediente" → el ingrediente cambia al producto nuevo, `extractLabel` no se llama y
+  el `source_ref` dice "escritos por el usuario" `[widget]`.
 - AC7. Los tests existentes de revisión, búsqueda manual, captura y etiquetas siguen verdes; las
   expectativas que cambien (texto del botón final en "Confirmar etiqueta" cuando se abre desde un
   ingrediente) se listan en la Verificación `[widget + integration]`.
@@ -123,6 +132,13 @@ volver a fotografiar todo cada día.
 - Integration: AC1 (con `user.db` en memoria y `AiClient` fake), AC7.
 - Manual: el desayuno del ejemplo en el teléfono, con dos etiquetas y un producto ya guardado.
 
+## Known Limitations
+- Los productos personales no guardan si son g o ml: un producto en ml (la leche) se muestra en g en
+  el Detalle y en "Mis productos". Se resuelve en SPEC-034.
+- Pasar de g a porciones para mostrar (`ReviewController.portionsOf`) es una división en la app, igual
+  que en SPEC-032 (`label_confirmation_controller.dart`). Moverlas a `nutrition_core` es Strict: queda
+  como T-035.
+
 ## Out of Scope
 - Mandar texto y varias fotos juntas en una sola captura.
 - Pantalla "Mis productos" para ver, editar o borrar; nombres alternativos; prioridad de los productos
@@ -146,6 +162,11 @@ volver a fotografiar todo cada día.
   - Revisión: `ReviewController.replaceFood` (R3: la cantidad dicha si se pudo resolver; si no, la de
     "Confirmar etiqueta"), `setPortions` vía `resolveGrams` con la unidad `porcion` (invariante 3),
     `setShowInGrams`; menú ⋮ por ingrediente; "Mis productos".
+- 2026-10-07: la usuaria pide poder escribir los valores a mano en "Usar etiqueta" para ahorrar
+  tokens ("quisiera también poder en 'usar etiqueta' agregar los valores manualmente"). Cambios
+  propuestos: R8 y AC8 nuevos; R4 reescrito para la pantalla propia "Mis productos" (hallazgo del
+  reviewer); sección Known Limitations (ml mostrados en g; g → porciones en la app, T-035). Status →
+  Draft hasta que la usuaria apruebe.
 
 ## Verificación
 | AC | Estado | Evidencia |
