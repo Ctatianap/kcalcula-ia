@@ -1,7 +1,7 @@
 # SPEC-034: Mis productos
 
 ## Status
-Draft
+Implementing
 Path: Strict (cambia la resolución de alimentos: los productos personales y sus nombres
 alternativos tienen prioridad al reconocer el texto; skill `nutrition-data`). Migración de `user.db`.
 
@@ -141,6 +141,7 @@ llamo y que la app los reconozca cuando digo "mi pan" o "mi leche", para no eleg
 ## Change Log
 - 2026-10-07: creación a pedido de la usuaria ("sí, la opción 1 […] redacta la SPEC-034"). Backlog
   T-034.
+- 2026-10-07: **Approved por la usuaria** ("aprobada la SPEC-034"). Status → Implementing.
 
 ## Review
 Informe del reviewer:
