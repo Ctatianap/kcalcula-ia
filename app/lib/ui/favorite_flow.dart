@@ -5,11 +5,13 @@ import '../infra/food_resolution/meal_draft.dart';
 import '../infra/food_resolution/recent_meals.dart';
 import '../infra/storage/storage_providers.dart';
 import '../infra/storage/storage_repository.dart';
+import 'components/meal_actions.dart' show saveFavoriteAction;
+
+export 'components/meal_actions.dart' show saveFavoriteAction;
 
 /// SPEC-022 R2: "Guardar como favorita", compartido por "¿Qué comiste?",
 /// Hoy, Historial y el detalle de una comida guardada (las features no se
 /// importan entre sí).
-const saveFavoriteAction = 'Guardar como favorita';
 const removeFavoriteAction = 'Quitar de favoritas';
 const favoriteSavedMessage = 'Guardada en favoritas.';
 const favoriteDuplicateMessage = 'Ya la tienes en favoritas.';
@@ -21,9 +23,6 @@ const favoriteSaveErrorMessage =
 const favoriteRemoveErrorMessage =
     'No pude quitar la favorita. Intenta de nuevo.';
 const favoriteUnavailableMessage = 'Algún alimento ya no está en la base';
-
-/// SPEC-022 Edge Cases: nombre de hasta 40 caracteres.
-const favoriteNameMaxLength = 40;
 
 /// Pide el nombre (opcional; por defecto [defaultName]) y guarda [draft]
 /// como favorita. Muestra el resultado y devuelve `true` si se guardó.
@@ -83,9 +82,7 @@ Future<bool> removeFavoriteMeal(
 /// El nombre escrito (recortado) o [defaultName] si quedó vacío; `null` si
 /// se cancela.
 Future<String?> _askFavoriteName(BuildContext context, String defaultName) {
-  final fallback = defaultName.length > favoriteNameMaxLength
-      ? defaultName.substring(0, favoriteNameMaxLength)
-      : defaultName;
+  final fallback = clampFavoriteName(defaultName);
   return showDialog<String>(
     context: context,
     builder: (context) => _FavoriteNameDialog(defaultName: fallback),

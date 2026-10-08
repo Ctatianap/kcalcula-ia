@@ -73,16 +73,24 @@ class MealFlowHarness {
   final CatalogRepository catalog;
   final StorageRepository storage;
 
-  MealFlowHarness._(this.db, this.catalog) : storage = StorageRepository(db);
+  MealFlowHarness._(this.db, this.catalog, [StorageRepository? storage])
+    : storage = storage ?? StorageRepository(db);
 
   static Future<MealFlowHarness> pump(
     WidgetTester tester, {
     required AiClient aiClient,
     CatalogRepository? catalog,
     DateTime Function()? clock,
+
+    /// Un repositorio propio (p. ej. uno que falla), también para la app.
+    StorageRepository Function(AppDatabase db)? storage,
   }) async {
     final db = AppDatabase(NativeDatabase.memory());
-    final harness = MealFlowHarness._(db, catalog ?? buildFixtureCatalog());
+    final harness = MealFlowHarness._(
+      db,
+      catalog ?? buildFixtureCatalog(),
+      storage?.call(db),
+    );
     addTearDown(() async {
       await db.close();
       harness.catalog.close();
@@ -96,6 +104,8 @@ class MealFlowHarness {
           aiClientProvider.overrideWithValue(aiClient),
           crashReporterProvider.overrideWithValue(FakeCrashReporter()),
           if (clock != null) clockProvider.overrideWithValue(clock),
+          if (storage != null)
+            storageRepositoryProvider.overrideWithValue(harness.storage),
         ],
         child: const MyApp(),
       ),

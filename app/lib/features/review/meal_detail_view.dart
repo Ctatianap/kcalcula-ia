@@ -13,7 +13,6 @@ import '../../ui/components/meal_actions.dart';
 import '../../format/date_format_es.dart';
 import '../../format/text_es.dart';
 import '../../ui/number_input_es.dart';
-import '../../ui/favorite_flow.dart' show saveFavoriteAction;
 import '../../ui/theme.dart';
 import 'food_search_screen.dart';
 import 'personal_product_picker_screen.dart';

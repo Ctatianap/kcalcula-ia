@@ -104,6 +104,12 @@ que registré.
   - Tests de migración de SPEC-008/015/034 que comparaban la versión con 8 ahora esperan 9 (la versión
     vigente); no cambia lo que verifican.
   - app 488/488.
+- 2026-10-08: reviewer PASS (manual pendiente). MINOR corregidos: la exportación incluye la cantidad tal
+  como se expresó, la base y la confianza de cada alimento; las tarjetas de "¿Qué comiste?" tienen la
+  pista "Mantén presionado para más opciones" y la acción "Más opciones" para el lector de pantalla;
+  `saveFavoriteAction` en un solo lugar; el repositorio recorta el nombre a 40 caracteres y rechaza
+  nombre vacío o sin alimentos; tests de esos casos y de los errores de guardar y quitar (SPEC-009).
+  app 491/491.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -119,4 +125,8 @@ que registré.
 | Manual | ⏳ | Recorrido en el teléfono, pendiente |
 
 ## Review
-Informe del reviewer: pendiente.
+Revisión (2026-10-08, subagente `reviewer`, sobre `78aa1f8`): **PASS**. AC1–AC8 con evidencia; las
+favoritas no guardan valores nutricionales y se calculan con `nutrition_core` y el catálogo actual;
+fronteras entre features respetadas; migración desde v8 y versiones viejas; borrar todo y exportar;
+errores en español sin texto de SQLite; nada sale del dispositivo; `docs/privacy.md` y
+`docs/architecture.md` al día. MINOR corregidos (Change Log). Falta el recorrido manual en el teléfono.

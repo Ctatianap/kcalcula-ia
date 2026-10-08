@@ -25,6 +25,9 @@ String repeatLabelFor({required bool mealIsToday}) =>
     mealIsToday ? repeatNowAction : repeatTodayAction;
 const deleteMealAction = 'Eliminar comida';
 
+/// SPEC-022 R2.
+const saveFavoriteAction = 'Guardar como favorita';
+
 /// SPEC-037 R4.
 const mealCardHint = 'Toca para editar. Mantén presionado para más opciones';
 const moreOptionsAction = 'Más opciones';
@@ -104,8 +107,7 @@ Future<MealAction?> showMealActionsMenu(
           value: MealAction.saveFavorite,
           child: ListTile(
             leading: Icon(Icons.star_outline),
-            // SPEC-022 R2 (mismo texto que `saveFavoriteAction`).
-            title: Text('Guardar como favorita'),
+            title: Text(saveFavoriteAction),
           ),
         ),
       const PopupMenuItem(

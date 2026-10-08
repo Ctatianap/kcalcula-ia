@@ -99,6 +99,18 @@ enum SaveFavoriteResult { saved, duplicate, limitReached }
 /// SPEC-022 R2: hasta 10 favoritas.
 const maxFavoriteMeals = 10;
 
+/// SPEC-022 Edge Cases: nombre de hasta 40 caracteres.
+const favoriteNameMaxLength = 40;
+
+/// SPEC-022 Edge Cases: el nombre sin espacios sobrantes y de hasta
+/// [favoriteNameMaxLength] caracteres.
+String clampFavoriteName(String name) {
+  final trimmed = name.trim();
+  return trimmed.length > favoriteNameMaxLength
+      ? trimmed.substring(0, favoriteNameMaxLength).trimRight()
+      : trimmed;
+}
+
 /// SPEC-022: una favorita con sus alimentos.
 class FavoriteMealWithItems {
   final FavoriteMeal favorite;
@@ -431,11 +443,16 @@ class StorageRepository {
 
   /// SPEC-022 R2: guarda una favorita, salvo que ya haya
   /// [maxFavoriteMeals] o que ya exista una con los mismos alimentos y
-  /// gramos.
+  /// gramos. El nombre se recorta a [favoriteNameMaxLength]; vacío o sin
+  /// alimentos es un error de quien llama.
   Future<SaveFavoriteResult> saveFavoriteMeal({
     required String name,
     required List<FavoriteMealItemRecord> items,
   }) {
+    final cleanName = clampFavoriteName(name);
+    if (cleanName.isEmpty || items.isEmpty) {
+      throw ArgumentError('Una favorita necesita nombre y alimentos.');
+    }
     return _db.transaction(() async {
       final existing = await favoriteMeals();
       final key = mealKeyOf(
@@ -453,7 +470,7 @@ class StorageRepository {
       }
       final id = await _db
           .into(_db.favoriteMeals)
-          .insert(FavoriteMealsCompanion.insert(name: name));
+          .insert(FavoriteMealsCompanion.insert(name: cleanName));
       for (final (position, item) in items.indexed) {
         await _db
             .into(_db.favoriteMealItems)
@@ -631,6 +648,11 @@ class StorageRepository {
                       'foodId': i.foodId,
                       'mention': i.mention,
                       'grams': i.grams,
+                      'quantityInput': i.quantityInput,
+                      'unitInput': i.unitInput,
+                      'sizeInput': i.sizeInput,
+                      'quantityBasis': i.quantityBasis,
+                      'confidence': i.confidence,
                     },
                   )
                   .toList(),

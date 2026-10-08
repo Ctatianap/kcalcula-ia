@@ -194,6 +194,26 @@ void main() {
       expect(await repo.favoriteMeals(), hasLength(maxFavoriteMeals - 1));
     });
 
+    test(
+      'Edge: el nombre se recorta a 40 caracteres; vacío no se guarda',
+      () async {
+        await repo.saveFavoriteMeal(
+          name: '  ${'a' * 45}  ',
+          items: [_favItem('huevo', 100)],
+        );
+        expect((await repo.favoriteMeals()).single.favorite.name, 'a' * 40);
+        expect(
+          () =>
+              repo.saveFavoriteMeal(name: '   ', items: [_favItem('arepa', 1)]),
+          throwsArgumentError,
+        );
+        expect(
+          () => repo.saveFavoriteMeal(name: 'Sin alimentos', items: const []),
+          throwsArgumentError,
+        );
+      },
+    );
+
     test('R4: la favorita se abre con el catálogo actual, sin IA', () async {
       await repo.saveFavoriteMeal(
         name: 'Desayuno de siempre',
@@ -294,6 +314,11 @@ void main() {
       'foodId': 'huevo',
       'mention': 'huevo',
       'grams': 100.0,
+      'quantityInput': null,
+      'unitInput': null,
+      'sizeInput': null,
+      'quantityBasis': 'explicitWeight',
+      'confidence': 'altaPrecision',
     });
 
     await migrated.deleteAllUserData();

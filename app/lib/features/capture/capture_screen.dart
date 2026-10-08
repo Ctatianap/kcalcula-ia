@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:nutrition_core/nutrition_core.dart';
@@ -10,6 +11,8 @@ import '../../infra/food_resolution/food_query_resolver.dart';
 import '../../infra/food_resolution/recent_meals.dart';
 import '../../infra/storage/storage_providers.dart';
 import '../../ui/components/k_card.dart';
+import '../../ui/components/meal_actions.dart'
+    show longPressOnlyHint, moreOptionsAction;
 import '../../ui/components/privacy_note.dart';
 import '../../ui/favorite_flow.dart';
 import '../../ui/theme.dart';
@@ -400,31 +403,40 @@ class _QuickMealSection extends StatelessWidget {
             // Material propio: si no, la tarjeta tapa el efecto del toque.
             child: Material(
               type: MaterialType.transparency,
-              child: ListTile(
-                key: Key('$keyPrefix-$i'),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+              // SPEC-022: la acción de favorita también para el lector de
+              // pantalla (como las tarjetas de SPEC-037 R4).
+              child: Semantics(
+                hint: longPressOnlyHint,
+                customSemanticsActions: {
+                  const CustomSemanticsAction(label: moreOptionsAction): () =>
+                      _showMenu(context, entry),
+                },
+                child: ListTile(
+                  key: Key('$keyPrefix-$i'),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  leading: Icon(icon, color: KColors.accent),
+                  title: Text(entry.name),
+                  // SPEC-022 R4: no se abre si algún alimento ya no existe.
+                  subtitle: entry.meal == null
+                      ? const Text(
+                          favoriteUnavailableMessage,
+                          style: TextStyle(color: KColors.textSecondary),
+                        )
+                      : null,
+                  trailing: entry.meal == null
+                      ? null
+                      : Text(
+                          // "~" salvo con "Alta precisión" (regla del 15 %,
+                          // como el detalle).
+                          '${entry.meal!.confidence == ConfidenceLevel.altaPrecision ? '' : '~'}'
+                          '${formatThousandsEs(presentKcal(entry.meal!.kcal))} kcal',
+                          key: Key('$keyPrefix-kcal-$i'),
+                        ),
+                  onTap: entry.meal == null ? null : () => onOpen(entry.meal!),
+                  onLongPress: () => _showMenu(context, entry),
                 ),
-                leading: Icon(icon, color: KColors.accent),
-                title: Text(entry.name),
-                // SPEC-022 R4: no se abre si algún alimento ya no existe.
-                subtitle: entry.meal == null
-                    ? const Text(
-                        favoriteUnavailableMessage,
-                        style: TextStyle(color: KColors.textSecondary),
-                      )
-                    : null,
-                trailing: entry.meal == null
-                    ? null
-                    : Text(
-                        // "~" salvo con "Alta precisión" (regla del 15 %,
-                        // como el detalle).
-                        '${entry.meal!.confidence == ConfidenceLevel.altaPrecision ? '' : '~'}'
-                        '${formatThousandsEs(presentKcal(entry.meal!.kcal))} kcal',
-                        key: Key('$keyPrefix-kcal-$i'),
-                      ),
-                onTap: entry.meal == null ? null : () => onOpen(entry.meal!),
-                onLongPress: () => _showMenu(context, entry),
               ),
             ),
           ),

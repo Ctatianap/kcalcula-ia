@@ -2,6 +2,7 @@ import 'package:calorias_ia/infra/ai_client/ai_client.dart';
 import 'package:calorias_ia/infra/storage/storage_repository.dart';
 import 'package:calorias_ia/ui/favorite_flow.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../infra/food_resolution/frequent_and_favorite_meals_test.dart'
@@ -240,4 +241,84 @@ void main() {
     expect(find.text(favoriteLimitMessage), findsOneWidget);
     expect(await h.storage.favoriteMeals(), hasLength(maxFavoriteMeals));
   });
+
+  testWidgets(
+    'SPEC-009: si guardar o quitar falla, mensaje en español sin el texto de SQLite',
+    (tester) async {
+      final h = await MealFlowHarness.pump(
+        tester,
+        aiClient: _noAi(),
+        clock: () => _now,
+        storage: (db) => _FailingFavorites(db),
+      );
+      await recentMeal(h.storage, DateTime(2026, 10, 7, 8), [
+        recentItem('huevo', 'Huevo', 100),
+      ]);
+      await (h.storage as _FailingFavorites).saveFavoriteMealDirect('Mía');
+      await _openCapture(tester);
+
+      await _menu(tester, 'recent-meal-0', saveFavoriteAction);
+      await tester.tap(find.widgetWithText(FilledButton, 'Guardar'));
+      await tester.pumpAndSettle();
+      expect(find.text(favoriteSaveErrorMessage), findsOneWidget);
+      expect(find.textContaining('Sqlite'), findsNothing);
+
+      await _menu(tester, 'favorite-meal-0', removeFavoriteAction);
+      expect(find.text(favoriteRemoveErrorMessage), findsOneWidget);
+      expect(find.textContaining('Sqlite'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'Accesibilidad: las tarjetas tienen "Más opciones" para el lector',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+      final h = await MealFlowHarness.pump(
+        tester,
+        aiClient: _noAi(),
+        clock: () => _now,
+      );
+      await recentMeal(h.storage, DateTime(2026, 10, 7, 8), [
+        recentItem('huevo', 'Huevo', 100),
+      ]);
+      await _openCapture(tester);
+      final node = tester.getSemantics(find.byKey(const Key('recent-meal-0')));
+      final data = node.getSemanticsData();
+      expect(data.hint, 'Mantén presionado para más opciones');
+      final action = data.customSemanticsActionIds!
+          .map(CustomSemanticsAction.getAction)
+          .single;
+      expect(action!.label, 'Más opciones');
+      semantics.dispose();
+    },
+  );
+}
+
+/// Guardar y quitar favoritas fallan como fallaría SQLite.
+class _FailingFavorites extends StorageRepository {
+  _FailingFavorites(super.db);
+
+  @override
+  Future<SaveFavoriteResult> saveFavoriteMeal({
+    required String name,
+    required List<FavoriteMealItemRecord> items,
+  }) => Future.error(StateError('SqliteException: INSERT … huevo'));
+
+  @override
+  Future<void> deleteFavoriteMeal(int id) =>
+      Future.error(StateError('SqliteException: DELETE … $id'));
+
+  /// Para sembrar una favorita sin pasar por el método que falla.
+  Future<void> saveFavoriteMealDirect(String name) => super.saveFavoriteMeal(
+    name: name,
+    items: const [
+      FavoriteMealItemRecord(
+        foodId: 'arepa',
+        mention: 'arepa',
+        grams: 115,
+        quantityBasis: 'unitPortion',
+        confidence: 'buenaEstimacion',
+      ),
+    ],
+  );
 }
