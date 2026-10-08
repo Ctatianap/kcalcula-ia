@@ -180,8 +180,8 @@ void main() {
           .customSelect('PRAGMA user_version')
           .map((row) => row.read<int>('user_version'))
           .getSingle();
-      // La versión vigente (SPEC-015 la subió a 7).
-      expect(version, 7);
+      // La versión vigente (SPEC-034 la subió a 8).
+      expect(version, 8);
     });
 
     test('migrar desde la v4 de desarrollo (SPEC-008 v1) reemplaza las tablas de meta y conserva las comidas', () async {

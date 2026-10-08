@@ -15,6 +15,7 @@ import 'package:calorias_ia/infra/food_resolution/ingredient_label_result.dart';
 import 'package:calorias_ia/infra/storage/app_database.dart';
 import 'package:calorias_ia/infra/storage/storage_providers.dart';
 import 'package:calorias_ia/infra/storage/storage_repository.dart';
+import 'package:calorias_ia/ui/personal_products_texts.dart';
 import 'package:calorias_ia/ui/theme.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -31,10 +32,11 @@ Map<String, Object?> _label({
   required double protein,
   required double carbs,
   required double fat,
+  String unit = 'g',
 }) => {
   'schema_version': 'label_extraction.v1',
   'product_name': name,
-  'serving_size': {'quantity': servingGrams, 'unit': 'g'},
+  'serving_size': {'quantity': servingGrams, 'unit': unit},
   'per_serving': {
     'energy_kcal': kcal,
     'protein_g': protein,
@@ -59,6 +61,9 @@ Future<({AppDatabase db, _AiCalls calls})> _pump(
   required List<ParsedMealItemDto> items,
   Map<String, Object?>? labelResponse,
   Future<void>? labelDelay,
+
+  /// SPEC-034: nombres alternativos del primer producto.
+  List<String> firstProductAliases = const [],
   List<
         ({
           String name,
@@ -75,8 +80,8 @@ Future<({AppDatabase db, _AiCalls calls})> _pump(
   final db = AppDatabase(NativeDatabase.memory());
   addTearDown(db.close);
   final repo = StorageRepository(db);
-  for (final p in products) {
-    await tester.runAsync(
+  for (final (i, p) in products.indexed) {
+    final id = await tester.runAsync(
       () => repo.savePersonalProduct(
         nameEs: p.name,
         energyKcal100: p.kcal100,
@@ -87,6 +92,16 @@ Future<({AppDatabase db, _AiCalls calls})> _pump(
         sourceRef: 'test',
       ),
     );
+    if (i == 0 && firstProductAliases.isNotEmpty) {
+      await tester.runAsync(
+        () => repo.updatePersonalProduct(
+          id: id!,
+          nameEs: p.name,
+          servingUnit: 'g',
+          aliases: firstProductAliases,
+        ),
+      );
+    }
   }
   final calls = _AiCalls();
   final aiClient = AiClient(
@@ -563,6 +578,72 @@ void main() {
         products!.single.sourceRef,
         startsWith('Valores de la etiqueta escritos por el usuario el '),
       );
+    },
+  );
+
+  testWidgets(
+    'SPEC-034 AC7: una etiqueta de 200 ml se guarda en ml y se muestra en ml',
+    (tester) async {
+      final pumped = await _pump(
+        tester,
+        items: const [
+          ParsedMealItemDto(
+            mention: 'leche',
+            foodQuery: 'leche',
+            isVague: false,
+          ),
+        ],
+        labelResponse: _label(
+          name: 'Leche deslactosada',
+          servingGrams: 200,
+          kcal: 90,
+          protein: 6,
+          carbs: 10,
+          fat: 3,
+          unit: 'ml',
+        ),
+      );
+      await _useLabel(tester, 'leche');
+      expect(_quantityText(tester, 'leche'), '1 porción · 200 ml');
+      expect(find.text('Ver en ml'), findsOneWidget);
+      final products = await tester.runAsync(
+        () => pumped.db.select(pumped.db.personalProducts).get(),
+      );
+      expect(products!.single.servingUnit, 'ml');
+
+      await _openMenu(tester, 'leche', pickProductAction);
+      expect(find.text('1 porción = 200,0 ml · 90 kcal'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'SPEC-034 AC2: "mi pan" queda con el producto en el Detalle, sin "¿Cuál de estos?"',
+    (tester) async {
+      await _pump(
+        tester,
+        items: const [
+          ParsedMealItemDto(
+            mention: 'mi pan',
+            foodQuery: 'mi pan',
+            isVague: false,
+          ),
+        ],
+        products: const [
+          (
+            name: 'Pan tajado integral',
+            servingGrams: 27,
+            kcal100: 70 * 100 / 27,
+            protein100: 2.8 * 100 / 27,
+            carbs100: 15 * 100 / 27,
+            fat100: 0.2 * 100 / 27,
+          ),
+        ],
+        firstProductAliases: const ['mi pan'],
+      );
+      expect(find.text('Pan tajado integral'), findsWidgets);
+      expect(find.text('¿Cuál de estos?'), findsNothing);
+      expect(find.text('No encontrado en la base'), findsNothing);
+      expect(_quantityText(tester, 'mi pan'), '1 porción · 27 g');
     },
   );
 }

@@ -1621,6 +1621,18 @@ class $PersonalProductsTable extends PersonalProducts
     requiredDuringInsert: false,
     defaultValue: currentDateAndTime,
   );
+  static const VerificationMeta _servingUnitMeta = const VerificationMeta(
+    'servingUnit',
+  );
+  @override
+  late final GeneratedColumn<String> servingUnit = GeneratedColumn<String>(
+    'serving_unit',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('g'),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1636,6 +1648,7 @@ class $PersonalProductsTable extends PersonalProducts
     densityGPerMl,
     sourceRef,
     createdAt,
+    servingUnit,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1753,6 +1766,15 @@ class $PersonalProductsTable extends PersonalProducts
         createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
       );
     }
+    if (data.containsKey('serving_unit')) {
+      context.handle(
+        _servingUnitMeta,
+        servingUnit.isAcceptableOrUnknown(
+          data['serving_unit']!,
+          _servingUnitMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1814,6 +1836,10 @@ class $PersonalProductsTable extends PersonalProducts
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
       )!,
+      servingUnit: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}serving_unit'],
+      )!,
     );
   }
 
@@ -1840,6 +1866,9 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
   final double? densityGPerMl;
   final String sourceRef;
   final DateTime createdAt;
+
+  /// SPEC-034 R5: "g" o "ml", la unidad de la porción de la etiqueta.
+  final String servingUnit;
   const PersonalProduct({
     required this.id,
     required this.nameEs,
@@ -1854,6 +1883,7 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
     this.densityGPerMl,
     required this.sourceRef,
     required this.createdAt,
+    required this.servingUnit,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1879,6 +1909,7 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
     }
     map['source_ref'] = Variable<String>(sourceRef);
     map['created_at'] = Variable<DateTime>(createdAt);
+    map['serving_unit'] = Variable<String>(servingUnit);
     return map;
   }
 
@@ -1905,6 +1936,7 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
           : Value(densityGPerMl),
       sourceRef: Value(sourceRef),
       createdAt: Value(createdAt),
+      servingUnit: Value(servingUnit),
     );
   }
 
@@ -1927,6 +1959,7 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
       densityGPerMl: serializer.fromJson<double?>(json['densityGPerMl']),
       sourceRef: serializer.fromJson<String>(json['sourceRef']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      servingUnit: serializer.fromJson<String>(json['servingUnit']),
     );
   }
   @override
@@ -1946,6 +1979,7 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
       'densityGPerMl': serializer.toJson<double?>(densityGPerMl),
       'sourceRef': serializer.toJson<String>(sourceRef),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'servingUnit': serializer.toJson<String>(servingUnit),
     };
   }
 
@@ -1963,6 +1997,7 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
     Value<double?> densityGPerMl = const Value.absent(),
     String? sourceRef,
     DateTime? createdAt,
+    String? servingUnit,
   }) => PersonalProduct(
     id: id ?? this.id,
     nameEs: nameEs ?? this.nameEs,
@@ -1979,6 +2014,7 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
         : this.densityGPerMl,
     sourceRef: sourceRef ?? this.sourceRef,
     createdAt: createdAt ?? this.createdAt,
+    servingUnit: servingUnit ?? this.servingUnit,
   );
   PersonalProduct copyWithCompanion(PersonalProductsCompanion data) {
     return PersonalProduct(
@@ -2005,6 +2041,9 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
           : this.densityGPerMl,
       sourceRef: data.sourceRef.present ? data.sourceRef.value : this.sourceRef,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      servingUnit: data.servingUnit.present
+          ? data.servingUnit.value
+          : this.servingUnit,
     );
   }
 
@@ -2023,7 +2062,8 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
           ..write('servingGrams: $servingGrams, ')
           ..write('densityGPerMl: $densityGPerMl, ')
           ..write('sourceRef: $sourceRef, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('servingUnit: $servingUnit')
           ..write(')'))
         .toString();
   }
@@ -2043,6 +2083,7 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
     densityGPerMl,
     sourceRef,
     createdAt,
+    servingUnit,
   );
   @override
   bool operator ==(Object other) =>
@@ -2060,7 +2101,8 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
           other.servingGrams == this.servingGrams &&
           other.densityGPerMl == this.densityGPerMl &&
           other.sourceRef == this.sourceRef &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.servingUnit == this.servingUnit);
 }
 
 class PersonalProductsCompanion extends UpdateCompanion<PersonalProduct> {
@@ -2077,6 +2119,7 @@ class PersonalProductsCompanion extends UpdateCompanion<PersonalProduct> {
   final Value<double?> densityGPerMl;
   final Value<String> sourceRef;
   final Value<DateTime> createdAt;
+  final Value<String> servingUnit;
   const PersonalProductsCompanion({
     this.id = const Value.absent(),
     this.nameEs = const Value.absent(),
@@ -2091,6 +2134,7 @@ class PersonalProductsCompanion extends UpdateCompanion<PersonalProduct> {
     this.densityGPerMl = const Value.absent(),
     this.sourceRef = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.servingUnit = const Value.absent(),
   });
   PersonalProductsCompanion.insert({
     this.id = const Value.absent(),
@@ -2106,6 +2150,7 @@ class PersonalProductsCompanion extends UpdateCompanion<PersonalProduct> {
     this.densityGPerMl = const Value.absent(),
     required String sourceRef,
     this.createdAt = const Value.absent(),
+    this.servingUnit = const Value.absent(),
   }) : nameEs = Value(nameEs),
        energyKcal100 = Value(energyKcal100),
        proteinG100 = Value(proteinG100),
@@ -2127,6 +2172,7 @@ class PersonalProductsCompanion extends UpdateCompanion<PersonalProduct> {
     Expression<double>? densityGPerMl,
     Expression<String>? sourceRef,
     Expression<DateTime>? createdAt,
+    Expression<String>? servingUnit,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2142,6 +2188,7 @@ class PersonalProductsCompanion extends UpdateCompanion<PersonalProduct> {
       if (densityGPerMl != null) 'density_g_per_ml': densityGPerMl,
       if (sourceRef != null) 'source_ref': sourceRef,
       if (createdAt != null) 'created_at': createdAt,
+      if (servingUnit != null) 'serving_unit': servingUnit,
     });
   }
 
@@ -2159,6 +2206,7 @@ class PersonalProductsCompanion extends UpdateCompanion<PersonalProduct> {
     Value<double?>? densityGPerMl,
     Value<String>? sourceRef,
     Value<DateTime>? createdAt,
+    Value<String>? servingUnit,
   }) {
     return PersonalProductsCompanion(
       id: id ?? this.id,
@@ -2174,6 +2222,7 @@ class PersonalProductsCompanion extends UpdateCompanion<PersonalProduct> {
       densityGPerMl: densityGPerMl ?? this.densityGPerMl,
       sourceRef: sourceRef ?? this.sourceRef,
       createdAt: createdAt ?? this.createdAt,
+      servingUnit: servingUnit ?? this.servingUnit,
     );
   }
 
@@ -2219,6 +2268,9 @@ class PersonalProductsCompanion extends UpdateCompanion<PersonalProduct> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (servingUnit.present) {
+      map['serving_unit'] = Variable<String>(servingUnit.value);
+    }
     return map;
   }
 
@@ -2237,7 +2289,264 @@ class PersonalProductsCompanion extends UpdateCompanion<PersonalProduct> {
           ..write('servingGrams: $servingGrams, ')
           ..write('densityGPerMl: $densityGPerMl, ')
           ..write('sourceRef: $sourceRef, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('servingUnit: $servingUnit')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PersonalProductAliasesTable extends PersonalProductAliases
+    with TableInfo<$PersonalProductAliasesTable, PersonalProductAliase> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PersonalProductAliasesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _productIdMeta = const VerificationMeta(
+    'productId',
+  );
+  @override
+  late final GeneratedColumn<int> productId = GeneratedColumn<int>(
+    'product_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES personal_products (id)',
+    ),
+  );
+  static const VerificationMeta _termMeta = const VerificationMeta('term');
+  @override
+  late final GeneratedColumn<String> term = GeneratedColumn<String>(
+    'term',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, productId, term];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'personal_product_aliases';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PersonalProductAliase> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('product_id')) {
+      context.handle(
+        _productIdMeta,
+        productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_productIdMeta);
+    }
+    if (data.containsKey('term')) {
+      context.handle(
+        _termMeta,
+        term.isAcceptableOrUnknown(data['term']!, _termMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_termMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PersonalProductAliase map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PersonalProductAliase(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      productId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}product_id'],
+      )!,
+      term: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}term'],
+      )!,
+    );
+  }
+
+  @override
+  $PersonalProductAliasesTable createAlias(String alias) {
+    return $PersonalProductAliasesTable(attachedDatabase, alias);
+  }
+}
+
+class PersonalProductAliase extends DataClass
+    implements Insertable<PersonalProductAliase> {
+  final int id;
+  final int productId;
+  final String term;
+  const PersonalProductAliase({
+    required this.id,
+    required this.productId,
+    required this.term,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['product_id'] = Variable<int>(productId);
+    map['term'] = Variable<String>(term);
+    return map;
+  }
+
+  PersonalProductAliasesCompanion toCompanion(bool nullToAbsent) {
+    return PersonalProductAliasesCompanion(
+      id: Value(id),
+      productId: Value(productId),
+      term: Value(term),
+    );
+  }
+
+  factory PersonalProductAliase.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PersonalProductAliase(
+      id: serializer.fromJson<int>(json['id']),
+      productId: serializer.fromJson<int>(json['productId']),
+      term: serializer.fromJson<String>(json['term']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'productId': serializer.toJson<int>(productId),
+      'term': serializer.toJson<String>(term),
+    };
+  }
+
+  PersonalProductAliase copyWith({int? id, int? productId, String? term}) =>
+      PersonalProductAliase(
+        id: id ?? this.id,
+        productId: productId ?? this.productId,
+        term: term ?? this.term,
+      );
+  PersonalProductAliase copyWithCompanion(
+    PersonalProductAliasesCompanion data,
+  ) {
+    return PersonalProductAliase(
+      id: data.id.present ? data.id.value : this.id,
+      productId: data.productId.present ? data.productId.value : this.productId,
+      term: data.term.present ? data.term.value : this.term,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PersonalProductAliase(')
+          ..write('id: $id, ')
+          ..write('productId: $productId, ')
+          ..write('term: $term')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, productId, term);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PersonalProductAliase &&
+          other.id == this.id &&
+          other.productId == this.productId &&
+          other.term == this.term);
+}
+
+class PersonalProductAliasesCompanion
+    extends UpdateCompanion<PersonalProductAliase> {
+  final Value<int> id;
+  final Value<int> productId;
+  final Value<String> term;
+  const PersonalProductAliasesCompanion({
+    this.id = const Value.absent(),
+    this.productId = const Value.absent(),
+    this.term = const Value.absent(),
+  });
+  PersonalProductAliasesCompanion.insert({
+    this.id = const Value.absent(),
+    required int productId,
+    required String term,
+  }) : productId = Value(productId),
+       term = Value(term);
+  static Insertable<PersonalProductAliase> custom({
+    Expression<int>? id,
+    Expression<int>? productId,
+    Expression<String>? term,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (productId != null) 'product_id': productId,
+      if (term != null) 'term': term,
+    });
+  }
+
+  PersonalProductAliasesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? productId,
+    Value<String>? term,
+  }) {
+    return PersonalProductAliasesCompanion(
+      id: id ?? this.id,
+      productId: productId ?? this.productId,
+      term: term ?? this.term,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (productId.present) {
+      map['product_id'] = Variable<int>(productId.value);
+    }
+    if (term.present) {
+      map['term'] = Variable<String>(term.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PersonalProductAliasesCompanion(')
+          ..write('id: $id, ')
+          ..write('productId: $productId, ')
+          ..write('term: $term')
           ..write(')'))
         .toString();
   }
@@ -3915,6 +4224,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $PersonalProductsTable personalProducts = $PersonalProductsTable(
     this,
   );
+  late final $PersonalProductAliasesTable personalProductAliases =
+      $PersonalProductAliasesTable(this);
   late final $ConsentRecordTable consentRecord = $ConsentRecordTable(this);
   late final $UserProfileTable userProfile = $UserProfileTable(this);
   late final $NutritionGoalsTable nutritionGoals = $NutritionGoalsTable(this);
@@ -3927,6 +4238,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     meals,
     mealItems,
     personalProducts,
+    personalProductAliases,
     consentRecord,
     userProfile,
     nutritionGoals,
@@ -4841,6 +5153,7 @@ typedef $$PersonalProductsTableCreateCompanionBuilder =
       Value<double?> densityGPerMl,
       required String sourceRef,
       Value<DateTime> createdAt,
+      Value<String> servingUnit,
     });
 typedef $$PersonalProductsTableUpdateCompanionBuilder =
     PersonalProductsCompanion Function({
@@ -4857,7 +5170,44 @@ typedef $$PersonalProductsTableUpdateCompanionBuilder =
       Value<double?> densityGPerMl,
       Value<String> sourceRef,
       Value<DateTime> createdAt,
+      Value<String> servingUnit,
     });
+
+final class $$PersonalProductsTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $PersonalProductsTable, PersonalProduct> {
+  $$PersonalProductsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static MultiTypedResultKey<
+    $PersonalProductAliasesTable,
+    List<PersonalProductAliase>
+  >
+  _personalProductAliasesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.personalProductAliases,
+        aliasName:
+            'personal_products__id__personal_product_aliases__product_id',
+      );
+
+  $$PersonalProductAliasesTableProcessedTableManager
+  get personalProductAliasesRefs {
+    final manager = $$PersonalProductAliasesTableTableManager(
+      $_db,
+      $_db.personalProductAliases,
+    ).filter((f) => f.productId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _personalProductAliasesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
 
 class $$PersonalProductsTableFilterComposer
     extends Composer<_$AppDatabase, $PersonalProductsTable> {
@@ -4932,6 +5282,37 @@ class $$PersonalProductsTableFilterComposer
     column: $table.createdAt,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnFilters<String> get servingUnit => $composableBuilder(
+    column: $table.servingUnit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> personalProductAliasesRefs(
+    Expression<bool> Function($$PersonalProductAliasesTableFilterComposer f) f,
+  ) {
+    final $$PersonalProductAliasesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.personalProductAliases,
+          getReferencedColumn: (t) => t.productId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PersonalProductAliasesTableFilterComposer(
+                $db: $db,
+                $table: $db.personalProductAliases,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$PersonalProductsTableOrderingComposer
@@ -5007,6 +5388,11 @@ class $$PersonalProductsTableOrderingComposer
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get servingUnit => $composableBuilder(
+    column: $table.servingUnit,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$PersonalProductsTableAnnotationComposer
@@ -5066,6 +5452,37 @@ class $$PersonalProductsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get servingUnit => $composableBuilder(
+    column: $table.servingUnit,
+    builder: (column) => column,
+  );
+
+  Expression<T> personalProductAliasesRefs<T extends Object>(
+    Expression<T> Function($$PersonalProductAliasesTableAnnotationComposer a) f,
+  ) {
+    final $$PersonalProductAliasesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.personalProductAliases,
+          getReferencedColumn: (t) => t.productId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PersonalProductAliasesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.personalProductAliases,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$PersonalProductsTableTableManager
@@ -5079,16 +5496,9 @@ class $$PersonalProductsTableTableManager
           $$PersonalProductsTableAnnotationComposer,
           $$PersonalProductsTableCreateCompanionBuilder,
           $$PersonalProductsTableUpdateCompanionBuilder,
-          (
-            PersonalProduct,
-            BaseReferences<
-              _$AppDatabase,
-              $PersonalProductsTable,
-              PersonalProduct
-            >,
-          ),
+          (PersonalProduct, $$PersonalProductsTableReferences),
           PersonalProduct,
-          PrefetchHooks Function()
+          PrefetchHooks Function({bool personalProductAliasesRefs})
         > {
   $$PersonalProductsTableTableManager(
     _$AppDatabase db,
@@ -5118,6 +5528,7 @@ class $$PersonalProductsTableTableManager
                 Value<double?> densityGPerMl = const Value.absent(),
                 Value<String> sourceRef = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<String> servingUnit = const Value.absent(),
               }) => PersonalProductsCompanion(
                 id: id,
                 nameEs: nameEs,
@@ -5132,6 +5543,7 @@ class $$PersonalProductsTableTableManager
                 densityGPerMl: densityGPerMl,
                 sourceRef: sourceRef,
                 createdAt: createdAt,
+                servingUnit: servingUnit,
               ),
           createCompanionCallback:
               ({
@@ -5148,6 +5560,7 @@ class $$PersonalProductsTableTableManager
                 Value<double?> densityGPerMl = const Value.absent(),
                 required String sourceRef,
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<String> servingUnit = const Value.absent(),
               }) => PersonalProductsCompanion.insert(
                 id: id,
                 nameEs: nameEs,
@@ -5162,20 +5575,48 @@ class $$PersonalProductsTableTableManager
                 densityGPerMl: densityGPerMl,
                 sourceRef: sourceRef,
                 createdAt: createdAt,
+                servingUnit: servingUnit,
               ),
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
                   e.readTable<$PersonalProductsTable, PersonalProduct>(table),
-                  BaseReferences<
-                    _$AppDatabase,
-                    $PersonalProductsTable,
-                    PersonalProduct
-                  >(db, table, e),
+                  $$PersonalProductsTableReferences(db, table, e),
                 ),
               )
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({personalProductAliasesRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (personalProductAliasesRefs) db.personalProductAliases,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (personalProductAliasesRefs)
+                    await $_getPrefetchedData<
+                      PersonalProduct,
+                      $PersonalProductsTable,
+                      PersonalProductAliase
+                    >(
+                      currentTable: table,
+                      referencedTable: $$PersonalProductsTableReferences
+                          ._personalProductAliasesRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$PersonalProductsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).personalProductAliasesRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.productId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
         ),
       );
 }
@@ -5190,12 +5631,306 @@ typedef $$PersonalProductsTableProcessedTableManager =
       $$PersonalProductsTableAnnotationComposer,
       $$PersonalProductsTableCreateCompanionBuilder,
       $$PersonalProductsTableUpdateCompanionBuilder,
-      (
-        PersonalProduct,
-        BaseReferences<_$AppDatabase, $PersonalProductsTable, PersonalProduct>,
-      ),
+      (PersonalProduct, $$PersonalProductsTableReferences),
       PersonalProduct,
-      PrefetchHooks Function()
+      PrefetchHooks Function({bool personalProductAliasesRefs})
+    >;
+typedef $$PersonalProductAliasesTableCreateCompanionBuilder =
+    PersonalProductAliasesCompanion Function({
+      Value<int> id,
+      required int productId,
+      required String term,
+    });
+typedef $$PersonalProductAliasesTableUpdateCompanionBuilder =
+    PersonalProductAliasesCompanion Function({
+      Value<int> id,
+      Value<int> productId,
+      Value<String> term,
+    });
+
+final class $$PersonalProductAliasesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $PersonalProductAliasesTable,
+          PersonalProductAliase
+        > {
+  $$PersonalProductAliasesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $PersonalProductsTable _productIdTable(_$AppDatabase db) =>
+      db.personalProducts.createAlias(
+        'personal_product_aliases__product_id__personal_products__id',
+      );
+
+  $$PersonalProductsTableProcessedTableManager get productId {
+    final $_column = $_itemColumn<int>('product_id')!;
+
+    final manager = $$PersonalProductsTableTableManager(
+      $_db,
+      $_db.personalProducts,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_productIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$PersonalProductAliasesTableFilterComposer
+    extends Composer<_$AppDatabase, $PersonalProductAliasesTable> {
+  $$PersonalProductAliasesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get term => $composableBuilder(
+    column: $table.term,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$PersonalProductsTableFilterComposer get productId {
+    final $$PersonalProductsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.productId,
+      referencedTable: $db.personalProducts,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PersonalProductsTableFilterComposer(
+            $db: $db,
+            $table: $db.personalProducts,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PersonalProductAliasesTableOrderingComposer
+    extends Composer<_$AppDatabase, $PersonalProductAliasesTable> {
+  $$PersonalProductAliasesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get term => $composableBuilder(
+    column: $table.term,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$PersonalProductsTableOrderingComposer get productId {
+    final $$PersonalProductsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.productId,
+      referencedTable: $db.personalProducts,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PersonalProductsTableOrderingComposer(
+            $db: $db,
+            $table: $db.personalProducts,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PersonalProductAliasesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PersonalProductAliasesTable> {
+  $$PersonalProductAliasesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get term =>
+      $composableBuilder(column: $table.term, builder: (column) => column);
+
+  $$PersonalProductsTableAnnotationComposer get productId {
+    final $$PersonalProductsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.productId,
+      referencedTable: $db.personalProducts,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PersonalProductsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.personalProducts,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PersonalProductAliasesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PersonalProductAliasesTable,
+          PersonalProductAliase,
+          $$PersonalProductAliasesTableFilterComposer,
+          $$PersonalProductAliasesTableOrderingComposer,
+          $$PersonalProductAliasesTableAnnotationComposer,
+          $$PersonalProductAliasesTableCreateCompanionBuilder,
+          $$PersonalProductAliasesTableUpdateCompanionBuilder,
+          (PersonalProductAliase, $$PersonalProductAliasesTableReferences),
+          PersonalProductAliase,
+          PrefetchHooks Function({bool productId})
+        > {
+  $$PersonalProductAliasesTableTableManager(
+    _$AppDatabase db,
+    $PersonalProductAliasesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PersonalProductAliasesTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$PersonalProductAliasesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$PersonalProductAliasesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> productId = const Value.absent(),
+                Value<String> term = const Value.absent(),
+              }) => PersonalProductAliasesCompanion(
+                id: id,
+                productId: productId,
+                term: term,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int productId,
+                required String term,
+              }) => PersonalProductAliasesCompanion.insert(
+                id: id,
+                productId: productId,
+                term: term,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<
+                    $PersonalProductAliasesTable,
+                    PersonalProductAliase
+                  >(table),
+                  $$PersonalProductAliasesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({productId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (productId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.productId,
+                        referencedTable: $$PersonalProductAliasesTableReferences
+                            ._productIdTable(db),
+                        referencedColumn:
+                            $$PersonalProductAliasesTableReferences
+                                ._productIdTable(db)
+                                .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$PersonalProductAliasesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PersonalProductAliasesTable,
+      PersonalProductAliase,
+      $$PersonalProductAliasesTableFilterComposer,
+      $$PersonalProductAliasesTableOrderingComposer,
+      $$PersonalProductAliasesTableAnnotationComposer,
+      $$PersonalProductAliasesTableCreateCompanionBuilder,
+      $$PersonalProductAliasesTableUpdateCompanionBuilder,
+      (PersonalProductAliase, $$PersonalProductAliasesTableReferences),
+      PersonalProductAliase,
+      PrefetchHooks Function({bool productId})
     >;
 typedef $$ConsentRecordTableCreateCompanionBuilder =
     ConsentRecordCompanion Function({
@@ -6119,6 +6854,11 @@ class $AppDatabaseManager {
       $$MealItemsTableTableManager(_db, _db.mealItems);
   $$PersonalProductsTableTableManager get personalProducts =>
       $$PersonalProductsTableTableManager(_db, _db.personalProducts);
+  $$PersonalProductAliasesTableTableManager get personalProductAliases =>
+      $$PersonalProductAliasesTableTableManager(
+        _db,
+        _db.personalProductAliases,
+      );
   $$ConsentRecordTableTableManager get consentRecord =>
       $$ConsentRecordTableTableManager(_db, _db.consentRecord);
   $$UserProfileTableTableManager get userProfile =>

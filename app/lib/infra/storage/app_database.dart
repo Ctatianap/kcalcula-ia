@@ -62,6 +62,17 @@ class PersonalProducts extends Table {
   RealColumn get densityGPerMl => real().nullable()();
   TextColumn get sourceRef => text()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+
+  /// SPEC-034 R5: "g" o "ml", la unidad de la porción de la etiqueta.
+  TextColumn get servingUnit => text().withDefault(const Constant('g'))();
+}
+
+/// SPEC-034 R2/R4: nombres con que la persona llama a un producto personal
+/// ("mi pan"). Se comparan normalizados (`normalizeFoodText`).
+class PersonalProductAliases extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get productId => integer().references(PersonalProducts, #id)();
+  TextColumn get term => text()();
 }
 
 /// SPEC-006 R3/R8: fila única (id fijo en 0) con el consentimiento y la
@@ -133,6 +144,7 @@ class WeightLog extends Table {
     Meals,
     MealItems,
     PersonalProducts,
+    PersonalProductAliases,
     ConsentRecord,
     UserProfile,
     NutritionGoals,
@@ -143,7 +155,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -176,6 +188,23 @@ class AppDatabase extends _$AppDatabase {
       if (from < 7) {
         // SPEC-015 R1.
         await m.createTable(weightLog);
+      }
+      if (from < 8) {
+        // SPEC-034 R5/R6. Solo lo que falte: si `personal_products` se acaba
+        // de crear arriba (desde v1) ya trae la columna.
+        final columns = await m.database
+            .customSelect('PRAGMA table_info(personal_products)')
+            .get();
+        if (!columns.any((c) => c.read<String>('name') == 'serving_unit')) {
+          await m.addColumn(personalProducts, personalProducts.servingUnit);
+        }
+        final aliasTable = await m.database
+            .customSelect(
+              "SELECT name FROM sqlite_master WHERE type = 'table' "
+              "AND name = 'personal_product_aliases'",
+            )
+            .get();
+        if (aliasTable.isEmpty) await m.createTable(personalProductAliases);
       }
     },
   );

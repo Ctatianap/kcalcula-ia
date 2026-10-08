@@ -6,15 +6,16 @@ import '../../format/text_es.dart';
 import '../../infra/food_resolution/food_query_resolver.dart';
 import '../../infra/storage/app_database.dart' show PersonalProduct;
 import '../../infra/storage/storage_providers.dart';
+import '../../ui/personal_products_texts.dart';
 import '../../ui/theme.dart';
 
-const noPersonalProductsMessage =
-    'Aún no tienes productos guardados. Usa la etiqueta de un ingrediente '
-    'para guardar el primero.';
+/// Lo que devuelve "Mis productos": el producto como alimento y su unidad
+/// (SPEC-034 R5).
+typedef PickedPersonalProduct = ({FoodCatalogEntry food, String servingUnit});
 
 /// Abre "Mis productos" y devuelve el producto elegido (o `null`).
-Future<FoodCatalogEntry?> pickPersonalProduct(BuildContext context) =>
-    Navigator.of(context).push<FoodCatalogEntry>(
+Future<PickedPersonalProduct?> pickPersonalProduct(BuildContext context) =>
+    Navigator.of(context).push<PickedPersonalProduct>(
       MaterialPageRoute(builder: (_) => const PersonalProductPickerScreen()),
     );
 
@@ -131,13 +132,14 @@ class _PersonalProductPickerScreenState
                         key: Key('personal-product-${product.id}'),
                         title: Text(product.nameEs),
                         subtitle: Text(
-                          '1 porción = ${formatMacroEs(product.servingGrams)} g · '
+                          '1 porción = ${formatMacroEs(product.servingGrams)} ${product.servingUnit} · '
                           '${formatThousandsEs(presentKcal(kcal))} kcal',
                           style: const TextStyle(color: KColors.textSecondary),
                         ),
                         trailing: const Icon(Icons.chevron_right),
-                        onTap: () => Navigator.of(context)
-                            .pop(personalProductToFoodCatalogEntry(product)),
+                        onTap: () => Navigator.of(
+                          context,
+                        ).pop((food: food, servingUnit: product.servingUnit)),
                       );
                     },
                   ),

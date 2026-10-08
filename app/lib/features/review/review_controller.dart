@@ -250,7 +250,11 @@ class ReviewController extends ChangeNotifier {
     FoodCatalogEntry food, {
     double? fallbackQuantity,
     String? fallbackUnit,
+
+    /// SPEC-034 R5: "g" o "ml" del producto elegido.
+    String? servingUnit,
   }) {
+    if (servingUnit != null) _servingUnits[food.id] = servingUnit;
     final parsed = _parsedOf(_items[index]);
     var rebuilt = _matchedItem(parsed, food);
     final saidQuantityResolved =
@@ -285,6 +289,17 @@ class ReviewController extends ChangeNotifier {
     }
     _items[index] = rebuilt;
     notifyListeners();
+  }
+
+  /// SPEC-034 R5: unidades de productos elegidos después de abrir el
+  /// Detalle (el resolver no los conoce).
+  final Map<String, String> _servingUnits = {};
+
+  /// SPEC-034 R5: "g" o "ml" para mostrar la cantidad de este ingrediente.
+  String unitOf(ReviewItem item) {
+    final food = item.food;
+    if (food == null) return 'g';
+    return _servingUnits[food.id] ?? _resolver.servingUnitOf(food.id);
   }
 
   /// SPEC-033 R5: gramos (o ml) de una porción de la etiqueta, solo para

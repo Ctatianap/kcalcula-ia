@@ -80,6 +80,7 @@ class _FlakyRepository extends StorageRepository {
     required double servingGrams,
     double? densityGPerMl,
     required String sourceRef,
+    String servingUnit = 'g',
   }) => _fails(failSaveProduct)
       ? Future.error(_sqliteError())
       : super.savePersonalProduct(
@@ -93,6 +94,7 @@ class _FlakyRepository extends StorageRepository {
           sodiumMg100: sodiumMg100,
           servingGrams: servingGrams,
           densityGPerMl: densityGPerMl,
+          servingUnit: servingUnit,
           sourceRef: sourceRef,
         );
 

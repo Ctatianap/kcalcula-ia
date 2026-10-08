@@ -140,6 +140,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               title: const Text('Mi objetivo'),
               onTap: () => Navigator.of(context).pushNamed(AppRoutes.objective),
             ),
+            // SPEC-034 R1.
+            ListTile(
+              leading: const Icon(Icons.inventory_2_outlined),
+              title: const Text('Mis productos'),
+              onTap: () =>
+                  Navigator.of(context).pushNamed(AppRoutes.myProducts),
+            ),
             ListTile(
               leading: const Icon(Icons.ios_share),
               title: const Text('Exportar mis datos'),
