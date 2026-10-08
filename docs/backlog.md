@@ -291,7 +291,8 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     pasa una instantánea a valores por 100 g. Moverlo a `nutrition_core` con casos de referencia
     (hallazgos del reviewer de SPEC-033 y SPEC-026). Strict.
   dependencies: [T-033]
-  spec_required: true
+  status: done  # SPEC-042
+  spec_required: true    # specs/SPEC-042-porciones-en-nutrition-core.md — Strict
 - id: T-036
   title: Buscar alimento también por los nombres alternativos de mis productos
   objective: >

@@ -140,16 +140,17 @@ class ReviewController extends ChangeNotifier {
   /// "Confirmar etiqueta": una conversión de la instantánea, no un dato
   /// nuevo.
   static FoodCatalogEntry _snapshotFood(MealItem item) {
-    final factor = item.grams > 0 ? 100 / item.grams : 0.0;
+    // SPEC-042: la conversión la hace nutrition_core; con 0 g, 0 como antes.
+    double per100(double value) => per100FromAmount(value, item.grams) ?? 0;
     return FoodCatalogEntry(
       id: 'snapshot:${item.id}',
       nameEs: item.nameSnapshot,
       sourceId: _snapshotSourceId,
       sourceRef: item.sourceRef,
-      energyKcal100g: item.energyKcal * factor,
-      proteinG100g: item.proteinG * factor,
-      carbsG100g: item.carbsG * factor,
-      fatG100g: item.fatG * factor,
+      energyKcal100g: per100(item.energyKcal),
+      proteinG100g: per100(item.proteinG),
+      carbsG100g: per100(item.carbsG),
+      fatG100g: per100(item.fatG),
       portions: const [],
     );
   }
@@ -418,7 +419,10 @@ class ReviewController extends ChangeNotifier {
   /// SPEC-033 R5: cuántas porciones de la etiqueta son los gramos actuales.
   static double? portionsOf(ReviewItem item) {
     final portionGrams = portionGramsOf(item);
-    return portionGrams == null ? null : item.grams / portionGrams;
+    // SPEC-042: g → porciones en nutrition_core.
+    return portionGrams == null
+        ? null
+        : portionsForAmount(item.grams, portionGrams);
   }
 
   /// SPEC-033 R5: cantidad en porciones de la etiqueta.

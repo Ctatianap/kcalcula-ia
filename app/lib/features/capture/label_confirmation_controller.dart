@@ -75,8 +75,9 @@ class LabelConfirmationController extends ChangeNotifier {
     final per100 = extraction.per100;
     final servingQty = extraction.servingSize?.quantity;
     if (per100 == null || servingQty == null) return null;
-    final factor = servingQty / 100;
-    double? scale(double? value) => value == null ? null : value * factor;
+    // SPEC-042: la conversión la hace nutrition_core.
+    double? scale(double? value) =>
+        value == null ? null : amountFromPer100(value, servingQty);
     return LabelNutrientSetDto(
       energyKcal: scale(per100.energyKcal),
       proteinG: scale(per100.proteinG),
@@ -141,7 +142,8 @@ class LabelConfirmationController extends ChangeNotifier {
   double get registeredQuantity {
     if (consumedUnit == ConsumedUnit.servingUnit) return consumedQuantity;
     if (!isValidServingGrams(servingQuantity)) return 0;
-    return portionsCount * servingQuantity!;
+    // SPEC-042: porciones → g/ml en nutrition_core.
+    return amountForPortions(portionsCount, servingQuantity!) ?? 0;
   }
 
   void setPortionsCount(double value) {
@@ -160,7 +162,10 @@ class LabelConfirmationController extends ChangeNotifier {
       consumedQuantity = registeredQuantity;
       if (portionsCount != 1) _consumedQuantityTouchedByUser = true;
     } else if (isValidServingGrams(servingQuantity)) {
-      portionsCount = consumedQuantity / servingQuantity!;
+      // SPEC-042: g/ml → porciones en nutrition_core.
+      portionsCount =
+          portionsForAmount(consumedQuantity, servingQuantity!) ??
+          portionsCount;
     }
     consumedUnit = unit;
     notifyListeners();
@@ -178,15 +183,19 @@ class LabelConfirmationController extends ChangeNotifier {
     double? sodiumMg,
   })
   _per100() {
-    final factor = 100 / servingQuantity!;
+    // SPEC-042: la conversión la hace nutrition_core. Solo se llama con
+    // `canSave` (porción válida y los 4 macros presentes).
+    final serving = servingQuantity!;
+    double per100(double value) => per100FromAmount(value, serving)!;
+    double? optional(double? value) => value == null ? null : per100(value);
     return (
-      energyKcal: energyKcal! * factor,
-      proteinG: proteinG! * factor,
-      carbsG: carbsG! * factor,
-      fatG: fatG! * factor,
-      fiberG: fiberG == null ? null : fiberG! * factor,
-      sugarG: sugarG == null ? null : sugarG! * factor,
-      sodiumMg: sodiumMg == null ? null : sodiumMg! * factor,
+      energyKcal: per100(energyKcal!),
+      proteinG: per100(proteinG!),
+      carbsG: per100(carbsG!),
+      fatG: per100(fatG!),
+      fiberG: optional(fiberG),
+      sugarG: optional(sugarG),
+      sodiumMg: optional(sodiumMg),
     );
   }
 
