@@ -1,7 +1,7 @@
 # SPEC-031: "¿Cuánto comiste?" sigue a la porción en pantalla
 
 ## Status
-Implementing
+Done
 Path: Standard (cambia la cantidad que ve la persona antes de registrar; no toca `nutrition_core`,
 la IA ni el catálogo)
 
@@ -92,6 +92,7 @@ para registrar lo que veo.
   `consumedQuantityTouchedByUser` sea falso; `_consumedText` deja el campo vacío si la cantidad es 0.
 - 2026-10-07: reviewer PASS; MINOR atendidos (ver Review). R4 aclarado sin cambiar su alcance. Falta la
   prueba manual: el teléfono se desconectó del PC.
+- 2026-10-07: prueba manual hecha por la usuaria ("sí"). Status → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -101,7 +102,7 @@ para registrar lo que veo.
 | AC3 | ✅ | mismo archivo › "SPEC-031 AC3…": campo vacío, "Falta: porción, cuánto comiste." y Guardar deshabilitado |
 | AC4 | ✅ | mismo archivo › "SPEC-031 AC4…": "45" se mantiene y se registra 45 |
 | AC5 | ✅ | app: analyze sin avisos, 345/345 (tras los MINOR del reviewer); ninguna expectativa existente cambió (la pantalla falsa de Revisar añade una línea con la cantidad; "Revisar (mock)" sigue igual). Sin el arreglo, AC1–AC3 fallan |
-| Manual | ⏳ | Cambiar la porción en el teléfono |
+| Manual | ✅ | 2026-10-07, la usuaria en su Motorola: al cambiar la porción, "¿Cuánto comiste?" cambia al mismo número ("sí"); con 45 escrito a mano, el campo se queda en 45 |
 
 ## Review
 Revisión (2026-10-07, subagente `reviewer`, sobre `f4b1253`): **PASS**. AC1–AC5 con evidencia; app
