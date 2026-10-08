@@ -117,7 +117,8 @@ void main() {
         .customSelect('PRAGMA user_version')
         .map((row) => row.read<int>('user_version'))
         .getSingle();
-    expect(version, 8);
+    // La versión vigente (SPEC-022 la subió a 9).
+    expect(version, v8.schemaVersion);
 
     await repo.updatePersonalProduct(
       id: id,

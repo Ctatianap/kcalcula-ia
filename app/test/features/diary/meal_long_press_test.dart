@@ -1,6 +1,7 @@
 import 'package:calorias_ia/app_routes.dart';
 import 'package:calorias_ia/features/diary/diary_screen.dart';
 import 'package:calorias_ia/features/history/history_screen.dart';
+import 'package:calorias_ia/features/review/review_screen.dart';
 import 'package:calorias_ia/infra/catalog/catalog_providers.dart';
 import 'package:calorias_ia/infra/clock.dart';
 import 'package:calorias_ia/infra/storage/app_database.dart';
@@ -8,6 +9,7 @@ import 'package:calorias_ia/infra/storage/storage_providers.dart';
 import 'package:calorias_ia/infra/storage/storage_repository.dart';
 import 'package:calorias_ia/ui/components/meal_actions.dart';
 import 'package:calorias_ia/ui/components/meal_card.dart';
+import 'package:calorias_ia/ui/favorite_flow.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
@@ -343,6 +345,103 @@ void main() {
       await _longPress(tester, 'Desayuno');
       expect(find.text(repeatNowAction), findsOneWidget);
       expect(find.text(repeatTodayAction), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'SPEC-022 AC8: en Hoy, mantener presionada → "Guardar como favorita" la guarda',
+    (tester) async {
+      final db = await _pump(
+        tester,
+        home: const DiaryScreen(),
+        seed: _todayTwoMeals,
+      );
+      await _longPress(tester, 'Desayuno');
+      await tester.tap(find.text(saveFavoriteAction));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('favorite-name')),
+        'Desayuno de siempre',
+      );
+      await tester.tap(find.widgetWithText(FilledButton, 'Guardar'));
+      await tester.pumpAndSettle();
+
+      expect(find.text(favoriteSavedMessage), findsOneWidget);
+      final favorites = await tester.runAsync(
+        () => StorageRepository(db).favoriteMeals(),
+      );
+      expect(favorites!.single.favorite.name, 'Desayuno de siempre');
+      expect(favorites.single.items.single.foodId, 'huevo');
+      expect(favorites.single.items.single.grams, 100);
+    },
+  );
+
+  testWidgets(
+    'SPEC-022 R2: con un alimento que ya no existe no ofrece "Guardar como favorita"',
+    (tester) async {
+      await _pump(
+        tester,
+        home: const DiaryScreen(),
+        seed: (repo) => repo.registerMeal(
+          eatenAt: DateTime(2026, 10, 8, 8),
+          mealType: 'desayuno',
+          confidence: 'altaPrecision',
+          catalogVersion: 'test-1',
+          items: const [
+            MealItemRecord(
+              mention: 'pan',
+              personalProductId: 999,
+              nameSnapshot: 'Pan',
+              grams: 50,
+              quantityBasis: 'label',
+              energyKcal: 130,
+              proteinG: 4.5,
+              carbsG: 24,
+              fatG: 1.5,
+              confidence: 'altaPrecision',
+              sourceRef: 'test',
+            ),
+          ],
+        ),
+      );
+      await _longPress(tester, 'Desayuno');
+      expect(find.text(saveFavoriteAction), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'SPEC-022 R2: el detalle de una comida guardada tiene "Guardar como favorita"',
+    (tester) async {
+      late int id;
+      final db = await _pump(
+        tester,
+        home: const SizedBox.shrink(),
+        seed: (repo) async =>
+            id = await _meal(repo, DateTime(2026, 10, 7, 8), 'desayuno', 143),
+      );
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            appDatabaseProvider.overrideWithValue(db),
+            catalogRepositoryProvider.overrideWithValue(buildFixtureCatalog()),
+            clockProvider.overrideWithValue(() => _now),
+          ],
+          child: MaterialApp(home: ReviewScreen(editMealId: id)),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final button = find.byKey(const Key('meal-detail-save-favorite'));
+      await tester.ensureVisible(button);
+      await tester.pumpAndSettle();
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+      // Sin nombre: los alimentos.
+      await tester.tap(find.widgetWithText(FilledButton, 'Guardar'));
+      await tester.pumpAndSettle();
+      final favorites = await tester.runAsync(
+        () => StorageRepository(db).favoriteMeals(),
+      );
+      expect(favorites!.single.favorite.name, 'Huevo');
     },
   );
 }

@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../app_routes.dart';
 import '../../infra/catalog/catalog_providers.dart';
+import '../../infra/clock.dart';
 import '../../infra/food_resolution/food_query_resolver.dart';
 import '../../infra/food_resolution/recent_meals.dart';
 import '../../infra/storage/storage_providers.dart';
 import '../../ui/components/k_card.dart';
+import '../../ui/components/meal_actions.dart'
+    show longPressOnlyHint, moreOptionsAction;
 import '../../ui/components/privacy_note.dart';
+import '../../ui/favorite_flow.dart';
 import '../../ui/theme.dart';
 import 'label_capture_controller.dart';
 import 'label_confirmation_screen.dart';
@@ -34,22 +39,54 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
   /// Edge case: un doble toque en "Analizar" no abre dos análisis.
   bool _analysisOpen = false;
 
-  /// SPEC-017: comidas recientes para repetir sin IA. Si la lectura falla,
-  /// la sección simplemente no aparece (escribir sigue funcionando).
-  late final Future<List<RecentMeal>> _recents = _loadRecents();
+  /// SPEC-017/022: favoritas, recientes y frecuentes para repetir sin IA.
+  /// Si la lectura falla, las secciones simplemente no aparecen (escribir
+  /// sigue funcionando).
+  late Future<QuickMeals> _quickMeals = _loadQuickMeals();
 
-  Future<List<RecentMeal>> _loadRecents() async {
+  static const QuickMeals _noQuickMeals = (
+    favorites: <FavoriteQuickMeal>[],
+    recents: <RecentMeal>[],
+    frequents: <RecentMeal>[],
+  );
+
+  Future<QuickMeals> _loadQuickMeals() async {
     try {
-      return await loadRecentMeals(
+      return await loadQuickMeals(
         ref.read(storageRepositoryProvider),
         (personalProducts) => FoodQueryResolver(
           catalog: ref.read(catalogRepositoryProvider),
           personalProducts: personalProducts,
         ),
+        now: ref.read(clockProvider)(),
       );
     } catch (_) {
-      return const [];
+      return _noQuickMeals;
     }
+  }
+
+  void _reloadQuickMeals() {
+    final next = _loadQuickMeals();
+    setState(() {
+      _quickMeals = next;
+    });
+  }
+
+  /// SPEC-022 R2: "Guardar como favorita" desde Recientes o Frecuentes.
+  Future<void> _saveFavorite(RecentMeal meal) async {
+    final saved = await saveMealAsFavorite(
+      context,
+      ref,
+      draft: meal.draft,
+      defaultName: meal.name,
+    );
+    if (saved && mounted) _reloadQuickMeals();
+  }
+
+  /// SPEC-022 R2: "Quitar de favoritas".
+  Future<void> _removeFavorite(FavoriteQuickMeal favorite) async {
+    final removed = await removeFavoriteMeal(context, ref, favorite.id);
+    if (removed && mounted) _reloadQuickMeals();
   }
 
   /// R3: abre el detalle con los alimentos y gramos ya resueltos.
@@ -155,13 +192,64 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
         _textField(isListening: false, enabled: !isAnalyzingLabel),
         const SizedBox(height: 12),
         _analyzeButton(canAnalyze),
-        FutureBuilder<List<RecentMeal>>(
-          future: _recents,
+        FutureBuilder<QuickMeals>(
+          future: _quickMeals,
           builder: (context, snapshot) {
-            final recents = snapshot.data ?? const <RecentMeal>[];
-            // R5: sin comidas previas, la sección no se muestra.
-            if (recents.isEmpty) return const SizedBox.shrink();
-            return _RecentMeals(recents: recents, onOpen: _openRecent);
+            final quick = snapshot.data ?? _noQuickMeals;
+            // SPEC-017 R5 / SPEC-022 R5: una sección vacía no se muestra.
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (quick.favorites.isNotEmpty)
+                  _QuickMealSection(
+                    title: 'Favoritas',
+                    keyPrefix: 'favorite-meal',
+                    icon: Icons.star,
+                    entries: [
+                      for (final f in quick.favorites)
+                        (
+                          name: f.name,
+                          meal: f.meal,
+                          menuAction: removeFavoriteAction,
+                          onMenu: () => _removeFavorite(f),
+                        ),
+                    ],
+                    onOpen: _openRecent,
+                  ),
+                if (quick.recents.isNotEmpty)
+                  _QuickMealSection(
+                    title: 'Recientes',
+                    keyPrefix: 'recent-meal',
+                    icon: Icons.history,
+                    entries: [
+                      for (final r in quick.recents)
+                        (
+                          name: r.name,
+                          meal: r,
+                          menuAction: saveFavoriteAction,
+                          onMenu: () => _saveFavorite(r),
+                        ),
+                    ],
+                    onOpen: _openRecent,
+                  ),
+                if (quick.frequents.isNotEmpty)
+                  _QuickMealSection(
+                    title: 'Frecuentes',
+                    keyPrefix: 'frequent-meal',
+                    icon: Icons.repeat,
+                    entries: [
+                      for (final r in quick.frequents)
+                        (
+                          name: r.name,
+                          meal: r,
+                          menuAction: saveFavoriteAction,
+                          onMenu: () => _saveFavorite(r),
+                        ),
+                    ],
+                    onOpen: _openRecent,
+                  ),
+              ],
+            );
           },
         ),
       ],
@@ -253,12 +341,49 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
   }
 }
 
-/// SPEC-017 R1/R2: hasta 5 comidas distintas, con sus kcal de hoy.
-class _RecentMeals extends StatelessWidget {
-  final List<RecentMeal> recents;
+/// SPEC-022: una tarjeta de Favoritas, Recientes o Frecuentes. [meal] es
+/// `null` si algún alimento ya no existe (R4).
+typedef _QuickMealEntry = ({
+  String name,
+  RecentMeal? meal,
+  String menuAction,
+  VoidCallback onMenu,
+});
+
+/// SPEC-017 R1/R2 / SPEC-022 R1/R2: hasta 5 (o 10 favoritas) comidas, con
+/// sus kcal de hoy. Mantener presionada abre la acción de favorita.
+class _QuickMealSection extends StatelessWidget {
+  final String title;
+  final String keyPrefix;
+  final IconData icon;
+  final List<_QuickMealEntry> entries;
   final ValueChanged<RecentMeal> onOpen;
 
-  const _RecentMeals({required this.recents, required this.onOpen});
+  const _QuickMealSection({
+    required this.title,
+    required this.keyPrefix,
+    required this.icon,
+    required this.entries,
+    required this.onOpen,
+  });
+
+  Future<void> _showMenu(BuildContext context, _QuickMealEntry entry) async {
+    final chosen = await showModalBottomSheet<bool>(
+      context: context,
+      builder: (context) => SafeArea(
+        child: ListTile(
+          leading: Icon(
+            entry.menuAction == removeFavoriteAction
+                ? Icons.star_border
+                : Icons.star_outline,
+          ),
+          title: Text(entry.menuAction),
+          onTap: () => Navigator.of(context).pop(true),
+        ),
+      ),
+    );
+    if (chosen ?? false) entry.onMenu();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -268,34 +393,50 @@ class _RecentMeals extends StatelessWidget {
         const SizedBox(height: 24),
         Semantics(
           header: true,
-          child: Text(
-            'Recientes',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          child: Text(title, style: Theme.of(context).textTheme.titleMedium),
         ),
         const SizedBox(height: 8),
-        for (final (i, recent) in recents.indexed) ...[
+        for (final (i, entry) in entries.indexed) ...[
           KCard(
             padding: EdgeInsets.zero,
             radius: 20,
             // Material propio: si no, la tarjeta tapa el efecto del toque.
             child: Material(
               type: MaterialType.transparency,
-              child: ListTile(
-                key: Key('recent-meal-$i'),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+              // SPEC-022: la acción de favorita también para el lector de
+              // pantalla (como las tarjetas de SPEC-037 R4).
+              child: Semantics(
+                hint: longPressOnlyHint,
+                customSemanticsActions: {
+                  const CustomSemanticsAction(label: moreOptionsAction): () =>
+                      _showMenu(context, entry),
+                },
+                child: ListTile(
+                  key: Key('$keyPrefix-$i'),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  leading: Icon(icon, color: KColors.accent),
+                  title: Text(entry.name),
+                  // SPEC-022 R4: no se abre si algún alimento ya no existe.
+                  subtitle: entry.meal == null
+                      ? const Text(
+                          favoriteUnavailableMessage,
+                          style: TextStyle(color: KColors.textSecondary),
+                        )
+                      : null,
+                  trailing: entry.meal == null
+                      ? null
+                      : Text(
+                          // "~" salvo con "Alta precisión" (regla del 15 %,
+                          // como el detalle).
+                          '${entry.meal!.confidence == ConfidenceLevel.altaPrecision ? '' : '~'}'
+                          '${formatThousandsEs(presentKcal(entry.meal!.kcal))} kcal',
+                          key: Key('$keyPrefix-kcal-$i'),
+                        ),
+                  onTap: entry.meal == null ? null : () => onOpen(entry.meal!),
+                  onLongPress: () => _showMenu(context, entry),
                 ),
-                leading: const Icon(Icons.history, color: KColors.accent),
-                title: Text(recent.name),
-                trailing: Text(
-                  // "~" salvo con "Alta precisión" (regla del 15 %, como el
-                  // detalle).
-                  '${recent.confidence == ConfidenceLevel.altaPrecision ? '' : '~'}'
-                  '${formatThousandsEs(presentKcal(recent.kcal))} kcal',
-                  key: Key('recent-meal-kcal-$i'),
-                ),
-                onTap: () => onOpen(recent),
               ),
             ),
           ),

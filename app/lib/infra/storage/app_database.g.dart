@@ -4216,6 +4216,918 @@ class WeightLogCompanion extends UpdateCompanion<WeightLogData> {
   }
 }
 
+class $FavoriteMealsTable extends FavoriteMeals
+    with TableInfo<$FavoriteMealsTable, FavoriteMeal> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FavoriteMealsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, name, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'favorite_meals';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<FavoriteMeal> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  FavoriteMeal map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FavoriteMeal(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $FavoriteMealsTable createAlias(String alias) {
+    return $FavoriteMealsTable(attachedDatabase, alias);
+  }
+}
+
+class FavoriteMeal extends DataClass implements Insertable<FavoriteMeal> {
+  final int id;
+  final String name;
+  final DateTime createdAt;
+  const FavoriteMeal({
+    required this.id,
+    required this.name,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  FavoriteMealsCompanion toCompanion(bool nullToAbsent) {
+    return FavoriteMealsCompanion(
+      id: Value(id),
+      name: Value(name),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory FavoriteMeal.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FavoriteMeal(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  FavoriteMeal copyWith({int? id, String? name, DateTime? createdAt}) =>
+      FavoriteMeal(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  FavoriteMeal copyWithCompanion(FavoriteMealsCompanion data) {
+    return FavoriteMeal(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FavoriteMeal(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FavoriteMeal &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.createdAt == this.createdAt);
+}
+
+class FavoriteMealsCompanion extends UpdateCompanion<FavoriteMeal> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<DateTime> createdAt;
+  const FavoriteMealsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  FavoriteMealsCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    this.createdAt = const Value.absent(),
+  }) : name = Value(name);
+  static Insertable<FavoriteMeal> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  FavoriteMealsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? name,
+    Value<DateTime>? createdAt,
+  }) {
+    return FavoriteMealsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FavoriteMealsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $FavoriteMealItemsTable extends FavoriteMealItems
+    with TableInfo<$FavoriteMealItemsTable, FavoriteMealItem> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FavoriteMealItemsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _favoriteIdMeta = const VerificationMeta(
+    'favoriteId',
+  );
+  @override
+  late final GeneratedColumn<int> favoriteId = GeneratedColumn<int>(
+    'favorite_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES favorite_meals (id)',
+    ),
+  );
+  static const VerificationMeta _positionMeta = const VerificationMeta(
+    'position',
+  );
+  @override
+  late final GeneratedColumn<int> position = GeneratedColumn<int>(
+    'position',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _foodIdMeta = const VerificationMeta('foodId');
+  @override
+  late final GeneratedColumn<String> foodId = GeneratedColumn<String>(
+    'food_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _mentionMeta = const VerificationMeta(
+    'mention',
+  );
+  @override
+  late final GeneratedColumn<String> mention = GeneratedColumn<String>(
+    'mention',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _gramsMeta = const VerificationMeta('grams');
+  @override
+  late final GeneratedColumn<double> grams = GeneratedColumn<double>(
+    'grams',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _quantityInputMeta = const VerificationMeta(
+    'quantityInput',
+  );
+  @override
+  late final GeneratedColumn<double> quantityInput = GeneratedColumn<double>(
+    'quantity_input',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _unitInputMeta = const VerificationMeta(
+    'unitInput',
+  );
+  @override
+  late final GeneratedColumn<String> unitInput = GeneratedColumn<String>(
+    'unit_input',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sizeInputMeta = const VerificationMeta(
+    'sizeInput',
+  );
+  @override
+  late final GeneratedColumn<String> sizeInput = GeneratedColumn<String>(
+    'size_input',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _quantityBasisMeta = const VerificationMeta(
+    'quantityBasis',
+  );
+  @override
+  late final GeneratedColumn<String> quantityBasis = GeneratedColumn<String>(
+    'quantity_basis',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _confidenceMeta = const VerificationMeta(
+    'confidence',
+  );
+  @override
+  late final GeneratedColumn<String> confidence = GeneratedColumn<String>(
+    'confidence',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    favoriteId,
+    position,
+    foodId,
+    mention,
+    grams,
+    quantityInput,
+    unitInput,
+    sizeInput,
+    quantityBasis,
+    confidence,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'favorite_meal_items';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<FavoriteMealItem> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('favorite_id')) {
+      context.handle(
+        _favoriteIdMeta,
+        favoriteId.isAcceptableOrUnknown(data['favorite_id']!, _favoriteIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_favoriteIdMeta);
+    }
+    if (data.containsKey('position')) {
+      context.handle(
+        _positionMeta,
+        position.isAcceptableOrUnknown(data['position']!, _positionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_positionMeta);
+    }
+    if (data.containsKey('food_id')) {
+      context.handle(
+        _foodIdMeta,
+        foodId.isAcceptableOrUnknown(data['food_id']!, _foodIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_foodIdMeta);
+    }
+    if (data.containsKey('mention')) {
+      context.handle(
+        _mentionMeta,
+        mention.isAcceptableOrUnknown(data['mention']!, _mentionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_mentionMeta);
+    }
+    if (data.containsKey('grams')) {
+      context.handle(
+        _gramsMeta,
+        grams.isAcceptableOrUnknown(data['grams']!, _gramsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_gramsMeta);
+    }
+    if (data.containsKey('quantity_input')) {
+      context.handle(
+        _quantityInputMeta,
+        quantityInput.isAcceptableOrUnknown(
+          data['quantity_input']!,
+          _quantityInputMeta,
+        ),
+      );
+    }
+    if (data.containsKey('unit_input')) {
+      context.handle(
+        _unitInputMeta,
+        unitInput.isAcceptableOrUnknown(data['unit_input']!, _unitInputMeta),
+      );
+    }
+    if (data.containsKey('size_input')) {
+      context.handle(
+        _sizeInputMeta,
+        sizeInput.isAcceptableOrUnknown(data['size_input']!, _sizeInputMeta),
+      );
+    }
+    if (data.containsKey('quantity_basis')) {
+      context.handle(
+        _quantityBasisMeta,
+        quantityBasis.isAcceptableOrUnknown(
+          data['quantity_basis']!,
+          _quantityBasisMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_quantityBasisMeta);
+    }
+    if (data.containsKey('confidence')) {
+      context.handle(
+        _confidenceMeta,
+        confidence.isAcceptableOrUnknown(data['confidence']!, _confidenceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_confidenceMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  FavoriteMealItem map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FavoriteMealItem(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      favoriteId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}favorite_id'],
+      )!,
+      position: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}position'],
+      )!,
+      foodId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}food_id'],
+      )!,
+      mention: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}mention'],
+      )!,
+      grams: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}grams'],
+      )!,
+      quantityInput: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}quantity_input'],
+      ),
+      unitInput: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unit_input'],
+      ),
+      sizeInput: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}size_input'],
+      ),
+      quantityBasis: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}quantity_basis'],
+      )!,
+      confidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}confidence'],
+      )!,
+    );
+  }
+
+  @override
+  $FavoriteMealItemsTable createAlias(String alias) {
+    return $FavoriteMealItemsTable(attachedDatabase, alias);
+  }
+}
+
+class FavoriteMealItem extends DataClass
+    implements Insertable<FavoriteMealItem> {
+  final int id;
+  final int favoriteId;
+  final int position;
+  final String foodId;
+  final String mention;
+  final double grams;
+  final double? quantityInput;
+  final String? unitInput;
+  final String? sizeInput;
+  final String quantityBasis;
+  final String confidence;
+  const FavoriteMealItem({
+    required this.id,
+    required this.favoriteId,
+    required this.position,
+    required this.foodId,
+    required this.mention,
+    required this.grams,
+    this.quantityInput,
+    this.unitInput,
+    this.sizeInput,
+    required this.quantityBasis,
+    required this.confidence,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['favorite_id'] = Variable<int>(favoriteId);
+    map['position'] = Variable<int>(position);
+    map['food_id'] = Variable<String>(foodId);
+    map['mention'] = Variable<String>(mention);
+    map['grams'] = Variable<double>(grams);
+    if (!nullToAbsent || quantityInput != null) {
+      map['quantity_input'] = Variable<double>(quantityInput);
+    }
+    if (!nullToAbsent || unitInput != null) {
+      map['unit_input'] = Variable<String>(unitInput);
+    }
+    if (!nullToAbsent || sizeInput != null) {
+      map['size_input'] = Variable<String>(sizeInput);
+    }
+    map['quantity_basis'] = Variable<String>(quantityBasis);
+    map['confidence'] = Variable<String>(confidence);
+    return map;
+  }
+
+  FavoriteMealItemsCompanion toCompanion(bool nullToAbsent) {
+    return FavoriteMealItemsCompanion(
+      id: Value(id),
+      favoriteId: Value(favoriteId),
+      position: Value(position),
+      foodId: Value(foodId),
+      mention: Value(mention),
+      grams: Value(grams),
+      quantityInput: quantityInput == null && nullToAbsent
+          ? const Value.absent()
+          : Value(quantityInput),
+      unitInput: unitInput == null && nullToAbsent
+          ? const Value.absent()
+          : Value(unitInput),
+      sizeInput: sizeInput == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sizeInput),
+      quantityBasis: Value(quantityBasis),
+      confidence: Value(confidence),
+    );
+  }
+
+  factory FavoriteMealItem.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FavoriteMealItem(
+      id: serializer.fromJson<int>(json['id']),
+      favoriteId: serializer.fromJson<int>(json['favoriteId']),
+      position: serializer.fromJson<int>(json['position']),
+      foodId: serializer.fromJson<String>(json['foodId']),
+      mention: serializer.fromJson<String>(json['mention']),
+      grams: serializer.fromJson<double>(json['grams']),
+      quantityInput: serializer.fromJson<double?>(json['quantityInput']),
+      unitInput: serializer.fromJson<String?>(json['unitInput']),
+      sizeInput: serializer.fromJson<String?>(json['sizeInput']),
+      quantityBasis: serializer.fromJson<String>(json['quantityBasis']),
+      confidence: serializer.fromJson<String>(json['confidence']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'favoriteId': serializer.toJson<int>(favoriteId),
+      'position': serializer.toJson<int>(position),
+      'foodId': serializer.toJson<String>(foodId),
+      'mention': serializer.toJson<String>(mention),
+      'grams': serializer.toJson<double>(grams),
+      'quantityInput': serializer.toJson<double?>(quantityInput),
+      'unitInput': serializer.toJson<String?>(unitInput),
+      'sizeInput': serializer.toJson<String?>(sizeInput),
+      'quantityBasis': serializer.toJson<String>(quantityBasis),
+      'confidence': serializer.toJson<String>(confidence),
+    };
+  }
+
+  FavoriteMealItem copyWith({
+    int? id,
+    int? favoriteId,
+    int? position,
+    String? foodId,
+    String? mention,
+    double? grams,
+    Value<double?> quantityInput = const Value.absent(),
+    Value<String?> unitInput = const Value.absent(),
+    Value<String?> sizeInput = const Value.absent(),
+    String? quantityBasis,
+    String? confidence,
+  }) => FavoriteMealItem(
+    id: id ?? this.id,
+    favoriteId: favoriteId ?? this.favoriteId,
+    position: position ?? this.position,
+    foodId: foodId ?? this.foodId,
+    mention: mention ?? this.mention,
+    grams: grams ?? this.grams,
+    quantityInput: quantityInput.present
+        ? quantityInput.value
+        : this.quantityInput,
+    unitInput: unitInput.present ? unitInput.value : this.unitInput,
+    sizeInput: sizeInput.present ? sizeInput.value : this.sizeInput,
+    quantityBasis: quantityBasis ?? this.quantityBasis,
+    confidence: confidence ?? this.confidence,
+  );
+  FavoriteMealItem copyWithCompanion(FavoriteMealItemsCompanion data) {
+    return FavoriteMealItem(
+      id: data.id.present ? data.id.value : this.id,
+      favoriteId: data.favoriteId.present
+          ? data.favoriteId.value
+          : this.favoriteId,
+      position: data.position.present ? data.position.value : this.position,
+      foodId: data.foodId.present ? data.foodId.value : this.foodId,
+      mention: data.mention.present ? data.mention.value : this.mention,
+      grams: data.grams.present ? data.grams.value : this.grams,
+      quantityInput: data.quantityInput.present
+          ? data.quantityInput.value
+          : this.quantityInput,
+      unitInput: data.unitInput.present ? data.unitInput.value : this.unitInput,
+      sizeInput: data.sizeInput.present ? data.sizeInput.value : this.sizeInput,
+      quantityBasis: data.quantityBasis.present
+          ? data.quantityBasis.value
+          : this.quantityBasis,
+      confidence: data.confidence.present
+          ? data.confidence.value
+          : this.confidence,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FavoriteMealItem(')
+          ..write('id: $id, ')
+          ..write('favoriteId: $favoriteId, ')
+          ..write('position: $position, ')
+          ..write('foodId: $foodId, ')
+          ..write('mention: $mention, ')
+          ..write('grams: $grams, ')
+          ..write('quantityInput: $quantityInput, ')
+          ..write('unitInput: $unitInput, ')
+          ..write('sizeInput: $sizeInput, ')
+          ..write('quantityBasis: $quantityBasis, ')
+          ..write('confidence: $confidence')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    favoriteId,
+    position,
+    foodId,
+    mention,
+    grams,
+    quantityInput,
+    unitInput,
+    sizeInput,
+    quantityBasis,
+    confidence,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FavoriteMealItem &&
+          other.id == this.id &&
+          other.favoriteId == this.favoriteId &&
+          other.position == this.position &&
+          other.foodId == this.foodId &&
+          other.mention == this.mention &&
+          other.grams == this.grams &&
+          other.quantityInput == this.quantityInput &&
+          other.unitInput == this.unitInput &&
+          other.sizeInput == this.sizeInput &&
+          other.quantityBasis == this.quantityBasis &&
+          other.confidence == this.confidence);
+}
+
+class FavoriteMealItemsCompanion extends UpdateCompanion<FavoriteMealItem> {
+  final Value<int> id;
+  final Value<int> favoriteId;
+  final Value<int> position;
+  final Value<String> foodId;
+  final Value<String> mention;
+  final Value<double> grams;
+  final Value<double?> quantityInput;
+  final Value<String?> unitInput;
+  final Value<String?> sizeInput;
+  final Value<String> quantityBasis;
+  final Value<String> confidence;
+  const FavoriteMealItemsCompanion({
+    this.id = const Value.absent(),
+    this.favoriteId = const Value.absent(),
+    this.position = const Value.absent(),
+    this.foodId = const Value.absent(),
+    this.mention = const Value.absent(),
+    this.grams = const Value.absent(),
+    this.quantityInput = const Value.absent(),
+    this.unitInput = const Value.absent(),
+    this.sizeInput = const Value.absent(),
+    this.quantityBasis = const Value.absent(),
+    this.confidence = const Value.absent(),
+  });
+  FavoriteMealItemsCompanion.insert({
+    this.id = const Value.absent(),
+    required int favoriteId,
+    required int position,
+    required String foodId,
+    required String mention,
+    required double grams,
+    this.quantityInput = const Value.absent(),
+    this.unitInput = const Value.absent(),
+    this.sizeInput = const Value.absent(),
+    required String quantityBasis,
+    required String confidence,
+  }) : favoriteId = Value(favoriteId),
+       position = Value(position),
+       foodId = Value(foodId),
+       mention = Value(mention),
+       grams = Value(grams),
+       quantityBasis = Value(quantityBasis),
+       confidence = Value(confidence);
+  static Insertable<FavoriteMealItem> custom({
+    Expression<int>? id,
+    Expression<int>? favoriteId,
+    Expression<int>? position,
+    Expression<String>? foodId,
+    Expression<String>? mention,
+    Expression<double>? grams,
+    Expression<double>? quantityInput,
+    Expression<String>? unitInput,
+    Expression<String>? sizeInput,
+    Expression<String>? quantityBasis,
+    Expression<String>? confidence,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (favoriteId != null) 'favorite_id': favoriteId,
+      if (position != null) 'position': position,
+      if (foodId != null) 'food_id': foodId,
+      if (mention != null) 'mention': mention,
+      if (grams != null) 'grams': grams,
+      if (quantityInput != null) 'quantity_input': quantityInput,
+      if (unitInput != null) 'unit_input': unitInput,
+      if (sizeInput != null) 'size_input': sizeInput,
+      if (quantityBasis != null) 'quantity_basis': quantityBasis,
+      if (confidence != null) 'confidence': confidence,
+    });
+  }
+
+  FavoriteMealItemsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? favoriteId,
+    Value<int>? position,
+    Value<String>? foodId,
+    Value<String>? mention,
+    Value<double>? grams,
+    Value<double?>? quantityInput,
+    Value<String?>? unitInput,
+    Value<String?>? sizeInput,
+    Value<String>? quantityBasis,
+    Value<String>? confidence,
+  }) {
+    return FavoriteMealItemsCompanion(
+      id: id ?? this.id,
+      favoriteId: favoriteId ?? this.favoriteId,
+      position: position ?? this.position,
+      foodId: foodId ?? this.foodId,
+      mention: mention ?? this.mention,
+      grams: grams ?? this.grams,
+      quantityInput: quantityInput ?? this.quantityInput,
+      unitInput: unitInput ?? this.unitInput,
+      sizeInput: sizeInput ?? this.sizeInput,
+      quantityBasis: quantityBasis ?? this.quantityBasis,
+      confidence: confidence ?? this.confidence,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (favoriteId.present) {
+      map['favorite_id'] = Variable<int>(favoriteId.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<int>(position.value);
+    }
+    if (foodId.present) {
+      map['food_id'] = Variable<String>(foodId.value);
+    }
+    if (mention.present) {
+      map['mention'] = Variable<String>(mention.value);
+    }
+    if (grams.present) {
+      map['grams'] = Variable<double>(grams.value);
+    }
+    if (quantityInput.present) {
+      map['quantity_input'] = Variable<double>(quantityInput.value);
+    }
+    if (unitInput.present) {
+      map['unit_input'] = Variable<String>(unitInput.value);
+    }
+    if (sizeInput.present) {
+      map['size_input'] = Variable<String>(sizeInput.value);
+    }
+    if (quantityBasis.present) {
+      map['quantity_basis'] = Variable<String>(quantityBasis.value);
+    }
+    if (confidence.present) {
+      map['confidence'] = Variable<String>(confidence.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FavoriteMealItemsCompanion(')
+          ..write('id: $id, ')
+          ..write('favoriteId: $favoriteId, ')
+          ..write('position: $position, ')
+          ..write('foodId: $foodId, ')
+          ..write('mention: $mention, ')
+          ..write('grams: $grams, ')
+          ..write('quantityInput: $quantityInput, ')
+          ..write('unitInput: $unitInput, ')
+          ..write('sizeInput: $sizeInput, ')
+          ..write('quantityBasis: $quantityBasis, ')
+          ..write('confidence: $confidence')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -4230,6 +5142,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $UserProfileTable userProfile = $UserProfileTable(this);
   late final $NutritionGoalsTable nutritionGoals = $NutritionGoalsTable(this);
   late final $WeightLogTable weightLog = $WeightLogTable(this);
+  late final $FavoriteMealsTable favoriteMeals = $FavoriteMealsTable(this);
+  late final $FavoriteMealItemsTable favoriteMealItems =
+      $FavoriteMealItemsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4243,6 +5158,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     userProfile,
     nutritionGoals,
     weightLog,
+    favoriteMeals,
+    favoriteMealItems,
   ];
 }
 
@@ -6844,6 +7761,717 @@ typedef $$WeightLogTableProcessedTableManager =
       WeightLogData,
       PrefetchHooks Function()
     >;
+typedef $$FavoriteMealsTableCreateCompanionBuilder =
+    FavoriteMealsCompanion Function({
+      Value<int> id,
+      required String name,
+      Value<DateTime> createdAt,
+    });
+typedef $$FavoriteMealsTableUpdateCompanionBuilder =
+    FavoriteMealsCompanion Function({
+      Value<int> id,
+      Value<String> name,
+      Value<DateTime> createdAt,
+    });
+
+final class $$FavoriteMealsTableReferences
+    extends BaseReferences<_$AppDatabase, $FavoriteMealsTable, FavoriteMeal> {
+  $$FavoriteMealsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static MultiTypedResultKey<$FavoriteMealItemsTable, List<FavoriteMealItem>>
+  _favoriteMealItemsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.favoriteMealItems,
+        aliasName: 'favorite_meals__id__favorite_meal_items__favorite_id',
+      );
+
+  $$FavoriteMealItemsTableProcessedTableManager get favoriteMealItemsRefs {
+    final manager = $$FavoriteMealItemsTableTableManager(
+      $_db,
+      $_db.favoriteMealItems,
+    ).filter((f) => f.favoriteId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _favoriteMealItemsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$FavoriteMealsTableFilterComposer
+    extends Composer<_$AppDatabase, $FavoriteMealsTable> {
+  $$FavoriteMealsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> favoriteMealItemsRefs(
+    Expression<bool> Function($$FavoriteMealItemsTableFilterComposer f) f,
+  ) {
+    final $$FavoriteMealItemsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.favoriteMealItems,
+      getReferencedColumn: (t) => t.favoriteId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FavoriteMealItemsTableFilterComposer(
+            $db: $db,
+            $table: $db.favoriteMealItems,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$FavoriteMealsTableOrderingComposer
+    extends Composer<_$AppDatabase, $FavoriteMealsTable> {
+  $$FavoriteMealsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$FavoriteMealsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FavoriteMealsTable> {
+  $$FavoriteMealsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  Expression<T> favoriteMealItemsRefs<T extends Object>(
+    Expression<T> Function($$FavoriteMealItemsTableAnnotationComposer a) f,
+  ) {
+    final $$FavoriteMealItemsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.favoriteMealItems,
+          getReferencedColumn: (t) => t.favoriteId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$FavoriteMealItemsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.favoriteMealItems,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$FavoriteMealsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FavoriteMealsTable,
+          FavoriteMeal,
+          $$FavoriteMealsTableFilterComposer,
+          $$FavoriteMealsTableOrderingComposer,
+          $$FavoriteMealsTableAnnotationComposer,
+          $$FavoriteMealsTableCreateCompanionBuilder,
+          $$FavoriteMealsTableUpdateCompanionBuilder,
+          (FavoriteMeal, $$FavoriteMealsTableReferences),
+          FavoriteMeal,
+          PrefetchHooks Function({bool favoriteMealItemsRefs})
+        > {
+  $$FavoriteMealsTableTableManager(_$AppDatabase db, $FavoriteMealsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FavoriteMealsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FavoriteMealsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FavoriteMealsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => FavoriteMealsCompanion(
+                id: id,
+                name: name,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String name,
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => FavoriteMealsCompanion.insert(
+                id: id,
+                name: name,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$FavoriteMealsTable, FavoriteMeal>(table),
+                  $$FavoriteMealsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({favoriteMealItemsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (favoriteMealItemsRefs) db.favoriteMealItems,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (favoriteMealItemsRefs)
+                    await $_getPrefetchedData<
+                      FavoriteMeal,
+                      $FavoriteMealsTable,
+                      FavoriteMealItem
+                    >(
+                      currentTable: table,
+                      referencedTable: $$FavoriteMealsTableReferences
+                          ._favoriteMealItemsRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$FavoriteMealsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).favoriteMealItemsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.favoriteId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$FavoriteMealsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FavoriteMealsTable,
+      FavoriteMeal,
+      $$FavoriteMealsTableFilterComposer,
+      $$FavoriteMealsTableOrderingComposer,
+      $$FavoriteMealsTableAnnotationComposer,
+      $$FavoriteMealsTableCreateCompanionBuilder,
+      $$FavoriteMealsTableUpdateCompanionBuilder,
+      (FavoriteMeal, $$FavoriteMealsTableReferences),
+      FavoriteMeal,
+      PrefetchHooks Function({bool favoriteMealItemsRefs})
+    >;
+typedef $$FavoriteMealItemsTableCreateCompanionBuilder =
+    FavoriteMealItemsCompanion Function({
+      Value<int> id,
+      required int favoriteId,
+      required int position,
+      required String foodId,
+      required String mention,
+      required double grams,
+      Value<double?> quantityInput,
+      Value<String?> unitInput,
+      Value<String?> sizeInput,
+      required String quantityBasis,
+      required String confidence,
+    });
+typedef $$FavoriteMealItemsTableUpdateCompanionBuilder =
+    FavoriteMealItemsCompanion Function({
+      Value<int> id,
+      Value<int> favoriteId,
+      Value<int> position,
+      Value<String> foodId,
+      Value<String> mention,
+      Value<double> grams,
+      Value<double?> quantityInput,
+      Value<String?> unitInput,
+      Value<String?> sizeInput,
+      Value<String> quantityBasis,
+      Value<String> confidence,
+    });
+
+final class $$FavoriteMealItemsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $FavoriteMealItemsTable,
+          FavoriteMealItem
+        > {
+  $$FavoriteMealItemsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $FavoriteMealsTable _favoriteIdTable(_$AppDatabase db) => db
+      .favoriteMeals
+      .createAlias('favorite_meal_items__favorite_id__favorite_meals__id');
+
+  $$FavoriteMealsTableProcessedTableManager get favoriteId {
+    final $_column = $_itemColumn<int>('favorite_id')!;
+
+    final manager = $$FavoriteMealsTableTableManager(
+      $_db,
+      $_db.favoriteMeals,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_favoriteIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$FavoriteMealItemsTableFilterComposer
+    extends Composer<_$AppDatabase, $FavoriteMealItemsTable> {
+  $$FavoriteMealItemsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get foodId => $composableBuilder(
+    column: $table.foodId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get mention => $composableBuilder(
+    column: $table.mention,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get grams => $composableBuilder(
+    column: $table.grams,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get quantityInput => $composableBuilder(
+    column: $table.quantityInput,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unitInput => $composableBuilder(
+    column: $table.unitInput,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sizeInput => $composableBuilder(
+    column: $table.sizeInput,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get quantityBasis => $composableBuilder(
+    column: $table.quantityBasis,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$FavoriteMealsTableFilterComposer get favoriteId {
+    final $$FavoriteMealsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.favoriteId,
+      referencedTable: $db.favoriteMeals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FavoriteMealsTableFilterComposer(
+            $db: $db,
+            $table: $db.favoriteMeals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$FavoriteMealItemsTableOrderingComposer
+    extends Composer<_$AppDatabase, $FavoriteMealItemsTable> {
+  $$FavoriteMealItemsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get foodId => $composableBuilder(
+    column: $table.foodId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get mention => $composableBuilder(
+    column: $table.mention,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get grams => $composableBuilder(
+    column: $table.grams,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get quantityInput => $composableBuilder(
+    column: $table.quantityInput,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unitInput => $composableBuilder(
+    column: $table.unitInput,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sizeInput => $composableBuilder(
+    column: $table.sizeInput,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get quantityBasis => $composableBuilder(
+    column: $table.quantityBasis,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$FavoriteMealsTableOrderingComposer get favoriteId {
+    final $$FavoriteMealsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.favoriteId,
+      referencedTable: $db.favoriteMeals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FavoriteMealsTableOrderingComposer(
+            $db: $db,
+            $table: $db.favoriteMeals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$FavoriteMealItemsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FavoriteMealItemsTable> {
+  $$FavoriteMealItemsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => column);
+
+  GeneratedColumn<String> get foodId =>
+      $composableBuilder(column: $table.foodId, builder: (column) => column);
+
+  GeneratedColumn<String> get mention =>
+      $composableBuilder(column: $table.mention, builder: (column) => column);
+
+  GeneratedColumn<double> get grams =>
+      $composableBuilder(column: $table.grams, builder: (column) => column);
+
+  GeneratedColumn<double> get quantityInput => $composableBuilder(
+    column: $table.quantityInput,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get unitInput =>
+      $composableBuilder(column: $table.unitInput, builder: (column) => column);
+
+  GeneratedColumn<String> get sizeInput =>
+      $composableBuilder(column: $table.sizeInput, builder: (column) => column);
+
+  GeneratedColumn<String> get quantityBasis => $composableBuilder(
+    column: $table.quantityBasis,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => column,
+  );
+
+  $$FavoriteMealsTableAnnotationComposer get favoriteId {
+    final $$FavoriteMealsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.favoriteId,
+      referencedTable: $db.favoriteMeals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FavoriteMealsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.favoriteMeals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$FavoriteMealItemsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FavoriteMealItemsTable,
+          FavoriteMealItem,
+          $$FavoriteMealItemsTableFilterComposer,
+          $$FavoriteMealItemsTableOrderingComposer,
+          $$FavoriteMealItemsTableAnnotationComposer,
+          $$FavoriteMealItemsTableCreateCompanionBuilder,
+          $$FavoriteMealItemsTableUpdateCompanionBuilder,
+          (FavoriteMealItem, $$FavoriteMealItemsTableReferences),
+          FavoriteMealItem,
+          PrefetchHooks Function({bool favoriteId})
+        > {
+  $$FavoriteMealItemsTableTableManager(
+    _$AppDatabase db,
+    $FavoriteMealItemsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FavoriteMealItemsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FavoriteMealItemsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FavoriteMealItemsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> favoriteId = const Value.absent(),
+                Value<int> position = const Value.absent(),
+                Value<String> foodId = const Value.absent(),
+                Value<String> mention = const Value.absent(),
+                Value<double> grams = const Value.absent(),
+                Value<double?> quantityInput = const Value.absent(),
+                Value<String?> unitInput = const Value.absent(),
+                Value<String?> sizeInput = const Value.absent(),
+                Value<String> quantityBasis = const Value.absent(),
+                Value<String> confidence = const Value.absent(),
+              }) => FavoriteMealItemsCompanion(
+                id: id,
+                favoriteId: favoriteId,
+                position: position,
+                foodId: foodId,
+                mention: mention,
+                grams: grams,
+                quantityInput: quantityInput,
+                unitInput: unitInput,
+                sizeInput: sizeInput,
+                quantityBasis: quantityBasis,
+                confidence: confidence,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int favoriteId,
+                required int position,
+                required String foodId,
+                required String mention,
+                required double grams,
+                Value<double?> quantityInput = const Value.absent(),
+                Value<String?> unitInput = const Value.absent(),
+                Value<String?> sizeInput = const Value.absent(),
+                required String quantityBasis,
+                required String confidence,
+              }) => FavoriteMealItemsCompanion.insert(
+                id: id,
+                favoriteId: favoriteId,
+                position: position,
+                foodId: foodId,
+                mention: mention,
+                grams: grams,
+                quantityInput: quantityInput,
+                unitInput: unitInput,
+                sizeInput: sizeInput,
+                quantityBasis: quantityBasis,
+                confidence: confidence,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$FavoriteMealItemsTable, FavoriteMealItem>(table),
+                  $$FavoriteMealItemsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({favoriteId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (favoriteId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.favoriteId,
+                        referencedTable: $$FavoriteMealItemsTableReferences
+                            ._favoriteIdTable(db),
+                        referencedColumn: $$FavoriteMealItemsTableReferences
+                            ._favoriteIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$FavoriteMealItemsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FavoriteMealItemsTable,
+      FavoriteMealItem,
+      $$FavoriteMealItemsTableFilterComposer,
+      $$FavoriteMealItemsTableOrderingComposer,
+      $$FavoriteMealItemsTableAnnotationComposer,
+      $$FavoriteMealItemsTableCreateCompanionBuilder,
+      $$FavoriteMealItemsTableUpdateCompanionBuilder,
+      (FavoriteMealItem, $$FavoriteMealItemsTableReferences),
+      FavoriteMealItem,
+      PrefetchHooks Function({bool favoriteId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -6867,4 +8495,8 @@ class $AppDatabaseManager {
       $$NutritionGoalsTableTableManager(_db, _db.nutritionGoals);
   $$WeightLogTableTableManager get weightLog =>
       $$WeightLogTableTableManager(_db, _db.weightLog);
+  $$FavoriteMealsTableTableManager get favoriteMeals =>
+      $$FavoriteMealsTableTableManager(_db, _db.favoriteMeals);
+  $$FavoriteMealItemsTableTableManager get favoriteMealItems =>
+      $$FavoriteMealItemsTableTableManager(_db, _db.favoriteMealItems);
 }

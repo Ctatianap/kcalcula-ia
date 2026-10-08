@@ -139,6 +139,31 @@ class WeightLog extends Table {
   Set<Column> get primaryKey => {day};
 }
 
+/// SPEC-022 R2/R3: comida favorita, con nombre, para repetirla sin IA.
+class FavoriteMeals extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+/// SPEC-022 R3: alimentos de una favorita. `foodId` es el id del catálogo o
+/// `personal:<id>` (SPEC-004), como en `MealDraft`; los valores
+/// nutricionales no se guardan: se calculan con el catálogo actual al
+/// abrirla (SPEC-017 R2).
+class FavoriteMealItems extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get favoriteId => integer().references(FavoriteMeals, #id)();
+  IntColumn get position => integer()();
+  TextColumn get foodId => text()();
+  TextColumn get mention => text()();
+  RealColumn get grams => real()();
+  RealColumn get quantityInput => real().nullable()();
+  TextColumn get unitInput => text().nullable()();
+  TextColumn get sizeInput => text().nullable()();
+  TextColumn get quantityBasis => text()();
+  TextColumn get confidence => text()();
+}
+
 @DriftDatabase(
   tables: [
     Meals,
@@ -149,13 +174,15 @@ class WeightLog extends Table {
     UserProfile,
     NutritionGoals,
     WeightLog,
+    FavoriteMeals,
+    FavoriteMealItems,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -205,6 +232,11 @@ class AppDatabase extends _$AppDatabase {
             )
             .get();
         if (aliasTable.isEmpty) await m.createTable(personalProductAliases);
+      }
+      if (from < 9) {
+        // SPEC-022 R3.
+        await m.createTable(favoriteMeals);
+        await m.createTable(favoriteMealItems);
       }
     },
   );

@@ -6,6 +6,7 @@ import '../../infra/catalog/catalog_providers.dart';
 import '../../infra/clock.dart';
 import '../../infra/food_resolution/food_query_resolver.dart';
 import '../../infra/food_resolution/meal_draft.dart';
+import '../../format/text_es.dart';
 import '../../infra/food_resolution/recent_meals.dart' show draftFromMeal;
 import '../../app_routes.dart';
 import '../../infra/storage/app_database.dart' show PersonalProduct;
@@ -13,6 +14,7 @@ import '../../infra/storage/storage_repository.dart' show MealWithItems;
 import '../../infra/storage/storage_providers.dart';
 import '../../ui/components/meal_actions.dart'
     show repeatLabelFor, repeatTodayAction;
+import '../../ui/favorite_flow.dart';
 import 'meal_analysis_controller.dart' show readErrorMessage;
 import 'meal_detail_view.dart';
 import 'review_controller.dart';
@@ -58,6 +60,9 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
   /// repetirla ("Repetir hoy" o "Repetir ahora").
   MealDraft? _repeatDraft;
   String _repeatLabel = repeatTodayAction;
+
+  /// SPEC-022 R2: nombre por defecto de la favorita.
+  String _favoriteName = '';
 
   @override
   void initState() {
@@ -113,6 +118,9 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
         // SPEC-038 R2: también las de hoy ("Repetir ahora").
         _repeatDraft = draftFromMeal(savedMeal, resolver);
         _repeatLabel = repeatLabelFor(mealIsToday: isToday);
+        _favoriteName = joinNamesEs([
+          for (final i in savedMeal.items) i.nameSnapshot,
+        ]);
         return;
       }
       _controller = draft != null
@@ -152,6 +160,15 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
             : () => Navigator.of(
                 context,
               ).pushReplacementNamed(AppRoutes.review, arguments: repeatDraft),
+        // SPEC-022 R2: con los mismos alimentos que repetir.
+        onSaveFavorite: repeatDraft == null
+            ? null
+            : () => saveMealAsFavorite(
+                context,
+                ref,
+                draft: repeatDraft,
+                defaultName: _favoriteName,
+              ),
       );
     }
     return Scaffold(

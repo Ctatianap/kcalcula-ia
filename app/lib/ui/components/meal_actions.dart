@@ -25,12 +25,15 @@ String repeatLabelFor({required bool mealIsToday}) =>
     mealIsToday ? repeatNowAction : repeatTodayAction;
 const deleteMealAction = 'Eliminar comida';
 
+/// SPEC-022 R2.
+const saveFavoriteAction = 'Guardar como favorita';
+
 /// SPEC-037 R4.
 const mealCardHint = 'Toca para editar. Mantén presionado para más opciones';
 const moreOptionsAction = 'Más opciones';
 const longPressOnlyHint = 'Mantén presionado para más opciones';
 
-enum MealAction { edit, repeatToday, delete }
+enum MealAction { edit, repeatToday, saveFavorite, delete }
 
 /// SPEC-026 R3: "el desayuno", "el almuerzo", "la cena", "el snack".
 String mealWithArticle(String? mealType) => switch (mealType) {
@@ -76,6 +79,9 @@ Future<MealAction?> showMealActionsMenu(
   required RelativeRect position,
   required bool canRepeat,
   required bool mealIsToday,
+
+  /// SPEC-022 R2: solo si todos sus alimentos siguen existiendo.
+  bool canSaveFavorite = false,
 }) {
   return showMenu<MealAction>(
     context: context,
@@ -94,6 +100,14 @@ Future<MealAction?> showMealActionsMenu(
           child: ListTile(
             leading: const Icon(Icons.replay),
             title: Text(repeatLabelFor(mealIsToday: mealIsToday)),
+          ),
+        ),
+      if (canSaveFavorite)
+        const PopupMenuItem(
+          value: MealAction.saveFavorite,
+          child: ListTile(
+            leading: Icon(Icons.star_outline),
+            title: Text(saveFavoriteAction),
           ),
         ),
       const PopupMenuItem(
