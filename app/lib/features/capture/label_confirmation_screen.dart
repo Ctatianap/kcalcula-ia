@@ -67,11 +67,25 @@ class _LabelConfirmationScreenState
     _fiberController.text = _numberText(_controller.fiberG);
     _sugarController.text = _numberText(_controller.sugarG);
     _sodiumController.text = _numberText(_controller.sodiumMg);
-    _consumedController.text = _numberText(_controller.consumedQuantity);
+    _consumedController.text = _consumedText();
   }
 
   /// SPEC-030 R2: se muestra con coma y redondeado; el controlador guarda
   /// el valor original mientras no se edite el campo.
+  /// SPEC-031 R1/R2: "¿Cuánto comiste?" vacío si no hay una cantidad > 0.
+  String _consumedText() => _controller.consumedQuantity > 0
+      ? _numberText(_controller.consumedQuantity)
+      : '';
+
+  /// SPEC-031 R1: mientras la persona no edite "¿Cuánto comiste?", el campo
+  /// muestra lo que el controlador va a registrar (la porción, SPEC-004 R5).
+  void _onServingChanged(double? value) {
+    _controller.setServingQuantity(value);
+    if (!_controller.consumedQuantityTouchedByUser) {
+      _consumedController.text = _consumedText();
+    }
+  }
+
   String _numberText(double? value) => value == null
       ? ''
       : formatDecimalEs(value, maxDecimals: _labelMaxDecimals);
@@ -160,7 +174,7 @@ class _LabelConfirmationScreenState
                       unreadable: _controller.unreadableFields.contains(
                         'serving_size',
                       ),
-                      onChanged: _controller.setServingQuantity,
+                      onChanged: _onServingChanged,
                     ),
                   ),
                   const SizedBox(width: 12),

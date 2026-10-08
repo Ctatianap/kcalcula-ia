@@ -1,6 +1,7 @@
 import 'package:calorias_ia/app_routes.dart';
 import 'package:calorias_ia/features/capture/label_confirmation_screen.dart';
 import 'package:calorias_ia/infra/ai_client/label_extraction_dto.dart';
+import 'package:calorias_ia/infra/ai_client/parsed_meal_dto.dart';
 import 'package:calorias_ia/infra/storage/app_database.dart';
 import 'package:calorias_ia/infra/storage/storage_providers.dart';
 import 'package:drift/native.dart';
@@ -75,6 +76,27 @@ const _rawDecimalsExtraction = LabelExtractionDto(
   unreadableFields: [],
 );
 
+/// SPEC-031: la etiqueta de la prueba en el teléfono (porción de 27 g).
+const _serving27Extraction = LabelExtractionDto(
+  productName: 'Producto 27 g',
+  servingSize: LabelServingSizeDto(quantity: 27, unit: 'g'),
+  perServing: LabelNutrientSetDto(
+    energyKcal: 70,
+    proteinG: 2.8,
+    carbsG: 15,
+    fatG: 0.2,
+  ),
+  per100: null,
+  unreadableFields: [],
+);
+
+Finder _servingField() => find.widgetWithText(TextField, 'Porción');
+Finder _consumedField() =>
+    find.widgetWithText(TextField, '¿Cuánto comiste? (g)');
+
+String _fieldText(WidgetTester tester, Finder field) =>
+    tester.widget<TextField>(field).controller!.text;
+
 Future<AppDatabase> _pump(
   WidgetTester tester,
   LabelExtractionDto extraction,
@@ -88,7 +110,17 @@ Future<AppDatabase> _pump(
         onGenerateRoute: (settings) => MaterialPageRoute(
           settings: settings,
           builder: (_) => settings.name == AppRoutes.review
-              ? const Scaffold(body: Text('Revisar (mock)'))
+              ? Scaffold(
+                  body: Column(
+                    children: [
+                      const Text('Revisar (mock)'),
+                      // SPEC-031 R4: la cantidad que llega a Revisar.
+                      Text(
+                        'cantidad=${(settings.arguments as ParsedMealDto?)?.items.first.quantity}',
+                      ),
+                    ],
+                  ),
+                )
               : const SizedBox.shrink(),
         ),
         home: LabelConfirmationScreen(extraction: extraction),
@@ -288,6 +320,113 @@ void main() {
       await tester.pump();
       expect(find.textContaining('Falta:'), findsNothing);
       expect(tester.widget<FilledButton>(_saveButton()).onPressed, isNotNull);
+    });
+  });
+
+  group('SPEC-031', () {
+    testWidgets(
+      'AC1: porción 27 → 30 cambia "¿Cuánto comiste?" y se registra 30',
+      (tester) async {
+        await _pump(tester, _serving27Extraction);
+        expect(_fieldText(tester, _consumedField()), '27');
+
+        await tester.enterText(_servingField(), '30');
+        await tester.pump();
+        expect(_fieldText(tester, _consumedField()), '30');
+
+        await _tapSave(tester);
+        expect(find.text('cantidad=30.0'), findsOneWidget);
+      },
+    );
+
+    testWidgets('AC2: porción "27,5" → "¿Cuánto comiste?" muestra "27,5"', (
+      tester,
+    ) async {
+      await _pump(tester, _serving27Extraction);
+      await tester.enterText(_servingField(), '27,5');
+      await tester.pump();
+      expect(_fieldText(tester, _consumedField()), '27,5');
+    });
+
+    testWidgets('AC3: sin porción, "¿Cuánto comiste?" queda vacío y falta', (
+      tester,
+    ) async {
+      await _pump(tester, _serving27Extraction);
+      await tester.enterText(_servingField(), '');
+      await tester.pump();
+      expect(_fieldText(tester, _consumedField()), '');
+      expect(find.text('Falta: porción, cuánto comiste.'), findsOneWidget);
+      expect(tester.widget<FilledButton>(_saveButton()).onPressed, isNull);
+    });
+
+    testWidgets(
+      'AC4: "45" escrito a mano no cambia con la porción y se registra 45',
+      (tester) async {
+        await _pump(tester, _serving27Extraction);
+        await tester.enterText(_consumedField(), '45');
+        await tester.pump();
+        await tester.enterText(_servingField(), '30');
+        await tester.pump();
+        expect(_fieldText(tester, _consumedField()), '45');
+
+        await _tapSave(tester);
+        expect(find.text('cantidad=45.0'), findsOneWidget);
+      },
+    );
+
+    testWidgets('caso borde: porción ilegible completada después', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        const LabelExtractionDto(
+          productName: 'Sin porción',
+          servingSize: null,
+          perServing: LabelNutrientSetDto(
+            energyKcal: 70,
+            proteinG: 2.8,
+            carbsG: 15,
+            fatG: 0.2,
+          ),
+          per100: null,
+          unreadableFields: ['serving_size'],
+        ),
+      );
+      expect(_fieldText(tester, _consumedField()), '');
+
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Porción (no se pudo leer)'),
+        '30',
+      );
+      await tester.pump();
+      expect(_fieldText(tester, _consumedField()), '30');
+    });
+
+    testWidgets(
+      'caso borde: "¿Cuánto comiste?" borrado deja de seguir a la porción',
+      (tester) async {
+        await _pump(tester, _serving27Extraction);
+        await tester.enterText(_consumedField(), '45');
+        await tester.pump();
+        await tester.enterText(_consumedField(), '');
+        await tester.pump();
+        await tester.enterText(_servingField(), '30');
+        await tester.pump();
+
+        expect(_fieldText(tester, _consumedField()), '');
+        expect(find.text('Falta: cuánto comiste.'), findsOneWidget);
+      },
+    );
+
+    testWidgets('caso borde: porción "1.200" deja "¿Cuánto comiste?" vacío', (
+      tester,
+    ) async {
+      await _pump(tester, _serving27Extraction);
+      await tester.enterText(_servingField(), '1.200');
+      await tester.pump();
+
+      expect(_fieldText(tester, _consumedField()), '');
+      expect(find.text('Falta: porción, cuánto comiste.'), findsOneWidget);
     });
   });
 }
