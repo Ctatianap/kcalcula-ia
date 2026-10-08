@@ -9,12 +9,12 @@ import '../../infra/storage/storage_repository.dart';
 import 'quantity_mapping.dart';
 import 'review_item.dart';
 
-/// R12: asignación de `meal_type` por hora local cuando la IA no lo pudo
-/// inferir del texto.
 /// SPEC-026: `sourceId` de un alimento armado con la instantánea de un ítem
 /// guardado.
 const _snapshotSourceId = 'snapshot';
 
+/// R12: asignación de `meal_type` por hora local cuando la IA no lo pudo
+/// inferir del texto.
 String assignMealTypeByHour(DateTime at) {
   final hour = at.hour;
   if (hour >= 5 && hour <= 10) return 'desayuno';
@@ -43,6 +43,17 @@ class ReviewController extends ChangeNotifier {
   DateTime? eatenAt;
 
   bool get isEditing => editingMealId != null;
+
+  /// SPEC-026: hubo cambios desde que se abrió (para no perderlos con
+  /// "Repetir hoy").
+  bool get hasChanges => _hasChanges;
+  bool _hasChanges = false;
+
+  @override
+  void notifyListeners() {
+    _hasChanges = true;
+    super.notifyListeners();
+  }
 
   ReviewController({
     required ParsedMealDto parsedMeal,

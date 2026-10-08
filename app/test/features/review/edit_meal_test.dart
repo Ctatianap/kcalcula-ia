@@ -81,6 +81,10 @@ class _FailingRepository extends StorageRepository {
     required String catalogVersion,
     required List<MealItemRecord> items,
   }) => Future.error(StateError('SqliteException: UPDATE meals … huevo'));
+
+  @override
+  Future<void> deleteMeal(int id) =>
+      Future.error(StateError('SqliteException: DELETE meals … huevo'));
 }
 
 Future<({AppDatabase db, int mealId})> _pump(
@@ -375,7 +379,100 @@ void main() {
       expect(meal!.meal.id, pumped.mealId);
       expect(meal.items.first.nameSnapshot, 'Huevo campesino');
       expect(meal.items.first.personalProductId, isNotNull);
-      expect(meal.items[1].energyKcal, 307.05); // arepa: instantánea
+      // Arepa: instantánea (el catálogo daría 6,509 g de proteína).
+      expect(meal.items[1].proteinG, 6.5);
     },
   );
+
+  testWidgets(
+    'AC2: hoy con una hora posterior a la actual muestra el mensaje y no cambia la fecha',
+    (tester) async {
+      await _pump(tester);
+      final before = tester
+          .widget<Text>(find.byKey(const Key('meal-detail-eaten-at')))
+          .data;
+      await _tap(tester, find.byKey(const Key('meal-detail-change-eaten-at')));
+      // Hoy (8) en el calendario; la hora propuesta es la de la comida
+      // (13:00), posterior a las 12:00 de "ahora".
+      await tester.tap(find.text('8'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+      expect(find.text(futureMealMessage), findsOneWidget);
+      expect(
+        tester.widget<Text>(find.byKey(const Key('meal-detail-eaten-at'))).data,
+        before,
+      );
+    },
+  );
+
+  testWidgets('AC6: si borrar falla, mensaje y la comida sigue', (
+    tester,
+  ) async {
+    final pumped = await _pump(tester, failingWrites: true);
+    await _tap(tester, find.text('Borrar comida'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Borrar'));
+    await tester.pumpAndSettle();
+    expect(find.text(deleteMealErrorMessage), findsOneWidget);
+    expect(find.textContaining('Sqlite'), findsNothing);
+    final meal = await tester.runAsync(
+      () => StorageRepository(pumped.db).getMealWithItems(pumped.mealId),
+    );
+    expect(meal, isNotNull);
+  });
+
+  testWidgets('caso borde: la comida ya no existe', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          appDatabaseProvider.overrideWithValue(db),
+          catalogRepositoryProvider.overrideWithValue(buildFixtureCatalog()),
+        ],
+        child: const MaterialApp(home: ReviewScreen(editMealId: 999)),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text(mealGoneMessage), findsOneWidget);
+  });
+
+  testWidgets('R4: con cambios sin guardar, "Repetir hoy" se desactiva', (
+    tester,
+  ) async {
+    await _pump(tester);
+    await _tap(tester, find.byTooltip('Más').first);
+    final repeat = find.widgetWithText(OutlinedButton, repeatTodayLabel);
+    await tester.ensureVisible(repeat);
+    expect(tester.widget<OutlinedButton>(repeat).onPressed, isNull);
+  });
+
+  test('R3: el artículo del tipo de comida', () {
+    expect(mealWithArticle('cena'), 'la cena');
+    expect(mealWithArticle('almuerzo'), 'el almuerzo');
+    expect(mealWithArticle('desayuno'), 'el desayuno');
+    expect(mealWithArticle('snack'), 'el snack');
+    expect(mealWithArticle(null), 'el snack');
+  });
+
+  test('R2: guardar cambios actualiza updated_at', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repo = StorageRepository(db);
+    final id = await _seedMeal(repo);
+    final before = (await repo.getMealWithItems(id))!.meal.updatedAt;
+    await Future<void>.delayed(const Duration(seconds: 1));
+    await repo.updateMeal(
+      id: id,
+      eatenAt: _yesterdayLunch,
+      mealType: 'almuerzo',
+      confidence: 'buenaEstimacion',
+      catalogVersion: 'test-1',
+      items: [_egg()],
+    );
+    final after = (await repo.getMealWithItems(id))!.meal.updatedAt;
+    expect(after.isAfter(before), isTrue);
+  });
 }

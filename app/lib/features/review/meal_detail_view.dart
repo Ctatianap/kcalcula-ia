@@ -29,6 +29,14 @@ const deleteMealErrorMessage = 'No pude borrar la comida. Intenta de nuevo.';
 const futureMealMessage = 'La comida no puede quedar en el futuro.';
 const repeatTodayLabel = 'Repetir hoy';
 
+/// SPEC-026 R3: "el desayuno", "el almuerzo", "la cena", "el snack".
+String mealWithArticle(String? mealType) => switch (mealType) {
+  'desayuno' => 'el desayuno',
+  'almuerzo' => 'el almuerzo',
+  'cena' => 'la cena',
+  _ => 'el snack',
+};
+
 /// SPEC-026 R2/AC2: una comida no puede quedar en el futuro.
 String? validateEatenAt(DateTime chosen, DateTime now) =>
     chosen.isAfter(now) ? futureMealMessage : null;
@@ -159,7 +167,10 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
     final date = await showDatePicker(
       context: context,
       initialDate: current.isAfter(now) ? now : current,
-      firstDate: DateTime(now.year - 5),
+      // Una comida más vieja que eso también se puede abrir.
+      firstDate: current.year < now.year - 5
+          ? DateTime(current.year)
+          : DateTime(now.year - 5),
       lastDate: DateTime(now.year, now.month, now.day),
     );
     if (date == null || !mounted) return;
@@ -188,11 +199,11 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
   Future<void> _deleteMeal() async {
     final controller = widget.controller;
     final at = controller.eatenAt ?? ref.read(clockProvider)();
-    final type = (mealTypeLabels[controller.mealType] ?? 'Snack').toLowerCase();
+    final type = mealWithArticle(controller.mealType);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('¿Borrar el $type de las ${timeEs(at)}?'),
+        title: Text('¿Borrar $type de las ${timeEs(at)}?'),
         content: const Text('No se puede deshacer.'),
         actions: [
           TextButton(
@@ -370,7 +381,10 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
                       if (widget.onRepeatToday case final repeat?) ...[
                         const SizedBox(height: 10),
                         OutlinedButton.icon(
-                          onPressed: _registering ? null : repeat,
+                          // No descarta en silencio lo que se editó.
+                          onPressed: _registering || controller.hasChanges
+                              ? null
+                              : repeat,
                           icon: const Icon(Icons.replay),
                           label: const Text(repeatTodayLabel),
                         ),

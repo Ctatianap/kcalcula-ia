@@ -103,21 +103,32 @@ que mis promedios sean reales.
   - `draftFromMeal` (compartido con Recientes) para "Repetir hoy".
   - Ruta `AppRoutes.editMeal`; tocar una comida en Hoy o Historial la abre. Modo edición del Detalle:
     "Editar comida", fecha y hora con "Cambiar", "Borrar comida", "Guardar cambios" y "Repetir hoy".
+- 2026-10-08: reviewer CHANGES_REQUESTED (1 MAJOR de evidencia, 10 MINOR); corregidos (ver Review).
+  422/422.
 
 ## Verificación
 | AC | Estado | Evidencia |
 |----|--------|-----------|
-| AC1 | ✅ | `app/test/features/review/edit_meal_test.dart` › "AC1: huevo de 100 g a 150 g…" (mismo `id`, 150 g, kcal 143 × 1,5 y total del día). Integración: `app/test/integration/edit_meal_flow_test.dart` (tocar la comida en Hoy → "Editar comida" → + → "Guardar cambios" → Hoy muestra 150 kcal) |
-| AC2 | ✅ | `edit_meal_test.dart` › "AC2: mover a hoy a las 8:00…", "AC2: una fecha futura no se permite" (`validateEatenAt`) y "AC2: \"Cambiar\" abre el calendario" (el calendario tampoco ofrece días futuros: `lastDate` = hoy) |
+| AC1 | ✅ | `app/test/features/review/edit_meal_test.dart` › "AC1: huevo de 100 g a 150 g…" (mismo `id`, 150 g, kcal 143 × 1,5 y total del día). Integración con `MyApp`: `app/test/integration/edit_meal_flow_test.dart` › "SPEC-026 AC1/AC7/R6…" (Historial de ayer 143 → tocar la comida → + → "Guardar cambios" → Historial de ayer 150) y "SPEC-026 R1/R6…" (desde Hoy) |
+| AC2 | ✅ | `edit_meal_test.dart` › "AC2: mover a hoy a las 8:00…" (repositorio), "AC2: una fecha futura no se permite" (`validateEatenAt`), "AC2: \"Cambiar\" abre el calendario" y "AC2: hoy con una hora posterior a la actual…" (widget: mensaje y la fecha no cambia). El calendario no ofrece días futuros (`lastDate` = hoy). Que la comida movida aparezca en Hoy lo cubre R6 en la integración |
 | AC3 | ✅ | mismo archivo › "AC3: borrar con confirmación…" (comida e ítems borrados; "¿Borrar el almuerzo de las 13:00?") y "AC3: cancelar no borra nada" |
 | AC4 | ✅ | mismo archivo › "AC4…": con el catálogo cambiado (huevo 200 kcal), el huevo no tocado guarda 143 y "Huevo"; la arepa editada usa el catálogo actual. Caso borde: "un producto borrado se puede ajustar con su instantánea" |
 | AC5 | — | Movido a SPEC-036 |
-| AC6 | ✅ | mismo archivo › "AC6…": `updateMeal` falla → "No pude guardar la comida. Intenta de nuevo.", sin texto de SQLite, y la comida sigue en 100 g |
-| AC7 | ✅ | mismo archivo › "AC7…": "Repetir hoy" → Detalle → "Guardar" → comida nueva a la hora actual con los mismos gramos; la de ayer sigue igual. "R4: una comida de hoy no ofrece \"Repetir hoy\"" |
-| AC8 | ✅ | mismo archivo › "AC8…": "Elegir de mis productos" en el huevo → "Guardar cambios" → mismo `id`, el huevo es el producto y la arepa conserva su instantánea |
+| AC6 | ✅ | mismo archivo › "AC6…" (`updateMeal` falla → "No pude guardar la comida…", sin texto de SQLite, comida en 100 g) y "AC6: si borrar falla…" ("No pude borrar la comida…"). Caso borde: "la comida ya no existe" ("Esa comida ya no existe.") |
+| AC7 | ✅ | mismo archivo › "AC7…": "Repetir hoy" → Detalle → "Guardar" → comida nueva a la hora actual con los mismos gramos; la de ayer sigue igual. Integración con `MyApp` ("SPEC-026 AC1/AC7/R6…"): después de "Repetir hoy", Hoy muestra la comida, la racha dice "2 días seguidos registrando", Historial de hoy 150 kcal y Progreso "miércoles 7 de octubre: 150 kcal" y "jueves 8 de octubre: 150 kcal". "R4: una comida de hoy no ofrece…" y "R4: con cambios sin guardar, \"Repetir hoy\" se desactiva" |
+| AC8 | ✅ | mismo archivo › "AC8…": "Elegir de mis productos" en el huevo → "Guardar cambios" → mismo `id`, el huevo es el producto y la arepa conserva su instantánea (proteína 6,5 g; el catálogo daría 6,509) |
 | Docs | ✅ | `docs/architecture.md` (Modelo de datos: edición de comidas guardadas; tablas de SPEC-034) |
-| Tests | ✅ | app: analyze sin avisos, 415/415; ningún test existente cambió |
+| Tests | ✅ | app: analyze sin avisos, 422/422; ningún test existente cambió |
 | Manual | ⏳ | Editar, borrar y repetir una comida en el teléfono |
 
 ## Review
-Informe del reviewer: pendiente.
+Revisión (2026-10-08, subagente `reviewer`, sobre `57b9fbf`): **CHANGES_REQUESTED**.
+- [MAJOR] Sin evidencia de que Historial (AC1), Hoy, Progreso y la racha (AC7/R6) muestren los cambios.
+  Corregido: integración con `MyApp` que edita una comida de ayer desde Historial y la repite hoy, y
+  comprueba Historial, Hoy, la racha y Progreso.
+- MINOR corregidos: widget de hora futura (AC2); AC8 distingue instantánea de catálogo (proteína);
+  "¿Borrar la cena…?" con artículo por tipo (`mealWithArticle`); constante fuera del comentario de
+  R12; `firstDate` para comidas de más de 5 años; "Repetir hoy" desactivado con cambios sin guardar;
+  `catalog_version` documentado en `docs/architecture.md`; test de `updated_at`; tests de error al
+  borrar y de comida que ya no existe.
+- MINOR al backlog: `_snapshotFood` (instantánea → por 100 g en la app) se suma a T-035.

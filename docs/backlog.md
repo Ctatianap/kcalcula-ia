@@ -287,8 +287,9 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   title: Conversión g → porciones en nutrition_core
   objective: >
     SPEC-032 (`label_confirmation_controller.dart`) y SPEC-033 (`ReviewController.portionsOf`) dividen
-    gramos entre la porción en la app para mostrar porciones. Moverlo a `nutrition_core` con casos de
-    referencia (hallazgo del reviewer de SPEC-033). Strict.
+    gramos entre la porción en la app para mostrar porciones, y SPEC-026 (`ReviewController._snapshotFood`)
+    pasa una instantánea a valores por 100 g. Moverlo a `nutrition_core` con casos de referencia
+    (hallazgos del reviewer de SPEC-033 y SPEC-026). Strict.
   dependencies: [T-033]
   spec_required: true
 - id: T-036

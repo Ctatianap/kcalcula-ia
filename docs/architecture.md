@@ -113,6 +113,8 @@ kcal enteras (redondeo half-up) y macros con 1 decimal. Los valores estimados se
     valores) aunque el catálogo o el producto hayan cambiado; los editados se recalculan con
     `nutrition_core` y el catálogo actual. Si el producto de un ítem se borró, se ajusta a partir de su
     instantánea y se guarda sin enlace al producto. Borrar una comida borra sus ítems.
+    `meals.catalog_version` pasa a ser la versión del catálogo de la última edición (los ítems no
+    tocados pueden venir de una versión anterior: su instantánea es la fuente).
 - `personal_products(..., serving_unit)` y `personal_product_aliases(product_id, term)`: productos de
   etiquetas confirmadas (SPEC-004/033) con su unidad y los nombres con que la persona los llama
   (SPEC-034, `user.db` v8).
