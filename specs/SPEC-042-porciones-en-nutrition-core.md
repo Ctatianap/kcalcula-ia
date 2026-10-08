@@ -1,7 +1,7 @@
 # SPEC-042: Conversiones de porciones y "por 100 g" en nutrition_core
 
 ## Status
-Review
+Done
 Path: Strict (toca `nutrition_core`: cálculo y unidades)
 
 ## Objective
@@ -108,6 +108,7 @@ que un cambio de reglas no deje cuentas distintas en distintas pantallas.
   negativos (no ocurre: `label_extraction.v1` exige `quantity` positiva, `functions/src/ai/schemas.ts`).
   Con 0 g en una instantánea queda 0 (antes `-0.0` con valores negativos). Status → Review: falta la
   aprobación explícita de la usuaria para fusionar (Strict).
+- 2026-10-08: **aprobación explícita de la usuaria para fusionar** ("si"). Status → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
