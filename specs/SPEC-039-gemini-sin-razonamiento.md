@@ -1,7 +1,7 @@
 # SPEC-039: Medir gemini-2.5-flash sin razonamiento
 
 ## Status
-Review
+Done
 Path: Strict (parámetros del modelo de IA; skill `ai-pipeline`; evals con Vertex real, cuestan dinero)
 
 ## Objective
@@ -117,13 +117,14 @@ Como persona que fotografía etiquetas, quiero que la lectura tarde menos sin qu
 - 2026-10-08: la usuaria añadió `GEMINI_THINKING_BUDGET=0` al `.env` y se desplegó con su confirmación.
 - 2026-10-08: reviewer CHANGES_REQUESTED solo por AC4 (prueba manual pendiente). MINOR atendidos:
   R1 corregido para decir lo implementado (`process.env`, no `defineString`; motivo en el Change Log
-  anterior; **pendiente el visto bueno de la usuaria** a este texto); "n/a" en la tabla donde Vertex no
+  anterior; visto bueno de la usuaria el 2026-10-08); "n/a" en la tabla donde Vertex no
   informa tokens de razonamiento; `resolveThinkingBudget` en `thinking.ts` con test del log
   `invalid-config` sin el valor. functions 62/62. La usuaria pidió fusionar a `develop` ("fusiona
   todo") con AC4 pendiente. Status → Review. Riesgo a vigilar: `latencyMs` de `parseMeal` en Cloud
   Logging (casos aislados de Vertex de más de 10 s en las evals).
 - 2026-10-08: AC4 con evidencia (prueba de la usuaria en el S25 y latencias de Cloud Logging). Solo falta
   el visto bueno de la usuaria al texto corregido de R1 para pasar a Done.
+- 2026-10-08: **visto bueno de la usuaria** al texto de R1 ("si"). Status → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -155,4 +156,7 @@ es de Vertex. "Como hoy" también los tiene en etiquetas (13 de más de 10 s, un
 una frase así da el error de tiempo agotado (10 s) y se puede reintentar.
 
 ## Review
-Informe del reviewer:
+Revisión (2026-10-08, subagente `reviewer`, sobre la rama en `50b8845`): **CHANGES_REQUESTED** solo por
+AC4 sin evidencia; código correcto: prompts y esquemas sin cambios, logs solo con metadatos, modelo y
+región por configuración, sin secretos, R4 cumplida con los JSON. MINOR atendidos (Change Log). AC4
+completada después con la prueba de la usuaria y Cloud Logging; con eso no quedan hallazgos abiertos.
