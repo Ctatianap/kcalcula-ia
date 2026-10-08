@@ -54,7 +54,8 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
 
   ReviewController? _controller;
 
-  /// SPEC-026 R4: la comida guardada como borrador, para "Repetir hoy".
+  /// SPEC-026 R4 / SPEC-038 R2: la comida guardada como borrador, para
+  /// repetirla ("Repetir hoy" o "Repetir ahora").
   MealDraft? _repeatDraft;
   String _repeatLabel = repeatTodayAction;
 

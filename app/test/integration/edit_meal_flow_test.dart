@@ -307,6 +307,9 @@ void main() {
         now,
       ]);
       expect(meals.last.items.single.grams, 100);
+      // La original sigue igual.
+      expect(meals.first.items.single.grams, 100);
+      expect(meals.first.items.single.energyKcal, 143);
     },
   );
 }

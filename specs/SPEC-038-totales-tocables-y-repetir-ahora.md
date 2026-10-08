@@ -1,7 +1,7 @@
 # SPEC-038: Totales por tipo que se pueden tocar y "Repetir ahora"
 
 ## Status
-Implementing
+Review
 Path: Standard (navegación y una acción más sobre comidas guardadas; reutiliza SPEC-026/037; no sale
 ningún dato)
 
@@ -96,6 +96,8 @@ desayuno y poder repetirlo, aunque sea de hoy.
 - 2026-10-08: implementada. `_MealTypeRow` en el detalle del día de Historial (una comida → la abre;
   varias → hoja; 0 kcal → nada); `repeatLabelFor` ("Repetir ahora"/"Repetir hoy") en el menú de
   SPEC-037 y en "Editar comida"; `ReviewScreen` arma el borrador también para comidas de hoy.
+- 2026-10-08: reviewer PASS; MINOR corregidos (ver Review). 451/451. Prueba manual hecha. Status →
+  Review.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -107,8 +109,16 @@ desayuno y poder repetirlo, aunque sea de hoy.
 | AC4 | ✅ | `app/test/features/diary/meal_long_press_test.dart` › "AC1 + SPEC-038 AC4…" (menú de Hoy con "Repetir ahora" → Detalle). Integración con `MyApp`: `app/test/integration/edit_meal_flow_test.dart` › "SPEC-038 AC4…" (guardar crea una comida nueva a las 12:00 con 100 g; la de las 8:30 sigue) |
 | AC5 | ✅ | `app/test/features/review/edit_meal_test.dart` › "R4 + SPEC-038 AC5…" (hoy: "Repetir ahora", no "Repetir hoy") y "SPEC-038 AC5: \"Repetir ahora\" se desactiva con cambios sin guardar"; otro día sigue con "Repetir hoy" (tests de SPEC-026) |
 | AC6 | ✅ | `meal_long_press_test.dart` › "SPEC-038 AC6…" |
-| AC7 | ✅ | app: analyze sin avisos, 449/449. Expectativas cambiadas: `meal_long_press_test.dart` "AC1…" (antes: Hoy sin "Repetir"; ahora con "Repetir ahora") y `edit_meal_test.dart` "R4…" (antes: una comida de hoy sin repetir; ahora con "Repetir ahora"). Parámetro `canRepeatToday` → `canRepeat` + `mealIsToday` en el flujo compartido |
-| Manual | ⏳ | Tocar los totales y repetir una comida de hoy en el teléfono |
+| AC7 | ✅ | app: analyze sin avisos, 451/451. Expectativas cambiadas: `meal_long_press_test.dart` "AC1…" (antes: Hoy sin "Repetir"; ahora con "Repetir ahora") y `edit_meal_test.dart` "R4…" (antes: una comida de hoy sin repetir; ahora con "Repetir ahora"). Parámetro `canRepeatToday` → `canRepeat` + `mealIsToday` en el flujo compartido |
+| Manual | ✅ | 2026-10-08, hecha por Claude en el Motorola de la usuaria (versión de `64b3483`), sin crear ni borrar datos: en Hoy, el toque largo del desayuno muestra "Editar comida · Repetir ahora · Eliminar comida" (se cerró sin elegir); en Historial (8 oct), "Desayuno 345 kcal" muestra ">", las filas en 0 kcal no; tocarla abre "Editar comida" con ese desayuno (se salió sin guardar) |
 
 ## Review
-Informe del reviewer:
+Revisión (2026-10-08, subagente `reviewer`, sobre `64b3483`): **PASS**. AC1–AC7 y R4 con evidencia;
+la agrupación por tipo usa la misma regla que `byMealType`; ninguna comida de hoy muestra "Repetir
+hoy"; sin imports entre features. 6 MINOR, corregidos salvo el último:
+- Comentarios desactualizados sobre "Repetir hoy" (Historial, `MealDetailView`, flujo compartido,
+  `ReviewScreen`): actualizados. Los identificadores `MealAction.repeatToday`/`onRepeatToday` se dejan.
+- Historial con el día de hoy sin test de "Repetir ahora": test nuevo.
+- Recarga del Historial al volver de "Editar comida" sin test: test nuevo.
+- La integración no comprobaba los gramos de la comida original: agregado.
+- `_today` fijo en `initState` (venía de antes): anotado, sin cambio.

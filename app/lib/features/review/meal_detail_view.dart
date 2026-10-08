@@ -85,7 +85,8 @@ class MealDetailView extends ConsumerStatefulWidget {
   /// "Corregir": vuelve a "¿Qué comiste?" con el texto.
   final VoidCallback onCorrect;
 
-  /// SPEC-026 R4: "Repetir hoy" (solo para una comida guardada de otro día).
+  /// SPEC-026 R4 / SPEC-038 R2: repetir una comida guardada ("Repetir hoy"
+  /// en otros días, "Repetir ahora" en la de hoy; ver [repeatLabel]).
   final VoidCallback? onRepeatToday;
 
   /// SPEC-038 R2: "Repetir hoy" u "Repetir ahora".

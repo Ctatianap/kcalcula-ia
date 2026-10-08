@@ -222,7 +222,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                               date: selected,
                               day: data.days[selected.day],
                               goal: data.goal?.energyKcal,
-                              // SPEC-037: "Repetir hoy" solo en otros días.
                               onOpenMeal: (id) async {
                                 await Navigator.of(
                                   context,
@@ -236,6 +235,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                                     meal: meal,
                                     position: position,
                                     canRepeat: true,
+                                    // SPEC-038: "Repetir ahora" hoy; "Repetir hoy"
+                                    // en otros días.
                                     mealIsToday: selected == _today,
                                     onChanged: () {
                                       if (mounted) setState(_load);

@@ -15,7 +15,8 @@ import 'components/meal_actions.dart';
 ///
 /// Muestra el menú en [position] y hace la acción elegida. Llama a
 /// [onChanged] cuando la comida se borró o se volvió de editarla/repetirla,
-/// para que la pantalla se recargue. "Repetir hoy" solo aparece si
+/// para que la pantalla se recargue. "Repetir hoy"/"Repetir ahora" (SPEC-038)
+/// solo aparece si
 /// [canRepeat] y todos sus alimentos siguen existiendo (como en
 /// SPEC-026 R4).
 Future<void> handleMealLongPress(
@@ -42,7 +43,7 @@ Future<void> handleMealLongPress(
         meal,
       );
     } catch (_) {
-      // SPEC-009: sin "Repetir hoy" si no se pudo leer; el resto del menú
+      // SPEC-009: sin la opción de repetir si no se pudo leer; el resto del menú
       // funciona.
       repeatDraft = null;
     }

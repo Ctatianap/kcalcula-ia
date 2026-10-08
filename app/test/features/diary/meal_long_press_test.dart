@@ -331,4 +331,18 @@ void main() {
     );
     handle.dispose();
   });
+
+  testWidgets(
+    'SPEC-038: en Historial con el día de hoy, el menú dice "Repetir ahora"',
+    (tester) async {
+      await _pump(
+        tester,
+        home: HistoryScreen(initialDay: DateTime(2026, 10, 8)),
+        seed: _todayTwoMeals,
+      );
+      await _longPress(tester, 'Desayuno');
+      expect(find.text(repeatNowAction), findsOneWidget);
+      expect(find.text(repeatTodayAction), findsNothing);
+    },
+  );
 }

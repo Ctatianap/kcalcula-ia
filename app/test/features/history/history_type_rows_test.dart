@@ -39,7 +39,7 @@ Future<int> _meal(
   ],
 );
 
-Future<({int breakfast, int snack1, int snack2})> _pump(
+Future<({int breakfast, int snack1, int snack2, AppDatabase db})> _pump(
   WidgetTester tester,
 ) async {
   tester.view.physicalSize = const Size(1080, 3000);
@@ -50,6 +50,7 @@ Future<({int breakfast, int snack1, int snack2})> _pump(
   final ids = await tester.runAsync(() async {
     final repo = StorageRepository(db);
     return (
+      db: db,
       breakfast: await _meal(
         repo,
         DateTime(2026, 10, 7, 8),
@@ -95,6 +96,21 @@ void main() {
     await tester.tap(find.byKey(const Key('history-type-row-desayuno')));
     await tester.pumpAndSettle();
     expect(find.text('Editar (mock) ${ids.breakfast}'), findsOneWidget);
+  });
+
+  testWidgets('R1: al volver de "Editar comida", el Historial se recarga', (
+    tester,
+  ) async {
+    final ids = await _pump(tester);
+    await tester.tap(find.byKey(const Key('history-type-row-desayuno')));
+    await tester.pumpAndSettle();
+    // Mientras está abierta, la comida cambia (como si se hubiera editado).
+    await tester.runAsync(
+      () => StorageRepository(ids.db).deleteMeal(ids.breakfast),
+    );
+    tester.state<NavigatorState>(find.byType(Navigator)).pop();
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('history-type-row-desayuno')), findsNothing);
   });
 
   testWidgets('AC2: con dos snacks, una hoja para elegir', (tester) async {
