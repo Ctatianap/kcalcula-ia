@@ -272,6 +272,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     Detalle, usar la etiqueta de cada ingrediente o elegir un producto ya guardado (sin repetir
     fotos ni tokens), con la cantidad en porciones o g/ml.
   dependencies: [T-032]
+  status: done  # SPEC-033
   spec_required: true    # specs/SPEC-033-etiqueta-y-mis-productos-por-ingrediente.md — Standard
 - id: T-034
   title: Mis productos (ver, editar, borrar, nombres alternativos y prioridad al reconocer)

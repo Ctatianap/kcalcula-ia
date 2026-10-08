@@ -1,7 +1,7 @@
 # SPEC-033: Etiqueta y mis productos por ingrediente
 
 ## Status
-Implementing
+Done
 Path: Standard (la persona elige a mano el alimento de un ingrediente, como en SPEC-018; reutiliza
 `extractLabel` y las reglas de `nutrition_core` sin cambiarlas; no cambia prompts, esquemas ni
 `catalog.db`)
@@ -174,6 +174,8 @@ volver a fotografiar todo cada día.
 - 2026-10-07: re-revisión del reviewer **PASS**; 4 MINOR corregidos (`source_ref` de los dos modos en
   los tests, comentario de `IngredientLabelScreen`, `origin` en `save()`, DoD hasta AC8 y nota de AC1).
   Falta la prueba manual en el teléfono.
+- 2026-10-07: prueba manual de la usuaria y **aprobación para fusionar** ("sí, la opción 1, fusiona la
+  033"). Status → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -186,7 +188,7 @@ volver a fotografiar todo cada día.
 | AC6 | ✅ | mismo archivo › "AC6…": "No encontrado en la base" → con etiqueta sin nombre leído, el producto se llama "caldo de costilla" (R2) y queda "1 porción · 300 g" |
 | AC8 | ✅ | `ingredient_actions_test.dart` › "AC8: \"Escribir los valores\" guarda el producto sin llamar a la IA": formulario vacío con el nombre del ingrediente, 30 g / 120 kcal / 24 / 3 / 1,5 → "1 porción · 30 g" y 120 kcal; 0 llamadas a la IA; `source_ref` "…escritos por el usuario…" |
 | AC7 | ✅ | app: analyze sin avisos, 371/371 (tras los hallazgos del reviewer y R8). Expectativa cambiada: `review_screen_test.dart` › "AC8: editar la cantidad con +/-…" ahora hace `ensureVisible` antes de tocar "+" (el menú hace la tarjeta más alta; mismos valores esperados). El botón "Revisar comida" no cambia fuera del modo ingrediente |
-| Manual | ⏳ | El desayuno del ejemplo en el teléfono |
+| Manual | ✅ | 2026-10-07, la usuaria en su Motorola con la versión de `dfbe82c`: lo dio por bueno ("perfecto"; confirmado: "sí"). Pidió además editar los nombres de sus productos (SPEC-034) |
 
 Nota de implementación (R4): "Elegir de mis productos" abre una pantalla propia, "Mis productos"
 (`personal_product_picker_screen.dart`), con el mismo estilo que "Buscar alimento" (SPEC-018), en vez de
