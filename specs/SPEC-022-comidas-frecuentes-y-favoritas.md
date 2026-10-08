@@ -22,11 +22,14 @@ que registré.
   (misma definición de "la misma comida" que SPEC-017) registradas **al menos 3 veces en los últimos
   60 días**, ordenadas por número de veces (empate: la más reciente primero). Una comida que ya está en
   Recientes no se repite en Frecuentes.
-- R2. **Favoritas:** desde el detalle de una comida guardada (Historial) o desde una tarjeta de
-  Recientes/Frecuentes, "Guardar como favorita" con un nombre opcional (por defecto, los alimentos
-  unidos con "y"). Las favoritas aparecen primero, hasta 10, y se pueden quitar.
-- R3. **Tabla `favorite_meals`** en `user.db` (nombre, alimentos y gramos, fecha), con migración. Se
-  borra con "Borrar todos mis datos" y se incluye en "Exportar".
+- R2. **Favoritas:** "Guardar como favorita" desde el detalle de una comida guardada (SPEC-026), desde
+  el menú al mantener presionada una comida en Hoy o Historial (SPEC-037) y desde una tarjeta de
+  Recientes/Frecuentes, con un nombre opcional (por defecto, los alimentos unidos con "y"). Las
+  favoritas aparecen primero en "¿Qué comiste?", hasta 10, y se pueden quitar (mantener presionada →
+  "Quitar de favoritas"). Los productos personales (SPEC-004/034) también pueden estar en una favorita.
+- R3. **Tablas `favorite_meals` y `favorite_meal_items`** en `user.db` (nombre, fecha; por ítem: alimento
+  o producto personal, mención, gramos y la cantidad tal como se expresó), con migración v8 → v9. Se
+  borran con "Borrar todos mis datos" y se incluyen en "Exportar".
 - R4. Tocar una frecuente o favorita abre el detalle con un `MealDraft` (SPEC-017): kcal del catálogo
   actual, tipo de comida por la hora, sin IA. Si un alimento ya no existe, la favorita se muestra con
   "Algún alimento ya no está en la base" y no se abre.
@@ -40,8 +43,10 @@ que registré.
   quitarla la saca `[widget + integration]`.
 - AC4. Tocar una favorita abre el detalle sin llamar a la IA (fake que falla si se llama) y guardar crea
   una comida nueva con la hora actual `[integration]`.
-- AC5. Migración desde v7 conserva todo y crea `favorite_meals` vacía; borrar todo la vacía; exportar
-  la incluye `[integration]`.
+- AC5. Migración desde v8 conserva todo y crea las tablas de favoritas vacías; borrar todo las vacía;
+  exportar las incluye `[integration]`.
+- AC8. Mantener presionada una comida en Hoy → "Guardar como favorita" → aparece en Favoritas
+  `[widget]`.
 - AC6. Una favorita con un alimento que ya no existe se muestra con el aviso de R4 y no abre el detalle
   `[widget]`.
 - AC7. Sin frecuentes ni favoritas, las secciones no aparecen `[widget]`.
@@ -55,7 +60,7 @@ que registré.
   (frecuentes), `app/lib/features/capture/`, `app/lib/features/history/` (botón de favorita).
 
 ## Dependencies
-- SPEC-013, SPEC-017.
+- SPEC-013, SPEC-017, SPEC-026, SPEC-034, SPEC-037.
 
 ## Edge Cases
 - Más de 10 favoritas: no se permite añadir otra hasta quitar una (mensaje en español).
@@ -73,15 +78,19 @@ que registré.
 - Sugerencias por hora del día, compartir favoritas, plantillas de días completos.
 
 ## Open Questions
-- ¿Umbral de frecuentes (3 veces en 60 días) y límite de favoritas (10)? Son propuestas.
-- ¿"Guardar como favorita" también desde el detalle antes de guardar la comida?
+- Ninguna. Resueltas con la opción recomendada (2026-10-08): umbral de frecuentes 3 veces en 60 días;
+  hasta 10 favoritas; "Guardar como favorita" solo para comidas ya guardadas (no desde el detalle
+  antes de guardar), para no guardar algo que la persona aún está corrigiendo.
 
 ## Definition of Done
-- AC1–AC7 con evidencia · analyze y tests verdes · reviewer PASS enlazado · `docs/privacy.md` y
+- AC1–AC8 con evidencia · analyze y tests verdes · reviewer PASS enlazado · `docs/privacy.md` y
   arquitectura actualizados.
 
 ## Change Log
 - 2026-10-04: creación a partir de F2 ("comidas frecuentes").
+- 2026-10-08: actualizada antes de pedir aprobación: migración v8 → v9 (el esquema avanzó con SPEC-034),
+  favorita también desde el menú de mantener presionada (SPEC-037) y con productos personales; tabla de
+  ítems; preguntas abiertas resueltas con la opción recomendada. AC8 nuevo.
 
 ## Review
 Informe del reviewer: pendiente.
