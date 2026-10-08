@@ -104,7 +104,8 @@ void main() {
       // Revisión: mismo pipeline que texto/voz (R8). 140 kcal * 45/30 = 210.
       // Ítem y total.
       expect(find.text('210 kcal'), findsNWidgets(2));
-      expect(find.text('Alta precisión'), findsOneWidget);
+      // Comida e ingrediente (SPEC-023 R2: también por ingrediente).
+      expect(find.text('Alta precisión'), findsNWidgets(2));
       // SPEC-012 R5: la etiqueta confirmada también cuenta como fuente.
       expect(find.text('Base verificada'), findsOneWidget);
       expect(
@@ -191,7 +192,8 @@ void main() {
       // en esta sesión (food_query_resolver.dart lo encontró por nombre).
       // Ítem y total.
       expect(find.text('280 kcal'), findsNWidgets(2));
-      expect(find.text('Alta precisión'), findsOneWidget);
+      // Comida e ingrediente (SPEC-023 R2: también por ingrediente).
+      expect(find.text('Alta precisión'), findsNWidgets(2));
 
       await db.close();
       catalog.close();

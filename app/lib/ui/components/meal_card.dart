@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:nutrition_core/nutrition_core.dart';
 
 import '../theme.dart';
+import 'confidence_indicator.dart';
 import 'k_card.dart';
 import 'meal_actions.dart';
 
@@ -15,6 +16,9 @@ class MealCard extends StatelessWidget {
   /// Nombre y gramos de cada ítem: "Huevo 100 g · Arepa 115 g".
   final List<({String name, double grams})> items;
   final NutrientTotals totals;
+
+  /// SPEC-023 R4: el nivel guardado de la comida (`null` si no se reconoce).
+  final ConfidenceLevel? confidence;
 
   /// SPEC-026 R1: abre la comida para editarla.
   final VoidCallback? onTap;
@@ -29,6 +33,7 @@ class MealCard extends StatelessWidget {
     required this.time,
     required this.items,
     required this.totals,
+    this.confidence,
     this.onTap,
     this.onLongPress,
   });
@@ -74,6 +79,10 @@ class MealCard extends StatelessWidget {
               Text('G ${formatMacroEs(totals.fatG)} g', style: secondary),
             ],
           ),
+          if (confidence case final level?) ...[
+            const SizedBox(height: 6),
+            ConfidenceIndicator(level: level, compact: true),
+          ],
         ],
       ),
     );

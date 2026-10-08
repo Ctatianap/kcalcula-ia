@@ -1,7 +1,7 @@
 # SPEC-023: Confianza visual
 
 ## Status
-Draft
+Implementing
 Path: Standard (presentación de la confianza ya calculada por reglas; no cambia la regla ni el
 cálculo)
 
@@ -31,7 +31,7 @@ en los números.
   para mejorarla cuando exista: "Escribe los gramos" (lleva al ajuste de cantidad del ingrediente) y
   "Usa la etiqueta" (abre el mismo flujo de "Usar etiqueta" de SPEC-033: foto, galería o escribir los
   valores). En la tarjeta de kcal, la hoja explica la regla del 15 % y nombra los ingredientes que
-  bajan el nivel.
+  tienen el nivel de la comida.
 - R4. **Hoy e Historial:** las tarjetas de comida muestran el indicador de la comida (mismo
   componente); el "~" se mantiene en los totales.
 - R5. Lectura accesible: cada indicador tiene etiqueta semántica ("Confianza: buena estimación").
@@ -41,7 +41,8 @@ en los números.
 - AC2. En el detalle de "dos huevos (unidad) y una arepa pequeña", la arepa muestra "Estimación", el
   huevo "Buena estimación" y la tarjeta el nivel de la comida según la regla del 15 % `[widget]`.
 - AC3. Tocar el indicador de la arepa abre la explicación de `size_descriptor` y la acción "Escribe
-  los gramos", que enfoca el ajuste de cantidad `[widget]`.
+  los gramos", que pide la cantidad exacta en g (o ml); al escribirla, la cantidad pasa por las reglas
+  de `nutrition_core` y el ingrediente queda como "Peso dicho por ti" (Buena estimación) `[widget]`.
 - AC4. Las explicaciones cubren las 6 bases de `QuantityBasis`, el uso de densidad por defecto, la
   porción curada y la cantidad vaga; un test recorre todas `[unit]`.
 - AC5. Ningún color del indicador es rojo ni verde de alarma; contraste ≥ 3:1 para el ícono `[unit]`.
@@ -88,6 +89,31 @@ en los números.
 - 2026-10-08: actualizada antes de pedir aprobación: contexto con lo que ya muestra el detalle
   (SPEC-033), íconos y acción de etiqueta decididos con la opción recomendada, explicación en la
   tarjeta de kcal.
+- 2026-10-08: **Approved por la usuaria** ("aprobado"). Status → Implementing.
+- 2026-10-08: implementada. La implementación pidió dos cambios de texto, **pendientes de aprobación de
+  la usuaria**:
+  1. R3: la hoja de la comida nombra "los ingredientes que tienen el nivel de la comida", no "los que
+     bajan el nivel": saber cuáles lo bajan exige repetir en la app la regla del 15 % (invariante 4 y
+     3; eso sería Strict, en `nutrition_core`). Lo que se muestra es exacto sin recalcular la regla.
+  2. AC3: "Escribe los gramos" abre un campo para escribir la cantidad exacta en vez de solo enfocar
+     los botones −/+ (que no permiten escribir). La cantidad escrita pasa por `resolveGrams` e
+     `itemConfidence` (`ReviewController.setWrittenQuantity`), así que el nivel mejora por la regla, no
+     por la UI.
+  Otros detalles: los nombres de los niveles viven con el indicador (`confidenceLevelLabels`); la razón
+  de cada ingrediente se deduce de su base, si era vaga y su nivel (`confidenceReasonFor`, sin cálculo);
+  "Usa la etiqueta" abre el flujo de SPEC-033 del ingrediente. `label_to_review_flow_test.dart` ahora
+  espera "Alta precisión" dos veces (comida e ingrediente, R2). app 477/477.
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/features/review/confidence_visual_test.dart` › "AC1…" |
+| AC2 | ✅ | mismo archivo › "AC2…" |
+| AC3 | ✅ | mismo archivo › "AC3…" (texto según el cambio propuesto) |
+| AC4 | ✅ | mismo archivo › "AC4…" |
+| AC5 | ✅ | mismo archivo › "AC5…" (`KColors.accent`, contraste contra blanco y tarjeta) |
+| AC6 | ✅ | mismo archivo › "AC6: Hoy e Historial…" |
+| Manual | ⏳ | Recorrido en el teléfono con TalkBack, pendiente |
 
 ## Review
 Informe del reviewer: pendiente.

@@ -8,10 +8,12 @@ import '../../infra/food_resolution/food_query_resolver.dart';
 import '../../infra/food_resolution/ingredient_label_result.dart';
 import '../../infra/storage/app_database.dart' show PersonalProduct;
 import '../../infra/storage/storage_providers.dart';
+import '../../ui/components/confidence_indicator.dart';
 import '../../ui/components/k_card.dart';
 import '../../ui/components/meal_actions.dart';
 import '../../format/date_format_es.dart';
 import '../../format/text_es.dart';
+import '../../ui/confidence_texts.dart';
 import '../../ui/number_input_es.dart';
 import '../../ui/theme.dart';
 import 'food_search_screen.dart';
@@ -65,11 +67,8 @@ double _nextHalfPortion(double portions, {required bool up}) {
   return next * _portionStep;
 }
 
-const confidenceLabels = {
-  ConfidenceLevel.altaPrecision: 'Alta precisión',
-  ConfidenceLevel.buenaEstimacion: 'Buena estimación',
-  ConfidenceLevel.estimacion: 'Estimación',
-};
+/// SPEC-023: los nombres viven con el indicador.
+const confidenceLabels = confidenceLevelLabels;
 
 /// R4: cómo se obtuvo la cantidad de cada ingrediente.
 String quantitySourceLabel(QuantityBasis? basis) => switch (basis) {
@@ -193,6 +192,76 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
         servingUnit: picked.servingUnit,
       );
     }
+  }
+
+  /// SPEC-023 R3: "Escribe los gramos" (o ml) de este ingrediente.
+  Future<void> _writeGrams(int index) async {
+    final controller = widget.controller;
+    final item = controller.items[index];
+    final unit = controller.unitOf(item);
+    final value = await showDialog<double>(
+      context: context,
+      builder: (_) => _WriteQuantityDialog(
+        name: _itemName(item),
+        unit: unit,
+        initial: item.grams,
+      ),
+    );
+    if (value != null && mounted) {
+      controller.setWrittenQuantity(index, value, unit: unit);
+    }
+  }
+
+  /// SPEC-023 R3: por qué este ingrediente tiene su nivel y cómo mejorarlo.
+  Future<void> _explainItem(int index) async {
+    final item = widget.controller.items[index];
+    final level = item.confidence;
+    if (level == null) return;
+    final explanation = confidenceExplanation(
+      confidenceReasonFor(
+        basis: item.basis,
+        isVague: item.isVague,
+        level: level,
+      ),
+    );
+    final action = await _showConfidenceSheet(
+      context,
+      level: level,
+      title: explanation.title,
+      body: explanation.body,
+      actions: [
+        for (final a in explanation.actions)
+          if (a != ConfidenceAction.useLabel || !_registering) a,
+      ],
+    );
+    if (!mounted || action == null) return;
+    switch (action) {
+      case ConfidenceAction.writeGrams:
+        await _writeGrams(index);
+      case ConfidenceAction.useLabel:
+        await _useLabel(index);
+    }
+  }
+
+  /// SPEC-023 R3: la regla de la comida y los ingredientes con su nivel.
+  Future<void> _explainMeal() async {
+    final controller = widget.controller;
+    final level = controller.mealConfidenceLevel;
+    if (level == null) return;
+    final names = [
+      for (final item in controller.items)
+        if (item.status == ReviewItemStatus.matched && item.confidence == level)
+          _itemName(item),
+    ];
+    await _showConfidenceSheet(
+      context,
+      level: level,
+      title: 'Confianza de la comida',
+      body:
+          '$mealConfidenceRuleText'
+          '${names.isEmpty ? '' : '\n\nIngredientes con este nivel: ${joinNamesEs(names)}.'}',
+      actions: const [],
+    );
   }
 
   /// SPEC-026 R2: fecha y hora nuevas; nunca en el futuro.
@@ -347,7 +416,10 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
                           ),
                         ),
                       const SizedBox(height: 16),
-                      _TotalsCard(controller: controller),
+                      _TotalsCard(
+                        controller: controller,
+                        onExplain: _explainMeal,
+                      ),
                       if (controller.isFullyVerified) ...[
                         const SizedBox(height: 12),
                         const _VerifiedSeal(),
@@ -388,6 +460,7 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
                               : () => _pickProduct(index),
                           onSetPortions: (portions) =>
                               controller.setPortions(index, portions),
+                          onExplain: () => _explainItem(index),
                           onShowInGrams: (value) =>
                               controller.setShowInGrams(index, value),
                           unit: controller.unitOf(item),
@@ -489,7 +562,10 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
 class _TotalsCard extends StatelessWidget {
   final ReviewController controller;
 
-  const _TotalsCard({required this.controller});
+  /// SPEC-023 R3.
+  final VoidCallback onExplain;
+
+  const _TotalsCard({required this.controller, required this.onExplain});
 
   @override
   Widget build(BuildContext context) {
@@ -518,7 +594,12 @@ class _TotalsCard extends StatelessWidget {
           ),
           if (confidence != null) ...[
             const SizedBox(height: 4),
-            Text(confidenceLabels[confidence]!, style: secondary),
+            // SPEC-023 R2/R3.
+            ConfidenceIndicator(
+              key: const Key('meal-confidence'),
+              level: confidence,
+              onTap: onExplain,
+            ),
           ],
           const SizedBox(height: 10),
           Wrap(
@@ -621,10 +702,14 @@ class _IngredientCard extends StatelessWidget {
   final ValueChanged<double> onSetPortions;
   final ValueChanged<bool> onShowInGrams;
 
+  /// SPEC-023 R3: "¿Por qué?" del indicador.
+  final VoidCallback onExplain;
+
   /// SPEC-034 R5: "g" o "ml".
   final String unit;
 
   const _IngredientCard({
+    required this.onExplain,
     required this.item,
     required this.onSelectCandidate,
     required this.onRemove,
@@ -700,6 +785,7 @@ class _IngredientCard extends StatelessWidget {
           switch (item.status) {
             ReviewItemStatus.matched => _MatchedRow(
               item: item,
+              onExplain: onExplain,
               onAdjustGrams: onAdjustGrams,
               onSetPortions: onSetPortions,
               onShowInGrams: onShowInGrams,
@@ -724,7 +810,10 @@ class _MatchedRow extends StatelessWidget {
   final ValueChanged<bool> onShowInGrams;
   final String unit;
 
+  final VoidCallback onExplain;
+
   const _MatchedRow({
+    required this.onExplain,
     required this.item,
     required this.onAdjustGrams,
     required this.onSetPortions,
@@ -750,6 +839,14 @@ class _MatchedRow extends StatelessWidget {
             fontWeight: highlight ? FontWeight.w500 : FontWeight.w300,
           ),
         ),
+        // SPEC-023 R2.
+        if (item.confidence case final level?)
+          ConfidenceIndicator(
+            key: Key('ingredient-confidence-${item.mention}'),
+            level: level,
+            compact: true,
+            onTap: onExplain,
+          ),
         // Con texto grande, las kcal bajan a otra línea en vez de salirse.
         Wrap(
           alignment: WrapAlignment.spaceBetween,
@@ -855,6 +952,118 @@ class _NotFoundRow extends StatelessWidget {
           ),
         ),
         TextButton(onPressed: onRemove, child: const Text('Quitar')),
+      ],
+    );
+  }
+}
+
+/// SPEC-023 R3: hoja con la explicación de un nivel y las acciones para
+/// mejorarlo. Devuelve la acción elegida.
+Future<ConfidenceAction?> _showConfidenceSheet(
+  BuildContext context, {
+  required ConfidenceLevel level,
+  required String title,
+  required String body,
+  required List<ConfidenceAction> actions,
+}) => showModalBottomSheet<ConfidenceAction>(
+  context: context,
+  isScrollControlled: true,
+  builder: (context) => SafeArea(
+    child: Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+      child: Column(
+        key: const Key('confidence-sheet'),
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ConfidenceIndicator(level: level),
+          const SizedBox(height: 8),
+          Text(title, style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 6),
+          Text(body),
+          const SizedBox(height: 12),
+          for (final action in actions)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: OutlinedButton.icon(
+                onPressed: () => Navigator.of(context).pop(action),
+                icon: Icon(switch (action) {
+                  ConfidenceAction.writeGrams => Icons.edit_outlined,
+                  ConfidenceAction.useLabel => Icons.receipt_long_outlined,
+                }),
+                label: Text(switch (action) {
+                  ConfidenceAction.writeGrams => writeGramsAction,
+                  ConfidenceAction.useLabel => useLabelHelpAction,
+                }),
+              ),
+            ),
+        ],
+      ),
+    ),
+  ),
+);
+
+/// SPEC-023 R3: la cantidad exacta en g o ml.
+class _WriteQuantityDialog extends StatefulWidget {
+  final String name;
+  final String unit;
+  final double initial;
+
+  const _WriteQuantityDialog({
+    required this.name,
+    required this.unit,
+    required this.initial,
+  });
+
+  @override
+  State<_WriteQuantityDialog> createState() => _WriteQuantityDialogState();
+}
+
+class _WriteQuantityDialogState extends State<_WriteQuantityDialog> {
+  late final _amount = TextEditingController(
+    text: formatDecimalEs(widget.initial, maxDecimals: 1),
+  );
+
+  @override
+  void dispose() {
+    _amount.dispose();
+    super.dispose();
+  }
+
+  double? get _value {
+    final v = parseDecimal(_amount.text);
+    return v == null || v <= 0 ? null : v;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final value = _value;
+    return AlertDialog(
+      title: Text('¿Cuánto ${widget.name}?'),
+      content: TextField(
+        key: const Key('write-quantity'),
+        controller: _amount,
+        autofocus: true,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        decoration: InputDecoration(
+          suffixText: widget.unit,
+          errorText: _amount.text.trim().isEmpty || value != null
+              ? null
+              : 'Escribe una cantidad mayor que 0.',
+        ),
+        onChanged: (_) => setState(() {}),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancelar'),
+        ),
+        FilledButton(
+          onPressed: value == null
+              ? null
+              : () => Navigator.of(context).pop(value),
+          child: const Text('Listo'),
+        ),
       ],
     );
   }

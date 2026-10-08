@@ -99,6 +99,14 @@ Por comida: el nivel más bajo entre los ítems que aportan ≥ 15 % de las kcal
 Si ningún ítem llega al 15 %, se usa el nivel más bajo de todos.
 La IA nunca reporta confianza.
 
+**Cómo se muestra (SPEC-023).** `ui/components/confidence_indicator.dart`: círculo lleno (Alta
+precisión), a medias (Buena estimación) o en contorno (Estimación), siempre con texto y etiqueta
+semántica, en el tono de acento. Va en la tarjeta de kcal y en cada ingrediente del detalle, y en las
+tarjetas de comida de Hoy e Historial (nivel guardado). Al tocarlo, `ui/confidence_texts.dart` explica
+la regla que aplicó (deducida de la base, si era vaga y el nivel; no recalcula nada) y ofrece cómo
+mejorarlo: escribir la cantidad exacta (pasa por `resolveGrams` e `itemConfidence`) o usar la etiqueta
+(SPEC-033).
+
 ## Cálculo
 `nutriente_item = valor_por_100g × gramos / 100`. Las sumas se hacen sin redondear. Al presentar:
 kcal enteras (redondeo half-up) y macros con 1 decimal. Los valores estimados se muestran con "~".

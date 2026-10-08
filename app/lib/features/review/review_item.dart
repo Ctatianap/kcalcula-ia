@@ -71,14 +71,18 @@ class ReviewItem {
 
     /// SPEC-026: editar la cantidad descarta la instantánea guardada.
     bool keepSnapshot = true,
+
+    /// SPEC-023: la persona escribió la cantidad exacta; deja de ser vaga y
+    /// se guarda tal como la escribió.
+    ({double quantity, String unit})? writtenQuantity,
   }) => ReviewItem(
     mention: mention,
     foodQuery: foodQuery,
-    isVague: isVague,
+    isVague: writtenQuantity == null && isVague,
     parentIndex: parentIndex,
-    quantityRaw: quantityRaw,
-    unitRaw: unitRaw,
-    sizeRaw: sizeRaw,
+    quantityRaw: writtenQuantity?.quantity ?? quantityRaw,
+    unitRaw: writtenQuantity?.unit ?? unitRaw,
+    sizeRaw: writtenQuantity == null ? sizeRaw : null,
     status: status ?? this.status,
     candidates: candidates ?? this.candidates,
     food: food ?? this.food,

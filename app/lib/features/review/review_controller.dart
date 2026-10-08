@@ -513,6 +513,43 @@ class ReviewController extends ChangeNotifier {
     _changed();
   }
 
+  /// SPEC-023 R3: "Escribe los gramos". La cantidad exacta en g (o ml,
+  /// según [unit]) pasa por las reglas de `nutrition_core`: base y
+  /// confianza nuevas (p. ej. "Peso dicho por ti"). Sin IA.
+  void setWrittenQuantity(int index, double quantity, {required String unit}) {
+    final item = _items[index];
+    final food = item.food;
+    if (food == null || quantity <= 0) return;
+    final isLabel = isPersonalProductFood(food);
+    final resolution = resolveGrams(
+      input: QuantityInput(
+        quantity: quantity,
+        unit: mapUnit(unit),
+        isVague: false,
+      ),
+      food: food,
+      isLabelProduct: isLabel,
+    );
+    final grams = resolution.grams;
+    if (!resolution.resolvable || grams == null || grams <= 0) return;
+    _items[index] = item.copyWith(
+      grams: grams,
+      basis: resolution.basis,
+      confidence: itemConfidence(
+        basis: resolution.basis,
+        isVague: false,
+        usedCuratedEstimatePortion: resolution.usedCuratedEstimatePortion,
+        usedDensityFallback: resolution.usedDensityFallback,
+        hasLabelGramsOrMl: resolution.basis == QuantityBasis.label,
+      ),
+      nutrients: calculateItemNutrients(food, grams),
+      highlightForEdit: false,
+      keepSnapshot: false,
+      writtenQuantity: (quantity: quantity, unit: unit),
+    );
+    _changed();
+  }
+
   void setMealType(String type) {
     if (type == mealType) return;
     mealType = type;
