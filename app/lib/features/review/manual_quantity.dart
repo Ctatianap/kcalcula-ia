@@ -2,6 +2,7 @@ import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../infra/food_resolution/food_query_resolver.dart';
 import '../../infra/food_resolution/meal_draft.dart';
+import 'quantity_mapping.dart' show confidenceOfResolution;
 
 /// SPEC-018 R2: una forma de elegir la cantidad de un alimento buscado a
 /// mano. Todas pasan por `resolveGrams` de `nutrition_core` (las mismas
@@ -168,13 +169,7 @@ MealDraftItem? manualDraftItem(
     mention: food.nameEs,
     grams: grams,
     basis: resolution.basis,
-    confidence: itemConfidence(
-      basis: resolution.basis,
-      isVague: false,
-      usedCuratedEstimatePortion: resolution.usedCuratedEstimatePortion,
-      usedDensityFallback: resolution.usedDensityFallback,
-      hasLabelGramsOrMl: resolution.basis == QuantityBasis.label,
-    ),
+    confidence: confidenceOfResolution(resolution, isVague: false),
     quantityInput: amount,
     unitInput: option.unitInput,
     sizeInput: option.sizeInput,

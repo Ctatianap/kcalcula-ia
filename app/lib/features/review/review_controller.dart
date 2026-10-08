@@ -236,13 +236,7 @@ class ReviewController extends ChangeNotifier {
           mention: food.nameEs,
           grams: grams,
           basis: resolution.basis,
-          confidence: itemConfidence(
-            basis: resolution.basis,
-            isVague: false,
-            usedCuratedEstimatePortion: resolution.usedCuratedEstimatePortion,
-            usedDensityFallback: resolution.usedDensityFallback,
-            hasLabelGramsOrMl: resolution.basis == QuantityBasis.label,
-          ),
+          confidence: confidenceOfResolution(resolution, isVague: false),
           quantityInput: quantity,
           unitInput: unit,
         ),
@@ -341,12 +335,9 @@ class ReviewController extends ChangeNotifier {
     final grams = resolution.resolvable
         ? resolution.grams!
         : _fallbackGrams(food);
-    final confidence = itemConfidence(
-      basis: resolution.basis,
+    final confidence = confidenceOfResolution(
+      resolution,
       isVague: parsed.isVague,
-      usedCuratedEstimatePortion: resolution.usedCuratedEstimatePortion,
-      usedDensityFallback: resolution.usedDensityFallback,
-      hasLabelGramsOrMl: resolution.basis == QuantityBasis.label,
     );
     return ReviewItem(
       mention: parsed.mention,
@@ -535,13 +526,7 @@ class ReviewController extends ChangeNotifier {
     _items[index] = item.copyWith(
       grams: grams,
       basis: resolution.basis,
-      confidence: itemConfidence(
-        basis: resolution.basis,
-        isVague: false,
-        usedCuratedEstimatePortion: resolution.usedCuratedEstimatePortion,
-        usedDensityFallback: resolution.usedDensityFallback,
-        hasLabelGramsOrMl: resolution.basis == QuantityBasis.label,
-      ),
+      confidence: confidenceOfResolution(resolution, isVague: false),
       nutrients: calculateItemNutrients(food, grams),
       highlightForEdit: false,
       keepSnapshot: false,

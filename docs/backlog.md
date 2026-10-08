@@ -358,6 +358,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     SPEC-023).
   dependencies: []
   spec_required: false
+  status: done  # 2026-10-08: `confidenceOfResolution` en quantity_mapping.dart; 502/502 sin cambiar tests
 - id: T-043
   title: Test inestable de exportar PDF
   objective: >
@@ -365,6 +366,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     completa y pasó al repetir (reviewer de SPEC-023). Hacerlo determinista.
   dependencies: []
   spec_required: false
+  status: done  # 2026-10-08: el test espera a que termine la exportación en vez de 300 ms fijos
 - id: F2
   # SPEC-022 (comidas frecuentes y favoritas): Done 2026-10-08.
   # SPEC-023 (confianza visual): Done 2026-10-08.
