@@ -265,6 +265,22 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   dependencies: [T-031]
   status: done  # SPEC-032
   spec_required: true    # specs/SPEC-032-cantidad-en-porciones-y-vista-previa.md — Standard
+- id: T-033
+  title: Etiqueta y mis productos por ingrediente
+  objective: >
+    Pedido de la usuaria (2026-10-07): registrar una comida completa por texto o voz y, en el
+    Detalle, usar la etiqueta de cada ingrediente o elegir un producto ya guardado (sin repetir
+    fotos ni tokens), con la cantidad en porciones o g/ml.
+  dependencies: [T-032]
+  spec_required: true    # specs/SPEC-033-etiqueta-y-mis-productos-por-ingrediente.md — Standard
+- id: T-034
+  title: Mis productos (ver, editar, borrar, nombres alternativos y prioridad al reconocer)
+  objective: >
+    Complemento de T-033: pantalla para gestionar los productos personales, darles nombres con que
+    la persona los llama ("mi pan") y que tengan prioridad sobre el catálogo al reconocer el texto.
+    Strict (cambia la resolución de alimentos).
+  dependencies: [T-033]
+  spec_required: true
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
   # SPECs (Draft, 2026-10-04): specs/SPEC-021-foto-del-plato.md (Strict),
