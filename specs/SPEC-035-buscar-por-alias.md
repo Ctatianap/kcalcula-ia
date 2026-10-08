@@ -81,6 +81,7 @@ nombre exacto que le puse.
 - 2026-10-07: **Approved por la usuaria** ("aprobado"). Status → Implementing.
 - 2026-10-07: implementada: `search` con alias, "Buscar alimento" y "Elegir de mis productos" leen los
   alias. 400/400.
+- 2026-10-07: reviewer PASS; MINOR corregidos. 401/401. Falta la prueba manual.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -89,8 +90,12 @@ nombre exacto que le puse.
 | AC2 | ✅ | mismo archivo › "AC2…" ("pan" está en el nombre y en dos alias: una sola vez) |
 | AC3 | ✅ | mismo archivo › "AC3…" ("Buscar alimento") |
 | AC4 | ✅ | mismo archivo › "AC4…" (filtra por alias, oculta "Leche" y muestra "También: mi pan, pan integral") |
-| AC5 | ✅ | app: analyze sin avisos, 400/400; ningún test existente cambió |
+| AC5 | ✅ | app: analyze sin avisos, 401/401; ningún test existente cambió. Caso borde: "un alias que también está en el catálogo sale primero" |
 | Manual | ⏳ | Buscar "mi pan" en "Buscar alimento" en el teléfono |
 
 ## Review
-Informe del reviewer:
+Revisión (2026-10-07, subagente `reviewer`, sobre `c785409`): **PASS**. AC1–AC5 con evidencia; `resolve`
+sin cambios; orden y límite de SPEC-018 intactos; errores, fronteras e invariantes correctos. MINOR
+corregidos: `getPersonalProductAliases` ordenado por id ("También: …" estable); `_aliasesOf` en
+"Elegir de mis productos"; test del caso borde (el producto sale antes que el catálogo). La regla de
+coincidencia sigue duplicada entre `search` y el selector (aceptable: el selector filtra en pantalla).

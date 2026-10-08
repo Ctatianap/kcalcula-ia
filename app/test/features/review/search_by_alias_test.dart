@@ -96,6 +96,18 @@ void main() {
       },
     );
 
+    test('caso borde: un alias que también está en el catálogo sale primero (SPEC-018)', () async {
+      await repo.updatePersonalProduct(
+        id: bread,
+        nameEs: 'Pan tajado integral',
+        servingUnit: 'g',
+        aliases: ['mi arepa'],
+      );
+      final hits = (await resolver()).search('arepa');
+      expect(hits.first.id, 'personal:$bread');
+      expect(hits.skip(1).map((h) => h.id), contains('arepa'));
+    });
+
     test('sin alias, igual que antes', () async {
       final hits = (await resolver()).search('leche');
       expect(hits.first.nameEs, 'Leche');

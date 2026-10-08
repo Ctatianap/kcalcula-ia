@@ -164,7 +164,10 @@ class StorageRepository {
 
   /// SPEC-034 R4: nombres alternativos de cada producto personal, por id.
   Future<Map<int, List<String>>> getPersonalProductAliases() async {
-    final rows = await _db.select(_db.personalProductAliases).get();
+    // En el orden en que se guardaron (SPEC-035: "También: …" estable).
+    final rows = await (_db.select(
+      _db.personalProductAliases,
+    )..orderBy([(a) => OrderingTerm.asc(a.id)])).get();
     final byProduct = <int, List<String>>{};
     for (final row in rows) {
       byProduct.putIfAbsent(row.productId, () => []).add(row.term);

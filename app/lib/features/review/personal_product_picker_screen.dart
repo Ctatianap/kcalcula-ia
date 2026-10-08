@@ -38,6 +38,8 @@ class _PersonalProductPickerScreenState
   Map<int, List<String>> _aliases = const {};
   bool _loadFailed = false;
 
+  List<String> _aliasesOf(PersonalProduct p) => _aliases[p.id] ?? const [];
+
   @override
   void initState() {
     super.initState();
@@ -82,9 +84,8 @@ class _PersonalProductPickerScreenState
             for (final p in products)
               if (query.isEmpty ||
                   normalizeFoodText(p.nameEs).contains(query) ||
-                  (_aliases[p.id] ?? const []).any(
-                    (a) => normalizeFoodText(a).contains(query),
-                  ))
+                  _aliasesOf(p)
+                      .any((a) => normalizeFoodText(a).contains(query)))
                 p,
           ];
     return Scaffold(
@@ -136,17 +137,17 @@ class _PersonalProductPickerScreenState
                         food,
                         product.servingGrams,
                       ).energyKcal;
+                      final aliases = _aliasesOf(product);
                       return ListTile(
                         key: Key('personal-product-${product.id}'),
                         title: Text(product.nameEs),
                         subtitle: Text(
                           '1 porción = ${formatMacroEs(product.servingGrams)} ${product.servingUnit} · '
                           '${formatThousandsEs(presentKcal(kcal))} kcal'
-                          '${(_aliases[product.id] ?? const []).isEmpty ? '' : '\nTambién: ${_aliases[product.id]!.join(', ')}'}',
+                          '${aliases.isEmpty ? '' : '\nTambién: ${aliases.join(', ')}'}',
                           style: const TextStyle(color: KColors.textSecondary),
                         ),
-                        isThreeLine:
-                            (_aliases[product.id] ?? const []).isNotEmpty,
+                        isThreeLine: aliases.isNotEmpty,
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () => Navigator.of(
                           context,
