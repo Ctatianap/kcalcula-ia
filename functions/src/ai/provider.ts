@@ -7,6 +7,8 @@ export interface AiProviderResult {
   latencyMs: number;
   tokensInput?: number;
   tokensOutput?: number;
+  /** SPEC-039 R2: tokens de razonamiento (`thoughtsTokenCount`). */
+  tokensThinking?: number;
 }
 
 export interface AiProvider {

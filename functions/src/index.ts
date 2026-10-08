@@ -9,6 +9,7 @@ import { createFakeAiProvider } from "./ai/fake.js";
 import { buildExtractLabelHandler, buildParseMealHandler } from "./ai/handler.js";
 import { createOllamaProvider } from "./ai/ollama.js";
 import type { AiProvider } from "./ai/provider.js";
+import { resolveThinkingBudget } from "./ai/thinking.js";
 import { resolveProviderName } from "./ai/provider_name.js";
 import { createVertexAiProvider } from "./ai/vertex.js";
 import { ping } from "./ping.js";
@@ -41,10 +42,15 @@ function selectProvider(): AiProvider {
           "El proveedor vertex requiere VERTEX_PROJECT_ID configurado (un proyecto real de GCP con Vertex AI habilitado).",
         );
       }
+      // SPEC-039 R1: de `process.env` (como `AI_PROVIDER`), no con
+      // `defineString`: un param nuevo obligaría a escribirlo en el `.env`
+      // antes de cualquier `firebase deploy --non-interactive`.
+      const thinkingBudget = resolveThinkingBudget(process.env.GEMINI_THINKING_BUDGET);
       return createVertexAiProvider({
         project,
         location: vertexLocationParam.value(),
         modelId: geminiModelIdParam.value(),
+        thinkingBudget,
       });
     }
     case "ollama":

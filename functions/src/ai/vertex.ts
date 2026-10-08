@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import type { AiProvider, AiProviderResult } from "./provider.js";
+import { buildGenerationConfig } from "./thinking.js";
 import { renderExtractLabelPrompt, renderParseMealPrompt } from "./prompt.js";
 import {
   LABEL_EXTRACTION_RESPONSE_SCHEMA,
@@ -12,6 +13,8 @@ export interface VertexAiProviderConfig {
   project: string;
   location: string;
   modelId: string;
+  /** SPEC-039: `undefined` = valor por defecto del modelo. */
+  thinkingBudget?: number;
 }
 
 /** Adaptador real a Gemini vía Vertex AI (`@google/genai`, `vertexai: true`). */
@@ -30,11 +33,10 @@ export function createVertexAiProvider(
       const response = await client.models.generateContent({
         model: config.modelId,
         contents: renderParseMealPrompt(input),
-        config: {
-          responseMimeType: "application/json",
-          responseJsonSchema: PARSED_MEAL_RESPONSE_SCHEMA,
-          temperature: 0,
-        },
+        config: buildGenerationConfig(
+          PARSED_MEAL_RESPONSE_SCHEMA,
+          config.thinkingBudget,
+        ),
       });
       const text = response.text;
       if (text === undefined) {
@@ -46,6 +48,8 @@ export function createVertexAiProvider(
         latencyMs: Date.now() - start,
         tokensInput: response.usageMetadata?.promptTokenCount,
         tokensOutput: response.usageMetadata?.candidatesTokenCount,
+        // SPEC-039 R2.
+        tokensThinking: response.usageMetadata?.thoughtsTokenCount,
       };
     },
 
@@ -62,11 +66,10 @@ export function createVertexAiProvider(
           },
           { text: renderExtractLabelPrompt() },
         ],
-        config: {
-          responseMimeType: "application/json",
-          responseJsonSchema: LABEL_EXTRACTION_RESPONSE_SCHEMA,
-          temperature: 0,
-        },
+        config: buildGenerationConfig(
+          LABEL_EXTRACTION_RESPONSE_SCHEMA,
+          config.thinkingBudget,
+        ),
       });
       const text = response.text;
       if (text === undefined) {
@@ -78,6 +81,8 @@ export function createVertexAiProvider(
         latencyMs: Date.now() - start,
         tokensInput: response.usageMetadata?.promptTokenCount,
         tokensOutput: response.usageMetadata?.candidatesTokenCount,
+        // SPEC-039 R2.
+        tokensThinking: response.usageMetadata?.thoughtsTokenCount,
       };
     },
   };
