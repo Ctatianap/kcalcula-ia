@@ -13,6 +13,9 @@ abstract class AppRoutes {
   /// SPEC-033: etiqueta de un ingrediente del Detalle. Argumento: el nombre
   /// del ingrediente (`String`). Devuelve un `IngredientLabelResult?`.
   static const ingredientLabel = '/ingredient-label';
+
+  /// SPEC-034: "Mis productos" (ver, renombrar, alias, borrar).
+  static const myProducts = '/my-products';
   static const onboarding = '/onboarding';
   static const settings = '/settings';
   static const privacyPolicy = '/privacy-policy';

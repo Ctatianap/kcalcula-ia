@@ -143,5 +143,29 @@ llamo y que la app los reconozca cuando digo "mi pan" o "mi leche", para no eleg
   T-034.
 - 2026-10-07: **Approved por la usuaria** ("aprobada la SPEC-034"). Status → Implementing.
 
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | Widget: `app/test/features/settings/my_products_screen_test.dart` › "AC1: renombrar…" (lista) y "AC1: \"Elegir de mis productos\" muestra el nombre nuevo". Integración: `app/test/infra/storage/personal_products_storage_test.dart` › "SPEC-034 AC1/AC6 (integración)…" (la comida registrada sigue con "Pan") |
+| AC2 | ✅ | Unit: `app/test/infra/food_resolution/personal_product_priority_test.dart` › "AC2…" ("Mi Pan" → matched). Widget: `app/test/features/review/ingredient_actions_test.dart` › "SPEC-034 AC2…" (el Detalle muestra el producto, sin "¿Cuál de estos?") |
+| AC3 | ✅ | `personal_product_priority_test.dart` › "AC3…". Usa "Arepa" (el catálogo de fixtures no tiene "Pan"): mismo caso, coincidencia exacta en catálogo y producto con el mismo nombre → matched con el producto |
+| AC4 | ✅ | mismo archivo › "AC4…" |
+| AC5 | ✅ | mismo archivo › "AC5…" (mismo resultado con y sin alias para consultas sin igualdad exacta) y la suite de resolución existente sin cambios |
+| AC6 | ✅ | Widget: `my_products_screen_test.dart` › "AC6: borrar con confirmación…" y "AC6: \"Cancelar\" no borra". Integración: "SPEC-034 AC1/AC6 (integración)…" (alias borrados, la comida sigue igual) |
+| AC7 | ✅ | `ingredient_actions_test.dart` › "SPEC-034 AC7…": `serving_unit` "ml", Detalle "1 porción · 200 ml", "Ver en ml" y "Elegir de mis productos" "1 porción = 200,0 ml · 90 kcal" |
+| AC8 | ✅ | `personal_products_storage_test.dart` › "SPEC-034 AC8…": base v7 simulada (sin columna ni tabla) → v8 conserva el producto, "g", sin alias; exportar incluye unidad y alias; "Borrar todos mis datos" vacía los alias |
+| AC9 | ✅ | `my_products_screen_test.dart` › "AC9: nombre vacío…", "AC9: alias vacío, repetido o número 11" (unit) y "AC9: alias repetido muestra el mensaje…" |
+| AC10 | ✅ | app: analyze sin avisos, 392/392. Expectativas cambiadas: `weight_log_storage_test.dart` y `nutrition_goal_storage_test.dart` esperan `user_version` 8 (antes 7). `integration/storage_errors_test.dart` añade `servingUnit` a su `savePersonalProduct` falso (firma, no expectativa). Ningún test de resolución cambió |
+| Manual | ⏳ | Renombrar el pan, darle "mi pan" y registrar "mi pan" en el teléfono |
+- 2026-10-07: implementada.
+  - `user.db` v8: `personal_products.serving_unit` y `personal_product_aliases`. La migración solo agrega
+    lo que falte (comprueba la columna y la tabla), para no fallar con bases simuladas o ya creadas.
+  - Repositorio: `getPersonalProductAliases`, `updatePersonalProduct`, `deletePersonalProduct`; "Borrar
+    todo" y "Exportar" con alias y unidad.
+  - `FoodQueryResolver`: igualdad exacta con nombre o alias gana (R4); `servingUnitOf`.
+  - Pantallas "Mis productos" y "Editar producto" en Ajustes (`AppRoutes.myProducts`); unidad en el
+    Detalle y en "Elegir de mis productos"; la etiqueta guarda su unidad.
+  - `docs/privacy.md` actualizado (inventario).
+
 ## Review
 Informe del reviewer:

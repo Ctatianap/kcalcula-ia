@@ -15,6 +15,7 @@ import 'features/onboarding/onboarding_screen.dart';
 import 'features/review/meal_analysis_screen.dart';
 import 'features/review/review_screen.dart';
 import 'features/settings/export_screen.dart';
+import 'features/settings/my_products_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'infra/food_resolution/ingredient_label_result.dart';
 import 'infra/ai_client/parsed_meal_dto.dart';
@@ -67,6 +68,11 @@ class MyApp extends StatelessWidget {
               builder: (_) => IngredientLabelScreen(
                 ingredientName: settings.arguments as String,
               ),
+            );
+          case AppRoutes.myProducts:
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (_) => const MyProductsScreen(),
             );
           case AppRoutes.analysis:
             final text = settings.arguments as String;
