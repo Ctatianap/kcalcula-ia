@@ -103,6 +103,12 @@ en los números.
   "Usa la etiqueta" abre el flujo de SPEC-033 del ingrediente. `label_to_review_flow_test.dart` ahora
   espera "Alta precisión" dos veces (comida e ingrediente, R2). app 477/477.
 - 2026-10-08: **la usuaria aprobó los dos cambios** (R3 y AC3) ("si").
+- 2026-10-08: reviewer PASS (manual con TalkBack pendiente). MINOR corregidos: test cruzado que recorre
+  las combinaciones de `itemConfidence` que produce `resolveGrams` y comprueba la razón deducida; AC3
+  comprueba "Cantidad dicha por ti" y la razón "Peso dicho por ti" después de escribir; la medida
+  casera menciona la densidad; Historial comprueba el "~"; área táctil de 48 dp en el indicador.
+  Al backlog: T-041 (gramos de respaldo con "Buena estimación", Strict), T-042 (helper repetido) y
+  T-043 (test inestable de exportar). app 479/479.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -116,4 +122,7 @@ en los números.
 | Manual | ⏳ | Recorrido en el teléfono con TalkBack, pendiente |
 
 ## Review
-Informe del reviewer: pendiente.
+Revisión (2026-10-08, subagente `reviewer`, sobre `bb3e0e7`): **PASS** con MINOR (corregidos o al
+backlog, ver Change Log). AC1–AC6 con evidencia; invariante 4: el nivel sale de `itemConfidence` y
+`mealConfidence`, la UI solo lo presenta; invariante 3 en `setWrittenQuantity`; un solo tono azul, sin
+rojo ni verde; fronteras respetadas; nada sale del dispositivo. Falta la prueba manual con TalkBack.

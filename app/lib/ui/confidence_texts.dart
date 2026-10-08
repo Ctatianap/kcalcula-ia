@@ -92,7 +92,8 @@ ConfidenceExplanation confidenceExplanation(ConfidenceReason reason) =>
         title: 'Medida casera',
         body:
             'La taza, el vaso o la cucharada se convierten a gramos con una '
-            'medida típica.',
+            'medida típica (y, si no tenemos la densidad del alimento, como si '
+            '1 ml pesara 1 g).',
         actions: const [ConfidenceAction.writeGrams, ConfidenceAction.useLabel],
       ),
       ConfidenceReason.defaultPortion => (

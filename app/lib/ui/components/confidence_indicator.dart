@@ -87,9 +87,14 @@ class ConfidenceIndicator extends StatelessWidget {
           : InkWell(
               borderRadius: BorderRadius.circular(12),
               onTap: tap,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: content,
+              // Área táctil de 48 dp (es la entrada a "¿Por qué?").
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 48),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: 1,
+                  child: content,
+                ),
               ),
             ),
     );

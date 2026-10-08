@@ -341,6 +341,30 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   dependencies: [T-009]
   status: done  # SPEC-041
   spec_required: true    # specs/SPEC-041-fecha-de-nacimiento-con-selectores.md — Standard
+- id: T-041
+  title: Cantidad sin porción en el catálogo queda como "Buena estimación"
+  objective: >
+    Hallazgo del reviewer de SPEC-023: si `resolveGrams` no puede resolver (p. ej. "unidad" de un
+    alimento sin esa porción), `ReviewController` usa gramos de respaldo con base `unitPortion` y
+    "Buena estimación", y "¿Por qué?" dice que viene del peso típico de la base. Revisar el nivel y el
+    texto en ese caso. Strict (confianza).
+  dependencies: []
+  spec_required: true
+- id: T-042
+  title: Un solo helper para resolver una cantidad con su confianza
+  objective: >
+    `resolveGrams` + `itemConfidence(hasLabelGramsOrMl: basis == label)` se repite en 4 lugares de la
+    app (review_controller y manual_quantity). Extraerlo sin cambiar comportamiento (reviewer de
+    SPEC-023).
+  dependencies: []
+  spec_required: false
+- id: T-043
+  title: Test inestable de exportar PDF
+  objective: >
+    `export_screen_test.dart` › "AC4: Exportar con pdf…" agotó `pumpAndSettle` una vez en la suite
+    completa y pasó al repetir (reviewer de SPEC-023). Hacerlo determinista.
+  dependencies: []
+  spec_required: false
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
   # SPECs (Draft, 2026-10-04): specs/SPEC-021-foto-del-plato.md (Strict),

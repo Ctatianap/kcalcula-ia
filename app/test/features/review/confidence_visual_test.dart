@@ -36,6 +36,17 @@ Future<void> _openDetail(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
+const _portionBases = {
+  QuantityBasis.unitPortion,
+  QuantityBasis.sizeDescriptor,
+  QuantityBasis.defaultPortion,
+};
+const _mlBases = {
+  QuantityBasis.explicitWeight,
+  QuantityBasis.label,
+  QuantityBasis.householdMeasure,
+};
+
 Finder _levelIn(String key, String label) =>
     find.descendant(of: find.byKey(Key(key)), matching: find.text(label));
 
@@ -112,6 +123,66 @@ void main() {
         contains(ConfidenceAction.writeGrams),
       );
     });
+
+    test(
+      'AC4: la razón deducida coincide con la causa real de itemConfidence',
+      () {
+        for (final basis in QuantityBasis.values) {
+          for (final isVague in [false, true]) {
+            // Solo lo que produce `resolveGrams`: la porción curada sale de
+            // una porción del catálogo y la densidad, de ml.
+            for (final curated in [
+              false,
+              if (_portionBases.contains(basis)) true,
+            ]) {
+              for (final density in [
+                false,
+                if (_mlBases.contains(basis)) true,
+              ]) {
+                final level = itemConfidence(
+                  basis: basis,
+                  isVague: isVague,
+                  usedCuratedEstimatePortion: curated,
+                  usedDensityFallback: density,
+                  hasLabelGramsOrMl: basis == QuantityBasis.label,
+                );
+                final reason = confidenceReasonFor(
+                  basis: basis,
+                  isVague: isVague,
+                  level: level,
+                );
+                final expected = isVague
+                    ? ConfidenceReason.vague
+                    : switch (basis) {
+                        QuantityBasis.label || QuantityBasis.explicitWeight
+                            when density =>
+                          ConfidenceReason.densityFallback,
+                        QuantityBasis.label => ConfidenceReason.label,
+                        QuantityBasis.explicitWeight =>
+                          ConfidenceReason.explicitWeight,
+                        QuantityBasis.unitPortion when curated =>
+                          ConfidenceReason.curatedPortion,
+                        QuantityBasis.unitPortion =>
+                          ConfidenceReason.unitPortion,
+                        QuantityBasis.sizeDescriptor =>
+                          ConfidenceReason.sizeDescriptor,
+                        QuantityBasis.householdMeasure =>
+                          ConfidenceReason.householdMeasure,
+                        QuantityBasis.defaultPortion =>
+                          ConfidenceReason.defaultPortion,
+                      };
+                expect(
+                  reason,
+                  expected,
+                  reason:
+                      '$basis vaga:$isVague curada:$curated densidad:$density',
+                );
+              }
+            }
+          }
+        }
+      },
+    );
 
     test(
       'AC5: sin rojo ni verde de alarma; contraste ≥ 3:1 en fondo y tarjeta',
@@ -216,6 +287,29 @@ void main() {
         findsOneWidget,
       );
       expect(_levelIn('meal-confidence', 'Buena estimación'), findsOneWidget);
+      // La tarjeta dice cómo se obtuvo y "¿Por qué?" da la razón nueva.
+      expect(find.text('Cantidad dicha por ti'), findsWidgets);
+      await tester.tap(indicator);
+      await tester.pumpAndSettle();
+      expect(
+        find.text(confidenceExplanation(ConfidenceReason.explicitWeight).title),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets(
+    'MINOR: el indicador de un ingrediente tiene área táctil de 48 dp',
+    (tester) async {
+      await _openDetail(tester);
+      expect(
+        tester
+            .getSize(
+              find.byKey(const Key('ingredient-confidence-una arepa pequeña')),
+            )
+            .height,
+        greaterThanOrEqualTo(48),
+      );
     },
   );
 
@@ -306,6 +400,7 @@ void main() {
       await pump(tester, const HistoryScreen());
       // El historial abre en hoy (fecha del reloj de prueba).
       expect(levelInCard('Estimación'), findsOneWidget);
+      expect(find.textContaining('~'), findsWidgets);
     });
   });
 }
