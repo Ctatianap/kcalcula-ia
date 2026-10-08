@@ -119,6 +119,24 @@ registrar antes de seguir, para no adivinar.
 - 2026-10-07: creación a partir del pedido de la usuaria al probar SPEC-031. Backlog T-032.
 - 2026-10-07: **Approved por la usuaria** ("sí, apruebo"; antes: "si me gusta el selector de porciones
   o los g/ml"). SPEC-031 ya fusionada. Status → Implementing.
+- 2026-10-07: implementada. Controlador: `ConsumedUnit`, `portionsCount`, `registeredQuantity`,
+  `setConsumedUnit` (cambiar de unidad no cuenta como editar la cantidad, para no romper SPEC-031),
+  `_per100()` compartido por `save()` y `preview` (`resolveGrams` + `calculateItemNutrients`).
+  Pantalla: `SegmentedButton`, `_Preview`, botón "Revisar comida". Tarjetas de macros extraídas de
+  "Hoy" a `app/lib/ui/components/macro_cards.dart` (sin cambio visual).
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/features/capture/label_confirmation_screen_test.dart` › "SPEC-032 AC1…": arranca en "1"; "3" → "3 porciones = 81 g"; Revisar recibe `cantidad=81.0` y `unidad=g` |
+| AC2 | ✅ | mismo archivo › "SPEC-032 AC2…": porción 30 → "3 porciones = 90 g", el campo sigue en "3" y se registran 90 |
+| AC3 | ✅ | mismo archivo › "SPEC-032 AC3…": "3" porciones → g "81"; "54" → porciones "2" |
+| AC4 | ✅ | widget: "SPEC-032 AC4…" (~210 kcal; 8,4 / 45,0 / 0,6). Unit: `label_confirmation_controller_test.dart` › "SPEC-032 AC4: la vista previa da lo mismo que Revisar…" (igual a `calculateItemNutrients` sobre el producto guardado por 100 g) |
+| AC5 | ✅ | "SPEC-032 AC5: con meta…" y "…sin meta, solo los gramos". Nota: las tarjetas muestran "de 123,0 g" (un decimal, `formatMacroEs`), igual que "Hoy", porque usan el mismo componente (`app/lib/ui/components/macro_cards.dart`) |
+| AC6 | ✅ | "SPEC-032 AC6: sin proteína no hay vista previa" |
+| AC7 | ✅ | "SPEC-032 AC7…": botón "Revisar comida", la línea de R6 y navega a Revisar |
+| AC8 | ✅ | app: analyze sin avisos, 354/354. Expectativas cambiadas: el texto del botón (`reviewMealButtonLabel`) en `label_confirmation_screen_test.dart`, `integration/label_to_review_flow_test.dart` y `integration/storage_errors_test.dart`; "AC2/AC4: muestra los valores transcritos" (antes "30" dos veces; ahora "30" en la porción y "1" en porciones); los tests de SPEC-004 AC5 y de SPEC-031 y el flujo "comí 45 g" pasan primero a g (`_toGrams`); el helper `_tapSave` cierra el teclado antes de tocar el botón. Tests de "Hoy" sin cambios tras extraer las tarjetas |
+| Manual | ⏳ | "3 porciones" del pan en el teléfono |
 
 ## Review
 Informe del reviewer:

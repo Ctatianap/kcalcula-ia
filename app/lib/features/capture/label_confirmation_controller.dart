@@ -2,12 +2,16 @@ import 'package:flutter/foundation.dart';
 import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../infra/ai_client/label_extraction_dto.dart';
+import '../../infra/food_resolution/food_query_resolver.dart';
 import '../../infra/storage/storage_repository.dart';
 
 /// Campos transcritos que el usuario puede editar (SPEC-004 R4). Siempre
 /// "por porción": si la etiqueta solo dio valores por 100 g/ml, se derivan
 /// una vez al construir el controller (matemática simple, no una segunda
 /// transcripción) para tener un único formulario, no dos.
+/// SPEC-032 R1: unidad de "¿Cuánto comiste?".
+enum ConsumedUnit { portions, servingUnit }
+
 class LabelConfirmationController extends ChangeNotifier {
   final StorageRepository _storage;
 
@@ -22,6 +26,10 @@ class LabelConfirmationController extends ChangeNotifier {
   double? sugarG;
   double? sodiumMg;
   late double consumedQuantity;
+
+  /// SPEC-032 R1: arranca en porciones con 1 (equivale a la porción).
+  ConsumedUnit consumedUnit = ConsumedUnit.portions;
+  double portionsCount = 1;
 
   final Set<String> unreadableFields;
   bool _atwaterConfirmedDespiteWarning = false;
@@ -110,10 +118,103 @@ class LabelConfirmationController extends ChangeNotifier {
     if (proteinG == null) 'proteína',
     if (carbsG == null) 'carbohidratos',
     if (fatG == null) 'grasa',
-    if (consumedQuantity <= 0) 'cuánto comiste',
+    if (registeredQuantity <= 0) 'cuánto comiste',
     if (needsAtwaterConfirmation && !_atwaterConfirmedDespiteWarning)
       'confirmar que los valores son correctos',
   ];
+
+  /// SPEC-032 R2: g/ml que se registran. Con porciones, número de
+  /// porciones × porción vigente; con g/ml, lo que escribió la persona (o la
+  /// porción, SPEC-031).
+  double get registeredQuantity {
+    if (consumedUnit == ConsumedUnit.servingUnit) return consumedQuantity;
+    if (!isValidServingGrams(servingQuantity)) return 0;
+    return portionsCount * servingQuantity!;
+  }
+
+  void setPortionsCount(double value) {
+    portionsCount = value;
+    notifyListeners();
+  }
+
+  /// SPEC-032 R3: cambiar de unidad conserva la cantidad registrada.
+  void setConsumedUnit(ConsumedUnit unit) {
+    if (unit == consumedUnit) return;
+    if (unit == ConsumedUnit.servingUnit) {
+      // Cambiar de unidad no es editar la cantidad: en g/ml sigue a la
+      // porción mientras la persona no escriba otra (SPEC-031 R1).
+      consumedQuantity = registeredQuantity;
+    } else if (isValidServingGrams(servingQuantity)) {
+      portionsCount = consumedQuantity / servingQuantity!;
+    }
+    consumedUnit = unit;
+    notifyListeners();
+  }
+
+  /// Valores por 100 g/ml a partir de lo confirmado "por porción". Es la
+  /// única conversión: la usan [save] y la vista previa (SPEC-032 R4).
+  ({
+    double energyKcal,
+    double proteinG,
+    double carbsG,
+    double fatG,
+    double? fiberG,
+    double? sugarG,
+    double? sodiumMg,
+  })
+  _per100() {
+    final factor = 100 / servingQuantity!;
+    return (
+      energyKcal: energyKcal! * factor,
+      proteinG: proteinG! * factor,
+      carbsG: carbsG! * factor,
+      fatG: fatG! * factor,
+      fiberG: fiberG == null ? null : fiberG! * factor,
+      sugarG: sugarG == null ? null : sugarG! * factor,
+      sodiumMg: sodiumMg == null ? null : sodiumMg! * factor,
+    );
+  }
+
+  /// SPEC-032 R4/R5: lo que se va a registrar, calculado por
+  /// `nutrition_core` igual que en Revisar (`resolveGrams` con
+  /// `isLabelProduct` y `calculateItemNutrients` sobre el producto
+  /// equivalente). `null` mientras falte algo para guardar.
+  ({double grams, NutrientTotals nutrients})? get preview {
+    if (!canSave) return null;
+    final per100 = _per100();
+    final food = FoodCatalogEntry(
+      id: '${personalProductIdPrefix}preview',
+      nameEs: productName.trim(),
+      sourceId: personalProductSourceId,
+      sourceRef: 'vista previa',
+      energyKcal100g: per100.energyKcal,
+      proteinG100g: per100.proteinG,
+      carbsG100g: per100.carbsG,
+      fatG100g: per100.fatG,
+      portions: [
+        PortionOption(
+          descriptor: 'porcion',
+          grams: servingQuantity!,
+          sourceId: personalProductSourceId,
+          sourceRef: 'vista previa',
+          isCuratedEstimate: false,
+        ),
+      ],
+    );
+    final resolution = resolveGrams(
+      input: QuantityInput(
+        quantity: registeredQuantity,
+        unit: servingUnit == 'ml'
+            ? QuantityUnit.mililitros
+            : QuantityUnit.gramos,
+        isVague: false,
+      ),
+      food: food,
+      isLabelProduct: true,
+    );
+    final grams = resolution.grams!;
+    return (grams: grams, nutrients: calculateItemNutrients(food, grams));
+  }
 
   void setProductName(String value) {
     productName = value;
@@ -193,16 +294,16 @@ class LabelConfirmationController extends ChangeNotifier {
         'canSave es false: hay campos obligatorios sin completar.',
       );
     }
-    final factor = 100 / servingQuantity!;
+    final per100 = _per100();
     await _storage.savePersonalProduct(
       nameEs: productName.trim(),
-      energyKcal100: energyKcal! * factor,
-      proteinG100: proteinG! * factor,
-      carbsG100: carbsG! * factor,
-      fatG100: fatG! * factor,
-      fiberG100: fiberG == null ? null : fiberG! * factor,
-      sugarG100: sugarG == null ? null : sugarG! * factor,
-      sodiumMg100: sodiumMg == null ? null : sodiumMg! * factor,
+      energyKcal100: per100.energyKcal,
+      proteinG100: per100.proteinG,
+      carbsG100: per100.carbsG,
+      fatG100: per100.fatG,
+      fiberG100: per100.fiberG,
+      sugarG100: per100.sugarG,
+      sodiumMg100: per100.sodiumMg,
       servingGrams: servingQuantity!,
       sourceRef:
           'Etiqueta transcrita por IA y confirmada por el usuario el '

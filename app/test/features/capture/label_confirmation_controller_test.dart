@@ -2,8 +2,10 @@ import 'package:calorias_ia/features/capture/label_confirmation_controller.dart'
 import 'package:calorias_ia/infra/ai_client/label_extraction_dto.dart';
 import 'package:calorias_ia/infra/storage/app_database.dart';
 import 'package:calorias_ia/infra/storage/storage_repository.dart';
+import 'package:calorias_ia/infra/food_resolution/food_query_resolver.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nutrition_core/nutrition_core.dart';
 
 LabelExtractionDto _extraction({
   String? productName = 'Producto de prueba',
@@ -197,4 +199,42 @@ void main() {
       expect(controller.canSave, isTrue);
     });
   });
+
+  test(
+    'SPEC-032 AC4: la vista previa da lo mismo que Revisar para 3 porciones',
+    () {
+      final controller = LabelConfirmationController(
+        extraction: _extraction(
+          servingSize: const LabelServingSizeDto(quantity: 27, unit: 'g'),
+          perServing: const LabelNutrientSetDto(
+            energyKcal: 70,
+            proteinG: 2.8,
+            carbsG: 15,
+            fatG: 0.2,
+          ),
+        ),
+        storage: storage,
+      );
+      controller.setPortionsCount(3);
+      expect(controller.registeredQuantity, 81);
+
+      // Revisar: producto personal guardado (por 100 g) → FoodCatalogEntry.
+      final factor = 100 / 27;
+      final food = FoodCatalogEntry(
+        id: 'personal:1',
+        nameEs: 'Producto de prueba',
+        sourceId: personalProductSourceId,
+        sourceRef: 'x',
+        energyKcal100g: 70 * factor,
+        proteinG100g: 2.8 * factor,
+        carbsG100g: 15 * factor,
+        fatG100g: 0.2 * factor,
+        portions: const [],
+      );
+      final expected = calculateItemNutrients(food, 81);
+      final preview = controller.preview!;
+      expect(preview.grams, 81);
+      expect(preview.nutrients, expected);
+    },
+  );
 }

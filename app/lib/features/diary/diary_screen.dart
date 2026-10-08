@@ -6,6 +6,7 @@ import '../../app_routes.dart';
 import '../../infra/clock.dart';
 import '../../infra/storage/storage_providers.dart';
 import '../../ui/components/k_card.dart';
+import '../../ui/components/macro_cards.dart';
 import '../../ui/components/main_nav_bar.dart';
 import '../../ui/components/meal_card.dart';
 import '../../ui/components/progress_ring.dart';
@@ -473,72 +474,26 @@ class _MacroCards extends StatelessWidget {
   Widget build(BuildContext context) {
     final goal = summary.goal!;
     final totals = summary.dayTotals;
-    final macros = [
-      ('Proteína', totals.proteinG, goal.proteinG, KColors.protein),
-      ('Carbohidratos', totals.carbsG, goal.carbsG, KColors.carbs),
-      ('Grasa', totals.fatG, goal.fatG, KColors.fat),
-    ];
-    return Row(
-      children: [
-        for (final (i, (label, consumed, target, color)) in macros.indexed) ...[
-          if (i > 0) const SizedBox(width: 10),
-          Expanded(
-            child: KCard(
-              radius: 22,
-              padding: const EdgeInsets.fromLTRB(8, 12, 8, 14),
-              child: Column(
-                children: [
-                  Text(
-                    label,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w400,
-                      color: KColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  ProgressRing(
-                    fraction: GoalProgress(
-                      consumed: consumed,
-                      goal: target,
-                    ).fraction,
-                    color: color,
-                    semanticsLabel:
-                        '$label: ${formatMacroEs(consumed)} de '
-                        '${formatMacroEs(target)} g',
-                    // Con texto grande el número se reduce para no salirse
-                    // del anillo.
-                    center: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          formatMacroEs(consumed),
-                          maxLines: 1,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'de ${formatMacroEs(target)} g',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: KColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+    return MacroCards(
+      macros: [
+        (
+          label: 'Proteína',
+          grams: totals.proteinG,
+          goal: goal.proteinG,
+          color: KColors.protein,
+        ),
+        (
+          label: 'Carbohidratos',
+          grams: totals.carbsG,
+          goal: goal.carbsG,
+          color: KColors.carbs,
+        ),
+        (
+          label: 'Grasa',
+          grams: totals.fatG,
+          goal: goal.fatG,
+          color: KColors.fat,
+        ),
       ],
     );
   }

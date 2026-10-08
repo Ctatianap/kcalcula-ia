@@ -204,7 +204,7 @@ void main() {
       failSaveProduct: true,
     );
 
-    final save = find.widgetWithText(FilledButton, 'Guardar y continuar');
+    final save = find.widgetWithText(FilledButton, reviewMealButtonLabel);
     await tester.ensureVisible(save);
     await tester.tap(save);
     await tester.pumpAndSettle();

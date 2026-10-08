@@ -1,16 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../app_routes.dart';
 import '../../infra/ai_client/label_extraction_dto.dart';
 import '../../infra/ai_client/parsed_meal_dto.dart';
+import '../../infra/storage/app_database.dart';
 import '../../infra/storage/storage_providers.dart';
+import '../../ui/components/macro_cards.dart';
+import '../../ui/theme.dart';
 import '../../ui/number_input_es.dart';
 import 'label_confirmation_controller.dart';
 
 /// SPEC-004 R3, R4: pantalla de confirmación de una etiqueta transcrita.
 /// Todos los valores son editables; si Atwater falla, exige confirmación
 /// explícita (AC3) antes de poder guardar.
+
+/// SPEC-032 R1: segmentos del selector de "¿Cuánto comiste?".
+const consumedUnitPortionsKey = ValueKey('consumed-unit-portions');
+const consumedUnitServingKey = ValueKey('consumed-unit-serving');
+
+/// SPEC-032 R6.
+const reviewMealButtonLabel = 'Revisar comida';
+const reviewMealNote =
+    'Guardamos el producto en tus productos y revisas la comida antes de '
+    'añadirla a tu diario.';
 
 const saveProductErrorMessage =
     'No pude guardar el producto. Intenta de nuevo.';
@@ -40,6 +54,9 @@ class _LabelConfirmationScreenState
   /// SPEC-009 R3: fallo al guardar en `user.db`, sin el texto técnico.
   String? _saveError;
 
+  /// SPEC-032 R4: meta del día para las tarjetas de la vista previa.
+  NutritionGoal? _goal;
+
   late final _nameController = TextEditingController();
   late final _servingController = TextEditingController();
   late final _energyController = TextEditingController();
@@ -68,24 +85,40 @@ class _LabelConfirmationScreenState
     _sugarController.text = _numberText(_controller.sugarG);
     _sodiumController.text = _numberText(_controller.sodiumMg);
     _consumedController.text = _consumedText();
+    ref.read(storageRepositoryProvider).getNutritionGoal().then((goal) {
+      if (mounted) setState(() => _goal = goal);
+    });
   }
 
-  /// SPEC-030 R2: se muestra con coma y redondeado; el controlador guarda
-  /// el valor original mientras no se edite el campo.
-  /// SPEC-031 R1/R2: "¿Cuánto comiste?" vacío si no hay una cantidad > 0.
-  String _consumedText() => _controller.consumedQuantity > 0
-      ? _numberText(_controller.consumedQuantity)
-      : '';
+  bool get _inPortions => _controller.consumedUnit == ConsumedUnit.portions;
 
-  /// SPEC-031 R1: mientras la persona no edite "¿Cuánto comiste?", el campo
-  /// muestra lo que el controlador va a registrar (la porción, SPEC-004 R5).
+  /// SPEC-031 R1/R2 y SPEC-032 R1: "¿Cuánto comiste?" en la unidad elegida;
+  /// vacío si no hay una cantidad > 0.
+  String _consumedText() {
+    final value = _inPortions
+        ? _controller.portionsCount
+        : _controller.consumedQuantity;
+    return value > 0 ? _numberText(value) : '';
+  }
+
+  /// SPEC-031 R1: en g/ml, mientras la persona no edite "¿Cuánto comiste?",
+  /// el campo muestra lo que se va a registrar (la porción, SPEC-004 R5).
+  /// En porciones el número no cambia: cambia lo que equivale (SPEC-032 R2).
   void _onServingChanged(double? value) {
     _controller.setServingQuantity(value);
-    if (!_controller.consumedQuantityTouchedByUser) {
+    if (!_inPortions && !_controller.consumedQuantityTouchedByUser) {
       _consumedController.text = _consumedText();
     }
   }
 
+  /// SPEC-032 R3: al cambiar de unidad, el campo muestra la misma cantidad.
+  void _onConsumedUnitChanged(ConsumedUnit unit) {
+    _controller.setConsumedUnit(unit);
+    _consumedController.text = _consumedText();
+  }
+
+  /// SPEC-030 R2: se muestra con coma y redondeado; el controlador guarda
+  /// el valor original mientras no se edite el campo.
   String _numberText(double? value) => value == null
       ? ''
       : formatDecimalEs(value, maxDecimals: _labelMaxDecimals);
@@ -132,7 +165,7 @@ class _LabelConfirmationScreenState
             mention: productName,
             foodQuery: productName,
             isVague: false,
-            quantity: _controller.consumedQuantity,
+            quantity: _controller.registeredQuantity,
             unit: _controller.servingUnit,
           ),
         ],
@@ -267,12 +300,44 @@ class _LabelConfirmationScreenState
                 ),
               ],
               const SizedBox(height: 16),
+              SegmentedButton<ConsumedUnit>(
+                segments: [
+                  const ButtonSegment(
+                    value: ConsumedUnit.portions,
+                    label: Text('Porciones', key: consumedUnitPortionsKey),
+                  ),
+                  ButtonSegment(
+                    value: ConsumedUnit.servingUnit,
+                    label: Text(
+                      _controller.servingUnit,
+                      key: consumedUnitServingKey,
+                    ),
+                  ),
+                ],
+                selected: {_controller.consumedUnit},
+                showSelectedIcon: false,
+                onSelectionChanged: (selection) =>
+                    _onConsumedUnitChanged(selection.single),
+              ),
+              const SizedBox(height: 8),
               _NumberField(
-                label: '¿Cuánto comiste? (${_controller.servingUnit})',
+                label: _inPortions
+                    ? '¿Cuánto comiste? (porciones)'
+                    : '¿Cuánto comiste? (${_controller.servingUnit})',
                 controller: _consumedController,
                 unreadable: false,
-                onChanged: (v) => _controller.setConsumedQuantity(v ?? 0),
+                onChanged: (v) => _inPortions
+                    ? _controller.setPortionsCount(v ?? 0)
+                    : _controller.setConsumedQuantity(v ?? 0),
               ),
+              if (_controller.preview case final preview?)
+                _Preview(
+                  portions: _inPortions ? _controller.portionsCount : null,
+                  grams: preview.grams,
+                  unit: _controller.servingUnit,
+                  nutrients: preview.nutrients,
+                  goal: _goal,
+                ),
               const SizedBox(height: 16),
               if (_saveError != null)
                 Padding(
@@ -302,7 +367,14 @@ class _LabelConfirmationScreenState
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Guardar y continuar'),
+                    : const Text(reviewMealButtonLabel),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                reviewMealNote,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall
+                    ?.copyWith(color: KColors.textSecondary),
               ),
             ],
           ),
@@ -375,6 +447,75 @@ class _NumberField extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+/// SPEC-032 R4: lo que se va a registrar. Solo presenta lo que calculó
+/// `nutrition_core` (invariante 3).
+class _Preview extends StatelessWidget {
+  final double? portions;
+  final double grams;
+  final String unit;
+  final NutrientTotals nutrients;
+  final NutritionGoal? goal;
+
+  const _Preview({
+    required this.portions,
+    required this.grams,
+    required this.unit,
+    required this.nutrients,
+    required this.goal,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final portionsText = portions == null
+        ? null
+        : '${formatDecimalEs(portions!)} '
+              '${portions == 1 ? 'porción' : 'porciones'} = '
+              '${formatDecimalEs(grams, maxDecimals: 1)} $unit';
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Vas a registrar', style: text.titleSmall),
+          if (portionsText != null) ...[
+            const SizedBox(height: 4),
+            Text(portionsText, style: text.bodyMedium),
+          ],
+          const SizedBox(height: 4),
+          Text(
+            '~${formatThousandsEs(presentKcal(nutrients.energyKcal))} kcal',
+            style: text.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          MacroCards(
+            macros: [
+              (
+                label: 'Proteína',
+                grams: nutrients.proteinG,
+                goal: goal?.proteinG,
+                color: KColors.protein,
+              ),
+              (
+                label: 'Carbohidratos',
+                grams: nutrients.carbsG,
+                goal: goal?.carbsG,
+                color: KColors.carbs,
+              ),
+              (
+                label: 'Grasa',
+                grams: nutrients.fatG,
+                goal: goal?.fatG,
+                color: KColors.fat,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
