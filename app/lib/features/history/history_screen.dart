@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../app_routes.dart';
+import '../../infra/storage/storage_repository.dart' show MealWithItems;
 import '../../infra/clock.dart';
 import '../../infra/storage/storage_providers.dart';
+import '../../ui/meal_actions_flow.dart';
 import '../../ui/components/k_card.dart';
 import '../../ui/components/main_nav_bar.dart';
 import '../../ui/components/meal_card.dart';
@@ -135,6 +137,17 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                       date: selected,
                       day: data.days[selected.day],
                       goal: data.goal?.energyKcal,
+                      // SPEC-037: "Repetir hoy" solo en otros días.
+                      onMealLongPress: (meal, position) => handleMealLongPress(
+                        context,
+                        ref,
+                        meal: meal,
+                        position: position,
+                        canRepeatToday: selected != _today,
+                        onChanged: () {
+                          if (mounted) setState(_load);
+                        },
+                      ),
                     ),
                 ],
               ),
@@ -410,7 +423,15 @@ class _DayDetail extends StatelessWidget {
   final HistoryDay? day;
   final double? goal;
 
-  const _DayDetail({required this.date, required this.day, required this.goal});
+  final void Function(MealWithItems meal, RelativeRect position)
+  onMealLongPress;
+
+  const _DayDetail({
+    required this.date,
+    required this.day,
+    required this.goal,
+    required this.onMealLongPress,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -515,6 +536,8 @@ class _DayDetail extends StatelessWidget {
             onTap: () =>
                 Navigator.of(context)
                     .pushNamed(AppRoutes.editMeal, arguments: meal.meal.id),
+            // SPEC-037 R1.
+            onLongPress: (position) => onMealLongPress(meal, position),
           ),
           const SizedBox(height: 10),
         ],

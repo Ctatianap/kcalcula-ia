@@ -182,4 +182,62 @@ void main() {
       );
     },
   );
+
+  testWidgets(
+    'SPEC-037 AC2: mantener presionada una comida en Hoy y eliminarla deja Hoy vacío',
+    (tester) async {
+      final now = DateTime(2026, 10, 8, 12);
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final repo = StorageRepository(db);
+      await tester.runAsync(() async {
+        await repo.saveConsent(policyVersion: privacyPolicyVersion);
+        await repo.registerMeal(
+          eatenAt: DateTime(2026, 10, 8, 8, 30),
+          mealType: 'desayuno',
+          confidence: 'altaPrecision',
+          catalogVersion: 'test-1',
+          items: const [
+            MealItemRecord(
+              mention: 'huevo',
+              foodId: 'huevo',
+              nameSnapshot: 'Huevo',
+              grams: 100,
+              quantityBasis: 'explicitWeight',
+              energyKcal: 143,
+              proteinG: 12.56,
+              carbsG: 0.72,
+              fatG: 9.51,
+              confidence: 'altaPrecision',
+              sourceRef: 'fixture',
+            ),
+          ],
+        );
+      });
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            appDatabaseProvider.overrideWithValue(db),
+            catalogRepositoryProvider.overrideWithValue(buildFixtureCatalog()),
+            crashReporterProvider.overrideWithValue(FakeCrashReporter()),
+            clockProvider.overrideWithValue(() => now),
+          ],
+          child: const MyApp(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.byType(MealCard));
+      await tester.longPress(find.byType(MealCard));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Eliminar comida'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Borrar'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MealCard), findsNothing);
+      expect(find.text('Todavía no registras nada hoy'), findsOneWidget);
+      expect(find.text('Comida eliminada.'), findsOneWidget);
+    },
+  );
 }

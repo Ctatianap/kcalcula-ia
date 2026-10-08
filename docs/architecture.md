@@ -155,6 +155,9 @@ kcal enteras (redondeo half-up) y macros con 1 decimal. Los valores estimados se
 - Tokens y tema en `app/lib/ui/theme.dart` (`KColors`, `DayGoalStatus`, `buildAppTheme()`); ninguna
   pantalla repite colores. Componentes en `app/lib/ui/components/` (tarjeta, anillo de progreso,
   barra inferior, estado vacío). Los anillos solo dibujan fracciones calculadas en `nutrition_core`.
+- Flujos compartidos entre features en `app/lib/ui/*_flow.dart` (por ejemplo, el menú de una comida
+  de SPEC-037): pueden usar `infra/` y `app_routes.dart`, nunca `features/`. Los componentes de
+  `ui/components/` siguen siendo solo presentación.
 - Tipografía Outfit embebida como asset (SIL OFL 1.1); nunca se descarga.
 - Pantallas principales Hoy / Historial / Progreso con `MainNavBar` (rutas sin animación); el resto
   se abre encima, sin barra. Los estados del día frente a la meta nunca usan rojo ni verde de alarma.
