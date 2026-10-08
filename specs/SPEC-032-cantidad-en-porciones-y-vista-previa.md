@@ -1,7 +1,7 @@
 # SPEC-032: Cantidad en porciones y vista previa en "Confirmar etiqueta"
 
 ## Status
-Implementing
+Review
 Path: Standard (cambia cómo se indica la cantidad y muestra un cálculo que ya existe en
 `nutrition_core`; no cambia reglas de cálculo, la IA ni el catálogo)
 
@@ -125,6 +125,7 @@ registrar antes de seguir, para no adivinar.
   Pantalla: `SegmentedButton`, `_Preview`, botón "Revisar comida". Tarjetas de macros extraídas de
   "Hoy" a `app/lib/ui/components/macro_cards.dart` (sin cambio visual).
 - 2026-10-07: reviewer PASS; 6 MINOR corregidos (ver Review); el de AC5 espera a la usuaria.
+- 2026-10-07: prueba manual en el teléfono hecha (ver Verificación). Status → Review.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -137,7 +138,7 @@ registrar antes de seguir, para no adivinar.
 | AC6 | ✅ | "SPEC-032 AC6: sin proteína no hay vista previa" |
 | AC7 | ✅ | "SPEC-032 AC7…": botón "Revisar comida", la línea de R6 y navega a Revisar |
 | AC8 | ✅ | app: analyze sin avisos, 360/360 (tras los MINOR del reviewer). Expectativas cambiadas: el texto del botón (`reviewMealButtonLabel`) en `label_confirmation_screen_test.dart`, `integration/label_to_review_flow_test.dart` y `integration/storage_errors_test.dart`; "AC2/AC4: muestra los valores transcritos" (antes "30" dos veces; ahora "30" en la porción y "1" en porciones); los tests de SPEC-004 AC5 y de SPEC-031 y el flujo "comí 45 g" pasan primero a g (`_toGrams`); el helper `_tapSave` cierra el teclado antes de tocar el botón. Tests de "Hoy" sin cambios tras extraer las tarjetas |
-| Manual | ⏳ | "3 porciones" del pan en el teléfono |
+| Manual | ✅ | 2026-10-07, Motorola edge 50 pro, etiqueta real del pan elegida por la usuaria (porción 27 g): arranca en "1" con porciones y "1 porción = 27 g · ~70 kcal"; con "3": "3 porciones = 81 g", ~210 kcal y tarjetas 8,4 / 45,0 / 0,6 g con su meta ("de 123,0 g", "de 184,5 g", "de 45,6 g"); al pasar a g, el campo muestra "81" y la vista previa no cambia; botón "Revisar comida" con su línea. No se guardó el producto |
 
 ## Review
 Revisión (2026-10-07, subagente `reviewer`, sobre `63ea37f`): **PASS**. AC1–AC8 cumplidos (AC5 con
