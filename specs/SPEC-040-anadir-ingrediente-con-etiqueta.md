@@ -1,7 +1,7 @@
 # SPEC-040: Añadir un ingrediente nuevo con su etiqueta
 
 ## Status
-Implementing
+Review
 Path: Standard (reutiliza el flujo de etiqueta de SPEC-033; no cambia prompts, esquemas, `nutrition_core`
 ni lo que sale del dispositivo)
 
@@ -106,6 +106,8 @@ aunque no lo haya guardado antes, para registrar la comida completa.
   al fallar el añadido ("Búscalo en «Añadir ingrediente»"), `addLabelProduct` devuelve `bool` y ya no
   falla en silencio, lectura del producto compartida con "Usar etiqueta", test del caso sin cantidad.
   456/456.
+- 2026-10-08: la usuaria pidió fusionar a `develop` ("fusiona todo") antes de la prueba manual. Status →
+  Review: AC6 sigue pendiente; pasa a Done cuando la usuaria lo pruebe en su S25.
 
 ## Verificación
 | AC | Estado | Evidencia |
