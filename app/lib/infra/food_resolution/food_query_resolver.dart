@@ -162,13 +162,20 @@ class FoodQueryResolver {
     return FoodAmbiguous(combined.take(3).toList());
   }
 
-  /// SPEC-018 R1/AC6: catálogo y productos personales (por nombre), hasta
-  /// [limit] en total; los productos personales van primero.
+  /// SPEC-018 R1/AC6: catálogo y productos personales, hasta [limit] en
+  /// total; los productos personales van primero. SPEC-035 R1: un producto
+  /// también aparece si la consulta está en uno de sus nombres
+  /// alternativos (una sola vez, con su nombre).
   List<FoodSearchHit> search(String query, {int limit = 20}) {
     if (!isSearchableQuery(query)) return const [];
     final normalized = normalizeFoodText(query);
+    bool matches(PersonalProduct p) =>
+        normalizeFoodText(p.nameEs).contains(normalized) ||
+        (_aliases[p.id] ?? const []).any(
+          (term) => normalizeFoodText(term).contains(normalized),
+        );
     final personal = _personalProducts
-        .where((p) => normalizeFoodText(p.nameEs).contains(normalized))
+        .where(matches)
         .map(
           (p) => FoodSearchHit(
             id: '$personalProductIdPrefix${p.id}',

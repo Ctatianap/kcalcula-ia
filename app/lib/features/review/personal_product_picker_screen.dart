@@ -33,7 +33,12 @@ class _PersonalProductPickerScreenState
     extends ConsumerState<PersonalProductPickerScreen> {
   final _query = TextEditingController();
   List<PersonalProduct>? _products;
+
+  /// SPEC-035 R3: nombres alternativos por id de producto.
+  Map<int, List<String>> _aliases = const {};
   bool _loadFailed = false;
+
+  List<String> _aliasesOf(PersonalProduct p) => _aliases[p.id] ?? const [];
 
   @override
   void initState() {
@@ -43,9 +48,9 @@ class _PersonalProductPickerScreenState
 
   Future<void> _load() async {
     try {
-      final products = await ref
-          .read(storageRepositoryProvider)
-          .getAllPersonalProducts();
+      final storage = ref.read(storageRepositoryProvider);
+      final products = await storage.getAllPersonalProducts();
+      final aliases = await storage.getPersonalProductAliases();
       products.sort(
         (a, b) =>
             normalizeFoodText(a.nameEs).compareTo(normalizeFoodText(b.nameEs)),
@@ -53,6 +58,7 @@ class _PersonalProductPickerScreenState
       if (mounted) {
         setState(() {
           _products = products;
+          _aliases = aliases;
           _loadFailed = false;
         });
       }
@@ -76,7 +82,10 @@ class _PersonalProductPickerScreenState
         ? const <PersonalProduct>[]
         : [
             for (final p in products)
-              if (query.isEmpty || normalizeFoodText(p.nameEs).contains(query))
+              if (query.isEmpty ||
+                  normalizeFoodText(p.nameEs).contains(query) ||
+                  _aliasesOf(p)
+                      .any((a) => normalizeFoodText(a).contains(query)))
                 p,
           ];
     return Scaffold(
@@ -128,14 +137,17 @@ class _PersonalProductPickerScreenState
                         food,
                         product.servingGrams,
                       ).energyKcal;
+                      final aliases = _aliasesOf(product);
                       return ListTile(
                         key: Key('personal-product-${product.id}'),
                         title: Text(product.nameEs),
                         subtitle: Text(
                           '1 porción = ${formatMacroEs(product.servingGrams)} ${product.servingUnit} · '
-                          '${formatThousandsEs(presentKcal(kcal))} kcal',
+                          '${formatThousandsEs(presentKcal(kcal))} kcal'
+                          '${aliases.isEmpty ? '' : '\nTambién: ${aliases.join(', ')}'}',
                           style: const TextStyle(color: KColors.textSecondary),
                         ),
+                        isThreeLine: aliases.isNotEmpty,
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () => Navigator.of(
                           context,
