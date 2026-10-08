@@ -245,6 +245,12 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     Al probar SPEC-029 con una etiqueta real ("mini palitos de queso") la usuaria vio en
     "Confirmar etiqueta" valores que parecen de la columna "por 100 g". Revisar con su foto si es
     un error del prompt `label_extraction.v1` (Strict, `ai-pipeline`) o de esa etiqueta.
+    2026-10-08: no se reproduce. Esa etiqueta es `label_18` de las evals ("Queso tipo palito",
+    porción 20 g): en las corridas del 2026-10-07 (razonamiento por defecto) y del 2026-10-08
+    (presupuesto 0) y en 6 lecturas seguidas con presupuesto 0, los 16 valores de las dos columnas
+    salen correctos; solo falla el nombre del producto (null). En las 47 etiquetas de las evals no hay
+    ninguna mezcla de columnas. Queda abierta: si vuelve a pasar, la usuaria guarda captura de
+    "Confirmar etiqueta" y de la tabla para tener el caso exacto.
   dependencies: [T-027]
   spec_required: true
 - id: T-031
