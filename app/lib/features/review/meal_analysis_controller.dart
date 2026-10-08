@@ -140,8 +140,11 @@ class MealAnalysisController extends ChangeNotifier {
     _set(const AnalysisInProgress(2));
 
     final List<PersonalProduct> personalProducts;
+    final Map<int, List<String>> aliases;
     try {
       personalProducts = await _storage.getAllPersonalProducts();
+      // SPEC-034 R4: los nombres con que la persona llama a sus productos.
+      aliases = await _storage.getPersonalProductAliases();
     } catch (_) {
       // SPEC-009: sin el texto de SQLite (trae datos del usuario).
       if (_isCurrent(run)) {
@@ -153,6 +156,7 @@ class MealAnalysisController extends ChangeNotifier {
     final resolver = FoodQueryResolver(
       catalog: _catalog,
       personalProducts: personalProducts,
+      aliases: aliases,
     );
     final matches = ReviewController.resolveAll(parsed, resolver);
     _set(const AnalysisInProgress(3));

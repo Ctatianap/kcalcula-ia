@@ -324,6 +324,8 @@ class LabelConfirmationController extends ChangeNotifier {
       sugarG100: per100.sugarG,
       sodiumMg100: per100.sodiumMg,
       servingGrams: servingQuantity!,
+      // SPEC-034 R5.
+      servingUnit: servingUnit,
       sourceRef:
           '$origin'
           '${DateTime.now().toIso8601String().substring(0, 10)}'

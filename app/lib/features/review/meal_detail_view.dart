@@ -118,6 +118,7 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
         personalProductToFoodCatalogEntry(product),
         fallbackQuantity: result.quantity,
         fallbackUnit: result.unit,
+        servingUnit: product.servingUnit,
       );
     } catch (_) {
       // SPEC-009: sin el texto de SQLite.
@@ -128,8 +129,14 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
   /// SPEC-033 R4: un producto ya guardado, sin foto y sin IA.
   Future<void> _pickProduct(int index) async {
     setState(() => _ingredientError = null);
-    final food = await pickPersonalProduct(context);
-    if (food != null && mounted) widget.controller.replaceFood(index, food);
+    final picked = await pickPersonalProduct(context);
+    if (picked != null && mounted) {
+      widget.controller.replaceFood(
+        index,
+        picked.food,
+        servingUnit: picked.servingUnit,
+      );
+    }
   }
 
   Future<void> _register() async {
@@ -231,6 +238,7 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
                               controller.setPortions(index, portions),
                           onShowInGrams: (value) =>
                               controller.setShowInGrams(index, value),
+                          unit: controller.unitOf(item),
                         ),
                         const SizedBox(height: 10),
                       ],
@@ -433,6 +441,9 @@ class _IngredientCard extends StatelessWidget {
   final ValueChanged<double> onSetPortions;
   final ValueChanged<bool> onShowInGrams;
 
+  /// SPEC-034 R5: "g" o "ml".
+  final String unit;
+
   const _IngredientCard({
     required this.item,
     required this.onSelectCandidate,
@@ -442,6 +453,7 @@ class _IngredientCard extends StatelessWidget {
     required this.onPickProduct,
     required this.onSetPortions,
     required this.onShowInGrams,
+    required this.unit,
   });
 
   @override
@@ -511,6 +523,7 @@ class _IngredientCard extends StatelessWidget {
               onAdjustGrams: onAdjustGrams,
               onSetPortions: onSetPortions,
               onShowInGrams: onShowInGrams,
+              unit: unit,
             ),
             ReviewItemStatus.ambiguous => _AmbiguousRow(
               item: item,
@@ -529,12 +542,14 @@ class _MatchedRow extends StatelessWidget {
   final void Function(double delta) onAdjustGrams;
   final ValueChanged<double> onSetPortions;
   final ValueChanged<bool> onShowInGrams;
+  final String unit;
 
   const _MatchedRow({
     required this.item,
     required this.onAdjustGrams,
     required this.onSetPortions,
     required this.onShowInGrams,
+    required this.unit,
   });
 
   @override
@@ -577,8 +592,8 @@ class _MatchedRow extends StatelessWidget {
                 Text(
                   inPortions
                       ? '${_portionsText(portions)} · '
-                            '${item.grams.toStringAsFixed(0)} g'
-                      : '${item.grams.toStringAsFixed(0)} g',
+                            '${item.grams.toStringAsFixed(0)} $unit'
+                      : '${item.grams.toStringAsFixed(0)} $unit',
                   key: Key('ingredient-quantity-${item.mention}'),
                 ),
                 IconButton(
@@ -604,7 +619,7 @@ class _MatchedRow extends StatelessWidget {
           TextButton(
             key: Key('ingredient-toggle-unit-${item.mention}'),
             onPressed: () => onShowInGrams(inPortions),
-            child: Text(inPortions ? 'Ver en g' : 'Ver en porciones'),
+            child: Text(inPortions ? 'Ver en $unit' : 'Ver en porciones'),
           ),
       ],
     );

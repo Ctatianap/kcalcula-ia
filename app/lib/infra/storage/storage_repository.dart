@@ -138,6 +138,9 @@ class StorageRepository {
     double? sugarG100,
     double? sodiumMg100,
     double? densityGPerMl,
+
+    /// SPEC-034 R5: "g" o "ml".
+    String servingUnit = 'g',
   }) {
     return _db
         .into(_db.personalProducts)
@@ -154,8 +157,63 @@ class StorageRepository {
             sugarG100: Value(sugarG100),
             sodiumMg100: Value(sodiumMg100),
             densityGPerMl: Value(densityGPerMl),
+            servingUnit: Value(servingUnit),
           ),
         );
+  }
+
+  /// SPEC-034 R4: nombres alternativos de cada producto personal, por id.
+  Future<Map<int, List<String>>> getPersonalProductAliases() async {
+    final rows = await _db.select(_db.personalProductAliases).get();
+    final byProduct = <int, List<String>>{};
+    for (final row in rows) {
+      byProduct.putIfAbsent(row.productId, () => []).add(row.term);
+    }
+    return byProduct;
+  }
+
+  /// SPEC-034 R2: nombre, unidad y nombres alternativos (reemplaza los que
+  /// había), todo o nada. Los valores nutricionales no cambian.
+  Future<void> updatePersonalProduct({
+    required int id,
+    required String nameEs,
+    required String servingUnit,
+    required List<String> aliases,
+  }) {
+    return _db.transaction(() async {
+      await (_db.update(
+        _db.personalProducts,
+      )..where((p) => p.id.equals(id))).write(
+        PersonalProductsCompanion(
+          nameEs: Value(nameEs),
+          servingUnit: Value(servingUnit),
+        ),
+      );
+      await (_db.delete(
+        _db.personalProductAliases,
+      )..where((a) => a.productId.equals(id))).go();
+      for (final term in aliases) {
+        await _db
+            .into(_db.personalProductAliases)
+            .insert(
+              PersonalProductAliasesCompanion.insert(productId: id, term: term),
+            );
+      }
+    });
+  }
+
+  /// SPEC-034 R3: borra el producto y sus nombres alternativos. Las comidas
+  /// guardadas no cambian: `meal_items` conserva su copia del nombre y los
+  /// valores.
+  Future<void> deletePersonalProduct(int id) {
+    return _db.transaction(() async {
+      await (_db.delete(
+        _db.personalProductAliases,
+      )..where((a) => a.productId.equals(id))).go();
+      await (_db.delete(
+        _db.personalProducts,
+      )..where((p) => p.id.equals(id))).go();
+    });
   }
 
   /// SPEC-004 R7: todos los productos personales, para que el
@@ -206,6 +264,8 @@ class StorageRepository {
     return _db.transaction(() async {
       await _db.delete(_db.mealItems).go();
       await _db.delete(_db.meals).go();
+      // SPEC-034 R6: antes que los productos (referencia).
+      await _db.delete(_db.personalProductAliases).go();
       await _db.delete(_db.personalProducts).go();
       await _db.delete(_db.nutritionGoals).go();
       await _db.delete(_db.userProfile).go();
@@ -311,6 +371,7 @@ class StorageRepository {
     }
 
     final personalProducts = await getAllPersonalProducts();
+    final aliases = await getPersonalProductAliases();
     final goal = await getNutritionGoal();
     final profile = await getUserProfile();
     final weights = await weightEntries();
@@ -352,6 +413,9 @@ class StorageRepository {
               'nameEs': p.nameEs,
               'energyKcal100': p.energyKcal100,
               'servingGrams': p.servingGrams,
+              // SPEC-034 R6.
+              'servingUnit': p.servingUnit,
+              'aliases': aliases[p.id] ?? const <String>[],
               'sourceRef': p.sourceRef,
             },
           )

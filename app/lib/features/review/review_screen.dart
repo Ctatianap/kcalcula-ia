@@ -49,8 +49,10 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
   Future<void> _loadController() async {
     final storage = ref.read(storageRepositoryProvider);
     final List<PersonalProduct> personalProducts;
+    final Map<int, List<String>> aliases;
     try {
       personalProducts = await storage.getAllPersonalProducts();
+      aliases = await storage.getPersonalProductAliases();
     } catch (_) {
       if (mounted) setState(() => _loadFailed = true);
       return;
@@ -59,6 +61,7 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
     final resolver = FoodQueryResolver(
       catalog: ref.read(catalogRepositoryProvider),
       personalProducts: personalProducts,
+      aliases: aliases,
     );
     final now = ref.read(clockProvider)();
     final draft = widget.draft;

@@ -57,14 +57,20 @@ class FoodQueryResolver {
   final CatalogRepository _catalog;
   final List<PersonalProduct> _personalProducts;
 
+  /// SPEC-034 R4: nombres alternativos por id de producto personal.
+  final Map<int, List<String>> _aliases;
+
   const FoodQueryResolver({
     required CatalogRepository catalog,
     required List<PersonalProduct> personalProducts,
+    Map<int, List<String>> aliases = const {},
   })
     // ignore: prefer_initializing_formals
     : _catalog = catalog,
        // ignore: prefer_initializing_formals
-       _personalProducts = personalProducts;
+       _personalProducts = personalProducts,
+       // ignore: prefer_initializing_formals
+       _aliases = aliases;
 
   String get catalogVersion => _catalog.catalogVersion;
 
@@ -80,7 +86,46 @@ class FoodQueryResolver {
         .toList();
   }
 
+  /// SPEC-034 R4: productos cuyo nombre o nombre alternativo es igual a la
+  /// consulta (normalizados).
+  List<FoodCatalogEntry> _exactPersonalProducts(String foodQuery) {
+    final normalized = normalizeFoodText(foodQuery);
+    if (normalized.isEmpty) return const [];
+    bool isExact(PersonalProduct p) =>
+        normalizeFoodText(p.nameEs) == normalized ||
+        (_aliases[p.id] ?? const []).any(
+          (term) => normalizeFoodText(term) == normalized,
+        );
+    return _personalProducts
+        .where(isExact)
+        .map(personalProductToFoodCatalogEntry)
+        .toList();
+  }
+
+  /// SPEC-034 R5: "g" o "ml" de un producto personal; "g" para el resto.
+  String servingUnitOf(String foodId) {
+    final personalId = personalProductIdFrom(foodId);
+    if (personalId == null) return 'g';
+    for (final p in _personalProducts) {
+      if (p.id == personalId) return p.servingUnit;
+    }
+    return 'g';
+  }
+
   FoodMatchResult resolve(String foodQuery) {
+    // SPEC-034 R4: el nombre exacto (o un alias) de un producto personal
+    // gana sobre el catálogo; si son varios, se pregunta entre ellos.
+    final exact = _exactPersonalProducts(foodQuery);
+    if (exact.length == 1) return FoodMatched(exact.single);
+    if (exact.length > 1) {
+      return FoodAmbiguous(
+        exact
+            .map((f) => FoodCandidate(id: f.id, nameEs: f.nameEs))
+            .take(3)
+            .toList(),
+      );
+    }
+
     final catalogResult = _catalog.resolve(foodQuery);
     final personalMatches = _matchingPersonalProducts(foodQuery);
 
