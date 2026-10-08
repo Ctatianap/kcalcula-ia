@@ -1,7 +1,7 @@
 # SPEC-036: Buscar en el historial
 
 ## Status
-Review
+Done
 Path: Standard (búsqueda de solo lectura sobre comidas guardadas; no sale ningún dato)
 
 ## Objective
@@ -62,6 +62,7 @@ Como persona que quiere saber cuándo comió arepa, quiero buscarlo en el histor
   calendario mientras hay búsqueda; tocar un día lo abre en el calendario.
 - 2026-10-08: reviewer PASS; MINOR corregidos (ver Review). 442/442.
 - 2026-10-08: prueba manual hecha en el teléfono (ver Verificación). Status → Review.
+- 2026-10-08: **la usuaria aprueba fusionar y hacer push** ("si"). Status → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
