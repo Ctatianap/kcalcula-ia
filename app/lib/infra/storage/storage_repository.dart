@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:nutrition_core/nutrition_core.dart';
 
+import '../../format/text_es.dart';
 import 'app_database.dart';
 import 'goal_sync.dart';
 
@@ -132,6 +133,33 @@ class StorageRepository {
       )..where((item) => item.mealId.equals(id))).go();
       await _insertItems(id, items);
     });
+  }
+
+  /// SPEC-036 R1: días con comidas que contienen [query] en el nombre de
+  /// algún alimento (normalizado como la búsqueda de SPEC-018), del más
+  /// reciente al más antiguo, hasta [limit]. Cada día trae los nombres que
+  /// coincidieron, sin repetir. Lista vacía si la consulta tiene menos de 2
+  /// letras.
+  Future<List<MealDaySearchHit>> searchMealDays(
+    String query, {
+    int limit = 50,
+  }) async {
+    // Mismas reglas que "Buscar alimento" (SPEC-018).
+    if (!isSearchableQuery(query)) return const [];
+    final rows = await (_db.select(_db.mealItems).join([
+      innerJoin(_db.meals, _db.meals.id.equalsExp(_db.mealItems.mealId)),
+    ])..orderBy([OrderingTerm.desc(_db.meals.eatenAt)])).get();
+    final byDay = <DateTime, List<String>>{};
+    for (final row in rows) {
+      final item = row.readTable(_db.mealItems);
+      if (!matchesWordPrefixes(item.nameSnapshot, query)) continue;
+      final at = row.readTable(_db.meals).eatenAt;
+      final day = DateTime(at.year, at.month, at.day);
+      if (!byDay.containsKey(day) && byDay.length >= limit) continue;
+      final names = byDay.putIfAbsent(day, () => []);
+      if (!names.contains(item.nameSnapshot)) names.add(item.nameSnapshot);
+    }
+    return [for (final e in byDay.entries) (day: e.key, foods: e.value)];
   }
 
   /// SPEC-026 R3: borra la comida y sus ítems.
@@ -613,6 +641,9 @@ class StorageRepository {
     ];
   }
 }
+
+/// SPEC-036: un día con los alimentos que coincidieron con la búsqueda.
+typedef MealDaySearchHit = ({DateTime day, List<String> foods});
 
 class MealWithItems {
   final Meal meal;

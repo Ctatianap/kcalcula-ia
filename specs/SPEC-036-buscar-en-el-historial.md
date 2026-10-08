@@ -1,7 +1,7 @@
 # SPEC-036: Buscar en el historial
 
 ## Status
-Draft
+Done
 Path: Standard (búsqueda de solo lectura sobre comidas guardadas; no sale ningún dato)
 
 ## Objective
@@ -56,6 +56,33 @@ Como persona que quiere saber cuándo comió arepa, quiero buscarlo en el histor
 
 ## Change Log
 - 2026-10-08: creación al separar R5/AC5 de SPEC-026. Pendiente de aprobación de la usuaria.
+- 2026-10-08: **Approved por la usuaria** ("aprobada la SPEC-036"). Status → Implementing.
+- 2026-10-08: implementada. `StorageRepository.searchMealDays` (comparación normalizada en Dart, regla
+  de 2 letras de SPEC-018, hasta 50 días); campo "Buscar en tus comidas" en Historial que reemplaza el
+  calendario mientras hay búsqueda; tocar un día lo abre en el calendario.
+- 2026-10-08: reviewer PASS; MINOR corregidos (ver Review). 442/442.
+- 2026-10-08: prueba manual hecha en el teléfono (ver Verificación). Status → Review.
+- 2026-10-08: **la usuaria aprueba fusionar y hacer push** ("si"). Status → Done.
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/features/history/history_search_test.dart` › "AC1: días con arepa…" (repositorio: orden, sin repetir) y "AC1: buscar \"arepa\" lista los días y tocar uno lo abre en el calendario" (widget) |
+| AC2 | ✅ | mismo archivo › "AC2: sin resultados, el mensaje" |
+| AC3 | ✅ | mismo archivo › "AC3: \"Arepa\" y \"arepá\" dan lo mismo" |
+| Edge | ✅ | "menos de 2 letras…" (repositorio y pantalla: "Escribe al menos 2 letras."), "hasta 50 días", "borrar la búsqueda vuelve al calendario", "cada palabra por prefijo, como SPEC-018" ("queso arepa" → "Arepa de queso"; "pa" no encuentra "Arepa") |
+| Tests | ✅ | app: analyze sin avisos, 442/442. Único cambio en un test existente: `catalog_search_test.dart` quita un import que quedó redundante al mover `isSearchableQuery` a `format/text_es.dart` |
+| Manual | ✅ | 2026-10-08, hecha por Claude en el Motorola de la usuaria (versión de `6b5dc09`, por pedido de ella): "huevo" → 8 y 7 de octubre en ese orden; tocar el 7 lo abre en el calendario (903 kcal), limpia la búsqueda y cierra el teclado; "pizza" → "No encontré comidas con ese alimento."; la ✕ vuelve al calendario; sin demora al escribir |
 
 ## Review
-Informe del reviewer:
+Revisión (2026-10-08, subagente `reviewer`, sobre `fb4c85f`): **PASS**. AC1–AC3 y bordes con evidencia;
+join, orden y límite correctos; sin Drift en la UI ni imports entre features. 7 MINOR:
+- Comparaba por subcadena y no como SPEC-018: ahora cada palabra por prefijo (`matchesWordPrefixes`);
+  test.
+- Regla de 2 letras duplicada: `isSearchableQuery` vive en `format/text_es.dart` y la reexporta el
+  catálogo; la usan el repositorio y la pantalla.
+- Sin debounce (lee todos los ítems en cada tecla): aceptable en local; se observa en la prueba manual.
+- Error sin "Reintentar" ni `liveRegion`: agregados.
+- El campo desaparecía mientras cargaba el mes: ahora está fuera del `FutureBuilder`.
+- El teclado quedaba abierto al abrir un día: `unfocus()`.
+- Prueba manual pendiente.
