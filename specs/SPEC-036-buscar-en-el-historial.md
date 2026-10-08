@@ -1,7 +1,7 @@
 # SPEC-036: Buscar en el historial
 
 ## Status
-Implementing
+Review
 Path: Standard (búsqueda de solo lectura sobre comidas guardadas; no sale ningún dato)
 
 ## Objective
@@ -61,6 +61,7 @@ Como persona que quiere saber cuándo comió arepa, quiero buscarlo en el histor
   de 2 letras de SPEC-018, hasta 50 días); campo "Buscar en tus comidas" en Historial que reemplaza el
   calendario mientras hay búsqueda; tocar un día lo abre en el calendario.
 - 2026-10-08: reviewer PASS; MINOR corregidos (ver Review). 442/442.
+- 2026-10-08: prueba manual hecha en el teléfono (ver Verificación). Status → Review.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -70,7 +71,7 @@ Como persona que quiere saber cuándo comió arepa, quiero buscarlo en el histor
 | AC3 | ✅ | mismo archivo › "AC3: \"Arepa\" y \"arepá\" dan lo mismo" |
 | Edge | ✅ | "menos de 2 letras…" (repositorio y pantalla: "Escribe al menos 2 letras."), "hasta 50 días", "borrar la búsqueda vuelve al calendario", "cada palabra por prefijo, como SPEC-018" ("queso arepa" → "Arepa de queso"; "pa" no encuentra "Arepa") |
 | Tests | ✅ | app: analyze sin avisos, 442/442. Único cambio en un test existente: `catalog_search_test.dart` quita un import que quedó redundante al mover `isSearchableQuery` a `format/text_es.dart` |
-| Manual | ⏳ | Buscar un alimento en el Historial en el teléfono |
+| Manual | ✅ | 2026-10-08, hecha por Claude en el Motorola de la usuaria (versión de `6b5dc09`, por pedido de ella): "huevo" → 8 y 7 de octubre en ese orden; tocar el 7 lo abre en el calendario (903 kcal), limpia la búsqueda y cierra el teclado; "pizza" → "No encontré comidas con ese alimento."; la ✕ vuelve al calendario; sin demora al escribir |
 
 ## Review
 Revisión (2026-10-08, subagente `reviewer`, sobre `fb4c85f`): **PASS**. AC1–AC3 y bordes con evidencia;
