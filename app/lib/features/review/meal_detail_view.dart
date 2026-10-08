@@ -80,6 +80,9 @@ String quantitySourceLabel(QuantityBasis? basis) => switch (basis) {
   QuantityBasis.defaultPortion || null => 'Porción estimada · ajústala',
 };
 
+/// SPEC-043 R3.
+const withoutEquivalenceLabel = 'Sin equivalencia · ajústala';
+
 String _itemName(ReviewItem item) => item.food?.nameEs ?? item.mention;
 
 /// SPEC-012 R4/R5: "Detalle de comida". Lo usan tanto el análisis de texto
@@ -226,7 +229,9 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
         basis: item.basis,
         isVague: item.isVague,
         level: level,
+        withoutEquivalence: item.withoutEquivalence,
       ),
+      said: saidQuantityWord(unit: item.unitRaw, size: item.sizeRaw),
     );
     final action = await _showConfidenceSheet(
       context,
@@ -849,7 +854,10 @@ class _MatchedRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          quantitySourceLabel(item.basis),
+          // SPEC-043 R3.
+          item.withoutEquivalence
+              ? withoutEquivalenceLabel
+              : quantitySourceLabel(item.basis),
           style: TextStyle(
             fontSize: 13,
             color: highlight ? KColors.accent : KColors.textSecondary,

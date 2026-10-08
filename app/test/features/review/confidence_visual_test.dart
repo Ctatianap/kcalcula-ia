@@ -73,6 +73,13 @@ void main() {
           isVague: false,
           level: ConfidenceLevel.estimacion,
         ),
+        // SPEC-043.
+        confidenceReasonFor(
+          basis: QuantityBasis.defaultPortion,
+          isVague: false,
+          level: ConfidenceLevel.estimacion,
+          withoutEquivalence: true,
+        ),
       };
       // Cubre todas las razones.
       expect(reasons, ConfidenceReason.values.toSet());

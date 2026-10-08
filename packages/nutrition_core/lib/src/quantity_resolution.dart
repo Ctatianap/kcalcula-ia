@@ -145,3 +145,24 @@ QuantityResolution _unresolvable(QuantityBasis basis) => (
   usedDensityFallback: false,
   usedCuratedEstimatePortion: false,
 );
+
+/// SPEC-043 R1: gramos de referencia cuando el alimento no tiene ninguna
+/// porción en el catálogo (los valores del catálogo son por 100 g).
+const fallbackReferenceGrams = 100.0;
+
+/// SPEC-043 R1: respaldo para una cantidad que [resolveGrams] no pudo
+/// convertir (`resolvable: false`): una porción típica del alimento —la
+/// porción "porcion" si existe; si no, la primera del catálogo; si no tiene
+/// porciones, [fallbackReferenceGrams]— con base `defaultPortion`. Su
+/// confianza se calcula con `itemConfidence(..., withoutEquivalence: true)`
+/// (siempre Estimación).
+QuantityResolution fallbackResolution(FoodCatalogEntry food) {
+  final portion =
+      food.portionFor('porcion') ??
+      (food.portions.isEmpty ? null : food.portions.first);
+  return _resolved(
+    grams: portion?.grams ?? fallbackReferenceGrams,
+    basis: QuantityBasis.defaultPortion,
+    usedCuratedEstimatePortion: portion?.isCuratedEstimate ?? false,
+  );
+}

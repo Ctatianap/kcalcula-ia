@@ -5,16 +5,24 @@ import 'models/quantity_basis.dart';
 /// - Alta precisión: `label` con cantidad en g/ml.
 /// - Buena estimación: `explicit_weight`, o `unit_portion` sin ser una
 ///   porción curada.
-/// - Estimación: todo lo demás, `is_vague`, porciones curadas, o ml sin
-///   densidad conocida.
+/// - Estimación: todo lo demás, `is_vague`, porciones curadas, ml sin
+///   densidad conocida, o una cantidad sin equivalencia en el catálogo
+///   (SPEC-043: se usó `fallbackResolution`).
 ConfidenceLevel itemConfidence({
   required QuantityBasis basis,
   required bool isVague,
   required bool usedCuratedEstimatePortion,
   required bool usedDensityFallback,
   bool hasLabelGramsOrMl = false,
+
+  /// SPEC-043 R2: la cantidad no se pudo convertir y se usó una porción
+  /// típica de respaldo.
+  bool withoutEquivalence = false,
 }) {
-  if (isVague || usedDensityFallback || usedCuratedEstimatePortion) {
+  if (isVague ||
+      usedDensityFallback ||
+      usedCuratedEstimatePortion ||
+      withoutEquivalence) {
     return ConfidenceLevel.estimacion;
   }
   switch (basis) {

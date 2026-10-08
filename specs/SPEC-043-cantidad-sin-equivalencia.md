@@ -1,7 +1,7 @@
 # SPEC-043: Cantidad sin equivalencia en el catálogo
 
 ## Status
-Draft
+Implementing
 Path: Strict (toca `nutrition_core`: unidades y confianza)
 
 ## Objective
@@ -92,6 +92,28 @@ corregirla en vez de confiar en un número inventado.
 
 ## Change Log
 - 2026-10-08: creación (backlog T-041) a pedido de la usuaria ("dale").
+- 2026-10-08: **Approved por la usuaria** ("apruebo"). Status → Implementing.
+- 2026-10-08: implementada. `fallbackResolution` y `fallbackReferenceGrams` en
+  `quantity_resolution.dart`; `itemConfidence(..., withoutEquivalence)`; `ReviewItem.withoutEquivalence`;
+  razón `withoutEquivalence` en `confidence_texts.dart`. Detalles menores:
+  - Si después se usa una etiqueta para ese ingrediente (SPEC-033) y lo dicho no tenía equivalencia, la
+    cantidad elegida en "Confirmar etiqueta" pasa con su base y su confianza (antes solo cambiaban los
+    gramos y quedaba "Buena estimación" de `unit_portion`). Por eso `ingredient_actions_test.dart` ›
+    "AC3: 1 scoop…" ahora espera "De tu etiqueta" (destacado) en vez de "Cantidad dicha por ti": es
+    justo el caso de T-041. El resto de tests no cambió.
+  - `confidence_visual_test.dart` (SPEC-023 AC4) incluye la razón nueva en el conjunto que recorre.
+  - nutrition_core 112/112, app 505/505.
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `packages/nutrition_core/test/fallback_resolution_test.dart` › grupo "AC1…" |
+| AC2 | ✅ | mismo archivo › grupo "AC2…" |
+| AC3 | ✅ | `app/test/features/review/without_equivalence_test.dart` › "AC3…" |
+| AC4 | ✅ | mismo archivo › "AC4…" |
+| AC5 | ✅ | `quantity_resolution_test.dart` y `confidence_test.dart` sin cambios; app 505/505 (un test de SPEC-033 cambia a propósito, ver Change Log) |
+| AC6 | ✅ | `without_equivalence_test.dart` › "AC6…" |
+| Manual | ⏳ | Un ingrediente sin equivalencia en el teléfono, pendiente |
 
 ## Review
 Informe del reviewer:

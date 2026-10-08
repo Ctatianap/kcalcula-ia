@@ -28,10 +28,14 @@ SizeDescriptor? mapSize(String? raw) => switch (raw) {
 ConfidenceLevel confidenceOfResolution(
   QuantityResolution resolution, {
   required bool isVague,
+
+  /// SPEC-043: se usó el respaldo de `fallbackResolution`.
+  bool withoutEquivalence = false,
 }) => itemConfidence(
   basis: resolution.basis,
   isVague: isVague,
   usedCuratedEstimatePortion: resolution.usedCuratedEstimatePortion,
   usedDensityFallback: resolution.usedDensityFallback,
   hasLabelGramsOrMl: resolution.basis == QuantityBasis.label,
+  withoutEquivalence: withoutEquivalence,
 );

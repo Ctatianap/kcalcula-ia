@@ -327,8 +327,9 @@ void main() {
         '2 porciones · 60 g',
       );
       // Destacado para revisar, como hoy: el texto de la cantidad en el color
-      // de acento.
-      final source = tester.widget<Text>(find.text('Cantidad dicha por ti'));
+      // de acento. SPEC-043: "1 scoop" no tenía equivalencia, así que la
+      // cantidad es la elegida en la etiqueta ("De tu etiqueta").
+      final source = tester.widget<Text>(find.text('De tu etiqueta'));
       expect(source.style?.color, KColors.accent);
     },
   );
