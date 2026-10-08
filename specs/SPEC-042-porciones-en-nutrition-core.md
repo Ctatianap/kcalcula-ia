@@ -1,7 +1,7 @@
 # SPEC-042: Conversiones de porciones y "por 100 g" en nutrition_core
 
 ## Status
-Draft
+Implementing
 Path: Strict (toca `nutrition_core`: cálculo y unidades)
 
 ## Objective
@@ -98,6 +98,19 @@ que un cambio de reglas no deje cuentas distintas en distintas pantallas.
 
 ## Change Log
 - 2026-10-08: creación (backlog T-035) a pedido de la usuaria ("continua con la 035").
+- 2026-10-08: **Approved por la usuaria** ("si"). Status → Implementing.
+- 2026-10-08: implementada. `portion_conversion.dart` (4 funciones) y 18 casos de referencia;
+  la app las usa en los seis lugares. Detalle: `portionsOf` con una porción de 0 g daba infinito y
+  ahora da `null` (no ocurre: la porción guardada siempre es > 0 por `isValidServingGrams`).
+  nutrition_core 105/105, app 451/451 sin cambiar expectativas.
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `packages/nutrition_core/test/portion_conversion_test.dart` (incluye ida y vuelta y negativos) |
+| AC2 | ✅ | `git grep` de las seis fórmulas (y de `* factor`) en `app/lib`: sin resultados |
+| AC3 | ✅ | nutrition_core 105/105; app 451/451; ningún test existente cambió |
+| AC4 | ✅ | `dart analyze` y `flutter analyze`: sin avisos |
 
 ## Review
 Informe del reviewer:

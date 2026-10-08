@@ -16,6 +16,7 @@ export 'src/models/quantity_basis.dart';
 export 'src/models/quantity_unit.dart';
 export 'src/nutrient_calculation.dart';
 export 'src/period_summary.dart';
+export 'src/portion_conversion.dart';
 export 'src/quantity_resolution.dart';
 export 'src/rounding.dart';
 export 'src/weight_trend.dart';
