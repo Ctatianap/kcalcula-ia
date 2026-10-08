@@ -44,15 +44,16 @@ class ReviewController extends ChangeNotifier {
 
   bool get isEditing => editingMealId != null;
 
-  /// SPEC-026: hubo cambios desde que se abrió (para no perderlos con
-  /// "Repetir hoy").
+  /// SPEC-026: hubo cambios en los datos de la comida desde que se abrió
+  /// (para no perderlos con "Repetir hoy"). Cambiar solo la vista (g o
+  /// porciones) no cuenta.
   bool get hasChanges => _hasChanges;
   bool _hasChanges = false;
 
-  @override
-  void notifyListeners() {
+  /// Para los métodos que cambian datos de la comida.
+  void _changed() {
     _hasChanges = true;
-    super.notifyListeners();
+    notifyListeners();
   }
 
   ReviewController({
@@ -156,7 +157,7 @@ class ReviewController extends ChangeNotifier {
   /// SPEC-026 R2: fecha y hora nuevas (quien llama impide las futuras).
   void setEatenAt(DateTime value) {
     eatenAt = value;
-    notifyListeners();
+    _changed();
   }
 
   ReviewController.fromDraft({
@@ -202,7 +203,7 @@ class ReviewController extends ChangeNotifier {
     final food = _resolver.getFoodById(item.foodId);
     if (food == null) return;
     _items.add(_draftReviewItem(item, food));
-    notifyListeners();
+    _changed();
   }
 
   /// Resolución de cada ítem contra el catálogo y los productos personales,
@@ -340,7 +341,7 @@ class ReviewController extends ChangeNotifier {
     final food = _resolver.getFoodById(foodId);
     if (food == null) return;
     _items[index] = _matchedItem(_parsedOf(_items[index]), food);
-    notifyListeners();
+    _changed();
   }
 
   /// SPEC-033 R2–R4: la persona eligió el alimento de este ingrediente (su
@@ -392,7 +393,7 @@ class ReviewController extends ChangeNotifier {
       }
     }
     _items[index] = rebuilt;
-    notifyListeners();
+    _changed();
   }
 
   /// SPEC-034 R5: unidades de productos elegidos después de abrir el
@@ -446,7 +447,7 @@ class ReviewController extends ChangeNotifier {
 
   void removeItem(int index) {
     _items.removeAt(index);
-    notifyListeners();
+    _changed();
   }
 
   /// AC8: recalcula kcal/macros localmente, sin llamadas de red.
@@ -459,12 +460,13 @@ class ReviewController extends ChangeNotifier {
       // SPEC-026 AC4: editado → se guarda con los valores actuales.
       keepSnapshot: false,
     );
-    notifyListeners();
+    _changed();
   }
 
   void setMealType(String type) {
+    if (type == mealType) return;
     mealType = type;
-    notifyListeners();
+    _changed();
   }
 
   Future<int> register({DateTime? eatenAt}) {

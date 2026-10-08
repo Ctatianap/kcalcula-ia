@@ -177,6 +177,21 @@ void main() {
       expect(day.single.totals.energyKcal, closeTo(143 * 1.5 + 307.05, 1e-9));
     });
 
+    test('R4: solo los cambios de datos cuentan para "Repetir hoy" (no la vista g/porciones)', () async {
+      final id = await _seedMeal(repo);
+      final controller = ReviewController.forEdit(
+        meal: (await repo.getMealWithItems(id))!,
+        resolver: await _resolver(repo),
+        storage: repo,
+      );
+      expect(controller.hasChanges, isFalse);
+      controller.setShowInGrams(0, true);
+      controller.setMealType('almuerzo'); // el mismo
+      expect(controller.hasChanges, isFalse);
+      controller.setMealType('cena');
+      expect(controller.hasChanges, isTrue);
+    });
+
     test('AC2: mover a hoy a las 8:00 la quita de ayer', () async {
       final id = await _seedMeal(repo);
       final controller = ReviewController.forEdit(
@@ -394,11 +409,15 @@ void main() {
       await _tap(tester, find.byKey(const Key('meal-detail-change-eaten-at')));
       // Hoy (8) en el calendario; la hora propuesta es la de la comida
       // (13:00), posterior a las 12:00 de "ahora".
+      // Sin depender del idioma de los textos de Material.
+      final ok = MaterialLocalizations.of(
+        tester.element(find.byType(DatePickerDialog)),
+      ).okButtonLabel;
       await tester.tap(find.text('8'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('OK'));
+      await tester.tap(find.text(ok));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('OK'));
+      await tester.tap(find.text(ok));
       await tester.pumpAndSettle();
       expect(find.text(futureMealMessage), findsOneWidget);
       expect(

@@ -109,8 +109,8 @@ que mis promedios sean reales.
 ## Verificación
 | AC | Estado | Evidencia |
 |----|--------|-----------|
-| AC1 | ✅ | `app/test/features/review/edit_meal_test.dart` › "AC1: huevo de 100 g a 150 g…" (mismo `id`, 150 g, kcal 143 × 1,5 y total del día). Integración con `MyApp`: `app/test/integration/edit_meal_flow_test.dart` › "SPEC-026 AC1/AC7/R6…" (Historial de ayer 143 → tocar la comida → + → "Guardar cambios" → Historial de ayer 150) y "SPEC-026 R1/R6…" (desde Hoy) |
-| AC2 | ✅ | `edit_meal_test.dart` › "AC2: mover a hoy a las 8:00…" (repositorio), "AC2: una fecha futura no se permite" (`validateEatenAt`), "AC2: \"Cambiar\" abre el calendario" y "AC2: hoy con una hora posterior a la actual…" (widget: mensaje y la fecha no cambia). El calendario no ofrece días futuros (`lastDate` = hoy). Que la comida movida aparezca en Hoy lo cubre R6 en la integración |
+| AC1 | ✅ | `app/test/features/review/edit_meal_test.dart` › "AC1: huevo de 100 g a 150 g…" (mismo `id`, 150 g, kcal 143 × 1,5 y total del día). Integración con `MyApp`: `app/test/integration/edit_meal_flow_test.dart` › "SPEC-026 AC1/AC7/R6…" (Historial de ayer 143 → tocar la comida → + (100 → 105 g) → "Guardar cambios" → Historial de ayer 150 kcal; los 150 g del AC están en el test del controlador) y "SPEC-026 R1/R6…" (desde Hoy) |
+| AC2 | ✅ | `edit_meal_test.dart` › "AC2: mover a hoy a las 8:00…" (repositorio), "AC2: una fecha futura no se permite" (`validateEatenAt`), "AC2: \"Cambiar\" abre el calendario" y "AC2: hoy con una hora posterior a la actual…" (widget: mensaje y la fecha no cambia). El calendario no ofrece días futuros (`lastDate` = hoy). Que la comida movida esté en el día nuevo lo prueba el test del controlador con `mealsForDay` (la misma lectura que usa Hoy); no hay integración con `MyApp` que mueva una comida |
 | AC3 | ✅ | mismo archivo › "AC3: borrar con confirmación…" (comida e ítems borrados; "¿Borrar el almuerzo de las 13:00?") y "AC3: cancelar no borra nada" |
 | AC4 | ✅ | mismo archivo › "AC4…": con el catálogo cambiado (huevo 200 kcal), el huevo no tocado guarda 143 y "Huevo"; la arepa editada usa el catálogo actual. Caso borde: "un producto borrado se puede ajustar con su instantánea" |
 | AC5 | — | Movido a SPEC-036 |
@@ -118,7 +118,7 @@ que mis promedios sean reales.
 | AC7 | ✅ | mismo archivo › "AC7…": "Repetir hoy" → Detalle → "Guardar" → comida nueva a la hora actual con los mismos gramos; la de ayer sigue igual. Integración con `MyApp` ("SPEC-026 AC1/AC7/R6…"): después de "Repetir hoy", Hoy muestra la comida, la racha dice "2 días seguidos registrando", Historial de hoy 150 kcal y Progreso "miércoles 7 de octubre: 150 kcal" y "jueves 8 de octubre: 150 kcal". "R4: una comida de hoy no ofrece…" y "R4: con cambios sin guardar, \"Repetir hoy\" se desactiva" |
 | AC8 | ✅ | mismo archivo › "AC8…": "Elegir de mis productos" en el huevo → "Guardar cambios" → mismo `id`, el huevo es el producto y la arepa conserva su instantánea (proteína 6,5 g; el catálogo daría 6,509) |
 | Docs | ✅ | `docs/architecture.md` (Modelo de datos: edición de comidas guardadas; tablas de SPEC-034) |
-| Tests | ✅ | app: analyze sin avisos, 422/422; ningún test existente cambió |
+| Tests | ✅ | app: analyze sin avisos, 423/423; ningún test existente cambió |
 | Manual | ⏳ | Editar, borrar y repetir una comida en el teléfono |
 
 ## Review
@@ -132,3 +132,8 @@ Revisión (2026-10-08, subagente `reviewer`, sobre `57b9fbf`): **CHANGES_REQUEST
   `catalog_version` documentado en `docs/architecture.md`; test de `updated_at`; tests de error al
   borrar y de comida que ya no existe.
 - MINOR al backlog: `_snapshotFood` (instantánea → por 100 g en la app) se suma a T-035.
+
+Re-revisión (2026-10-08, sobre `59e8cd5`): **PASS**. MAJOR y MINOR anteriores resueltos; AC1–AC4 y
+AC6–AC8 con evidencia. 4 MINOR, corregidos después: `hasChanges` se marca solo en los métodos que
+cambian datos (`_changed()`; no `setShowInGrams` ni elegir el mismo tipo) con test; redacción de la
+evidencia de AC1 y AC2; el test del calendario no depende del idioma (`okButtonLabel`).
