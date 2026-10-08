@@ -11,6 +11,7 @@ import '../../infra/storage/storage_providers.dart';
 import '../../ui/meal_actions_flow.dart';
 import '../../ui/components/k_card.dart';
 import '../../ui/components/main_nav_bar.dart';
+import '../../ui/components/confidence_indicator.dart' show confidenceFromName;
 import '../../ui/components/meal_card.dart';
 import '../../format/date_format_es.dart';
 import '../../ui/theme.dart';
@@ -632,6 +633,8 @@ class _DayDetail extends StatelessWidget {
                 (name: i.nameSnapshot, grams: i.grams),
             ],
             totals: meal.totals,
+            // SPEC-023 R4.
+            confidence: confidenceFromName(meal.meal.confidence),
             // SPEC-026 R1.
             onTap: () =>
                 Navigator.of(context)

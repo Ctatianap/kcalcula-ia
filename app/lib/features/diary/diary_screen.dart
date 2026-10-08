@@ -10,6 +10,7 @@ import '../../ui/meal_actions_flow.dart';
 import '../../ui/components/k_card.dart';
 import '../../ui/components/macro_cards.dart';
 import '../../ui/components/main_nav_bar.dart';
+import '../../ui/components/confidence_indicator.dart' show confidenceFromName;
 import '../../ui/components/meal_card.dart';
 import '../../ui/components/progress_ring.dart';
 import '../../ui/theme.dart';
@@ -608,6 +609,8 @@ class _MealCard extends StatelessWidget {
           (name: i.nameSnapshot, grams: i.grams),
       ],
       totals: summary.totals,
+      // SPEC-023 R4.
+      confidence: confidenceFromName(meal.confidence),
       // SPEC-026 R1.
       onTap: () =>
           Navigator.of(context)
