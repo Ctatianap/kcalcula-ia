@@ -1,7 +1,7 @@
 # SPEC-032: Cantidad en porciones y vista previa en "Confirmar etiqueta"
 
 ## Status
-Review
+Done
 Path: Standard (cambia cómo se indica la cantidad y muestra un cálculo que ya existe en
 `nutrition_core`; no cambia reglas de cálculo, la IA ni el catálogo)
 
@@ -63,7 +63,8 @@ registrar antes de seguir, para no adivinar.
 - AC4. Etiqueta de 27 g con 70 kcal, P 2,8, C 15 y G 0,2 por porción, y "3" porciones → la vista
   previa muestra ~210 kcal y 8,4 g, 45 g y 0,6 g, los mismos valores que da
   `calculateItemNutrients` para 81 g del producto equivalente `[widget + unit]`.
-- AC5. Con meta (P 123 g, C 184 g, G 46 g), las tarjetas dicen "de 123 g", "de 184 g" y "de 46 g";
+- AC5. Con meta (P 123 g, C 184 g, G 46 g), las tarjetas dicen "de 123,0 g", "de 184,0 g" y
+  "de 46,0 g" (un decimal, como "Hoy");
   sin meta, solo los gramos `[widget]`.
 - AC6. Con proteína vacía → aparece "Falta: proteína." y no aparece la vista previa `[widget]`.
 - AC7. El botón dice "Revisar comida", tiene la línea de R6 debajo y abre Revisar como antes
@@ -126,6 +127,8 @@ registrar antes de seguir, para no adivinar.
   "Hoy" a `app/lib/ui/components/macro_cards.dart` (sin cambio visual).
 - 2026-10-07: reviewer PASS; 6 MINOR corregidos (ver Review); el de AC5 espera a la usuaria.
 - 2026-10-07: prueba manual en el teléfono hecha (ver Verificación). Status → Review.
+- 2026-10-07: la usuaria aprueba el cambio de texto de AC5 a "de 123,0 g" y fusionar ("si a ambas").
+  Status → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -154,4 +157,4 @@ desvío de formato documentado); la vista previa coincide con Revisar (mismo `_p
   `personalProductToFoodCatalogEntry` y resuelve con `resolveGrams`.
 - Casos borde sin test: "0" porciones, porción no válida con porciones, etiqueta en ml (controlador
   y pantalla).
-- AC5 dice "de 123 g" y se muestra "de 123,0 g": cambio de texto propuesto a la usuaria.
+- AC5 dice "de 123 g" y se muestra "de 123,0 g": la usuaria aprobó el nuevo texto de AC5.

@@ -263,6 +263,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     Pedido de la usuaria (2026-10-07): decir "comí 3 porciones" en vez de gramos, ver la proteína,
     carbohidratos y grasa que se van a registrar, y que el botón deje claro que lleva a Revisar.
   dependencies: [T-031]
+  status: done  # SPEC-032
   spec_required: true    # specs/SPEC-032-cantidad-en-porciones-y-vista-previa.md — Standard
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
