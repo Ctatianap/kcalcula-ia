@@ -29,6 +29,10 @@ const deleteMealErrorMessage = 'No pude borrar la comida. Intenta de nuevo.';
 const futureMealMessage = 'La comida no puede quedar en el futuro.';
 const repeatTodayLabel = 'Repetir hoy';
 
+/// SPEC-026 R2/AC2: una comida no puede quedar en el futuro.
+String? validateEatenAt(DateTime chosen, DateTime now) =>
+    chosen.isAfter(now) ? futureMealMessage : null;
+
 /// SPEC-033 R1: acciones del menú de cada ingrediente.
 const useLabelAction = 'Usar etiqueta';
 const pickProductAction = 'Elegir de mis productos';
@@ -171,8 +175,9 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
       time.hour,
       time.minute,
     );
-    if (chosen.isAfter(now)) {
-      setState(() => _registerError = futureMealMessage);
+    final error = validateEatenAt(chosen, now);
+    if (error != null) {
+      setState(() => _registerError = error);
       return;
     }
     setState(() => _registerError = null);

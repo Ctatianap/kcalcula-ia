@@ -94,6 +94,30 @@ que mis promedios sean reales.
   confirmó ("sí, confirmo las cuatro"): sin "Actualizar con la base actual"; la búsqueda no filtra por
   tipo; R7/AC8 nuevos (mismas acciones de SPEC-033/034 al editar); R5/AC5 (buscar en el historial)
   pasan a SPEC-036. Status → Implementing.
+- 2026-10-08: implementada.
+  - Repositorio: `getMealWithItems`, `updateMeal` (transacción, mismo `id`, `updated_at`) y
+    `deleteMeal`.
+  - `ReviewController.forEdit`: cada ítem guarda su `savedSnapshot` hasta que se edita; un producto
+    borrado se arma con la instantánea. `setEatenAt`, `deleteEditedMeal`; `register` actualiza en vez de
+    crear.
+  - `draftFromMeal` (compartido con Recientes) para "Repetir hoy".
+  - Ruta `AppRoutes.editMeal`; tocar una comida en Hoy o Historial la abre. Modo edición del Detalle:
+    "Editar comida", fecha y hora con "Cambiar", "Borrar comida", "Guardar cambios" y "Repetir hoy".
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/features/review/edit_meal_test.dart` › "AC1: huevo de 100 g a 150 g…" (mismo `id`, 150 g, kcal 143 × 1,5 y total del día). Integración: `app/test/integration/edit_meal_flow_test.dart` (tocar la comida en Hoy → "Editar comida" → + → "Guardar cambios" → Hoy muestra 150 kcal) |
+| AC2 | ✅ | `edit_meal_test.dart` › "AC2: mover a hoy a las 8:00…", "AC2: una fecha futura no se permite" (`validateEatenAt`) y "AC2: \"Cambiar\" abre el calendario" (el calendario tampoco ofrece días futuros: `lastDate` = hoy) |
+| AC3 | ✅ | mismo archivo › "AC3: borrar con confirmación…" (comida e ítems borrados; "¿Borrar el almuerzo de las 13:00?") y "AC3: cancelar no borra nada" |
+| AC4 | ✅ | mismo archivo › "AC4…": con el catálogo cambiado (huevo 200 kcal), el huevo no tocado guarda 143 y "Huevo"; la arepa editada usa el catálogo actual. Caso borde: "un producto borrado se puede ajustar con su instantánea" |
+| AC5 | — | Movido a SPEC-036 |
+| AC6 | ✅ | mismo archivo › "AC6…": `updateMeal` falla → "No pude guardar la comida. Intenta de nuevo.", sin texto de SQLite, y la comida sigue en 100 g |
+| AC7 | ✅ | mismo archivo › "AC7…": "Repetir hoy" → Detalle → "Guardar" → comida nueva a la hora actual con los mismos gramos; la de ayer sigue igual. "R4: una comida de hoy no ofrece \"Repetir hoy\"" |
+| AC8 | ✅ | mismo archivo › "AC8…": "Elegir de mis productos" en el huevo → "Guardar cambios" → mismo `id`, el huevo es el producto y la arepa conserva su instantánea |
+| Docs | ✅ | `docs/architecture.md` (Modelo de datos: edición de comidas guardadas; tablas de SPEC-034) |
+| Tests | ✅ | app: analyze sin avisos, 415/415; ningún test existente cambió |
+| Manual | ⏳ | Editar, borrar y repetir una comida en el teléfono |
 
 ## Review
 Informe del reviewer: pendiente.
