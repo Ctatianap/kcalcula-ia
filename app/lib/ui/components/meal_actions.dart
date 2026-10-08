@@ -16,6 +16,13 @@ const mealDeletedMessage = 'Comida eliminada.';
 /// SPEC-037 R1.
 const editMealAction = 'Editar comida';
 const repeatTodayAction = 'Repetir hoy';
+
+/// SPEC-038 R2: repetir una comida de hoy a la hora actual.
+const repeatNowAction = 'Repetir ahora';
+
+/// SPEC-038: el texto de "repetir" según el día de la comida.
+String repeatLabelFor({required bool mealIsToday}) =>
+    mealIsToday ? repeatNowAction : repeatTodayAction;
 const deleteMealAction = 'Eliminar comida';
 
 /// SPEC-037 R4.
@@ -67,7 +74,8 @@ Future<bool> confirmDeleteMeal(
 Future<MealAction?> showMealActionsMenu(
   BuildContext context, {
   required RelativeRect position,
-  required bool canRepeatToday,
+  required bool canRepeat,
+  required bool mealIsToday,
 }) {
   return showMenu<MealAction>(
     context: context,
@@ -80,12 +88,12 @@ Future<MealAction?> showMealActionsMenu(
           title: Text(editMealAction),
         ),
       ),
-      if (canRepeatToday)
-        const PopupMenuItem(
+      if (canRepeat)
+        PopupMenuItem(
           value: MealAction.repeatToday,
           child: ListTile(
-            leading: Icon(Icons.replay),
-            title: Text(repeatTodayAction),
+            leading: const Icon(Icons.replay),
+            title: Text(repeatLabelFor(mealIsToday: mealIsToday)),
           ),
         ),
       const PopupMenuItem(

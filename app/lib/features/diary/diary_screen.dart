@@ -50,7 +50,9 @@ class _DiaryScreenState extends ConsumerState<DiaryScreen> {
         ref,
         meal: meal,
         position: position,
-        canRepeatToday: false,
+        // SPEC-038 R2: "Repetir ahora".
+        canRepeat: true,
+        mealIsToday: true,
         onChanged: () {
           if (mounted) setState(_reload);
         },

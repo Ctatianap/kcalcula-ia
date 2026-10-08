@@ -93,6 +93,22 @@ desayuno y poder repetirlo, aunque sea de hoy.
 ## Change Log
 - 2026-10-08: creación a pedido de la usuaria ("sí, redacta la SPEC con las dos").
 - 2026-10-08: **Approved por la usuaria** ("aprobada la SPEC-038"). Status → Implementing.
+- 2026-10-08: implementada. `_MealTypeRow` en el detalle del día de Historial (una comida → la abre;
+  varias → hoja; 0 kcal → nada); `repeatLabelFor` ("Repetir ahora"/"Repetir hoy") en el menú de
+  SPEC-037 y en "Editar comida"; `ReviewScreen` arma el borrador también para comidas de hoy.
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/features/history/history_type_rows_test.dart` › "AC1…" |
+| AC2 | ✅ | mismo archivo › "AC2: con dos snacks, una hoja para elegir" |
+| AC3 | ✅ | mismo archivo › "AC3…" (sin fila tocable ni ">") |
+| R4 | ✅ | mismo archivo › "R4: la fila se anuncia como botón" ("Desayuno, 300 kcal. Toca para ver la comida") |
+| AC4 | ✅ | `app/test/features/diary/meal_long_press_test.dart` › "AC1 + SPEC-038 AC4…" (menú de Hoy con "Repetir ahora" → Detalle). Integración con `MyApp`: `app/test/integration/edit_meal_flow_test.dart` › "SPEC-038 AC4…" (guardar crea una comida nueva a las 12:00 con 100 g; la de las 8:30 sigue) |
+| AC5 | ✅ | `app/test/features/review/edit_meal_test.dart` › "R4 + SPEC-038 AC5…" (hoy: "Repetir ahora", no "Repetir hoy") y "SPEC-038 AC5: \"Repetir ahora\" se desactiva con cambios sin guardar"; otro día sigue con "Repetir hoy" (tests de SPEC-026) |
+| AC6 | ✅ | `meal_long_press_test.dart` › "SPEC-038 AC6…" |
+| AC7 | ✅ | app: analyze sin avisos, 449/449. Expectativas cambiadas: `meal_long_press_test.dart` "AC1…" (antes: Hoy sin "Repetir"; ahora con "Repetir ahora") y `edit_meal_test.dart` "R4…" (antes: una comida de hoy sin repetir; ahora con "Repetir ahora"). Parámetro `canRepeatToday` → `canRepeat` + `mealIsToday` en el flujo compartido |
+| Manual | ⏳ | Tocar los totales y repetir una comida de hoy en el teléfono |
 
 ## Review
 Informe del reviewer:

@@ -16,19 +16,22 @@ import 'components/meal_actions.dart';
 /// Muestra el menú en [position] y hace la acción elegida. Llama a
 /// [onChanged] cuando la comida se borró o se volvió de editarla/repetirla,
 /// para que la pantalla se recargue. "Repetir hoy" solo aparece si
-/// [canRepeatToday] y todos sus alimentos siguen existiendo (como en
+/// [canRepeat] y todos sus alimentos siguen existiendo (como en
 /// SPEC-026 R4).
 Future<void> handleMealLongPress(
   BuildContext context,
   WidgetRef ref, {
   required MealWithItems meal,
   required RelativeRect position,
-  required bool canRepeatToday,
+  required bool canRepeat,
+
+  /// SPEC-038 R2: "Repetir ahora" (hoy) o "Repetir hoy" (otro día).
+  required bool mealIsToday,
   required VoidCallback onChanged,
 }) async {
   final storage = ref.read(storageRepositoryProvider);
   MealDraft? repeatDraft;
-  if (canRepeatToday) {
+  if (canRepeat) {
     try {
       repeatDraft = await loadRepeatDraft(
         storage,
@@ -48,7 +51,8 @@ Future<void> handleMealLongPress(
   final action = await showMealActionsMenu(
     context,
     position: position,
-    canRepeatToday: repeatDraft != null,
+    canRepeat: repeatDraft != null,
+    mealIsToday: mealIsToday,
   );
   if (action == null || !context.mounted) return;
   final navigator = Navigator.of(context);

@@ -88,11 +88,15 @@ class MealDetailView extends ConsumerStatefulWidget {
   /// SPEC-026 R4: "Repetir hoy" (solo para una comida guardada de otro día).
   final VoidCallback? onRepeatToday;
 
+  /// SPEC-038 R2: "Repetir hoy" u "Repetir ahora".
+  final String repeatLabel;
+
   const MealDetailView({
     super.key,
     required this.controller,
     required this.onCorrect,
     this.onRepeatToday,
+    this.repeatLabel = repeatTodayLabel,
   });
 
   @override
@@ -367,7 +371,7 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
                               ? null
                               : repeat,
                           icon: const Icon(Icons.replay),
-                          label: const Text(repeatTodayLabel),
+                          label: Text(widget.repeatLabel),
                         ),
                       ],
                     ],

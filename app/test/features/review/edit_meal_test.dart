@@ -371,10 +371,25 @@ void main() {
     expect(yesterday!.single.meal.id, pumped.mealId);
   });
 
-  testWidgets('R4: una comida de hoy no ofrece "Repetir hoy"', (tester) async {
-    await _pump(tester, mealAt: DateTime(2026, 10, 8, 9));
-    expect(find.text(repeatTodayLabel), findsNothing);
-  });
+  testWidgets(
+    'R4 + SPEC-038 AC5: una comida de hoy ofrece "Repetir ahora", no "Repetir hoy"',
+    (tester) async {
+      await _pump(tester, mealAt: DateTime(2026, 10, 8, 9));
+      expect(find.text(repeatTodayLabel), findsNothing);
+      expect(find.text(repeatNowAction), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'SPEC-038 AC5: "Repetir ahora" se desactiva con cambios sin guardar',
+    (tester) async {
+      await _pump(tester, mealAt: DateTime(2026, 10, 8, 9));
+      await _tap(tester, find.byTooltip('Más').first);
+      final repeat = find.widgetWithText(OutlinedButton, repeatNowAction);
+      await tester.ensureVisible(repeat);
+      expect(tester.widget<OutlinedButton>(repeat).onPressed, isNull);
+    },
+  );
 
   testWidgets(
     'AC8: "Elegir de mis productos" al editar cambia ese ítem y conserva el id y los demás',
