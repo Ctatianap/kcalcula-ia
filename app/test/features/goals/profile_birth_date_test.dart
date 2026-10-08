@@ -88,6 +88,15 @@ void main() {
       expect(c.birthDay, 15);
     });
 
+    test('R5: con 17 años (hoy fijo) → mensaje de rango', () {
+      final c = _controller()
+        ..setBirthYear(2008)
+        ..setBirthMonth(12)
+        ..setBirthDay(31);
+      expect(c.birthDateError, ageRangeMessage);
+      expect(c.age, isNull);
+    });
+
     test(
       'Edge: un año guardado fuera de la lista se sigue mostrando',
       () async {
@@ -204,5 +213,48 @@ void main() {
     await tester.pumpAndSettle();
     await _select(tester, 'profile-birth-month', 'septiembre');
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('AC2: un perfil con 1990-03-15 abre con 15, marzo, 1990', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1080, 4000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await tester.runAsync(
+      () => StorageRepository(db).saveUserProfile(
+        sex: 'female',
+        birthDate: DateTime(1990, 3, 15),
+        heightCm: 165,
+        weightKg: 63,
+        activityLevel: 'lightlyActive',
+      ),
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [appDatabaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(home: ProfileScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    Finder shown(String key, String text) =>
+        find.descendant(of: find.byKey(Key(key)), matching: find.text(text));
+    expect(shown('profile-birth-day', '15'), findsOneWidget);
+    expect(shown('profile-birth-month', 'marzo'), findsOneWidget);
+    expect(shown('profile-birth-year', '1990'), findsOneWidget);
+  });
+
+  testWidgets('Edge: el lector de pantalla anuncia "Día", "Mes" y "Año"', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await _pump(tester);
+    for (final label in ['Día', 'Mes', 'Año']) {
+      expect(find.bySemanticsLabel(RegExp('^$label')), findsWidgets);
+    }
+    semantics.dispose();
   });
 }

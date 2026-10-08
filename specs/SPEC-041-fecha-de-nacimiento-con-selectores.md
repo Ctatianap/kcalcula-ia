@@ -91,18 +91,23 @@ no pelear con el teclado.
   ve en cuanto falta uno de los tres. Sin fecha elegida no hay mensaje (como antes con el campo
   vacío). `goals_flow_test.dart` usa los selectores; el caso "17 años" elige el 31 de diciembre del
   año más reciente. 460/460.
+- 2026-10-08: reviewer PASS condicionado solo a AC8 (manual). MINOR corregidos: `Semantics(label:)` en
+  cada selector y test de "Día/Mes/Año" para el lector de pantalla; test de AC2 con 1990-03-15 dentro
+  de cada selector; caso de 17 años en el controlador con fecha fija. 463/463.
 
 ## Verificación
 | AC | Estado | Evidencia |
 |----|--------|-----------|
 | AC1 | ✅ | `app/test/features/goals/profile_birth_date_test.dart` › "AC1…" |
-| AC2 | ✅ | `goals_flow_test.dart` › "carga el perfil guardado para editarlo" (año, "enero", "1") |
+| AC2 | ✅ | `profile_birth_date_test.dart` › "AC2: un perfil con 1990-03-15 abre con 15, marzo, 1990" |
 | AC3 | ✅ | `profile_birth_date_test.dart` › "AC3…" y "R3: 31 de marzo → febrero…" |
 | AC4 | ✅ | mismo archivo › "AC4…" |
 | AC5 | ✅ | mismo archivo › "AC5: años…" (controlador) y "AC5 + AC6…" (pantalla) |
 | AC6 | ✅ | mismo archivo › "AC5 + AC6…" |
-| AC7 | ✅ | `goals_flow_test.dart` 23/23 con los selectores; app 460/460 |
+| AC7 | ✅ | `goals_flow_test.dart` 23/23 con los selectores; app 463/463 |
 | AC8 | ⏳ | Prueba manual en el Samsung de la usuaria, pendiente |
 
 ## Review
-Informe del reviewer:
+Revisión (2026-10-08, subagente `reviewer`, sobre `0a681fa`): **PASS condicionado a AC8** (manual); el
+código no requiere cambios. AC1–AC7 con evidencia; la edad sale de `ageInYears` (`nutrition_core`);
+sin migración; no quedan usos de las funciones quitadas. MINOR corregidos (ver Change Log).

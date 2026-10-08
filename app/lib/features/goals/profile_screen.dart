@@ -340,21 +340,25 @@ class _Select extends StatelessWidget {
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
     ),
     child: DropdownButtonHideUnderline(
-      child: DropdownButton<int>(
-        value: options.containsKey(value) ? value : null,
-        isExpanded: true,
-        isDense: true,
-        menuMaxHeight: 320,
-        items: [
-          for (final MapEntry(:key, value: text) in options.entries)
-            DropdownMenuItem(
-              value: key,
-              child: Text(text, overflow: TextOverflow.ellipsis),
-            ),
-        ],
-        onChanged: (v) {
-          if (v != null) onChanged(v);
-        },
+      // El lector de pantalla anuncia "Día", "Mes" o "Año" con el valor.
+      child: Semantics(
+        label: label,
+        child: DropdownButton<int>(
+          value: options.containsKey(value) ? value : null,
+          isExpanded: true,
+          isDense: true,
+          menuMaxHeight: 320,
+          items: [
+            for (final MapEntry(:key, value: text) in options.entries)
+              DropdownMenuItem(
+                value: key,
+                child: Text(text, overflow: TextOverflow.ellipsis),
+              ),
+          ],
+          onChanged: (v) {
+            if (v != null) onChanged(v);
+          },
+        ),
       ),
     ),
   );
