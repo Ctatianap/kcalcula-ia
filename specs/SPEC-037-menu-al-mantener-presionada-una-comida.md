@@ -1,7 +1,7 @@
 # SPEC-037: Menú al mantener presionada una comida
 
 ## Status
-Implementing
+Done
 Path: Standard (gesto nuevo en Hoy e Historial; reutiliza borrar y editar de SPEC-026; no sale ningún
 dato)
 
@@ -102,6 +102,8 @@ Como persona que registró una comida por error, quiero dejarla presionada y eli
   usa la confirmación compartida.
 - 2026-10-08: reviewer PASS; 6 MINOR corregidos (ver Review). R1 aclarado sin cambiar su alcance
   ("Repetir hoy" como SPEC-026 R4). 433/433.
+- 2026-10-08: prueba manual de la usuaria y **aprobación para fusionar** ("ya lo probé, funciona, fusiona
+  la 037"). Status → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -115,7 +117,7 @@ Como persona que registró una comida por error, quiero dejarla presionada y eli
 | R4 | ✅ | mismo archivo › "R4…" (hint y la acción con la etiqueta exacta "Más opciones") |
 | R1 | ✅ | mismo archivo › "R1: sin \"Repetir hoy\" si algún alimento ya no existe…" |
 | AC7 | ✅ | app: analyze sin avisos, 433/433. Cambio en tests existentes: `edit_meal_test.dart` importa `mealWithArticle` y `deleteMealErrorMessage` desde `app/lib/ui/components/meal_actions.dart` (se movieron ahí, R6) |
-| Manual | ⏳ | Mantener presionada una comida en el teléfono y eliminarla |
+| Manual | ✅ | 2026-10-08, la usuaria en su Motorola con la versión de `69d4a67`: "ya lo probé, funciona" |
 
 ## Review
 Revisión (2026-10-08, subagente `reviewer`, sobre `6576189`): **PASS**. AC1–AC7 y R4/R5 con evidencia;

@@ -307,6 +307,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     Pedido de la usuaria (2026-10-08): mantener presionada la tarjeta de una comida en Hoy o Historial
     abre un menú con "Eliminar comida" (y "Editar comida", "Repetir hoy").
   dependencies: []
+  status: done  # SPEC-037
   spec_required: true    # specs/SPEC-037-menu-al-mantener-presionada-una-comida.md — Standard
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
