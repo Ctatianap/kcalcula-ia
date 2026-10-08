@@ -113,8 +113,35 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
   String? _ingredientError;
 
   Future<void> _addIngredient() async {
-    final item = await pickFoodManually(context);
-    if (item != null && mounted) widget.controller.addDraftItem(item);
+    setState(() => _ingredientError = null);
+    final pick = await pickIngredient(context);
+    if (pick == null || !mounted) return;
+    switch (pick) {
+      case PickedFood(:final item):
+        widget.controller.addDraftItem(item);
+      case PickedLabelProduct(:final result):
+        await _addLabelProduct(result);
+    }
+  }
+
+  /// SPEC-040 R3: el producto recién guardado, como ingrediente nuevo.
+  Future<void> _addLabelProduct(IngredientLabelResult result) async {
+    try {
+      final product = await ref
+          .read(storageRepositoryProvider)
+          .getPersonalProductById(result.productId);
+      if (product == null) throw StateError('producto no encontrado');
+      if (!mounted) return;
+      widget.controller.addLabelProduct(
+        personalProductToFoodCatalogEntry(product),
+        quantity: result.quantity,
+        unit: result.unit,
+        servingUnit: product.servingUnit,
+      );
+    } catch (_) {
+      // SPEC-009: sin el texto de SQLite.
+      if (mounted) setState(() => _ingredientError = loadProductErrorMessage);
+    }
   }
 
   /// SPEC-033 R2: etiqueta de este ingrediente; vuelve aquí con el

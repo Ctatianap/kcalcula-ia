@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nutrition_core/nutrition_core.dart';
 
+import '../../app_routes.dart';
 import '../../infra/catalog/catalog_providers.dart';
 import '../../infra/catalog/catalog_repository.dart' show isSearchableQuery;
 import '../../infra/catalog/food_match_result.dart';
 import '../../infra/food_resolution/food_query_resolver.dart';
+import '../../infra/food_resolution/ingredient_label_result.dart';
 import '../../infra/food_resolution/meal_draft.dart';
 import '../../infra/storage/storage_providers.dart';
 import '../../ui/components/k_card.dart';
@@ -15,20 +17,57 @@ import 'manual_quantity.dart';
 
 const noSearchResultsMessage =
     'No encontré ese alimento. Prueba con otro nombre.';
+
+/// SPEC-040 R1.
+const noSearchResultsWithLabelMessage =
+    'No encontré ese alimento. Prueba con otro nombre o añádelo con su '
+    'etiqueta.';
+const addWithLabelAction = 'Añadir con etiqueta';
 const invalidAmountMessage = 'Escribe una cantidad mayor que 0.';
 
 String _k(double v) => formatThousandsEs(presentKcal(v));
 
+/// Lo que devuelve "Buscar alimento": un alimento con su cantidad o, si se
+/// abrió con [FoodSearchScreen.allowLabel], un producto recién guardado con
+/// su etiqueta (SPEC-040).
+sealed class FoodSearchPick {
+  const FoodSearchPick();
+}
+
+final class PickedFood extends FoodSearchPick {
+  final MealDraftItem item;
+  const PickedFood(this.item);
+}
+
+final class PickedLabelProduct extends FoodSearchPick {
+  final IngredientLabelResult result;
+  const PickedLabelProduct(this.result);
+}
+
 /// Abre "Buscar alimento" y devuelve el ítem elegido (o `null`).
-Future<MealDraftItem?> pickFoodManually(BuildContext context) =>
-    Navigator.of(context).push<MealDraftItem>(
-      MaterialPageRoute(builder: (_) => const FoodSearchScreen()),
+Future<MealDraftItem?> pickFoodManually(BuildContext context) async {
+  final pick = await Navigator.of(context).push<FoodSearchPick>(
+    MaterialPageRoute(builder: (_) => const FoodSearchScreen()),
+  );
+  return pick is PickedFood ? pick.item : null;
+}
+
+/// SPEC-040: "Añadir ingrediente", con la opción de añadirlo con su
+/// etiqueta.
+Future<FoodSearchPick?> pickIngredient(BuildContext context) =>
+    Navigator.of(context).push<FoodSearchPick>(
+      MaterialPageRoute(
+        builder: (_) => const FoodSearchScreen(allowLabel: true),
+      ),
     );
 
 /// SPEC-018 R1: búsqueda en el catálogo y en los productos personales, sin
 /// IA. Todo es local.
 class FoodSearchScreen extends ConsumerStatefulWidget {
-  const FoodSearchScreen({super.key});
+  /// SPEC-040 R1: muestra "Añadir con etiqueta".
+  final bool allowLabel;
+
+  const FoodSearchScreen({super.key, this.allowLabel = false});
 
   @override
   ConsumerState<FoodSearchScreen> createState() => _FoodSearchScreenState();
@@ -97,7 +136,19 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
         ),
       ),
     );
-    if (item != null && mounted) Navigator.of(context).pop(item);
+    if (item != null && mounted) Navigator.of(context).pop(PickedFood(item));
+  }
+
+  /// SPEC-040 R2/R4: el flujo de etiqueta de SPEC-033, con lo escrito como
+  /// nombre sugerido; si se sale sin guardar, se queda aquí.
+  Future<void> _addWithLabel() async {
+    final result = await Navigator.of(context).pushNamed<IngredientLabelResult>(
+      AppRoutes.ingredientLabel,
+      arguments: _query.text.trim(),
+    );
+    if (result != null && mounted) {
+      Navigator.of(context).pop(PickedLabelProduct(result));
+    }
   }
 
   @override
@@ -134,6 +185,16 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
                     onChanged: (_) => _search(),
                   ),
                 ),
+                if (widget.allowLabel)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
+                    child: OutlinedButton.icon(
+                      key: const Key('food-search-add-with-label'),
+                      onPressed: _addWithLabel,
+                      icon: const Icon(Icons.document_scanner_outlined),
+                      label: const Text(addWithLabelAction),
+                    ),
+                  ),
                 Expanded(
                   child: !isSearchableQuery(query)
                       ? Padding(
@@ -152,7 +213,11 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
                           padding: const EdgeInsets.all(20),
                           child: Semantics(
                             liveRegion: true,
-                            child: const Text(noSearchResultsMessage),
+                            child: Text(
+                              widget.allowLabel
+                                  ? noSearchResultsWithLabelMessage
+                                  : noSearchResultsMessage,
+                            ),
                           ),
                         )
                       : ListView.builder(

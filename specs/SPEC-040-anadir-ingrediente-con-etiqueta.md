@@ -1,7 +1,7 @@
 # SPEC-040: Añadir un ingrediente nuevo con su etiqueta
 
 ## Status
-Draft
+Implementing
 Path: Standard (reutiliza el flujo de etiqueta de SPEC-033; no cambia prompts, esquemas, `nutrition_core`
 ni lo que sale del dispositivo)
 
@@ -35,6 +35,9 @@ aunque no lo haya guardado antes, para registrar la comida completa.
 - R4. Si la persona sale sin guardar, vuelve a "Buscar alimento" sin cambios.
 - R5. La foto usa `extractLabel` igual que hoy (invariante 2: la IA transcribe, la persona confirma).
   "Escribir los valores" no usa IA.
+- R6. Esta SPEC reemplaza SPEC-018 R5 ("sin sugerir crear uno") **solo** en "Buscar alimento" abierto
+  desde "Añadir ingrediente". Desde el error de análisis (SPEC-018 R4) el mensaje y la pantalla no
+  cambian: sin botón.
 
 ## Acceptance Criteria
 - AC1. Sin productos guardados, buscar "galletas xyz" → se ve el mensaje de R1 y el botón "Añadir con
@@ -46,7 +49,8 @@ aunque no lo haya guardado antes, para registrar la comida completa.
 - AC4. Salir de "Etiqueta del ingrediente" sin guardar → se vuelve a "Buscar alimento" y la comida no
   cambia `[widget]`.
 - AC5. "Usar etiqueta" sobre un ingrediente existente (SPEC-033) sigue reemplazándolo; tests existentes
-  verdes sin cambiar expectativas `[unit + widget]`.
+  verdes sin cambiar expectativas, salvo el de SPEC-018 AC5 desde el Detalle, que pasa a esperar el
+  mensaje de R1 (R6) `[unit + widget]`.
 - AC6. En el teléfono: snack con una etiqueta escaneada + un segundo producto añadido con "Escribir los
   valores" → se guarda con ambos `[manual]`.
 
@@ -91,6 +95,11 @@ aunque no lo haya guardado antes, para registrar la comida completa.
 
 ## Change Log
 - 2026-10-08: creación a partir del hallazgo de la usuaria en el S25.
+- 2026-10-08: **Approved por la usuaria** ("aprobada"). Status → Implementing.
+- 2026-10-08: la implementación reveló que R1 contradice SPEC-018 R5 ("sin sugerir crear uno"), que
+  tiene un test (`food_search_flow_test.dart` › AC5) desde el Detalle. Se añade R6 y se ajusta AC5.
+  Status → Draft hasta nueva aprobación.
+- 2026-10-08: **Approved por la usuaria** el cambio (R6, AC5) ("si"). Status → Implementing.
 
 ## Review
 Informe del reviewer:
