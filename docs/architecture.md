@@ -108,7 +108,16 @@ kcal enteras (redondeo half-up) y macros con 1 decimal. Los valores estimados se
 - `meal_items(id, meal_id, position, mention, food_id NULL, personal_product_id NULL, name_snapshot,
   grams, quantity_input, unit_input, size_input, quantity_basis, energy_kcal, protein_g, carbs_g, fat_g,
   confidence, source_ref)`
-- `personal_products(...)`: se define en la SPEC de etiquetas.
+  - **Editar una comida guardada (SPEC-026):** se reemplaza en una transacción con el mismo `id`
+    (`updated_at` cambia). Los ítems que la persona no toca conservan su instantánea (nombre y
+    valores) aunque el catálogo o el producto hayan cambiado; los editados se recalculan con
+    `nutrition_core` y el catálogo actual. Si el producto de un ítem se borró, se ajusta a partir de su
+    instantánea y se guarda sin enlace al producto. Borrar una comida borra sus ítems.
+    `meals.catalog_version` pasa a ser la versión del catálogo de la última edición (los ítems no
+    tocados pueden venir de una versión anterior: su instantánea es la fuente).
+- `personal_products(..., serving_unit)` y `personal_product_aliases(product_id, term)`: productos de
+  etiquetas confirmadas (SPEC-004/033) con su unidad y los nombres con que la persona los llama
+  (SPEC-034, `user.db` v8).
 - `user_profile(id=0, sex, birth_date, height_cm, weight_kg, activity_level,
   measured_maintenance_kcal NULL, updated_at)`: perfil (SPEC-008, `user.db` v6).
 - `nutrition_goals(id=0, objective, is_manual, energy_kcal, protein_g, carbs_g, fat_g, updated_at)`:

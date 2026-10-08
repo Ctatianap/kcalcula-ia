@@ -1,6 +1,7 @@
 import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../infra/catalog/food_match_result.dart';
+import '../../infra/storage/storage_repository.dart' show MealItem;
 
 enum ReviewItemStatus { matched, ambiguous, notFound }
 
@@ -31,6 +32,12 @@ class ReviewItem {
   /// persona pida verlo en g/ml.
   final bool showInGrams;
 
+  /// SPEC-026 R2/AC4: el ítem tal como se guardó, mientras la persona no lo
+  /// cambie: al guardar se conserva su instantánea (nombre y valores),
+  /// aunque el catálogo o el producto hayan cambiado. `null` si es nuevo o
+  /// se editó.
+  final MealItem? savedSnapshot;
+
   const ReviewItem({
     required this.mention,
     required this.foodQuery,
@@ -48,6 +55,7 @@ class ReviewItem {
     this.nutrients,
     this.highlightForEdit = false,
     this.showInGrams = false,
+    this.savedSnapshot,
   });
 
   ReviewItem copyWith({
@@ -60,6 +68,9 @@ class ReviewItem {
     NutrientTotals? nutrients,
     bool? highlightForEdit,
     bool? showInGrams,
+
+    /// SPEC-026: editar la cantidad descarta la instantánea guardada.
+    bool keepSnapshot = true,
   }) => ReviewItem(
     mention: mention,
     foodQuery: foodQuery,
@@ -77,5 +88,6 @@ class ReviewItem {
     nutrients: nutrients ?? this.nutrients,
     highlightForEdit: highlightForEdit ?? this.highlightForEdit,
     showInGrams: showInGrams ?? this.showInGrams,
+    savedSnapshot: keepSnapshot ? savedSnapshot : null,
   );
 }

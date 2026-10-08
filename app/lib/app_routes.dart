@@ -14,6 +14,9 @@ abstract class AppRoutes {
   /// del ingrediente (`String`). Devuelve un `IngredientLabelResult?`.
   static const ingredientLabel = '/ingredient-label';
 
+  /// SPEC-026: editar una comida guardada. Argumento: su id (`int`).
+  static const editMeal = '/edit-meal';
+
   /// SPEC-034: "Mis productos" (ver, renombrar, alias, borrar).
   static const myProducts = '/my-products';
   static const onboarding = '/onboarding';

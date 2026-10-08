@@ -583,6 +583,10 @@ class _MealCard extends StatelessWidget {
           (name: i.nameSnapshot, grams: i.grams),
       ],
       totals: summary.totals,
+      // SPEC-026 R1.
+      onTap: () =>
+          Navigator.of(context)
+              .pushNamed(AppRoutes.editMeal, arguments: meal.id),
     );
   }
 }

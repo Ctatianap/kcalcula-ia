@@ -24,6 +24,23 @@ const _portionStep = 0.5;
 
 const registerErrorMessage = 'No pude guardar la comida. Intenta de nuevo.';
 
+/// SPEC-026.
+const deleteMealErrorMessage = 'No pude borrar la comida. Intenta de nuevo.';
+const futureMealMessage = 'La comida no puede quedar en el futuro.';
+const repeatTodayLabel = 'Repetir hoy';
+
+/// SPEC-026 R3: "el desayuno", "el almuerzo", "la cena", "el snack".
+String mealWithArticle(String? mealType) => switch (mealType) {
+  'desayuno' => 'el desayuno',
+  'almuerzo' => 'el almuerzo',
+  'cena' => 'la cena',
+  _ => 'el snack',
+};
+
+/// SPEC-026 R2/AC2: una comida no puede quedar en el futuro.
+String? validateEatenAt(DateTime chosen, DateTime now) =>
+    chosen.isAfter(now) ? futureMealMessage : null;
+
 /// SPEC-033 R1: acciones del menú de cada ingrediente.
 const useLabelAction = 'Usar etiqueta';
 const pickProductAction = 'Elegir de mis productos';
@@ -74,10 +91,14 @@ class MealDetailView extends ConsumerStatefulWidget {
   /// "Corregir": vuelve a "¿Qué comiste?" con el texto.
   final VoidCallback onCorrect;
 
+  /// SPEC-026 R4: "Repetir hoy" (solo para una comida guardada de otro día).
+  final VoidCallback? onRepeatToday;
+
   const MealDetailView({
     super.key,
     required this.controller,
     required this.onCorrect,
+    this.onRepeatToday,
   });
 
   @override
@@ -139,6 +160,86 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
     }
   }
 
+  /// SPEC-026 R2: fecha y hora nuevas; nunca en el futuro.
+  Future<void> _changeEatenAt() async {
+    final now = ref.read(clockProvider)();
+    final current = widget.controller.eatenAt ?? now;
+    final date = await showDatePicker(
+      context: context,
+      initialDate: current.isAfter(now) ? now : current,
+      // Una comida más vieja que eso también se puede abrir.
+      firstDate: current.year < now.year - 5
+          ? DateTime(current.year)
+          : DateTime(now.year - 5),
+      lastDate: DateTime(now.year, now.month, now.day),
+    );
+    if (date == null || !mounted) return;
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(current),
+    );
+    if (time == null || !mounted) return;
+    final chosen = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      time.hour,
+      time.minute,
+    );
+    final error = validateEatenAt(chosen, now);
+    if (error != null) {
+      setState(() => _registerError = error);
+      return;
+    }
+    setState(() => _registerError = null);
+    widget.controller.setEatenAt(chosen);
+  }
+
+  /// SPEC-026 R3: borrar con confirmación.
+  Future<void> _deleteMeal() async {
+    final controller = widget.controller;
+    final at = controller.eatenAt ?? ref.read(clockProvider)();
+    final type = mealWithArticle(controller.mealType);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('¿Borrar $type de las ${timeEs(at)}?'),
+        content: const Text('No se puede deshacer.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Borrar'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    setState(() {
+      _registering = true;
+      _registerError = null;
+    });
+    try {
+      await controller.deleteEditedMeal();
+    } catch (_) {
+      // SPEC-009: sin el texto de SQLite.
+      if (mounted) {
+        setState(() {
+          _registering = false;
+          _registerError = deleteMealErrorMessage;
+        });
+      }
+      return;
+    }
+    if (mounted) {
+      Navigator.of(context)
+          .pushNamedAndRemoveUntil(AppRoutes.today, (route) => false);
+    }
+  }
+
   Future<void> _register() async {
     // Edge case: un doble toque no guarda dos veces.
     if (_registering) return;
@@ -170,7 +271,11 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
   Widget build(BuildContext context) {
     final controller = widget.controller;
     return Scaffold(
-      appBar: AppBar(title: const Text('Detalle de comida')),
+      appBar: AppBar(
+        title: Text(
+          controller.isEditing ? 'Editar comida' : 'Detalle de comida',
+        ),
+      ),
       body: ListenableBuilder(
         listenable: controller,
         builder: (context, _) {
@@ -191,12 +296,34 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
                         style: text.headlineMedium?.copyWith(fontSize: 26),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        '${timeEs(_shownAt)} · ${longDateEs(_shownAt)}',
-                        style: text.bodyMedium?.copyWith(
-                          color: KColors.textSecondary,
+                      if (controller.isEditing)
+                        // SPEC-026 R2: fecha y hora de la comida guardada.
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                '${timeEs(controller.eatenAt!)} · '
+                                '${longDateEs(controller.eatenAt!)}',
+                                key: const Key('meal-detail-eaten-at'),
+                                style: text.bodyMedium?.copyWith(
+                                  color: KColors.textSecondary,
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              key: const Key('meal-detail-change-eaten-at'),
+                              onPressed: _registering ? null : _changeEatenAt,
+                              child: const Text('Cambiar'),
+                            ),
+                          ],
+                        )
+                      else
+                        Text(
+                          '${timeEs(_shownAt)} · ${longDateEs(_shownAt)}',
+                          style: text.bodyMedium?.copyWith(
+                            color: KColors.textSecondary,
+                          ),
                         ),
-                      ),
                       const SizedBox(height: 16),
                       _TotalsCard(controller: controller),
                       if (controller.isFullyVerified) ...[
@@ -214,9 +341,12 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
                       Text('Ingredientes', style: text.titleMedium),
                       const SizedBox(height: 8),
                       if (items.isEmpty)
-                        const Text(
-                          'Quitaste todos los alimentos. Toca "Corregir" para '
-                          'escribir de nuevo.',
+                        Text(
+                          controller.isEditing
+                              ? 'Quitaste todos los alimentos. Para eliminar '
+                                    'la comida, toca "Borrar comida".'
+                              : 'Quitaste todos los alimentos. Toca "Corregir" '
+                                    'para escribir de nuevo.',
                           key: Key('meal-detail-empty'),
                           style: TextStyle(color: KColors.textSecondary),
                         ),
@@ -248,6 +378,17 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
                         icon: const Icon(Icons.add),
                         label: const Text('Añadir ingrediente'),
                       ),
+                      if (widget.onRepeatToday case final repeat?) ...[
+                        const SizedBox(height: 10),
+                        OutlinedButton.icon(
+                          // No descarta en silencio lo que se editó.
+                          onPressed: _registering || controller.hasChanges
+                              ? null
+                              : repeat,
+                          icon: const Icon(Icons.replay),
+                          label: const Text(repeatTodayLabel),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -278,10 +419,23 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
                       Row(
                         children: [
                           Expanded(
-                            child: OutlinedButton(
-                              onPressed: _registering ? null : widget.onCorrect,
-                              child: const Text('Corregir'),
-                            ),
+                            child: controller.isEditing
+                                // SPEC-026 R3.
+                                ? OutlinedButton(
+                                    onPressed: _registering
+                                        ? null
+                                        : _deleteMeal,
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: KColors.error,
+                                    ),
+                                    child: const Text('Borrar comida'),
+                                  )
+                                : OutlinedButton(
+                                    onPressed: _registering
+                                        ? null
+                                        : widget.onCorrect,
+                                    child: const Text('Corregir'),
+                                  ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -289,7 +443,11 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
                               onPressed: controller.canRegister && !_registering
                                   ? _register
                                   : null,
-                              child: const Text('Guardar'),
+                              child: Text(
+                                controller.isEditing
+                                    ? 'Guardar cambios'
+                                    : 'Guardar',
+                              ),
                             ),
                           ),
                         ],

@@ -69,6 +69,12 @@ class MyApp extends StatelessWidget {
                 ingredientName: settings.arguments as String,
               ),
             );
+          case AppRoutes.editMeal:
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (_) =>
+                  ReviewScreen(editMealId: settings.arguments as int),
+            );
           case AppRoutes.myProducts:
             return MaterialPageRoute(
               settings: settings,

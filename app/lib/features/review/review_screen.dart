@@ -6,7 +6,10 @@ import '../../infra/catalog/catalog_providers.dart';
 import '../../infra/clock.dart';
 import '../../infra/food_resolution/food_query_resolver.dart';
 import '../../infra/food_resolution/meal_draft.dart';
+import '../../infra/food_resolution/recent_meals.dart' show draftFromMeal;
+import '../../app_routes.dart';
 import '../../infra/storage/app_database.dart' show PersonalProduct;
+import '../../infra/storage/storage_repository.dart' show MealWithItems;
 import '../../infra/storage/storage_providers.dart';
 import 'meal_analysis_controller.dart' show readErrorMessage;
 import 'meal_detail_view.dart';
@@ -15,15 +18,25 @@ import 'review_controller.dart';
 export 'meal_analysis_controller.dart' show readErrorMessage;
 export 'meal_detail_view.dart' show registerErrorMessage;
 
+/// SPEC-026: la comida que se pidió editar ya no existe.
+const mealGoneMessage = 'Esa comida ya no existe.';
+
 /// Detalle de una comida que ya llega estructurada sin pasar por
-/// "Analizando": la etiqueta confirmada de SPEC-004 ([parsedMeal]) o una
-/// comida reciente de SPEC-017 ([draft]).
+/// "Analizando": la etiqueta confirmada de SPEC-004 ([parsedMeal]), una
+/// comida reciente de SPEC-017 ([draft]) o una comida guardada para
+/// editarla (SPEC-026, [editMealId]).
 class ReviewScreen extends ConsumerStatefulWidget {
   final ParsedMealDto? parsedMeal;
   final MealDraft? draft;
+  final int? editMealId;
 
-  const ReviewScreen({super.key, this.parsedMeal, this.draft})
-    : assert((parsedMeal == null) != (draft == null));
+  const ReviewScreen({super.key, this.parsedMeal, this.draft, this.editMealId})
+    : assert(
+        (parsedMeal != null ? 1 : 0) +
+                (draft != null ? 1 : 0) +
+                (editMealId != null ? 1 : 0) ==
+            1,
+      );
 
   @override
   ConsumerState<ReviewScreen> createState() => _ReviewScreenState();
@@ -34,7 +47,13 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
   // relanzar (el texto de SQLite trae los datos de la comida).
   bool _loadFailed = false;
 
+  /// SPEC-026: la comida a editar se borró en otra pantalla.
+  bool _mealGone = false;
+
   ReviewController? _controller;
+
+  /// SPEC-026 R4: la comida guardada como borrador, para "Repetir hoy".
+  MealDraft? _repeatDraft;
 
   @override
   void initState() {
@@ -50,9 +69,18 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
     final storage = ref.read(storageRepositoryProvider);
     final List<PersonalProduct> personalProducts;
     final Map<int, List<String>> aliases;
+    MealWithItems? savedMeal;
     try {
       personalProducts = await storage.getAllPersonalProducts();
       aliases = await storage.getPersonalProductAliases();
+      final editId = widget.editMealId;
+      if (editId != null) {
+        savedMeal = await storage.getMealWithItems(editId);
+        if (savedMeal == null) {
+          if (mounted) setState(() => _mealGone = true);
+          return;
+        }
+      }
     } catch (_) {
       if (mounted) setState(() => _loadFailed = true);
       return;
@@ -67,6 +95,20 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
     final draft = widget.draft;
     setState(() {
       _loadFailed = false;
+      if (savedMeal != null) {
+        _controller = ReviewController.forEdit(
+          meal: savedMeal,
+          resolver: resolver,
+          storage: storage,
+        );
+        final day = savedMeal.meal.eatenAt;
+        final isToday =
+            day.year == now.year &&
+            day.month == now.month &&
+            day.day == now.day;
+        _repeatDraft = isToday ? null : draftFromMeal(savedMeal, resolver);
+        return;
+      }
       _controller = draft != null
           ? ReviewController.fromDraft(
               draft: draft,
@@ -93,14 +135,23 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
   Widget build(BuildContext context) {
     final controller = _controller;
     if (controller != null) {
+      final repeatDraft = _repeatDraft;
       return MealDetailView(
         controller: controller,
         onCorrect: () => Navigator.of(context).maybePop(),
+        // SPEC-026 R4: solo comidas de otros días cuyos alimentos existen.
+        onRepeatToday: repeatDraft == null
+            ? null
+            : () => Navigator.of(
+                context,
+              ).pushReplacementNamed(AppRoutes.review, arguments: repeatDraft),
       );
     }
     return Scaffold(
       appBar: AppBar(title: const Text('Detalle de comida')),
-      body: _loadFailed
+      body: _mealGone
+          ? const Center(child: Text(mealGoneMessage))
+          : _loadFailed
           ? Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
