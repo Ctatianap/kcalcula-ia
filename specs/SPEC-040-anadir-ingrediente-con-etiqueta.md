@@ -1,7 +1,7 @@
 # SPEC-040: Añadir un ingrediente nuevo con su etiqueta
 
 ## Status
-Review
+Done
 Path: Standard (reutiliza el flujo de etiqueta de SPEC-033; no cambia prompts, esquemas, `nutrition_core`
 ni lo que sale del dispositivo)
 
@@ -108,6 +108,9 @@ aunque no lo haya guardado antes, para registrar la comida completa.
   456/456.
 - 2026-10-08: la usuaria pidió fusionar a `develop` ("fusiona todo") antes de la prueba manual. Status →
   Review: AC6 sigue pendiente; pasa a Done cuando la usuaria lo pruebe en su S25.
+- 2026-10-08: prueba manual (AC6) hecha por la usuaria en su S25: "quedó perfecto". Con el reviewer sin
+  BLOCKER ni MAJOR y los MINOR corregidos, el único motivo de CHANGES_REQUESTED queda resuelto.
+  Status → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -117,7 +120,7 @@ aunque no lo haya guardado antes, para registrar la comida completa.
 | AC3 | ✅ | mismo test (una fila en `personal_products` con el nombre buscado) |
 | AC4 | ✅ | mismo archivo › "AC4…" |
 | AC5 | ✅ | `ingredient_actions_test.dart` sin cambios; `food_search_flow_test.dart` › AC5 según R6; "desde el error de análisis no muestra el botón" |
-| AC6 | ⏳ | Prueba manual en el S25 de la usuaria (versión de `91f160c`), pendiente |
+| AC6 | ✅ | 2026-10-08, en el S25 de la usuaria (versión de prueba con SPEC-040 + SPEC-041, `6c4a469`): etiqueta escaneada + segundo producto con "Añadir con etiqueta", guardado con ambos ("quedó perfecto") |
 
 ## Review
 Revisión (2026-10-08, subagente `reviewer`, sobre `91f160c`): **CHANGES_REQUESTED** solo por AC6 manual

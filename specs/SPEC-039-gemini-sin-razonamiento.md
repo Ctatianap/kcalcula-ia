@@ -122,6 +122,8 @@ Como persona que fotografía etiquetas, quiero que la lectura tarde menos sin qu
   `invalid-config` sin el valor. functions 62/62. La usuaria pidió fusionar a `develop` ("fusiona
   todo") con AC4 pendiente. Status → Review. Riesgo a vigilar: `latencyMs` de `parseMeal` en Cloud
   Logging (casos aislados de Vertex de más de 10 s en las evals).
+- 2026-10-08: AC4 con evidencia (prueba de la usuaria en el S25 y latencias de Cloud Logging). Solo falta
+  el visto bueno de la usuaria al texto corregido de R1 para pasar a Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -129,7 +131,7 @@ Como persona que fotografía etiquetas, quiero que la lectura tarde menos sin qu
 | AC1 | ✅ | `functions/src/ai/thinking.test.ts` › "SPEC-039 AC1…" (con 0: `thinkingConfig: { thinkingBudget: 0 }`; sin valor o "abc": sin `thinkingConfig`) y "SPEC-039 R1: parseThinkingBudget" |
 | AC2 | ✅ | mismo archivo › "SPEC-039 AC2…" (`tokensThinking: 120` en el log; sin el texto) |
 | AC3 | ✅ | Tabla de abajo. Corridas del 2026-10-08 con `AI_PROVIDER=vertex`, guardadas en `evals/baselines/` (`…__2026-10-08.json` "como hoy" y `…__thinking0__2026-10-08*.json`) |
-| AC4 | ⏳ | Decisión: **se adopta** (R4 se cumple; la usuaria aprobó: "ok"). `GEMINI_THINKING_BUDGET=0` en `functions/.env.kcalcula-ia-dev` (lo añadió la usuaria) y desplegado el 2026-10-08 (`parseMeal`, `extractLabel`). Falta una etiqueta real en el teléfono con su `latencyMs` en Cloud Logging |
+| AC4 | ✅ | Decisión: **se adopta** (R4 se cumple; la usuaria aprobó: "ok"). `GEMINI_THINKING_BUDGET=0` en `functions/.env.kcalcula-ia-dev` y desplegado el 2026-10-08. Prueba en el S25 de la usuaria ("quedó perfecto"). Cloud Logging de `extractLabel` desde el despliegue (7 lecturas, todas `valid: true`, sin `tokensThinking`): 2,3 · 2,6 · 2,6 · 2,9 · 6,6 · 9,9 · 10,9 s (antes p50 12,1 s y p95 34,0 s) |
 | AC5 | ✅ | functions 62/62; `git diff develop -- functions/src/ai/prompts functions/src/ai/schemas.ts` vacío |
 
 | Métrica | Baseline | Como hoy | Presupuesto 0 |
