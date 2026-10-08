@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:calorias_ia/app_routes.dart';
 import 'package:calorias_ia/features/capture/ingredient_label_screen.dart';
 import 'package:calorias_ia/features/capture/label_capture_controller.dart';
@@ -56,6 +58,7 @@ Future<({AppDatabase db, _AiCalls calls})> _pump(
   WidgetTester tester, {
   required List<ParsedMealItemDto> items,
   Map<String, Object?>? labelResponse,
+  Future<void>? labelDelay,
   List<
         ({
           String name,
@@ -93,6 +96,7 @@ Future<({AppDatabase db, _AiCalls calls})> _pump(
     },
     (data) async {
       calls.extractLabel++;
+      if (labelDelay != null) await labelDelay;
       if (labelResponse == null) fail('No se esperaba leer una etiqueta');
       return labelResponse;
     },
@@ -145,12 +149,25 @@ Future<void> _openMenu(
 }
 
 /// "Usar etiqueta" → "Tomar foto" → "Usar en este ingrediente".
-Future<void> _useLabel(WidgetTester tester, String mention) async {
+Future<void> _useLabel(
+  WidgetTester tester,
+  String mention, {
+  String? portions,
+}) async {
   await _openMenu(tester, mention, useLabelAction);
   expect(find.byType(IngredientLabelScreen), findsOneWidget);
   await tester.tap(find.text('Tomar foto'));
   await tester.pumpAndSettle();
   expect(find.text('Confirmar etiqueta'), findsOneWidget);
+  if (portions != null) {
+    final field = find.widgetWithText(
+      TextField,
+      '¿Cuánto comiste? (porciones)',
+    );
+    await tester.ensureVisible(field);
+    await tester.enterText(field, portions);
+    await tester.pump();
+  }
   final button = find.widgetWithText(FilledButton, useInIngredientButtonLabel);
   FocusManager.instance.primaryFocus?.unfocus();
   await tester.pumpAndSettle();
@@ -248,6 +265,7 @@ void main() {
 
       expect(find.text('Leche deslactosada'), findsWidgets);
       // 250 ml con densidad desconocida = 250 g (como hoy) → 45 × 2,5.
+      expect(_quantityText(tester, '250 ml de leche'), contains('250 g'));
       expect(find.text('113 kcal'), findsWidgets);
       expect(pumped.calls.extractLabel, 0);
       expect(pumped.calls.parseMeal, 0);
@@ -255,7 +273,7 @@ void main() {
   );
 
   testWidgets(
-    'AC3: "1 scoop" sin porción "scoop" usa 1 porción de la etiqueta (30 g) y queda destacado',
+    'AC3: "1 scoop" sin porción "scoop" usa lo elegido en Confirmar (2 porciones = 60 g) y queda destacado',
     (tester) async {
       await _pump(
         tester,
@@ -278,9 +296,14 @@ void main() {
         ),
       );
 
-      await _useLabel(tester, '1 scoop de proteína');
+      await _useLabel(tester, '1 scoop de proteína', portions: '2');
 
-      expect(_quantityText(tester, '1 scoop de proteína'), '1 porción · 30 g');
+      // La cantidad de "Confirmar etiqueta" (2 porciones), no la porción
+      // por defecto.
+      expect(
+        _quantityText(tester, '1 scoop de proteína'),
+        '2 porciones · 60 g',
+      );
       // Destacado para revisar, como hoy: el texto de la cantidad en el color
       // de acento.
       final source = tester.widget<Text>(find.text('Cantidad dicha por ti'));
@@ -369,6 +392,109 @@ void main() {
         _quantityText(tester, 'un caldo de costilla'),
         '1 porción · 300 g',
       );
+    },
+  );
+
+  testWidgets(
+    'R3: sin cantidad dicha, usa la cantidad de "Confirmar etiqueta"',
+    (tester) async {
+      await _pump(
+        tester,
+        items: const [
+          ParsedMealItemDto(mention: 'pan', foodQuery: 'pan', isVague: false),
+        ],
+        labelResponse: _label(
+          name: 'Pan de prueba',
+          servingGrams: 27,
+          kcal: 70,
+          protein: 2.8,
+          carbs: 15,
+          fat: 0.2,
+        ),
+      );
+      await _useLabel(tester, 'pan', portions: '3');
+      expect(_quantityText(tester, 'pan'), '3 porciones · 81 g');
+    },
+  );
+
+  testWidgets('R5: "+" y "−" pasan a la media porción siguiente', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      items: const [
+        ParsedMealItemDto(
+          mention: '100 g de proteína',
+          foodQuery: 'proteína',
+          quantity: 100,
+          unit: 'g',
+          isVague: false,
+        ),
+      ],
+      products: const [
+        (
+          name: 'Proteína guardada',
+          servingGrams: 30,
+          kcal100: 400,
+          protein100: 80,
+          carbs100: 10,
+          fat100: 5,
+        ),
+      ],
+    );
+    await _openMenu(tester, '100 g de proteína', pickProductAction);
+    await tester.tap(find.text('Proteína guardada'));
+    await tester.pumpAndSettle();
+    // 100 g / 30 g = 3,33 porciones.
+    expect(_quantityText(tester, '100 g de proteína'), '3,3 porciones · 100 g');
+
+    await tester.ensureVisible(find.byTooltip('Más'));
+    await tester.tap(find.byTooltip('Más'));
+    await tester.pumpAndSettle();
+    expect(_quantityText(tester, '100 g de proteína'), '3,5 porciones · 105 g');
+
+    await tester.tap(find.byTooltip('Menos'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Menos'));
+    await tester.pumpAndSettle();
+    expect(_quantityText(tester, '100 g de proteína'), '2,5 porciones · 75 g');
+  });
+
+  testWidgets(
+    'caso borde: salir mientras se lee la etiqueta no deja errores y el Detalle no cambia',
+    (tester) async {
+      final release = Completer<void>();
+      final pumped = await _pump(
+        tester,
+        items: const [_huevos],
+        labelDelay: release.future,
+        labelResponse: _label(
+          name: 'No debería guardarse',
+          servingGrams: 30,
+          kcal: 100,
+          protein: 5,
+          carbs: 10,
+          fat: 4,
+        ),
+      );
+      await _openMenu(tester, 'dos huevos', useLabelAction);
+      await tester.tap(find.text('Tomar foto'));
+      await tester.pump();
+      expect(find.text('Analizando foto…'), findsOneWidget);
+
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      expect(find.text('Detalle de comida'), findsOneWidget);
+
+      release.complete();
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('Confirmar etiqueta'), findsNothing);
+      expect(_quantityText(tester, 'dos huevos'), '100 g');
+      final products = await tester.runAsync(
+        () => pumped.db.select(pumped.db.personalProducts).get(),
+      );
+      expect(products, isEmpty);
     },
   );
 }

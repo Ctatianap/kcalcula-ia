@@ -151,12 +151,12 @@ volver a fotografiar todo cada día.
 | AC | Estado | Evidencia |
 |----|--------|-----------|
 | AC1 | ✅ | `app/test/features/review/ingredient_actions_test.dart` › "AC1…": "Usar etiqueta" → "Tomar foto" (fake) → "Usar en este ingrediente" → vuelve al Detalle; "Arepa" pasa a "Pan de prueba", los huevos siguen en 100 g, hay 1 producto personal en `user.db`, 1 llamada a `extractLabel` y 0 a `parseMeal`. Integración: `app/test/integration/ingredient_label_route_test.dart` (la ruta `AppRoutes.ingredientLabel` de `MyApp` abre `IngredientLabelScreen`) |
-| AC2 | ✅ | mismo archivo › "AC2…": "Leche deslactosada" (porción 200 ml) con "250 ml" → 113 kcal (45 × 2,5); 0 llamadas a la IA |
-| AC3 | ✅ | mismo archivo › "AC3…": "1 scoop" (unidad sin porción "unidad") → "1 porción · 30 g", destacado (texto de la cantidad en color de acento, como hoy) |
+| AC2 | ✅ | mismo archivo › "AC2…": "Leche deslactosada" (porción 200 ml) con "250 ml" → el ingrediente muestra 250 g (densidad desconocida = 1, como hoy) y 113 kcal (45 × 2,5); 0 llamadas a la IA |
+| AC3 | ✅ | mismo archivo › "AC3…": "1 scoop" (unidad sin porción "unidad") con "2" porciones en "Confirmar etiqueta" → "2 porciones · 60 g" (no la porción por defecto), destacado. Además: "R3: sin cantidad dicha…" (3 porciones → 81 g) |
 | AC4 | ✅ | mismo archivo › "AC4…": "Pan tajado" 27 g → 4 × "+" (media porción) → "3 porciones · 81 g" y 210 kcal; "Ver en g" → "81 g" |
 | AC5 | ✅ | mismo archivo › "AC5…" |
 | AC6 | ✅ | mismo archivo › "AC6…": "No encontrado en la base" → con etiqueta sin nombre leído, el producto se llama "caldo de costilla" (R2) y queda "1 porción · 300 g" |
-| AC7 | ✅ | app: analyze sin avisos, 367/367. Expectativa cambiada: `review_screen_test.dart` › "AC8: editar la cantidad con +/-…" ahora hace `ensureVisible` antes de tocar "+" (el menú hace la tarjeta más alta; mismos valores esperados). El botón "Revisar comida" no cambia fuera del modo ingrediente |
+| AC7 | ✅ | app: analyze sin avisos, 370/370 (tras los hallazgos del reviewer). Expectativa cambiada: `review_screen_test.dart` › "AC8: editar la cantidad con +/-…" ahora hace `ensureVisible` antes de tocar "+" (el menú hace la tarjeta más alta; mismos valores esperados). El botón "Revisar comida" no cambia fuera del modo ingrediente |
 | Manual | ⏳ | El desayuno del ejemplo en el teléfono |
 
 Nota de implementación (R4): "Elegir de mis productos" abre una pantalla propia, "Mis productos"
@@ -165,4 +165,15 @@ reutilizar esa búsqueda: así lista todos los productos sin escribir y no cambi
 SPEC-018.
 
 ## Review
-Informe del reviewer:
+Revisión (2026-10-07, subagente `reviewer`, sobre `e00c44e`): **CHANGES_REQUESTED**.
+- [MAJOR] Salir de la etiqueta mientras se lee la foto: con el provider autoDispose, `state = …`
+  lanzaba `UnmountedRefException`, que llegaría a Crashlytics como fatal. Corregido: `if
+  (!ref.mounted) return;` tras cada `await` en `LabelCaptureController._capture`; test "caso borde:
+  salir mientras se lee la etiqueta…" (falla sin el arreglo).
+- MINOR corregidos: error propio `_ingredientError` que se limpia con la siguiente acción y apunta a
+  "Elegir de mis productos"; `getPersonalProductById` en vez de cargar todos; "1 porción" comparando el
+  texto mostrado; "+"/"−" a la media porción siguiente (test R5); tooltip "Más opciones de {nombre}";
+  AC2 comprueba 250 g; AC3 usa 2 porciones para distinguir la cantidad de "Confirmar etiqueta" y hay un
+  caso sin cantidad dicha.
+- MINOR pendientes de la usuaria (propuestos en el Change Log): texto de R4 ("Mis productos" propia),
+  productos en ml mostrados en g (limitación conocida), g → porciones fuera de `nutrition_core`.

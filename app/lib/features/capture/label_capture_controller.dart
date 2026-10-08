@@ -70,6 +70,9 @@ class LabelCaptureController extends Notifier<LabelCaptureState> {
       final hasPermission = await ref
           .read(cameraPermissionProvider)
           .ensureGranted();
+      // SPEC-033: con un provider autoDispose, la persona puede salir de la
+      // pantalla mientras esperamos; escribir el estado lanzaría un error.
+      if (!ref.mounted) return;
       if (!hasPermission) {
         state = const LabelCaptureError(_noCameraPermissionMessage);
         return;
@@ -77,6 +80,7 @@ class LabelCaptureController extends Notifier<LabelCaptureState> {
     }
 
     final bytes = await pick(ref.read(imagePickerServiceProvider));
+    if (!ref.mounted) return;
     if (bytes == null) {
       // El usuario canceló el selector: sin error, vuelve al estado inicial.
       state = const LabelCaptureIdle();
@@ -91,8 +95,10 @@ class LabelCaptureController extends Notifier<LabelCaptureState> {
             imageBase64: base64Encode(bytes),
             mimeType: 'image/jpeg',
           );
+      if (!ref.mounted) return;
       state = LabelCaptureSuccess(extraction);
     } on AiClientException catch (error) {
+      if (!ref.mounted) return;
       state = LabelCaptureError(error.userMessage);
     }
   }

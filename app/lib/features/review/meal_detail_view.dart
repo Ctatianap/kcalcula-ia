@@ -29,11 +29,24 @@ const useLabelAction = 'Usar etiqueta';
 const pickProductAction = 'Elegir de mis productos';
 const removeIngredientAction = 'Quitar';
 const loadProductErrorMessage =
-    'No pude leer el producto guardado. Intenta de nuevo.';
+    'No pude leer el producto que guardaste. Elígelo en «Elegir de mis '
+    'productos».';
 
 String _portionsText(double portions) =>
     '${formatDecimalEs(portions, maxDecimals: 1)} '
-    '${portions == 1 ? 'porción' : 'porciones'}';
+    // Se compara lo que se muestra, no el double de una división.
+    '${formatDecimalEs(portions, maxDecimals: 1) == '1' ? 'porción' : 'porciones'}';
+
+/// SPEC-033 R5: la media porción siguiente (o anterior) a [portions], para
+/// que una cantidad como 3,33 porciones pase a 3,5 (o 3) y no a 3,83.
+double _nextHalfPortion(double portions, {required bool up}) {
+  const epsilon = 1e-9;
+  final halves = portions / _portionStep;
+  final next = up
+      ? (halves + epsilon).floor() + 1
+      : (halves - epsilon).ceil() - 1;
+  return next * _portionStep;
+}
 
 const confidenceLabels = {
   ConfidenceLevel.altaPrecision: 'Alta precisión',
@@ -76,6 +89,9 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
   bool _registering = false;
   String? _registerError;
 
+  /// SPEC-033: error de "Usar etiqueta"; se limpia con la siguiente acción.
+  String? _ingredientError;
+
   Future<void> _addIngredient() async {
     final item = await pickFoodManually(context);
     if (item != null && mounted) widget.controller.addDraftItem(item);
@@ -84,6 +100,7 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
   /// SPEC-033 R2: etiqueta de este ingrediente; vuelve aquí con el
   /// producto guardado.
   Future<void> _useLabel(int index) async {
+    setState(() => _ingredientError = null);
     final item = widget.controller.items[index];
     final result = await Navigator.of(context).pushNamed<IngredientLabelResult>(
       AppRoutes.ingredientLabel,
@@ -91,10 +108,11 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
     );
     if (result == null || !mounted) return;
     try {
-      final products = await ref
+      final product = await ref
           .read(storageRepositoryProvider)
-          .getAllPersonalProducts();
-      final product = products.firstWhere((p) => p.id == result.productId);
+          .getPersonalProductById(result.productId);
+      if (product == null) throw StateError('producto no encontrado');
+      if (!mounted) return;
       widget.controller.replaceFood(
         index,
         personalProductToFoodCatalogEntry(product),
@@ -103,12 +121,13 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
       );
     } catch (_) {
       // SPEC-009: sin el texto de SQLite.
-      if (mounted) setState(() => _registerError = loadProductErrorMessage);
+      if (mounted) setState(() => _ingredientError = loadProductErrorMessage);
     }
   }
 
   /// SPEC-033 R4: un producto ya guardado, sin foto y sin IA.
   Future<void> _pickProduct(int index) async {
+    setState(() => _ingredientError = null);
     final food = await pickPersonalProduct(context);
     if (food != null && mounted) widget.controller.replaceFood(index, food);
   }
@@ -232,6 +251,14 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      if (_ingredientError != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Text(
+                            _ingredientError!,
+                            style: const TextStyle(color: KColors.error),
+                          ),
+                        ),
                       if (_registerError != null)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 8),
@@ -441,7 +468,7 @@ class _IngredientCard extends StatelessWidget {
               // SPEC-033 R1.
               PopupMenuButton<String>(
                 key: Key('ingredient-menu-${item.mention}'),
-                tooltip: 'Más opciones',
+                tooltip: 'Más opciones de ${_itemName(item)}',
                 icon: const Icon(Icons.more_vert),
                 onSelected: (action) => switch (action) {
                   useLabelAction => onUseLabel?.call(),
@@ -540,8 +567,10 @@ class _MatchedRow extends StatelessWidget {
                   icon: const Icon(Icons.remove_circle_outline),
                   tooltip: 'Menos',
                   onPressed: inPortions
-                      ? (portions > _portionStep
-                            ? () => onSetPortions(portions - _portionStep)
+                      ? (_nextHalfPortion(portions, up: false) > 0
+                            ? () => onSetPortions(
+                                _nextHalfPortion(portions, up: false),
+                              )
                             : null)
                       : () => onAdjustGrams(-_gramsStep),
                 ),
@@ -556,7 +585,8 @@ class _MatchedRow extends StatelessWidget {
                   icon: const Icon(Icons.add_circle_outline),
                   tooltip: 'Más',
                   onPressed: inPortions
-                      ? () => onSetPortions(portions + _portionStep)
+                      ? () =>
+                            onSetPortions(_nextHalfPortion(portions, up: true))
                       : () => onAdjustGrams(_gramsStep),
                 ),
               ],
