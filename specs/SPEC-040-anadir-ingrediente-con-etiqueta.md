@@ -100,6 +100,24 @@ aunque no lo haya guardado antes, para registrar la comida completa.
   tiene un test (`food_search_flow_test.dart` › AC5) desde el Detalle. Se añade R6 y se ajusta AC5.
   Status → Draft hasta nueva aprobación.
 - 2026-10-08: **Approved por la usuaria** el cambio (R6, AC5) ("si"). Status → Implementing.
+- 2026-10-08: implementada (`FoodSearchPick`, `pickIngredient`, `addLabelProduct`). 455/455. Instalada en
+  el S25 de la usuaria para la prueba manual.
+- 2026-10-08: reviewer CHANGES_REQUESTED solo por AC6 manual pendiente; MINOR corregidos: mensaje propio
+  al fallar el añadido ("Búscalo en «Añadir ingrediente»"), `addLabelProduct` devuelve `bool` y ya no
+  falla en silencio, lectura del producto compartida con "Usar etiqueta", test del caso sin cantidad.
+  456/456.
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/features/review/add_ingredient_with_label_test.dart` › "AC1…" |
+| AC2 | ✅ | mismo archivo › "AC2 + AC3…" (el primero sin cambios; el nuevo "1 porción · 30 g") |
+| AC3 | ✅ | mismo test (una fila en `personal_products` con el nombre buscado) |
+| AC4 | ✅ | mismo archivo › "AC4…" |
+| AC5 | ✅ | `ingredient_actions_test.dart` sin cambios; `food_search_flow_test.dart` › AC5 según R6; "desde el error de análisis no muestra el botón" |
+| AC6 | ⏳ | Prueba manual en el S25 de la usuaria (versión de `91f160c`), pendiente |
 
 ## Review
-Informe del reviewer:
+Revisión (2026-10-08, subagente `reviewer`, sobre `91f160c`): **CHANGES_REQUESTED** solo por AC6 manual
+pendiente; sin BLOCKER ni MAJOR. AC1–AC5 con evidencia; invariantes 1–4, fronteras entre features y
+privacidad correctas. MINOR corregidos (ver Change Log).

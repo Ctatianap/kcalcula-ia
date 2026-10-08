@@ -209,7 +209,8 @@ class ReviewController extends ChangeNotifier {
   /// SPEC-040 R3: añade como ingrediente nuevo un producto recién guardado
   /// con su etiqueta, con la cantidad elegida en "Confirmar etiqueta"
   /// ([quantity] en [unit]). Los gramos los resuelve `nutrition_core`.
-  void addLabelProduct(
+  /// Devuelve `false` si esa cantidad no se pudo resolver.
+  bool addLabelProduct(
     FoodCatalogEntry food, {
     required double quantity,
     required String unit,
@@ -225,7 +226,7 @@ class ReviewController extends ChangeNotifier {
       isLabelProduct: true,
     );
     final grams = resolution.grams;
-    if (!resolution.resolvable || grams == null || grams <= 0) return;
+    if (!resolution.resolvable || grams == null || grams <= 0) return false;
     _servingUnits[food.id] = servingUnit;
     _items.add(
       _draftReviewItem(
@@ -248,6 +249,7 @@ class ReviewController extends ChangeNotifier {
       ),
     );
     _changed();
+    return true;
   }
 
   /// Resolución de cada ítem contra el catálogo y los productos personales,

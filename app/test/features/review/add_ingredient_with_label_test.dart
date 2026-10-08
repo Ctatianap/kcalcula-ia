@@ -3,18 +3,23 @@ import 'package:calorias_ia/features/capture/ingredient_label_screen.dart';
 import 'package:calorias_ia/features/capture/label_capture_controller.dart';
 import 'package:calorias_ia/features/capture/label_confirmation_screen.dart';
 import 'package:calorias_ia/features/review/food_search_screen.dart';
+import 'package:calorias_ia/features/review/review_controller.dart';
 import 'package:calorias_ia/features/review/review_screen.dart';
 import 'package:calorias_ia/infra/ai_client/ai_client.dart';
 import 'package:calorias_ia/infra/ai_client/ai_client_providers.dart';
 import 'package:calorias_ia/infra/ai_client/parsed_meal_dto.dart';
 import 'package:calorias_ia/infra/catalog/catalog_providers.dart';
+import 'package:calorias_ia/infra/food_resolution/food_query_resolver.dart';
 import 'package:calorias_ia/infra/food_resolution/ingredient_label_result.dart';
+import 'package:calorias_ia/infra/food_resolution/meal_draft.dart';
 import 'package:calorias_ia/infra/storage/app_database.dart';
 import 'package:calorias_ia/infra/storage/storage_providers.dart';
+import 'package:calorias_ia/infra/storage/storage_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../support/fixture_catalog.dart';
 import '../capture/fake_image_picker.dart';
@@ -198,4 +203,57 @@ void main() {
       expect(find.text(addWithLabelAction), findsNothing);
     },
   );
+
+  test('addLabelProduct: una cantidad que no se puede resolver no añade nada y devuelve false', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final storage = StorageRepository(db);
+    final id = await storage.savePersonalProduct(
+      nameEs: 'Galletas',
+      energyKcal100: 500,
+      proteinG100: 6,
+      carbsG100: 66,
+      fatG100: 23,
+      servingGrams: 30,
+      sourceRef: 'test',
+    );
+    final product = (await storage.getPersonalProductById(id))!;
+    final controller = ReviewController.fromDraft(
+      draft: const MealDraft([]),
+      resolver: FoodQueryResolver(
+        catalog: buildFixtureCatalog(),
+        personalProducts: const [],
+      ),
+      storage: storage,
+    );
+    addTearDown(controller.dispose);
+    final food = personalProductToFoodCatalogEntry(product);
+
+    expect(
+      controller.addLabelProduct(
+        food,
+        quantity: 0,
+        unit: 'g',
+        servingUnit: 'g',
+      ),
+      isFalse,
+    );
+    expect(controller.items, isEmpty);
+
+    expect(
+      controller.addLabelProduct(
+        food,
+        quantity: 30,
+        unit: 'g',
+        servingUnit: 'g',
+      ),
+      isTrue,
+    );
+    // 30 g de 500 kcal/100 g, calculado por nutrition_core.
+    expect(
+      controller.items.single.nutrients!.energyKcal,
+      calculateItemNutrients(food, 30).energyKcal,
+    );
+    expect(controller.items.single.grams, 30);
+  });
 }
