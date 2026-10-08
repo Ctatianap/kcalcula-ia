@@ -112,3 +112,15 @@ MealDraft? draftFromMeal(MealWithItems meal, FoodQueryResolver resolver) {
   }
   return MealDraft(items);
 }
+
+/// SPEC-037 R1: borrador para "Repetir hoy" desde Hoy o Historial, o
+/// `null` si algún alimento ya no existe.
+Future<MealDraft?> loadRepeatDraft(
+  StorageRepository storage,
+  FoodQueryResolver Function(List<PersonalProduct> personalProducts)
+  resolverFor,
+  MealWithItems meal,
+) async {
+  final resolver = resolverFor(await storage.getAllPersonalProducts());
+  return draftFromMeal(meal, resolver);
+}

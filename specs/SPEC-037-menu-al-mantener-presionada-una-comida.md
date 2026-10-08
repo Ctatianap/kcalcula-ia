@@ -95,6 +95,23 @@ Como persona que registró una comida por error, quiero dejarla presionada y eli
 ## Change Log
 - 2026-10-08: creación a pedido de la usuaria (gesto para eliminar una comida).
 - 2026-10-08: **Approved por la usuaria** ("aprobada la SPEC-037"). Status → Implementing.
+- 2026-10-08: implementada. `MealCard.onLongPress` con posición y acción semántica; menú y confirmación
+  en `app/lib/ui/components/meal_actions.dart`; flujo compartido `app/lib/ui/meal_actions_flow.dart`
+  (Hoy e Historial); `loadRepeatDraft` en `infra/food_resolution/recent_meals.dart`; "Editar comida"
+  usa la confirmación compartida.
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/features/diary/meal_long_press_test.dart` › "AC1…" |
+| AC2 | ✅ | mismo archivo › "AC2…" (confirmación "¿Borrar el desayuno de las 8:30?", tarjeta fuera, kcal 500 → 200, "Comida eliminada.", sigue en Hoy). Integración con `MyApp`: `app/test/integration/edit_meal_flow_test.dart` › "SPEC-037 AC2…" (Hoy queda vacío) |
+| AC3 | ✅ | mismo archivo › "AC3…" |
+| AC4 | ✅ | mismo archivo › "AC4: en Historial (ayer)…" ("¿Borrar la cena de las 13:00?", el día se actualiza) y "AC4: \"Repetir hoy\" desde Historial abre el Detalle" |
+| AC5 | ✅ | mismo archivo › "AC5…" |
+| AC6 | ✅ | mismo archivo › "AC6…" |
+| R4 | ✅ | mismo archivo › "R4…" (hint y acción "Más opciones") |
+| AC7 | ✅ | app: analyze sin avisos, 432/432. Cambio en tests existentes: `edit_meal_test.dart` importa `mealWithArticle` y `deleteMealErrorMessage` desde `app/lib/ui/components/meal_actions.dart` (se movieron ahí, R6) |
+| Manual | ⏳ | Mantener presionada una comida en el teléfono y eliminarla |
 
 ## Review
 Informe del reviewer:

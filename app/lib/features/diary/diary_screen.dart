@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../app_routes.dart';
+import '../../infra/storage/storage_repository.dart' show MealWithItems;
 import '../../infra/clock.dart';
 import '../../infra/storage/storage_providers.dart';
+import '../../ui/meal_actions_flow.dart';
 import '../../ui/components/k_card.dart';
 import '../../ui/components/macro_cards.dart';
 import '../../ui/components/main_nav_bar.dart';
@@ -40,6 +42,19 @@ class _DiaryScreenState extends ConsumerState<DiaryScreen> {
       _now,
     );
   }
+
+  /// SPEC-037: menú al mantener presionada una comida de hoy.
+  Future<void> _mealLongPress(MealWithItems meal, RelativeRect position) =>
+      handleMealLongPress(
+        context,
+        ref,
+        meal: meal,
+        position: position,
+        canRepeatToday: false,
+        onChanged: () {
+          if (mounted) setState(_reload);
+        },
+      );
 
   Future<void> _openCapture() async {
     await Navigator.of(context).pushNamed(AppRoutes.capture);
@@ -109,7 +124,10 @@ class _DiaryScreenState extends ConsumerState<DiaryScreen> {
                 if (summary.meals.isEmpty)
                   const _EmptyDay()
                 else
-                  _TodayMeals(meals: summary.meals),
+                  _TodayMeals(
+                    meals: summary.meals,
+                    onLongPress: _mealLongPress,
+                  ),
               ],
             );
           },
@@ -545,8 +563,9 @@ class _EmptyDay extends StatelessWidget {
 /// R6: tarjetas por comida, en orden por hora.
 class _TodayMeals extends StatelessWidget {
   final List<DiaryMealSummary> meals;
+  final void Function(MealWithItems meal, RelativeRect position) onLongPress;
 
-  const _TodayMeals({required this.meals});
+  const _TodayMeals({required this.meals, required this.onLongPress});
 
   @override
   Widget build(BuildContext context) {
@@ -558,7 +577,10 @@ class _TodayMeals extends StatelessWidget {
           Text('Agregado hoy', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 10),
           for (final meal in meals) ...[
-            _MealCard(summary: meal),
+            _MealCard(
+              summary: meal,
+              onLongPress: (position) => onLongPress(meal.meal, position),
+            ),
             const SizedBox(height: 10),
           ],
         ],
@@ -569,8 +591,9 @@ class _TodayMeals extends StatelessWidget {
 
 class _MealCard extends StatelessWidget {
   final DiaryMealSummary summary;
+  final void Function(RelativeRect position) onLongPress;
 
-  const _MealCard({required this.summary});
+  const _MealCard({required this.summary, required this.onLongPress});
 
   @override
   Widget build(BuildContext context) {
@@ -587,6 +610,8 @@ class _MealCard extends StatelessWidget {
       onTap: () =>
           Navigator.of(context)
               .pushNamed(AppRoutes.editMeal, arguments: meal.id),
+      // SPEC-037 R1.
+      onLongPress: onLongPress,
     );
   }
 }

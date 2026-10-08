@@ -8,6 +8,7 @@ import '../../infra/food_resolution/food_query_resolver.dart';
 import '../../infra/food_resolution/ingredient_label_result.dart';
 import '../../infra/storage/storage_providers.dart';
 import '../../ui/components/k_card.dart';
+import '../../ui/components/meal_actions.dart';
 import '../../format/date_format_es.dart';
 import '../../format/text_es.dart';
 import '../../ui/number_input_es.dart';
@@ -25,17 +26,8 @@ const _portionStep = 0.5;
 const registerErrorMessage = 'No pude guardar la comida. Intenta de nuevo.';
 
 /// SPEC-026.
-const deleteMealErrorMessage = 'No pude borrar la comida. Intenta de nuevo.';
 const futureMealMessage = 'La comida no puede quedar en el futuro.';
 const repeatTodayLabel = 'Repetir hoy';
-
-/// SPEC-026 R3: "el desayuno", "el almuerzo", "la cena", "el snack".
-String mealWithArticle(String? mealType) => switch (mealType) {
-  'desayuno' => 'el desayuno',
-  'almuerzo' => 'el almuerzo',
-  'cena' => 'la cena',
-  _ => 'el snack',
-};
 
 /// SPEC-026 R2/AC2: una comida no puede quedar en el futuro.
 String? validateEatenAt(DateTime chosen, DateTime now) =>
@@ -199,25 +191,12 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
   Future<void> _deleteMeal() async {
     final controller = widget.controller;
     final at = controller.eatenAt ?? ref.read(clockProvider)();
-    final type = mealWithArticle(controller.mealType);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('¿Borrar $type de las ${timeEs(at)}?'),
-        content: const Text('No se puede deshacer.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Borrar'),
-          ),
-        ],
-      ),
+    final confirmed = await confirmDeleteMeal(
+      context,
+      mealType: controller.mealType,
+      eatenAt: at,
     );
-    if (confirmed != true || !mounted) return;
+    if (!confirmed || !mounted) return;
     setState(() {
       _registering = true;
       _registerError = null;
