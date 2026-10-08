@@ -366,6 +366,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   dependencies: []
   spec_required: false
 - id: F2
+  # SPEC-023 (confianza visual): Done 2026-10-08.
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
   # SPECs (Draft, 2026-10-04): specs/SPEC-021-foto-del-plato.md (Strict),
   # specs/SPEC-022-comidas-frecuentes-y-favoritas.md, specs/SPEC-023-confianza-visual.md

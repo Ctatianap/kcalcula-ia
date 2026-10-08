@@ -1,7 +1,7 @@
 # SPEC-023: Confianza visual
 
 ## Status
-Implementing
+Done
 Path: Standard (presentación de la confianza ya calculada por reglas; no cambia la regla ni el
 cálculo)
 
@@ -109,6 +109,8 @@ en los números.
   casera menciona la densidad; Historial comprueba el "~"; área táctil de 48 dp en el indicador.
   Al backlog: T-041 (gramos de respaldo con "Buena estimación", Strict), T-042 (helper repetido) y
   T-043 (test inestable de exportar). app 479/479.
+- 2026-10-08: recorrido manual en el Motorola (Verificación). La lectura con TalkBack se comprobó con el
+  árbol de accesibilidad de Android, sin activar TalkBack en el teléfono. Status → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -119,10 +121,10 @@ en los números.
 | AC4 | ✅ | mismo archivo › "AC4…" |
 | AC5 | ✅ | mismo archivo › "AC5…" (`KColors.accent`, contraste contra blanco y tarjeta) |
 | AC6 | ✅ | mismo archivo › "AC6: Hoy e Historial…" |
-| Manual | ⏳ | Recorrido en el teléfono con TalkBack, pendiente |
+| Manual | ✅ | 2026-10-08, en el Motorola de la usuaria (versión de `aada301`): Hoy muestra "◐ Buena estimación" en la tarjeta del desayuno; en "Editar comida" están los indicadores de la tarjeta de kcal y de cada ingrediente; tocar el del huevo abre "Unidad típica" con "Escribe los gramos" y "Usa la etiqueta"; tocar el de la comida abre la regla del 15 % y "Ingredientes con este nivel: …". Lector de pantalla: el árbol de accesibilidad de Android (`uiautomator dump`) expone "Confianza: buena estimación, ¿Por qué?" en los dos indicadores; no se activó TalkBack en el teléfono (no se cambiaron sus ajustes). No se guardó ningún cambio |
 
 ## Review
 Revisión (2026-10-08, subagente `reviewer`, sobre `bb3e0e7`): **PASS** con MINOR (corregidos o al
 backlog, ver Change Log). AC1–AC6 con evidencia; invariante 4: el nivel sale de `itemConfidence` y
 `mealConfidence`, la UI solo lo presenta; invariante 3 en `setWrittenQuantity`; un solo tono azul, sin
-rojo ni verde; fronteras respetadas; nada sale del dispositivo. Falta la prueba manual con TalkBack.
+rojo ni verde; fronteras respetadas; nada sale del dispositivo. Recorrido manual hecho después (Verificación).
