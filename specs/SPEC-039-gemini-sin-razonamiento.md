@@ -106,6 +106,42 @@ Como persona que fotografía etiquetas, quiero que la lectura tarde menos sin qu
 ## Change Log
 - 2026-10-08: creación a pedido de la usuaria ("sigamos con la T-028"). Backlog T-028.
 - 2026-10-08: **Approved por la usuaria** ("aprobada"). Status → Implementing.
+- 2026-10-08: implementada. `functions/src/ai/thinking.ts` (`parseThinkingBudget`,
+  `buildGenerationConfig`); `vertex.ts` usa la configuración y devuelve `tokensThinking`; logs con
+  `tokensThinking`; `logInvalidConfig` para un valor inválido. Nota de implementación (R1): en el
+  backend se lee `process.env.GEMINI_THINKING_BUDGET` (como `AI_PROVIDER`) y no con `defineString`,
+  porque `firebase deploy --non-interactive` exige en el `.env` cualquier param nuevo aunque tenga valor
+  por defecto. Evals corridas (ver Verificación). R4 se cumple. **La usuaria aprueba adoptarlo**
+  ("ok"); baselines guardados desde las corridas ya hechas.
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `functions/src/ai/thinking.test.ts` › "SPEC-039 AC1…" (con 0: `thinkingConfig: { thinkingBudget: 0 }`; sin valor o "abc": sin `thinkingConfig`) y "SPEC-039 R1: parseThinkingBudget" |
+| AC2 | ✅ | mismo archivo › "SPEC-039 AC2…" (`tokensThinking: 120` en el log; sin el texto) |
+| AC3 | ✅ | Tabla de abajo. Corridas del 2026-10-08 con `AI_PROVIDER=vertex`, guardadas en `evals/baselines/` (`…__2026-10-08.json` "como hoy" y `…__thinking0__2026-10-08*.json`) |
+| AC4 | ⏳ | Decisión: **se adopta** (R4 se cumple; la usuaria aprobó: "ok"). Falta `GEMINI_THINKING_BUDGET=0` en el `.env`, el despliegue y una etiqueta real en el teléfono |
+| AC5 | ✅ | functions 61/61; `git diff develop -- functions/src/ai/prompts functions/src/ai/schemas.ts` vacío |
+
+| Métrica | Baseline | Como hoy | Presupuesto 0 |
+|---|---|---|---|
+| Etiquetas: esquema | 47/47 | 47/47 | 47/47 |
+| Etiquetas: campos | 96,1 % | 96,4 % | 95,8 % |
+| Etiquetas: inventados | 2 | 2 | 2 |
+| Etiquetas: p50 / p95 | 12,1 / 34,0 s | 8,7 / 24,4 s | 2,8 / 4,3 s |
+| Etiquetas: > 10 s | — | 13 de 47 (máx. 76,8 s) | 1 de 47 (25,4 s) |
+| Etiquetas: tokens entrada / salida / razonamiento | 2.851 / 240 / — | 2.851 / 240 / 1.064 | 2.851 / 219 / 0 |
+| Frases: esquema | 50/50 | 50/50 | 50/50 y 50/50 (dos corridas) |
+| Frases: detección | 94,5 % | 94,5 % | 96,7 % y 97,8 % |
+| Frases: cantidad y unidad | 90,7 % | 91,9 % | 92,0 % y 91,0 % |
+| Frases: p50 / p95 | 3,0 / 5,8 s | 3,2 / 6,9 s | 1,5 / 10,2 s y 1,3 / 3,3 s |
+| Frases: tokens entrada / salida / razonamiento | 648 / 172 / — | 648 / 172 / 353 | 648 / 136 / 0 |
+
+Casos aislados muy lentos en frases con presupuesto 0: 3 en la primera corrida (s13 10,2 s, s05 107 s,
+s44 151 s) y 1 en la segunda (s08 64 s), con los tokens de salida normales. El cliente no configura
+reintentos del SDK (`retryOptions` no se pasa, verificado en `@google/genai` 2.24.0), así que la demora
+es de Vertex. "Como hoy" también los tiene en etiquetas (13 de más de 10 s, uno de 76,8 s). En la app,
+una frase así da el error de tiempo agotado (10 s) y se puede reintentar.
 
 ## Review
 Informe del reviewer:
