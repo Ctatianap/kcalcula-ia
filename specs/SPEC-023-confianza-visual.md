@@ -13,20 +13,25 @@ sin colores de alarma.
 Fase F2 de `docs/backlog.md` ("confianza visual"). La confianza se calcula por reglas
 (`docs/architecture.md`, sección Confianza; invariante 4) y hoy se muestra como texto ("Buena
 estimación") en la tarjeta de kcal del detalle (SPEC-012) y como "~" en Hoy, Historial y Progreso.
-Principio del producto: "sin inventar precisión".
+Cada ingrediente del detalle ya dice cómo se obtuvo su cantidad ("Cantidad dicha por ti", "Tamaño
+estimado · ajústalo", "De tu etiqueta"), y su menú ⋮ ofrece "Usar etiqueta" y "Elegir de mis
+productos" (SPEC-033). Principio del producto: "sin inventar precisión".
 
 ## User Story
 Como persona que registra, quiero ver qué parte de mi comida es estimada y cómo afinarla, para confiar
 en los números.
 
 ## Requirements
-- R1. **Indicador de 3 niveles** (componente de `ui/components/`): Alta precisión, Buena estimación y
-  Estimación, con ícono y texto (nunca solo color), en tonos del sistema visual (SPEC-010, sin rojo ni
-  verde de alarma).
+- R1. **Indicador de 3 niveles** (componente de `ui/components/`): Alta precisión (círculo lleno),
+  Buena estimación (círculo a medias) y Estimación (círculo en contorno), con ícono y texto (nunca solo
+  color), en tonos del sistema visual (SPEC-010, sin rojo ni verde de alarma).
 - R2. **Detalle de comida:** el indicador en la tarjeta de kcal y un indicador pequeño por ingrediente.
 - R3. **"¿Por qué?":** tocar el indicador abre una hoja con la explicación en español de la regla que
   aplicó (p. ej. "Tamaño estimado: la porción viene de una medida típica, no de un peso") y una acción
-  para mejorarla cuando exista ("Escribe los gramos", "Toma foto de la etiqueta").
+  para mejorarla cuando exista: "Escribe los gramos" (lleva al ajuste de cantidad del ingrediente) y
+  "Usa la etiqueta" (abre el mismo flujo de "Usar etiqueta" de SPEC-033: foto, galería o escribir los
+  valores). En la tarjeta de kcal, la hoja explica la regla del 15 % y nombra los ingredientes que
+  bajan el nivel.
 - R4. **Hoy e Historial:** las tarjetas de comida muestran el indicador de la comida (mismo
   componente); el "~" se mantiene en los totales.
 - R5. Lectura accesible: cada indicador tiene etiqueta semántica ("Confianza: buena estimación").
@@ -69,9 +74,10 @@ en los números.
 - Cambiar la regla de confianza, porcentajes de error, confianza de la IA.
 
 ## Open Questions
-- ¿Íconos propuestos (círculo lleno / medio / contorno) o los del lienzo de diseño? Falta el artboard
-  de este componente.
-- ¿La acción "Toma foto de la etiqueta" debe abrir directamente la cámara (SPEC-004)?
+- Ninguna. Resueltas con la opción recomendada (2026-10-08): íconos de círculo lleno / a medias /
+  contorno (no hay artboard de este componente); "Usa la etiqueta" abre el flujo de SPEC-033 (foto,
+  galería o escribir valores) en vez de la cámara directa, para no gastar IA cuando la persona
+  prefiere escribir.
 
 ## Definition of Done
 - AC1–AC6 con evidencia · analyze y tests verdes · reviewer PASS enlazado · arquitectura actualizada
@@ -79,6 +85,9 @@ en los números.
 
 ## Change Log
 - 2026-10-04: creación a partir de F2 ("confianza visual").
+- 2026-10-08: actualizada antes de pedir aprobación: contexto con lo que ya muestra el detalle
+  (SPEC-033), íconos y acción de etiqueta decididos con la opción recomendada, explicación en la
+  tarjeta de kcal.
 
 ## Review
 Informe del reviewer: pendiente.
