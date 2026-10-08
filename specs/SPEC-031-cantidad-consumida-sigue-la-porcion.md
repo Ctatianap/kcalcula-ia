@@ -86,6 +86,18 @@ para registrar lo que veo.
 ## Change Log
 - 2026-10-07: creación a pedido de la usuaria ("si"), a partir de T-031.
 - 2026-10-07: **Approved por la usuaria** ("aprobada"). Status → Implementing.
+- 2026-10-07: implementada. `_onServingChanged` en la pantalla reescribe "¿Cuánto comiste?" mientras
+  `consumedQuantityTouchedByUser` sea falso; `_consumedText` deja el campo vacío si la cantidad es 0.
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/features/capture/label_confirmation_screen_test.dart` › "SPEC-031 AC1…": "27" → porción "30" → el campo muestra "30" y llega a Revisar `quantity` 30 |
+| AC2 | ✅ | mismo archivo › "SPEC-031 AC2…" |
+| AC3 | ✅ | mismo archivo › "SPEC-031 AC3…": campo vacío, "Falta: porción, cuánto comiste." y Guardar deshabilitado |
+| AC4 | ✅ | mismo archivo › "SPEC-031 AC4…": "45" se mantiene y se registra 45 |
+| AC5 | ✅ | app: analyze sin avisos, 342/342; ninguna expectativa existente cambió (la pantalla falsa de Revisar añade una línea con la cantidad; "Revisar (mock)" sigue igual). Sin el arreglo, AC1–AC3 fallan |
+| Manual | ⏳ | Cambiar la porción en el teléfono |
 
 ## Review
 Informe del reviewer:

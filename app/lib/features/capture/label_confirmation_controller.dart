@@ -125,6 +125,9 @@ class LabelConfirmationController extends ChangeNotifier {
   /// vacía (etiqueta ilegible) y el usuario la completa después.
   bool _consumedQuantityTouchedByUser = false;
 
+  /// SPEC-031 R3: la pantalla deja de reescribir "¿Cuánto comiste?".
+  bool get consumedQuantityTouchedByUser => _consumedQuantityTouchedByUser;
+
   void setServingQuantity(double? value) {
     servingQuantity = value;
     if (!_consumedQuantityTouchedByUser) {
