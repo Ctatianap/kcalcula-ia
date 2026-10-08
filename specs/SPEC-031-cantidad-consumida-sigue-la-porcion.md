@@ -1,7 +1,7 @@
 # SPEC-031: "¿Cuánto comiste?" sigue a la porción en pantalla
 
 ## Status
-Draft
+Implementing
 Path: Standard (cambia la cantidad que ve la persona antes de registrar; no toca `nutrition_core`,
 la IA ni el catálogo)
 
@@ -85,6 +85,7 @@ para registrar lo que veo.
 
 ## Change Log
 - 2026-10-07: creación a pedido de la usuaria ("si"), a partir de T-031.
+- 2026-10-07: **Approved por la usuaria** ("aprobada"). Status → Implementing.
 
 ## Review
 Informe del reviewer:
