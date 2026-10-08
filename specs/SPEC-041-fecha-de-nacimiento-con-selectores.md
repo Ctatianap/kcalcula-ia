@@ -1,7 +1,7 @@
 # SPEC-041: Fecha de nacimiento con selectores de día, mes y año
 
 ## Status
-Draft
+Implementing
 Path: Standard (solo cambia cómo se ingresa la fecha en "Mi perfil"; la edad y los cálculos siguen igual)
 
 ## Objective
@@ -84,6 +84,25 @@ no pelear con el teclado.
 
 ## Change Log
 - 2026-10-08: creación a partir del hallazgo de la usuaria en su Samsung.
+- 2026-10-08: **Approved por la usuaria** ("aprobada"). Status → Implementing.
+- 2026-10-08: implementada. Detalles menores: selectores `DropdownButton` dentro de `InputDecorator`
+  (etiqueta "Día", "Mes", "Año"; menú de 320 px de alto); el botón "Guardar perfil" sigue
+  desactivado mientras haya un error, como el resto del formulario (SPEC-008), y el mensaje de R5 se
+  ve en cuanto falta uno de los tres. Sin fecha elegida no hay mensaje (como antes con el campo
+  vacío). `goals_flow_test.dart` usa los selectores; el caso "17 años" elige el 31 de diciembre del
+  año más reciente. 460/460.
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/features/goals/profile_birth_date_test.dart` › "AC1…" |
+| AC2 | ✅ | `goals_flow_test.dart` › "carga el perfil guardado para editarlo" (año, "enero", "1") |
+| AC3 | ✅ | `profile_birth_date_test.dart` › "AC3…" y "R3: 31 de marzo → febrero…" |
+| AC4 | ✅ | mismo archivo › "AC4…" |
+| AC5 | ✅ | mismo archivo › "AC5: años…" (controlador) y "AC5 + AC6…" (pantalla) |
+| AC6 | ✅ | mismo archivo › "AC5 + AC6…" |
+| AC7 | ✅ | `goals_flow_test.dart` 23/23 con los selectores; app 460/460 |
+| AC8 | ⏳ | Prueba manual en el Samsung de la usuaria, pendiente |
 
 ## Review
 Informe del reviewer:

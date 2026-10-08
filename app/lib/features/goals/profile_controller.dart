@@ -8,7 +8,8 @@ import 'goal_calculation.dart';
 // SPEC-015: compartidos con la tarjeta de Peso de Progreso.
 export '../../ui/number_input_es.dart';
 
-const birthDateFormatMessage = 'Escribe la fecha como dd/mm/aaaa.';
+/// SPEC-041 R5.
+const birthDateMissingMessage = 'Elige día, mes y año de nacimiento.';
 const ageRangeMessage = 'La app es para personas de 18 a 100 años.';
 const heightRangeMessage = 'Escribe tu estatura en cm, entre 120 y 230.';
 const measuredRangeMessage =
@@ -26,7 +27,12 @@ class ProfileController extends ChangeNotifier {
   final DateTime Function() _now;
 
   BiologicalSex? sex;
-  String birthDateText = '';
+
+  /// SPEC-041 R1: la fecha de nacimiento, elegida en tres selectores.
+  int? birthDay;
+  int? birthMonth;
+  int? birthYear;
+
   String heightText = '';
   String weightText = '';
   ActivityLevel? activityLevel;
@@ -76,7 +82,9 @@ class ProfileController extends ChangeNotifier {
     }
     if (profile != null) {
       sex = BiologicalSex.values.asNameMap()[profile.sex];
-      birthDateText = formatBirthDate(profile.birthDate);
+      birthDay = profile.birthDate.day;
+      birthMonth = profile.birthDate.month;
+      birthYear = profile.birthDate.year;
       heightText = _numberToText(profile.heightCm);
       weightText = _numberToText(profile.weightKg);
       _savedWeightKg = profile.weightKg;
@@ -102,9 +110,49 @@ class ProfileController extends ChangeNotifier {
     _changed();
   }
 
-  void setBirthDate(String text) {
-    birthDateText = text;
+  void setBirthDay(int value) {
+    birthDay = value;
     _changed();
+  }
+
+  void setBirthMonth(int value) {
+    birthMonth = value;
+    _dropMissingDay();
+    _changed();
+  }
+
+  void setBirthYear(int value) {
+    birthYear = value;
+    _dropMissingDay();
+    _changed();
+  }
+
+  /// SPEC-041 R3: un día que ya no existe en ese mes queda sin elegir; no
+  /// se cambia por otro en silencio.
+  void _dropMissingDay() {
+    final day = birthDay;
+    if (day != null && day > birthDays.length) birthDay = null;
+  }
+
+  /// SPEC-041 R3: días que existen en el mes y año elegidos.
+  List<int> get birthDays => [
+    for (var d = 1; d <= daysInMonth(birthYear, birthMonth); d++) d,
+  ];
+
+  /// SPEC-041 R2: del año actual − 18 al año actual − 100; también el
+  /// guardado si quedó fuera (Edge Cases).
+  List<int> get birthYears {
+    final now = _now().year;
+    final years = [
+      for (var y = now - estimationAgeMin; y >= now - estimationAgeMax; y--) y,
+    ];
+    final saved = birthYear;
+    if (saved != null && !years.contains(saved)) {
+      years
+        ..add(saved)
+        ..sort((a, b) => b.compareTo(a));
+    }
+    return years;
   }
 
   void setHeight(String text) {
@@ -127,7 +175,11 @@ class ProfileController extends ChangeNotifier {
     _changed();
   }
 
-  DateTime? get _birthDate => parseBirthDate(birthDateText);
+  DateTime? get _birthDate {
+    final (d, m, y) = (birthDay, birthMonth, birthYear);
+    return d == null || m == null || y == null ? null : DateTime(y, m, d);
+  }
+
   double? get _height => parseDecimal(heightText);
   double? get _weight => parseDecimal(weightText);
   int? get _age {
@@ -139,9 +191,11 @@ class ProfileController extends ChangeNotifier {
   int? get age => birthDateError == null ? _age : null;
 
   String? get birthDateError {
-    if (birthDateText.trim().isEmpty) return null;
+    if (birthDay == null && birthMonth == null && birthYear == null) {
+      return null;
+    }
     final age = _age;
-    if (age == null) return birthDateFormatMessage;
+    if (age == null) return birthDateMissingMessage;
     if (age < estimationAgeMin || age > estimationAgeMax) {
       return ageRangeMessage;
     }
@@ -272,18 +326,25 @@ class ProfileController extends ChangeNotifier {
   }
 }
 
-/// "15/10/1996" → fecha, o `null` si el formato o la fecha no son válidos.
-DateTime? parseBirthDate(String text) {
-  final match = RegExp(r'^(\d{1,2})/(\d{1,2})/(\d{4})$')
-      .firstMatch(text.trim());
-  if (match == null) return null;
-  final day = int.parse(match.group(1)!);
-  final month = int.parse(match.group(2)!);
-  final year = int.parse(match.group(3)!);
-  final date = DateTime(year, month, day);
-  if (date.year != year || date.month != month || date.day != day) return null;
-  return date;
+/// SPEC-041 R3: días del mes (29 en febrero si aún no hay año).
+int daysInMonth(int? year, int? month) {
+  if (month == null) return 31;
+  if (year == null) return month == 2 ? 29 : DateTime(2000, month + 1, 0).day;
+  return DateTime(year, month + 1, 0).day;
 }
 
-String formatBirthDate(DateTime d) =>
-    '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
+/// SPEC-041 R1: nombres de los meses (1 = enero).
+const monthNamesEs = [
+  'enero',
+  'febrero',
+  'marzo',
+  'abril',
+  'mayo',
+  'junio',
+  'julio',
+  'agosto',
+  'septiembre',
+  'octubre',
+  'noviembre',
+  'diciembre',
+];
