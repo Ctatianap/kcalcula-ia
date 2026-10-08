@@ -1,7 +1,7 @@
 # SPEC-034: Mis productos
 
 ## Status
-Implementing
+Done
 Path: Strict (cambia la resolución de alimentos: los productos personales y sus nombres
 alternativos tienen prioridad al reconocer el texto; skill `nutrition-data`). Migración de `user.db`.
 
@@ -144,6 +144,8 @@ llamo y que la app los reconozca cuando digo "mi pan" o "mi leche", para no eleg
 - 2026-10-07: **Approved por la usuaria** ("aprobada la SPEC-034"). Status → Implementing.
 - 2026-10-07: reviewer PASS; 7 MINOR corregidos y 1 al backlog (T-036). 395/395. Falta la prueba manual
   y la aprobación de la usuaria para fusionar (Strict).
+- 2026-10-07: prueba manual de la usuaria y **aprobación para fusionar** ("ya lo probé, funciona, fusiona la
+  034"). Status → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -158,7 +160,7 @@ llamo y que la app los reconozca cuando digo "mi pan" o "mi leche", para no eleg
 | AC8 | ✅ | `personal_products_storage_test.dart` › "SPEC-034 AC8…": base v7 simulada (sin columna ni tabla) → v8 conserva el producto, "g", sin alias; exportar incluye unidad y alias; "Borrar todos mis datos" vacía los alias |
 | AC9 | ✅ | `my_products_screen_test.dart` › "AC9: nombre vacío…", "AC9: alias vacío, repetido o número 11" (unit) y "AC9: alias repetido muestra el mensaje…" |
 | AC10 | ✅ | app: analyze sin avisos, 395/395 (tras los MINOR del reviewer). Expectativas cambiadas: `weight_log_storage_test.dart` y `nutrition_goal_storage_test.dart` esperan `user_version` 8 (antes 7). `integration/storage_errors_test.dart` añade `servingUnit` a su `savePersonalProduct` falso (firma, no expectativa). Ningún test de resolución cambió |
-| Manual | ⏳ | Renombrar el pan, darle "mi pan" y registrar "mi pan" en el teléfono |
+| Manual | ✅ | 2026-10-07, la usuaria en su Motorola con la versión de `472214b` (migración v8 sobre sus datos reales sin pérdidas): "ya lo probé, funciona" |
 - 2026-10-07: implementada.
   - `user.db` v8: `personal_products.serving_unit` y `personal_product_aliases`. La migración solo agrega
     lo que falte (comprueba la columna y la tabla), para no fallar con bases simuladas o ya creadas.
