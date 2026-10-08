@@ -51,10 +51,14 @@ class LabelConfirmationScreen extends ConsumerStatefulWidget {
   /// Revisar.
   final String? ingredientName;
 
+  /// SPEC-033 R8: formulario vacío para escribir los valores a mano.
+  final bool manualEntry;
+
   const LabelConfirmationScreen({
     super.key,
     required this.extraction,
     this.ingredientName,
+    this.manualEntry = false,
   });
 
   @override
@@ -90,6 +94,7 @@ class _LabelConfirmationScreenState
     _controller = LabelConfirmationController(
       extraction: widget.extraction,
       defaultProductName: widget.ingredientName,
+      manualEntry: widget.manualEntry,
       storage: ref.read(storageRepositoryProvider),
     );
     _nameController.text = _controller.productName;

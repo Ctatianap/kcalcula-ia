@@ -27,6 +27,9 @@ class LabelConfirmationController extends ChangeNotifier {
   double? sodiumMg;
   late double consumedQuantity;
 
+  /// SPEC-033 R8: los valores los escribió la persona, no la IA.
+  final bool manualEntry;
+
   /// SPEC-033 R2: id del producto personal que guardó [save].
   int? savedProductId;
 
@@ -43,6 +46,9 @@ class LabelConfirmationController extends ChangeNotifier {
 
     /// SPEC-033 R2: nombre del ingrediente si la IA no leyó el del producto.
     String? defaultProductName,
+
+    /// SPEC-033 R8: la persona escribe los valores (sin IA).
+    this.manualEntry = false,
   })
     // ignore: prefer_initializing_formals
     : _storage = storage,
@@ -315,7 +321,7 @@ class LabelConfirmationController extends ChangeNotifier {
       sodiumMg100: per100.sodiumMg,
       servingGrams: servingQuantity!,
       sourceRef:
-          'Etiqueta transcrita por IA y confirmada por el usuario el '
+          '${manualEntry ? 'Valores de la etiqueta escritos por el usuario el ' : 'Etiqueta transcrita por IA y confirmada por el usuario el '}'
           '${DateTime.now().toIso8601String().substring(0, 10)}'
           '${productName.trim().isEmpty ? '' : ' — producto: ${productName.trim()}'}.',
     );

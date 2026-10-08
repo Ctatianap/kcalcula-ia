@@ -169,6 +169,8 @@ volver a fotografiar todo cada día.
   Draft hasta que la usuaria apruebe.
 - 2026-10-07: **la usuaria aprueba los cambios** ("aprobados los cambios de la SPEC-033"): R8, AC8, R4
   y Known Limitations. Status → Implementing.
+- 2026-10-07: R8 implementado: botón "Escribir los valores" en `IngredientLabelScreen`, "Confirmar
+  etiqueta" con `manualEntry` (formulario vacío, `source_ref` propio). 371/371.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -179,7 +181,8 @@ volver a fotografiar todo cada día.
 | AC4 | ✅ | mismo archivo › "AC4…": "Pan tajado" 27 g → 4 × "+" (media porción) → "3 porciones · 81 g" y 210 kcal; "Ver en g" → "81 g" |
 | AC5 | ✅ | mismo archivo › "AC5…" |
 | AC6 | ✅ | mismo archivo › "AC6…": "No encontrado en la base" → con etiqueta sin nombre leído, el producto se llama "caldo de costilla" (R2) y queda "1 porción · 300 g" |
-| AC7 | ✅ | app: analyze sin avisos, 370/370 (tras los hallazgos del reviewer). Expectativa cambiada: `review_screen_test.dart` › "AC8: editar la cantidad con +/-…" ahora hace `ensureVisible` antes de tocar "+" (el menú hace la tarjeta más alta; mismos valores esperados). El botón "Revisar comida" no cambia fuera del modo ingrediente |
+| AC8 | ✅ | `ingredient_actions_test.dart` › "AC8: \"Escribir los valores\" guarda el producto sin llamar a la IA": formulario vacío con el nombre del ingrediente, 30 g / 120 kcal / 24 / 3 / 1,5 → "1 porción · 30 g" y 120 kcal; 0 llamadas a la IA; `source_ref` "…escritos por el usuario…" |
+| AC7 | ✅ | app: analyze sin avisos, 371/371 (tras los hallazgos del reviewer y R8). Expectativa cambiada: `review_screen_test.dart` › "AC8: editar la cantidad con +/-…" ahora hace `ensureVisible` antes de tocar "+" (el menú hace la tarjeta más alta; mismos valores esperados). El botón "Revisar comida" no cambia fuera del modo ingrediente |
 | Manual | ⏳ | El desayuno del ejemplo en el teléfono |
 
 Nota de implementación (R4): "Elegir de mis productos" abre una pantalla propia, "Mis productos"

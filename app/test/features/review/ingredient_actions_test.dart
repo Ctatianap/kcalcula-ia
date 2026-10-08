@@ -497,4 +497,62 @@ void main() {
       expect(products, isEmpty);
     },
   );
+
+  testWidgets(
+    'AC8: "Escribir los valores" guarda el producto sin llamar a la IA',
+    (tester) async {
+      final pumped = await _pump(
+        tester,
+        items: const [
+          ParsedMealItemDto(
+            mention: '1 scoop de proteína',
+            foodQuery: 'proteína',
+            quantity: 1,
+            unit: 'unidad',
+            isVague: false,
+          ),
+        ],
+      );
+      await _openMenu(tester, '1 scoop de proteína', useLabelAction);
+      await tester.tap(find.byKey(const Key('ingredient-label-manual')));
+      await tester.pumpAndSettle();
+      expect(find.text('Confirmar etiqueta'), findsOneWidget);
+
+      Future<void> type(String label, String value) async {
+        final field = find.widgetWithText(TextField, label);
+        await tester.ensureVisible(field);
+        await tester.enterText(field, value);
+        await tester.pump();
+      }
+
+      await type('Porción', '30');
+      await type('Calorías por porción (kcal)', '120');
+      await type('Proteína por porción (g)', '24');
+      await type('Carbohidratos por porción (g)', '3');
+      await type('Grasa por porción (g)', '1,5');
+
+      final button = find.widgetWithText(
+        FilledButton,
+        useInIngredientButtonLabel,
+      );
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(button);
+      await tester.pumpAndSettle();
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Detalle de comida'), findsOneWidget);
+      // Sin nombre escrito, el producto se llama como el ingrediente.
+      expect(find.text('proteína'), findsWidgets);
+      expect(_quantityText(tester, '1 scoop de proteína'), '1 porción · 30 g');
+      expect(find.text('120 kcal'), findsWidgets);
+      expect(pumped.calls.extractLabel, 0);
+      expect(pumped.calls.parseMeal, 0);
+      final products = await tester.runAsync(
+        () => pumped.db.select(pumped.db.personalProducts).get(),
+      );
+      expect(products!.single.sourceRef, contains('escritos por el usuario'));
+    },
+  );
 }
