@@ -4,17 +4,36 @@ import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../app_routes.dart';
 import '../../infra/clock.dart';
+import '../../infra/food_resolution/food_query_resolver.dart';
+import '../../infra/food_resolution/ingredient_label_result.dart';
+import '../../infra/storage/storage_providers.dart';
 import '../../ui/components/k_card.dart';
 import '../../format/date_format_es.dart';
 import '../../format/text_es.dart';
+import '../../ui/number_input_es.dart';
 import '../../ui/theme.dart';
 import 'food_search_screen.dart';
+import 'personal_product_picker_screen.dart';
 import 'review_controller.dart';
 import 'review_item.dart';
 
 const _gramsStep = 5.0;
 
+/// SPEC-033 R5: de a media porción.
+const _portionStep = 0.5;
+
 const registerErrorMessage = 'No pude guardar la comida. Intenta de nuevo.';
+
+/// SPEC-033 R1: acciones del menú de cada ingrediente.
+const useLabelAction = 'Usar etiqueta';
+const pickProductAction = 'Elegir de mis productos';
+const removeIngredientAction = 'Quitar';
+const loadProductErrorMessage =
+    'No pude leer el producto guardado. Intenta de nuevo.';
+
+String _portionsText(double portions) =>
+    '${formatDecimalEs(portions, maxDecimals: 1)} '
+    '${portions == 1 ? 'porción' : 'porciones'}';
 
 const confidenceLabels = {
   ConfidenceLevel.altaPrecision: 'Alta precisión',
@@ -60,6 +79,38 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
   Future<void> _addIngredient() async {
     final item = await pickFoodManually(context);
     if (item != null && mounted) widget.controller.addDraftItem(item);
+  }
+
+  /// SPEC-033 R2: etiqueta de este ingrediente; vuelve aquí con el
+  /// producto guardado.
+  Future<void> _useLabel(int index) async {
+    final item = widget.controller.items[index];
+    final result = await Navigator.of(context).pushNamed<IngredientLabelResult>(
+      AppRoutes.ingredientLabel,
+      arguments: item.foodQuery,
+    );
+    if (result == null || !mounted) return;
+    try {
+      final products = await ref
+          .read(storageRepositoryProvider)
+          .getAllPersonalProducts();
+      final product = products.firstWhere((p) => p.id == result.productId);
+      widget.controller.replaceFood(
+        index,
+        personalProductToFoodCatalogEntry(product),
+        fallbackQuantity: result.quantity,
+        fallbackUnit: result.unit,
+      );
+    } catch (_) {
+      // SPEC-009: sin el texto de SQLite.
+      if (mounted) setState(() => _registerError = loadProductErrorMessage);
+    }
+  }
+
+  /// SPEC-033 R4: un producto ya guardado, sin foto y sin IA.
+  Future<void> _pickProduct(int index) async {
+    final food = await pickPersonalProduct(context);
+    if (food != null && mounted) widget.controller.replaceFood(index, food);
   }
 
   Future<void> _register() async {
@@ -151,6 +202,16 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
                           onRemove: () => controller.removeItem(index),
                           onAdjustGrams: (delta) =>
                               controller.setGrams(index, item.grams + delta),
+                          onUseLabel: _registering
+                              ? null
+                              : () => _useLabel(index),
+                          onPickProduct: _registering
+                              ? null
+                              : () => _pickProduct(index),
+                          onSetPortions: (portions) =>
+                              controller.setPortions(index, portions),
+                          onShowInGrams: (value) =>
+                              controller.setShowInGrams(index, value),
                         ),
                         const SizedBox(height: 10),
                       ],
@@ -340,12 +401,20 @@ class _IngredientCard extends StatelessWidget {
   final void Function(String foodId) onSelectCandidate;
   final VoidCallback onRemove;
   final void Function(double delta) onAdjustGrams;
+  final VoidCallback? onUseLabel;
+  final VoidCallback? onPickProduct;
+  final ValueChanged<double> onSetPortions;
+  final ValueChanged<bool> onShowInGrams;
 
   const _IngredientCard({
     required this.item,
     required this.onSelectCandidate,
     required this.onRemove,
     required this.onAdjustGrams,
+    required this.onUseLabel,
+    required this.onPickProduct,
+    required this.onSetPortions,
+    required this.onShowInGrams,
   });
 
   @override
@@ -357,9 +426,55 @@ class _IngredientCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            _itemName(item),
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  _itemName(item),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              // SPEC-033 R1.
+              PopupMenuButton<String>(
+                key: Key('ingredient-menu-${item.mention}'),
+                tooltip: 'Más opciones',
+                icon: const Icon(Icons.more_vert),
+                onSelected: (action) => switch (action) {
+                  useLabelAction => onUseLabel?.call(),
+                  pickProductAction => onPickProduct?.call(),
+                  _ => onRemove(),
+                },
+                itemBuilder: (_) => [
+                  PopupMenuItem(
+                    value: useLabelAction,
+                    enabled: onUseLabel != null,
+                    child: const ListTile(
+                      leading: Icon(Icons.receipt_long_outlined),
+                      title: Text(useLabelAction),
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: pickProductAction,
+                    enabled: onPickProduct != null,
+                    child: const ListTile(
+                      leading: Icon(Icons.inventory_2_outlined),
+                      title: Text(pickProductAction),
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: removeIngredientAction,
+                    child: ListTile(
+                      leading: Icon(Icons.delete_outline),
+                      title: Text(removeIngredientAction),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
           Text('“${item.mention}”', style: secondary),
           const SizedBox(height: 4),
@@ -367,6 +482,8 @@ class _IngredientCard extends StatelessWidget {
             ReviewItemStatus.matched => _MatchedRow(
               item: item,
               onAdjustGrams: onAdjustGrams,
+              onSetPortions: onSetPortions,
+              onShowInGrams: onShowInGrams,
             ),
             ReviewItemStatus.ambiguous => _AmbiguousRow(
               item: item,
@@ -383,12 +500,23 @@ class _IngredientCard extends StatelessWidget {
 class _MatchedRow extends StatelessWidget {
   final ReviewItem item;
   final void Function(double delta) onAdjustGrams;
+  final ValueChanged<double> onSetPortions;
+  final ValueChanged<bool> onShowInGrams;
 
-  const _MatchedRow({required this.item, required this.onAdjustGrams});
+  const _MatchedRow({
+    required this.item,
+    required this.onAdjustGrams,
+    required this.onSetPortions,
+    required this.onShowInGrams,
+  });
 
   @override
   Widget build(BuildContext context) {
     final highlight = item.highlightForEdit;
+    // SPEC-033 R5: productos personales en porciones (de a media porción).
+    final portionGrams = ReviewController.portionGramsOf(item);
+    final inPortions = portionGrams != null && !item.showInGrams;
+    final portions = inPortions ? ReviewController.portionsOf(item)! : 0.0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -411,13 +539,25 @@ class _MatchedRow extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.remove_circle_outline),
                   tooltip: 'Menos',
-                  onPressed: () => onAdjustGrams(-_gramsStep),
+                  onPressed: inPortions
+                      ? (portions > _portionStep
+                            ? () => onSetPortions(portions - _portionStep)
+                            : null)
+                      : () => onAdjustGrams(-_gramsStep),
                 ),
-                Text('${item.grams.toStringAsFixed(0)} g'),
+                Text(
+                  inPortions
+                      ? '${_portionsText(portions)} · '
+                            '${item.grams.toStringAsFixed(0)} g'
+                      : '${item.grams.toStringAsFixed(0)} g',
+                  key: Key('ingredient-quantity-${item.mention}'),
+                ),
                 IconButton(
                   icon: const Icon(Icons.add_circle_outline),
                   tooltip: 'Más',
-                  onPressed: () => onAdjustGrams(_gramsStep),
+                  onPressed: inPortions
+                      ? () => onSetPortions(portions + _portionStep)
+                      : () => onAdjustGrams(_gramsStep),
                 ),
               ],
             ),
@@ -430,6 +570,12 @@ class _MatchedRow extends StatelessWidget {
             ),
           ],
         ),
+        if (portionGrams != null)
+          TextButton(
+            key: Key('ingredient-toggle-unit-${item.mention}'),
+            onPressed: () => onShowInGrams(inPortions),
+            child: Text(inPortions ? 'Ver en g' : 'Ver en porciones'),
+          ),
       ],
     );
   }

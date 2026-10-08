@@ -27,6 +27,9 @@ class LabelConfirmationController extends ChangeNotifier {
   double? sodiumMg;
   late double consumedQuantity;
 
+  /// SPEC-033 R2: id del producto personal que guardó [save].
+  int? savedProductId;
+
   /// SPEC-032 R1: arranca en porciones con 1 (equivale a la porción).
   ConsumedUnit consumedUnit = ConsumedUnit.portions;
   double portionsCount = 1;
@@ -37,10 +40,13 @@ class LabelConfirmationController extends ChangeNotifier {
   LabelConfirmationController({
     required LabelExtractionDto extraction,
     required StorageRepository storage,
+
+    /// SPEC-033 R2: nombre del ingrediente si la IA no leyó el del producto.
+    String? defaultProductName,
   })
     // ignore: prefer_initializing_formals
     : _storage = storage,
-       productName = extraction.productName ?? '',
+       productName = extraction.productName ?? defaultProductName ?? '',
        servingQuantity = extraction.servingSize?.quantity,
        servingUnit = extraction.servingSize?.unit ?? 'g',
        unreadableFields = extraction.unreadableFields.toSet() {
@@ -298,7 +304,7 @@ class LabelConfirmationController extends ChangeNotifier {
       );
     }
     final per100 = _per100();
-    await _storage.savePersonalProduct(
+    savedProductId = await _storage.savePersonalProduct(
       nameEs: productName.trim(),
       energyKcal100: per100.energyKcal,
       proteinG100: per100.proteinG,

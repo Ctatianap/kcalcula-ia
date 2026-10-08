@@ -9,6 +9,10 @@ abstract class AppRoutes {
   /// SPEC-012: "Analizando" → detalle o error, para un texto (argumento).
   static const analysis = '/analysis';
   static const labelConfirmation = '/label-confirmation';
+
+  /// SPEC-033: etiqueta de un ingrediente del Detalle. Argumento: el nombre
+  /// del ingrediente (`String`). Devuelve un `IngredientLabelResult?`.
+  static const ingredientLabel = '/ingredient-label';
   static const onboarding = '/onboarding';
   static const settings = '/settings';
   static const privacyPolicy = '/privacy-policy';

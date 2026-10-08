@@ -77,6 +77,9 @@ void main() {
       expect(find.text('143 kcal'), findsOneWidget);
       expect(find.text('100 g'), findsOneWidget);
 
+      // SPEC-033: el menú de cada ingrediente hace la tarjeta más alta.
+      await tester.ensureVisible(find.byIcon(Icons.add_circle_outline).first);
+      await tester.pumpAndSettle();
       await tester.tap(find.byIcon(Icons.add_circle_outline).first);
       await tester.pumpAndSettle();
 

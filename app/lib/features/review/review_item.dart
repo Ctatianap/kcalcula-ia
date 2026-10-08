@@ -27,6 +27,10 @@ class ReviewItem {
   /// de queso"), o una cantidad que no se pudo resolver del todo.
   final bool highlightForEdit;
 
+  /// SPEC-033 R5: un producto personal se muestra en porciones salvo que la
+  /// persona pida verlo en g/ml.
+  final bool showInGrams;
+
   const ReviewItem({
     required this.mention,
     required this.foodQuery,
@@ -43,6 +47,7 @@ class ReviewItem {
     this.confidence,
     this.nutrients,
     this.highlightForEdit = false,
+    this.showInGrams = false,
   });
 
   ReviewItem copyWith({
@@ -54,6 +59,7 @@ class ReviewItem {
     ConfidenceLevel? confidence,
     NutrientTotals? nutrients,
     bool? highlightForEdit,
+    bool? showInGrams,
   }) => ReviewItem(
     mention: mention,
     foodQuery: foodQuery,
@@ -70,5 +76,6 @@ class ReviewItem {
     confidence: confidence ?? this.confidence,
     nutrients: nutrients ?? this.nutrients,
     highlightForEdit: highlightForEdit ?? this.highlightForEdit,
+    showInGrams: showInGrams ?? this.showInGrams,
   );
 }

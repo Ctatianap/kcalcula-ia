@@ -219,24 +219,109 @@ class ReviewController extends ChangeNotifier {
   double _fallbackGrams(FoodCatalogEntry food) =>
       food.portions.isNotEmpty ? food.portions.first.grams : 100.0;
 
+  /// Lo que dijo la persona de este ingrediente, para volver a resolverlo
+  /// con otro alimento.
+  static ParsedMealItemDto _parsedOf(ReviewItem item) => ParsedMealItemDto(
+    mention: item.mention,
+    foodQuery: item.foodQuery,
+    quantity: item.quantityRaw,
+    unit: item.unitRaw,
+    size: item.sizeRaw,
+    preparation: null,
+    isVague: item.isVague,
+    parentIndex: item.parentIndex,
+  );
+
   void selectCandidate(int index, String foodId) {
     final food = _resolver.getFoodById(foodId);
     if (food == null) return;
-    final item = _items[index];
-    final rebuilt = _matchedItem(
-      ParsedMealItemDto(
-        mention: item.mention,
-        foodQuery: item.foodQuery,
-        quantity: item.quantityRaw,
-        unit: item.unitRaw,
-        size: item.sizeRaw,
-        preparation: null,
-        isVague: item.isVague,
-        parentIndex: item.parentIndex,
-      ),
-      food,
-    );
+    _items[index] = _matchedItem(_parsedOf(_items[index]), food);
+    notifyListeners();
+  }
+
+  /// SPEC-033 R2–R4: la persona eligió el alimento de este ingrediente (su
+  /// etiqueta o un producto guardado). La cantidad se resuelve con las
+  /// reglas de siempre a partir de lo que dijo (R3); si no se pudo, o no
+  /// dijo cantidad, se usa la elegida en "Confirmar etiqueta"
+  /// ([fallbackQuantity] en [fallbackUnit]) y el ingrediente sigue
+  /// destacado para revisar. Sin IA.
+  void replaceFood(
+    int index,
+    FoodCatalogEntry food, {
+    double? fallbackQuantity,
+    String? fallbackUnit,
+  }) {
+    final parsed = _parsedOf(_items[index]);
+    var rebuilt = _matchedItem(parsed, food);
+    final saidQuantityResolved =
+        parsed.quantity != null &&
+        resolveGrams(
+          input: QuantityInput(
+            quantity: parsed.quantity,
+            unit: mapUnit(parsed.unit),
+            size: mapSize(parsed.size),
+            isVague: parsed.isVague,
+          ),
+          food: food,
+          householdUnitMlByUnit: _householdUnits,
+          isLabelProduct: isPersonalProductFood(food),
+        ).resolvable;
+    if (!saidQuantityResolved && fallbackQuantity != null) {
+      final grams = resolveGrams(
+        input: QuantityInput(
+          quantity: fallbackQuantity,
+          unit: mapUnit(fallbackUnit),
+          isVague: false,
+        ),
+        food: food,
+        isLabelProduct: isPersonalProductFood(food),
+      ).grams;
+      if (grams != null && grams > 0) {
+        rebuilt = rebuilt.copyWith(
+          grams: grams,
+          nutrients: calculateItemNutrients(food, grams),
+        );
+      }
+    }
     _items[index] = rebuilt;
+    notifyListeners();
+  }
+
+  /// SPEC-033 R5: gramos (o ml) de una porción de la etiqueta, solo para
+  /// productos personales.
+  static double? portionGramsOf(ReviewItem item) {
+    final food = item.food;
+    if (food == null || !isPersonalProductFood(food)) return null;
+    return food.portionFor('porcion')?.grams;
+  }
+
+  /// SPEC-033 R5: cuántas porciones de la etiqueta son los gramos actuales.
+  static double? portionsOf(ReviewItem item) {
+    final portionGrams = portionGramsOf(item);
+    return portionGrams == null ? null : item.grams / portionGrams;
+  }
+
+  /// SPEC-033 R5: cantidad en porciones de la etiqueta.
+  /// Porciones → g los resuelve `nutrition_core` (invariante 3).
+  void setPortions(int index, double portions) {
+    final item = _items[index];
+    final food = item.food;
+    if (portionGramsOf(item) == null || food == null || portions <= 0) return;
+    final grams = resolveGrams(
+      input: QuantityInput(
+        quantity: portions,
+        unit: QuantityUnit.porcion,
+        isVague: false,
+      ),
+      food: food,
+      isLabelProduct: true,
+    ).grams;
+    if (grams != null) setGrams(index, grams);
+  }
+
+  /// SPEC-033 R5: ver este ingrediente en g/ml o en porciones.
+  void setShowInGrams(int index, bool value) {
+    _items[index] = _items[index].copyWith(showInGrams: value);
     notifyListeners();
   }
 
