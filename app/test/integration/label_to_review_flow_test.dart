@@ -11,6 +11,7 @@ import 'package:calorias_ia/infra/storage/storage_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:calorias_ia/features/capture/label_confirmation_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../features/capture/fake_image_picker.dart';
@@ -77,6 +78,11 @@ void main() {
 
       expect(find.text('Confirmar etiqueta'), findsOneWidget);
 
+      // SPEC-032: "¿Cuánto comiste?" arranca en porciones; "comí 45 g"
+      // se dice en g.
+      await tester.ensureVisible(find.byKey(consumedUnitServingKey));
+      await tester.tap(find.byKey(consumedUnitServingKey));
+      await tester.pump();
       final consumedField = find.widgetWithText(
         TextField,
         '¿Cuánto comiste? (g)',
@@ -86,9 +92,12 @@ void main() {
 
       final saveButton = find.widgetWithText(
         FilledButton,
-        'Guardar y continuar',
+        reviewMealButtonLabel,
       );
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
       await tester.ensureVisible(saveButton);
+      await tester.pumpAndSettle();
       await tester.tap(saveButton);
       await tester.pumpAndSettle();
 

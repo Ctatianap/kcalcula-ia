@@ -257,6 +257,14 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   dependencies: []
   status: done  # SPEC-031
   spec_required: true    # specs/SPEC-031-cantidad-consumida-sigue-la-porcion.md — Standard
+- id: T-032
+  title: Cantidad en porciones y vista previa en "Confirmar etiqueta"
+  objective: >
+    Pedido de la usuaria (2026-10-07): decir "comí 3 porciones" en vez de gramos, ver la proteína,
+    carbohidratos y grasa que se van a registrar, y que el botón deje claro que lleva a Revisar.
+  dependencies: [T-031]
+  status: done  # SPEC-032
+  spec_required: true    # specs/SPEC-032-cantidad-en-porciones-y-vista-previa.md — Standard
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
   # SPECs (Draft, 2026-10-04): specs/SPEC-021-foto-del-plato.md (Strict),
