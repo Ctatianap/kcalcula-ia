@@ -1,7 +1,7 @@
 # SPEC-032: Cantidad en porciones y vista previa en "Confirmar etiqueta"
 
 ## Status
-Draft
+Implementing
 Path: Standard (cambia cómo se indica la cantidad y muestra un cálculo que ya existe en
 `nutrition_core`; no cambia reglas de cálculo, la IA ni el catálogo)
 
@@ -117,6 +117,8 @@ registrar antes de seguir, para no adivinar.
 
 ## Change Log
 - 2026-10-07: creación a partir del pedido de la usuaria al probar SPEC-031. Backlog T-032.
+- 2026-10-07: **Approved por la usuaria** ("sí, apruebo"; antes: "si me gusta el selector de porciones
+  o los g/ml"). SPEC-031 ya fusionada. Status → Implementing.
 
 ## Review
 Informe del reviewer:
