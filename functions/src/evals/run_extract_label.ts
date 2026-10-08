@@ -24,6 +24,7 @@ import { join } from "node:path";
 import type { AiProvider } from "../ai/provider.js";
 import { createFakeAiProvider } from "../ai/fake.js";
 import { createOllamaProvider } from "../ai/ollama.js";
+import { parseThinkingBudget } from "../ai/thinking.js";
 import { createVertexAiProvider } from "../ai/vertex.js";
 import {
   labelExtractionSchema,
@@ -68,6 +69,7 @@ interface CaseResult {
   latencyMs: number;
   tokensInput?: number;
   tokensOutput?: number;
+  tokensThinking?: number;
   fieldChecks: FieldCheck[];
   scoredCount: number;
   correctCount: number;
@@ -148,6 +150,7 @@ async function callWithRetry(
   latencyMs: number;
   tokensInput?: number;
   tokensOutput?: number;
+  tokensThinking?: number;
 }> {
   let attempt = await provider.extractLabel({ image_base64: imageBase64, mime_type: "image/jpeg" });
   let parsedOutput = labelExtractionSchema.safeParse(attempt.raw);
@@ -161,7 +164,23 @@ async function callWithRetry(
     latencyMs: attempt.latencyMs,
     tokensInput: attempt.tokensInput,
     tokensOutput: attempt.tokensOutput,
+    tokensThinking: attempt.tokensThinking,
   };
+}
+
+/** SPEC-039 R1: `GEMINI_THINKING_BUDGET` (vacío = valor por defecto del modelo). */
+function thinkingBudget(): number | undefined {
+  const parsed = parseThinkingBudget(process.env.GEMINI_THINKING_BUDGET);
+  if (parsed.invalid) {
+    throw new Error("GEMINI_THINKING_BUDGET debe ser un número entero.");
+  }
+  return parsed.budget;
+}
+
+/** El baseline con presupuesto lleva `__thinking<n>` en el nombre. */
+function thinkingSuffix(): string {
+  const budget = thinkingBudget();
+  return budget === undefined ? "" : `__thinking${budget}`;
 }
 
 function selectProvider(): { provider: AiProvider; modelId: string; providerName: string } {
@@ -179,6 +198,8 @@ function selectProvider(): { provider: AiProvider; modelId: string; providerName
           project,
           location: process.env.VERTEX_LOCATION ?? "us-east1",
           modelId,
+          // SPEC-039 R1/R3.
+          thinkingBudget: thinkingBudget(),
         }),
         modelId,
         providerName: "vertex",
@@ -264,6 +285,7 @@ async function main(): Promise<void> {
         latencyMs: attempt.latencyMs,
         tokensInput: attempt.tokensInput,
         tokensOutput: attempt.tokensOutput,
+        tokensThinking: attempt.tokensThinking,
         fieldChecks,
         scoredCount: scored.length,
         correctCount: scored.filter((f) => f.correct).length,
@@ -290,6 +312,7 @@ async function main(): Promise<void> {
   const latencies = results.map((r) => r.latencyMs).sort((a, b) => a - b);
   const tokensInputValues = results.map((r) => r.tokensInput).filter((v): v is number => v !== undefined);
   const tokensOutputValues = results.map((r) => r.tokensOutput).filter((v): v is number => v !== undefined);
+  const tokensThinkingValues = results.map((r) => r.tokensThinking).filter((v): v is number => v !== undefined);
   const average = (values: number[]): number | "n/a" =>
     values.length === 0 ? "n/a" : Math.round(values.reduce((a, b) => a + b, 0) / values.length);
 
@@ -310,6 +333,9 @@ async function main(): Promise<void> {
     latencyP95Ms: percentile(latencies, 95),
     avgTokensInput: average(tokensInputValues),
     avgTokensOutput: average(tokensOutputValues),
+    // SPEC-039 R2/R3.
+    avgTokensThinking: average(tokensThinkingValues),
+    thinkingBudget: thinkingBudget() ?? null,
     results,
   };
 
@@ -318,7 +344,7 @@ async function main(): Promise<void> {
   if (process.argv.includes("--save")) {
     const outPath = join(
       __dirname,
-      `../../../evals/baselines/extract_label.v1__${providerName}__${modelId}__${new Date().toISOString().slice(0, 10)}.json`,
+      `../../../evals/baselines/extract_label.v1__${providerName}__${modelId}${thinkingSuffix()}__${new Date().toISOString().slice(0, 10)}.json`,
     );
     writeFileSync(outPath, JSON.stringify(report, null, 2));
     console.log(`Guardado en ${outPath}`);

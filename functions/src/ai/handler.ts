@@ -56,6 +56,7 @@ export function buildParseMealHandler(provider: AiProvider) {
       latencyMs: attempt.latencyMs,
       tokensInput: attempt.tokensInput,
       tokensOutput: attempt.tokensOutput,
+      tokensThinking: attempt.tokensThinking,
       valid: parsedOutput.success,
       errorCode: parsedOutput.success ? undefined : AI_INVALID_OUTPUT_ERROR_CODE,
     });
@@ -112,6 +113,7 @@ export function buildExtractLabelHandler(provider: AiProvider) {
       latencyMs: attempt.latencyMs,
       tokensInput: attempt.tokensInput,
       tokensOutput: attempt.tokensOutput,
+      tokensThinking: attempt.tokensThinking,
       valid: parsedOutput.success,
       errorCode: parsedOutput.success ? undefined : AI_INVALID_OUTPUT_ERROR_CODE,
     });

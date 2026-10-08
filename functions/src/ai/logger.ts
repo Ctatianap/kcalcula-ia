@@ -17,6 +17,8 @@ export interface ParseMealLogEntry {
   valid: boolean;
   tokensInput?: number;
   tokensOutput?: number;
+  /** SPEC-039 R2. */
+  tokensThinking?: number;
   errorCode?: string;
 }
 
@@ -33,9 +35,19 @@ export interface ExtractLabelLogEntry {
   valid: boolean;
   tokensInput?: number;
   tokensOutput?: number;
+  /** SPEC-039 R2. */
+  tokensThinking?: number;
   errorCode?: string;
 }
 
 export function logExtractLabelAttempt(entry: ExtractLabelLogEntry): void {
   logger.info("extractLabel", entry);
+}
+
+/**
+ * SPEC-039 R1: una variable de configuración con un valor que no sirve. Solo
+ * el nombre de la variable y el código, nunca su valor ni datos del usuario.
+ */
+export function logInvalidConfig(variable: string): void {
+  logger.warn("config", { errorCode: "invalid-config", variable });
 }
