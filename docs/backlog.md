@@ -230,7 +230,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     etiqueta lenta (máximo 37,6 s) puede pasar de los 60 s de `extractLabel` (reviewer de SPEC-029).
     Strict (parámetros del modelo, skill `ai-pipeline`).
   dependencies: [T-027]
-  spec_required: true
+  spec_required: true    # specs/SPEC-039-gemini-sin-razonamiento.md — Strict
 - id: T-029
   title: Decimales con coma en "Confirmar etiqueta"
   objective: >
