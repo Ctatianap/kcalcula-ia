@@ -5,7 +5,7 @@ import functionsLogger = require("firebase-functions/logger");
 import { buildParseMealHandler } from "./handler.js";
 import type { AiProvider, AiProviderResult } from "./provider.js";
 import { PARSED_MEAL_SCHEMA_VERSION } from "./schemas.js";
-import { buildGenerationConfig, parseThinkingBudget } from "./thinking.js";
+import { buildGenerationConfig, parseThinkingBudget, resolveThinkingBudget } from "./thinking.js";
 
 test("SPEC-039 R1: parseThinkingBudget", () => {
   assert.deepEqual(parseThinkingBudget(undefined), { invalid: false });
@@ -73,4 +73,20 @@ test("SPEC-039 AC2: el log de parseMeal registra tokensThinking y no el texto", 
   } finally {
     infoMock.mock.restore();
   }
+});
+
+test("SPEC-039 R1: un valor inválido se ignora y registra invalid-config sin el valor", (t) => {
+  const warn = t.mock.method(functionsLogger, "warn", () => {});
+  assert.equal(resolveThinkingBudget("abc"), undefined);
+  assert.equal(warn.mock.callCount(), 1);
+  assert.deepEqual(warn.mock.calls[0].arguments, [
+    "config",
+    { errorCode: "invalid-config", variable: "GEMINI_THINKING_BUDGET" },
+  ]);
+  assert.ok(!JSON.stringify(warn.mock.calls[0].arguments).includes("abc"));
+
+  warn.mock.resetCalls();
+  assert.equal(resolveThinkingBudget("0"), 0);
+  assert.equal(resolveThinkingBudget(undefined), undefined);
+  assert.equal(warn.mock.callCount(), 0);
 });

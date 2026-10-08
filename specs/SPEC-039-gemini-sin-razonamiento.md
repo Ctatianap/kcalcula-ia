@@ -1,7 +1,7 @@
 # SPEC-039: Medir gemini-2.5-flash sin razonamiento
 
 ## Status
-Implementing
+Review
 Path: Strict (parámetros del modelo de IA; skill `ai-pipeline`; evals con Vertex real, cuestan dinero)
 
 ## Objective
@@ -27,7 +27,8 @@ Como persona que fotografía etiquetas, quiero que la lectura tarde menos sin qu
 
 ## Requirements
 - R1. **Parámetro por configuración** (regla 7 de `ai-pipeline`): `GEMINI_THINKING_BUDGET`
-  (`defineString` en `functions/src/ai/config.ts` y variable de entorno para el runner de evals). Sin
+  (variable de entorno, leída de `process.env` como `AI_PROVIDER`, en el backend y en el runner de
+  evals; no `defineString`, que obligaría a escribirla en el `.env` antes de cualquier despliegue). Sin
   valor, no se envía `thinkingConfig` (comportamiento de hoy). Con un entero (por ejemplo "0"), se envía
   `thinkingConfig: { thinkingBudget: <n> }` en `parseMeal` y `extractLabel`. Un valor que no es entero
   se ignora y se registra el código `invalid-config` en el log (sin texto del usuario).
@@ -113,6 +114,14 @@ Como persona que fotografía etiquetas, quiero que la lectura tarde menos sin qu
   porque `firebase deploy --non-interactive` exige en el `.env` cualquier param nuevo aunque tenga valor
   por defecto. Evals corridas (ver Verificación). R4 se cumple. **La usuaria aprueba adoptarlo**
   ("ok"); baselines guardados desde las corridas ya hechas.
+- 2026-10-08: la usuaria añadió `GEMINI_THINKING_BUDGET=0` al `.env` y se desplegó con su confirmación.
+- 2026-10-08: reviewer CHANGES_REQUESTED solo por AC4 (prueba manual pendiente). MINOR atendidos:
+  R1 corregido para decir lo implementado (`process.env`, no `defineString`; motivo en el Change Log
+  anterior; **pendiente el visto bueno de la usuaria** a este texto); "n/a" en la tabla donde Vertex no
+  informa tokens de razonamiento; `resolveThinkingBudget` en `thinking.ts` con test del log
+  `invalid-config` sin el valor. functions 62/62. La usuaria pidió fusionar a `develop` ("fusiona
+  todo") con AC4 pendiente. Status → Review. Riesgo a vigilar: `latencyMs` de `parseMeal` en Cloud
+  Logging (casos aislados de Vertex de más de 10 s en las evals).
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -120,8 +129,8 @@ Como persona que fotografía etiquetas, quiero que la lectura tarde menos sin qu
 | AC1 | ✅ | `functions/src/ai/thinking.test.ts` › "SPEC-039 AC1…" (con 0: `thinkingConfig: { thinkingBudget: 0 }`; sin valor o "abc": sin `thinkingConfig`) y "SPEC-039 R1: parseThinkingBudget" |
 | AC2 | ✅ | mismo archivo › "SPEC-039 AC2…" (`tokensThinking: 120` en el log; sin el texto) |
 | AC3 | ✅ | Tabla de abajo. Corridas del 2026-10-08 con `AI_PROVIDER=vertex`, guardadas en `evals/baselines/` (`…__2026-10-08.json` "como hoy" y `…__thinking0__2026-10-08*.json`) |
-| AC4 | ⏳ | Decisión: **se adopta** (R4 se cumple; la usuaria aprobó: "ok"). Falta `GEMINI_THINKING_BUDGET=0` en el `.env`, el despliegue y una etiqueta real en el teléfono |
-| AC5 | ✅ | functions 61/61; `git diff develop -- functions/src/ai/prompts functions/src/ai/schemas.ts` vacío |
+| AC4 | ⏳ | Decisión: **se adopta** (R4 se cumple; la usuaria aprobó: "ok"). `GEMINI_THINKING_BUDGET=0` en `functions/.env.kcalcula-ia-dev` (lo añadió la usuaria) y desplegado el 2026-10-08 (`parseMeal`, `extractLabel`). Falta una etiqueta real en el teléfono con su `latencyMs` en Cloud Logging |
+| AC5 | ✅ | functions 62/62; `git diff develop -- functions/src/ai/prompts functions/src/ai/schemas.ts` vacío |
 
 | Métrica | Baseline | Como hoy | Presupuesto 0 |
 |---|---|---|---|
@@ -130,12 +139,12 @@ Como persona que fotografía etiquetas, quiero que la lectura tarde menos sin qu
 | Etiquetas: inventados | 2 | 2 | 2 |
 | Etiquetas: p50 / p95 | 12,1 / 34,0 s | 8,7 / 24,4 s | 2,8 / 4,3 s |
 | Etiquetas: > 10 s | — | 13 de 47 (máx. 76,8 s) | 1 de 47 (25,4 s) |
-| Etiquetas: tokens entrada / salida / razonamiento | 2.851 / 240 / — | 2.851 / 240 / 1.064 | 2.851 / 219 / 0 |
+| Etiquetas: tokens entrada / salida / razonamiento | 2.851 / 240 / — | 2.851 / 240 / 1.064 | 2.851 / 219 / n/a (Vertex no lo informa; equivale a 0) |
 | Frases: esquema | 50/50 | 50/50 | 50/50 y 50/50 (dos corridas) |
 | Frases: detección | 94,5 % | 94,5 % | 96,7 % y 97,8 % |
 | Frases: cantidad y unidad | 90,7 % | 91,9 % | 92,0 % y 91,0 % |
 | Frases: p50 / p95 | 3,0 / 5,8 s | 3,2 / 6,9 s | 1,5 / 10,2 s y 1,3 / 3,3 s |
-| Frases: tokens entrada / salida / razonamiento | 648 / 172 / — | 648 / 172 / 353 | 648 / 136 / 0 |
+| Frases: tokens entrada / salida / razonamiento | 648 / 172 / — | 648 / 172 / 353 | 648 / 136 / n/a (Vertex no lo informa; equivale a 0) |
 
 Casos aislados muy lentos en frases con presupuesto 0: 3 en la primera corrida (s13 10,2 s, s05 107 s,
 s44 151 s) y 1 en la segunda (s08 64 s), con los tokens de salida normales. El cliente no configura

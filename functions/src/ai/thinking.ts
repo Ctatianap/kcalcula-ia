@@ -1,3 +1,5 @@
+import { logInvalidConfig } from "./logger.js";
+
 /**
  * SPEC-039 R1: presupuesto de "razonamiento" (thinking) de Gemini por
  * configuración. `@google/genai` 2.24.0: `thinkingConfig.thinkingBudget`,
@@ -31,4 +33,15 @@ export function buildGenerationConfig(
       ? {}
       : { thinkingConfig: { thinkingBudget } }),
   };
+}
+
+/**
+ * SPEC-039 R1: presupuesto a usar a partir de la variable de entorno. Un
+ * valor que no es entero se ignora y se registra `invalid-config` (solo el
+ * nombre de la variable, nunca su valor).
+ */
+export function resolveThinkingBudget(raw: string | undefined): number | undefined {
+  const thinking = parseThinkingBudget(raw);
+  if (thinking.invalid) logInvalidConfig("GEMINI_THINKING_BUDGET");
+  return thinking.budget;
 }
