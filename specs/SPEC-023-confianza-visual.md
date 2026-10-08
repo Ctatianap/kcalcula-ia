@@ -90,8 +90,7 @@ en los números.
   (SPEC-033), íconos y acción de etiqueta decididos con la opción recomendada, explicación en la
   tarjeta de kcal.
 - 2026-10-08: **Approved por la usuaria** ("aprobado"). Status → Implementing.
-- 2026-10-08: implementada. La implementación pidió dos cambios de texto, **pendientes de aprobación de
-  la usuaria**:
+- 2026-10-08: implementada. La implementación pidió dos cambios de texto (aprobados después, ver abajo):
   1. R3: la hoja de la comida nombra "los ingredientes que tienen el nivel de la comida", no "los que
      bajan el nivel": saber cuáles lo bajan exige repetir en la app la regla del 15 % (invariante 4 y
      3; eso sería Strict, en `nutrition_core`). Lo que se muestra es exacto sin recalcular la regla.
@@ -103,13 +102,14 @@ en los números.
   de cada ingrediente se deduce de su base, si era vaga y su nivel (`confidenceReasonFor`, sin cálculo);
   "Usa la etiqueta" abre el flujo de SPEC-033 del ingrediente. `label_to_review_flow_test.dart` ahora
   espera "Alta precisión" dos veces (comida e ingrediente, R2). app 477/477.
+- 2026-10-08: **la usuaria aprobó los dos cambios** (R3 y AC3) ("si").
 
 ## Verificación
 | AC | Estado | Evidencia |
 |----|--------|-----------|
 | AC1 | ✅ | `app/test/features/review/confidence_visual_test.dart` › "AC1…" |
 | AC2 | ✅ | mismo archivo › "AC2…" |
-| AC3 | ✅ | mismo archivo › "AC3…" (texto según el cambio propuesto) |
+| AC3 | ✅ | mismo archivo › "AC3…" |
 | AC4 | ✅ | mismo archivo › "AC4…" |
 | AC5 | ✅ | mismo archivo › "AC5…" (`KColors.accent`, contraste contra blanco y tarjeta) |
 | AC6 | ✅ | mismo archivo › "AC6: Hoy e Historial…" |
