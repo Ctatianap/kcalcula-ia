@@ -142,6 +142,8 @@ llamo y que la app los reconozca cuando digo "mi pan" o "mi leche", para no eleg
 - 2026-10-07: creación a pedido de la usuaria ("sí, la opción 1 […] redacta la SPEC-034"). Backlog
   T-034.
 - 2026-10-07: **Approved por la usuaria** ("aprobada la SPEC-034"). Status → Implementing.
+- 2026-10-07: reviewer PASS; 7 MINOR corregidos y 1 al backlog (T-036). 395/395. Falta la prueba manual
+  y la aprobación de la usuaria para fusionar (Strict).
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -152,10 +154,10 @@ llamo y que la app los reconozca cuando digo "mi pan" o "mi leche", para no eleg
 | AC4 | ✅ | mismo archivo › "AC4…" |
 | AC5 | ✅ | mismo archivo › "AC5…" (mismo resultado con y sin alias para consultas sin igualdad exacta) y la suite de resolución existente sin cambios |
 | AC6 | ✅ | Widget: `my_products_screen_test.dart` › "AC6: borrar con confirmación…" y "AC6: \"Cancelar\" no borra". Integración: "SPEC-034 AC1/AC6 (integración)…" (alias borrados, la comida sigue igual) |
-| AC7 | ✅ | `ingredient_actions_test.dart` › "SPEC-034 AC7…": `serving_unit` "ml", Detalle "1 porción · 200 ml", "Ver en ml" y "Elegir de mis productos" "1 porción = 200,0 ml · 90 kcal" |
+| AC7 | ✅ | `ingredient_actions_test.dart` › "SPEC-034 AC7…": `serving_unit` "ml", Detalle "1 porción · 200 ml", "Ver en ml" y "Elegir de mis productos" "1 porción = 200,0 ml · 90 kcal". "Mis productos": `my_products_screen_test.dart` › "AC7…" ("1 porción = 200,0 ml · 90 kcal"; la porción se muestra con un decimal, `formatMacroEs`) |
 | AC8 | ✅ | `personal_products_storage_test.dart` › "SPEC-034 AC8…": base v7 simulada (sin columna ni tabla) → v8 conserva el producto, "g", sin alias; exportar incluye unidad y alias; "Borrar todos mis datos" vacía los alias |
 | AC9 | ✅ | `my_products_screen_test.dart` › "AC9: nombre vacío…", "AC9: alias vacío, repetido o número 11" (unit) y "AC9: alias repetido muestra el mensaje…" |
-| AC10 | ✅ | app: analyze sin avisos, 392/392. Expectativas cambiadas: `weight_log_storage_test.dart` y `nutrition_goal_storage_test.dart` esperan `user_version` 8 (antes 7). `integration/storage_errors_test.dart` añade `servingUnit` a su `savePersonalProduct` falso (firma, no expectativa). Ningún test de resolución cambió |
+| AC10 | ✅ | app: analyze sin avisos, 395/395 (tras los MINOR del reviewer). Expectativas cambiadas: `weight_log_storage_test.dart` y `nutrition_goal_storage_test.dart` esperan `user_version` 8 (antes 7). `integration/storage_errors_test.dart` añade `servingUnit` a su `savePersonalProduct` falso (firma, no expectativa). Ningún test de resolución cambió |
 | Manual | ⏳ | Renombrar el pan, darle "mi pan" y registrar "mi pan" en el teléfono |
 - 2026-10-07: implementada.
   - `user.db` v8: `personal_products.serving_unit` y `personal_product_aliases`. La migración solo agrega
@@ -168,4 +170,15 @@ llamo y que la app los reconozca cuando digo "mi pan" o "mi leche", para no eleg
   - `docs/privacy.md` actualizado (inventario).
 
 ## Review
-Informe del reviewer:
+Revisión (2026-10-07, subagente `reviewer`, sobre `b00b452`): **PASS**. AC1–AC10 con evidencia;
+resolución, migración v8 (desde v1, v2–v7 y nueva), repositorio, privacidad y pantallas correctos;
+invariantes 1, 3 y 8 respetadas. 8 MINOR:
+- Aviso de alias que tapa el catálogo solo con `FoodMatched`: ahora con cualquier resultado distinto de
+  `FoodNotFound`.
+- Alias escrito sin tocar "+" se perdía al guardar: se agrega (o se avisa); test.
+- "Buscar alimento" no busca por alias: fuera de R4; T-036 en el backlog.
+- Mensaje de error al borrar: propio ("No pude borrar el producto…").
+- AC7 sin test en "Mis productos": test con un producto en ml.
+- Texto de "sin productos" duplicado entre features: `app/lib/ui/personal_products_texts.dart`.
+- Comentario de versión desactualizado en `nutrition_goal_storage_test.dart`: corregido.
+- Sin test de migración desde v1: test nuevo en `personal_products_storage_test.dart`.

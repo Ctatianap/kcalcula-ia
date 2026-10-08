@@ -8,11 +8,11 @@ import '../../infra/catalog/food_match_result.dart';
 import '../../infra/food_resolution/food_query_resolver.dart';
 import '../../infra/storage/app_database.dart' show PersonalProduct;
 import '../../infra/storage/storage_providers.dart';
+import '../../ui/personal_products_texts.dart';
 import '../../ui/theme.dart';
 
-const noProductsMessage =
-    'Aún no tienes productos guardados. Usa la etiqueta de un ingrediente '
-    'para guardar el primero.';
+/// SPEC-034 R1: el mismo texto que "Elegir de mis productos".
+const noProductsMessage = noPersonalProductsMessage;
 const productNameRequiredMessage = 'Escribe el nombre del producto.';
 const aliasRequiredMessage = 'Escribe cómo lo llamas.';
 const aliasRepeatedMessage = 'Ya tienes ese nombre.';
@@ -20,6 +20,8 @@ const tooManyAliasesMessage = 'Puedes guardar hasta 10 nombres.';
 const productSaveErrorMessage =
     'No pude guardar los cambios. Intenta de nuevo.';
 const productLoadErrorMessage = 'No pude leer tus productos. Intenta de nuevo.';
+const productDeleteErrorMessage =
+    'No pude borrar el producto. Intenta de nuevo.';
 
 /// SPEC-034 R2: máximo de nombres alternativos por producto.
 const maxAliases = 10;
@@ -236,8 +238,10 @@ class _EditProductScreenState extends ConsumerState<EditProductScreen> {
 
   /// SPEC-034 edge case: un alias igual a un alimento del catálogo gana
   /// (R4); se avisa.
+  /// Gana tanto si el catálogo tenía uno como varios alimentos para ese
+  /// término.
   bool _shadowsCatalog(String term) =>
-      ref.read(catalogRepositoryProvider).resolve(term) is FoodMatched;
+      ref.read(catalogRepositoryProvider).resolve(term) is! FoodNotFound;
 
   void _addAlias() {
     final term = _newAlias.text.trim();
@@ -262,6 +266,11 @@ class _EditProductScreenState extends ConsumerState<EditProductScreen> {
       _saveError = null;
     });
     if (nameError != null) return;
+    // Un nombre escrito sin tocar "+" no se pierde: se agrega (o se avisa).
+    if (_newAlias.text.trim().isNotEmpty) {
+      _addAlias();
+      if (_aliasError != null) return;
+    }
     setState(() => _saving = true);
     try {
       await ref
@@ -307,7 +316,7 @@ class _EditProductScreenState extends ConsumerState<EditProductScreen> {
           .deletePersonalProduct(widget.product.id);
       if (mounted) Navigator.of(context).pop();
     } catch (_) {
-      if (mounted) setState(() => _saveError = productSaveErrorMessage);
+      if (mounted) setState(() => _saveError = productDeleteErrorMessage);
     }
   }
 

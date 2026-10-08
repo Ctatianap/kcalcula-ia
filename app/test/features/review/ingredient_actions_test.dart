@@ -15,6 +15,7 @@ import 'package:calorias_ia/infra/food_resolution/ingredient_label_result.dart';
 import 'package:calorias_ia/infra/storage/app_database.dart';
 import 'package:calorias_ia/infra/storage/storage_providers.dart';
 import 'package:calorias_ia/infra/storage/storage_repository.dart';
+import 'package:calorias_ia/ui/personal_products_texts.dart';
 import 'package:calorias_ia/ui/theme.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';

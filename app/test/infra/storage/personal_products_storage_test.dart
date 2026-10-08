@@ -135,4 +135,44 @@ void main() {
     expect(await repo.getAllPersonalProducts(), isEmpty);
     expect(await repo.getPersonalProductAliases(), isEmpty);
   });
+
+  test('SPEC-034: migrar desde la v1 crea productos (con unidad) y alias, y conserva las comidas', () async {
+    final dir = await Directory.systemTemp.createTemp('spec034v1');
+    addTearDown(() => dir.delete(recursive: true));
+    final path = '${dir.path}/user.db';
+
+    final v1 = AppDatabase(AppDatabase.openFile(path));
+    final repo1 = StorageRepository(v1);
+    final id = await _saveBread(repo1);
+    await _registerWith(repo1, id);
+    // Simula la v1: solo comidas.
+    for (final table in [
+      'personal_product_aliases',
+      'personal_products',
+      'consent_record',
+      'user_profile',
+      'nutrition_goals',
+      'weight_log',
+    ]) {
+      await v1.customStatement('DROP TABLE $table');
+    }
+    await v1.customStatement('PRAGMA user_version = 1');
+    await v1.close();
+
+    final v8 = AppDatabase(AppDatabase.openFile(path));
+    addTearDown(v8.close);
+    final repo = StorageRepository(v8);
+    expect(await repo.mealsForDay(DateTime(2026, 10, 7)), hasLength(1));
+    final newId = await _saveBread(repo);
+    expect((await repo.getPersonalProductById(newId))!.servingUnit, 'g');
+    await repo.updatePersonalProduct(
+      id: newId,
+      nameEs: 'Pan',
+      servingUnit: 'g',
+      aliases: ['mi pan'],
+    );
+    expect(await repo.getPersonalProductAliases(), {
+      newId: ['mi pan'],
+    });
+  });
 }

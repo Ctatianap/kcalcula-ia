@@ -6,11 +6,8 @@ import '../../format/text_es.dart';
 import '../../infra/food_resolution/food_query_resolver.dart';
 import '../../infra/storage/app_database.dart' show PersonalProduct;
 import '../../infra/storage/storage_providers.dart';
+import '../../ui/personal_products_texts.dart';
 import '../../ui/theme.dart';
-
-const noPersonalProductsMessage =
-    'Aún no tienes productos guardados. Usa la etiqueta de un ingrediente '
-    'para guardar el primero.';
 
 /// Lo que devuelve "Mis productos": el producto como alimento y su unidad
 /// (SPEC-034 R5).

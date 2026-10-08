@@ -250,4 +250,55 @@ void main() {
     expect(find.text(aliasRepeatedMessage), findsOneWidget);
     expect(find.byType(InputChip), findsNothing);
   });
+
+  testWidgets('AC7: un producto en ml se muestra "1 porción = 200,0 ml"', (
+    tester,
+  ) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await tester.runAsync(
+      () => StorageRepository(db).savePersonalProduct(
+        nameEs: 'Leche',
+        energyKcal100: 45,
+        proteinG100: 3,
+        carbsG100: 5,
+        fatG100: 1.5,
+        servingGrams: 200,
+        sourceRef: 'test',
+        servingUnit: 'ml',
+      ),
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          appDatabaseProvider.overrideWithValue(db),
+          catalogRepositoryProvider.overrideWithValue(buildFixtureCatalog()),
+        ],
+        child: const MaterialApp(home: MyProductsScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('1 porción = 200,0 ml · 90 kcal'), findsOneWidget);
+  });
+
+  testWidgets('R2: un nombre escrito sin tocar "+" se agrega al guardar', (
+    tester,
+  ) async {
+    final pumped = await _pump(tester);
+    await _openEdit(tester, pumped.id);
+    await tester.enterText(
+      find.byKey(const Key('edit-product-new-alias')),
+      'mi pan',
+    );
+    await _tapButton(
+      tester,
+      find.widgetWithText(FilledButton, 'Guardar cambios'),
+    );
+    final aliases = await tester.runAsync(
+      StorageRepository(pumped.db).getPersonalProductAliases,
+    );
+    expect(aliases, {
+      pumped.id: ['mi pan'],
+    });
+  });
 }
