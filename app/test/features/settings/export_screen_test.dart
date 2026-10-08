@@ -82,10 +82,20 @@ Future<void> _seed(StorageRepository repo) async {
 
 Future<void> _exportTap(WidgetTester tester) async {
   // Escribir el archivo es E/S real: fuera de la zona de tiempo simulado.
+  // T-043: se espera a que termine (el indicador de "Exportar" desaparece)
+  // en vez de un tiempo fijo, que con la suite completa a veces no alcanzaba
+  // para el PDF y dejaba el indicador girando en `pumpAndSettle`.
   await tester.runAsync(() async {
     await tester.tap(find.widgetWithText(FilledButton, 'Exportar'));
-    await Future<void>.delayed(const Duration(milliseconds: 300));
   });
+  // Hasta 10 s; mientras exporta, el botón muestra un indicador.
+  for (var i = 0; i < 200; i++) {
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 50)),
+    );
+    await tester.pump();
+    if (find.byType(CircularProgressIndicator).evaluate().isEmpty) break;
+  }
   await tester.pumpAndSettle();
 }
 
