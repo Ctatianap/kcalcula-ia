@@ -222,14 +222,22 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                               date: selected,
                               day: data.days[selected.day],
                               goal: data.goal?.energyKcal,
-                              // SPEC-037: "Repetir hoy" solo en otros días.
+                              onOpenMeal: (id) async {
+                                await Navigator.of(
+                                  context,
+                                ).pushNamed(AppRoutes.editMeal, arguments: id);
+                                if (mounted) setState(_load);
+                              },
                               onMealLongPress: (meal, position) =>
                                   handleMealLongPress(
                                     context,
                                     ref,
                                     meal: meal,
                                     position: position,
-                                    canRepeatToday: selected != _today,
+                                    canRepeat: true,
+                                    // SPEC-038: "Repetir ahora" hoy; "Repetir hoy"
+                                    // en otros días.
+                                    mealIsToday: selected == _today,
                                     onChanged: () {
                                       if (mounted) setState(_load);
                                     },
@@ -516,11 +524,15 @@ class _DayDetail extends StatelessWidget {
   final void Function(MealWithItems meal, RelativeRect position)
   onMealLongPress;
 
+  /// SPEC-038 R1: abrir una comida desde su fila de tipo.
+  final ValueChanged<int> onOpenMeal;
+
   const _DayDetail({
     required this.date,
     required this.day,
     required this.goal,
     required this.onMealLongPress,
+    required this.onOpenMeal,
   });
 
   @override
@@ -594,18 +606,16 @@ class _DayDetail extends StatelessWidget {
                 ),
               const SizedBox(height: 12),
               for (final type in historyMealTypes)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: Row(
-                    children: [
-                      Expanded(child: Text(mealTypeLabels[type]!)),
-                      Text(
-                        '${k(d.byMealType[type]!.energyKcal)} kcal',
-                        key: Key('history-type-$type'),
-                        style: secondary,
-                      ),
-                    ],
-                  ),
+                _MealTypeRow(
+                  type: type,
+                  kcalText: '${k(d.byMealType[type]!.energyKcal)} kcal',
+                  // Una comida sin tipo cuenta como snack (como en su tarjeta).
+                  meals: [
+                    for (final m in d.meals)
+                      if ((m.meal.mealType ?? 'snack') == type) m,
+                  ],
+                  style: secondary,
+                  onOpenMeal: onOpenMeal,
                 ),
             ],
           ),
@@ -709,6 +719,90 @@ class _SearchResults extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// SPEC-038 R1/R4: fila "Desayuno 345 kcal". Con comidas de ese tipo se
+/// puede tocar: una → la abre; varias → una hoja para elegir.
+class _MealTypeRow extends StatelessWidget {
+  final String type;
+  final String kcalText;
+  final List<MealWithItems> meals;
+  final TextStyle style;
+  final ValueChanged<int> onOpenMeal;
+
+  const _MealTypeRow({
+    required this.type,
+    required this.kcalText,
+    required this.meals,
+    required this.style,
+    required this.onOpenMeal,
+  });
+
+  Future<void> _open(BuildContext context) async {
+    if (meals.length == 1) {
+      onOpenMeal(meals.single.meal.id);
+      return;
+    }
+    final id = await showModalBottomSheet<int>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (context) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            for (final meal in meals)
+              ListTile(
+                key: Key('history-type-sheet-${meal.meal.id}'),
+                title: Text(
+                  '${mealTypeLabels[type]} · ${timeEs(meal.meal.eatenAt)}',
+                ),
+                subtitle: Text(
+                  meal.items.map((i) => i.nameSnapshot).join(', '),
+                ),
+                trailing: Text(
+                  '${formatThousandsEs(presentKcal(meal.totals.energyKcal))} kcal',
+                ),
+                onTap: () => Navigator.of(context).pop(meal.meal.id),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (id != null) onOpenMeal(id);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final label = mealTypeLabels[type]!;
+    final row = Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          Expanded(child: Text(label)),
+          Text(kcalText, key: Key('history-type-$type'), style: style),
+          if (meals.isNotEmpty)
+            const Icon(
+              Icons.chevron_right,
+              size: 18,
+              color: KColors.textSecondary,
+            ),
+        ],
+      ),
+    );
+    if (meals.isEmpty) return row;
+    return Semantics(
+      button: true,
+      label: '$label, $kcalText. Toca para ver la comida',
+      excludeSemantics: true,
+      child: InkWell(
+        key: Key('history-type-row-$type'),
+        borderRadius: BorderRadius.circular(8),
+        onTap: () => _open(context),
+        child: row,
+      ),
     );
   }
 }

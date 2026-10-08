@@ -110,15 +110,55 @@ Future<void> _longPress(WidgetTester tester, String label) async {
 }
 
 void main() {
-  testWidgets('AC1: en Hoy, el menú tiene Editar y Eliminar (sin Repetir)', (
-    tester,
-  ) async {
-    await _pump(tester, home: const DiaryScreen(), seed: _todayTwoMeals);
-    await _longPress(tester, 'Desayuno');
-    expect(find.text(editMealAction), findsOneWidget);
-    expect(find.text(deleteMealAction), findsOneWidget);
-    expect(find.text(repeatTodayAction), findsNothing);
-  });
+  testWidgets(
+    'AC1 + SPEC-038 AC4: en Hoy, el menú tiene Editar, "Repetir ahora" y Eliminar',
+    (tester) async {
+      await _pump(tester, home: const DiaryScreen(), seed: _todayTwoMeals);
+      await _longPress(tester, 'Desayuno');
+      expect(find.text(editMealAction), findsOneWidget);
+      expect(find.text(deleteMealAction), findsOneWidget);
+      expect(find.text(repeatTodayAction), findsNothing);
+      expect(find.text(repeatNowAction), findsOneWidget);
+
+      await tester.tap(find.text(repeatNowAction));
+      await tester.pumpAndSettle();
+      expect(find.text('Repetir (mock)'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'SPEC-038 AC6: una comida de hoy con un alimento que ya no existe no ofrece "Repetir ahora"',
+    (tester) async {
+      await _pump(
+        tester,
+        home: const DiaryScreen(),
+        seed: (repo) => repo.registerMeal(
+          eatenAt: DateTime(2026, 10, 8, 8),
+          mealType: 'desayuno',
+          confidence: 'altaPrecision',
+          catalogVersion: 'test-1',
+          items: const [
+            MealItemRecord(
+              mention: 'pan',
+              personalProductId: 999,
+              nameSnapshot: 'Pan',
+              grams: 50,
+              quantityBasis: 'label',
+              energyKcal: 130,
+              proteinG: 4.5,
+              carbsG: 24,
+              fatG: 1.5,
+              confidence: 'altaPrecision',
+              sourceRef: 'test',
+            ),
+          ],
+        ),
+      );
+      await _longPress(tester, 'Desayuno');
+      expect(find.text(editMealAction), findsOneWidget);
+      expect(find.text(repeatNowAction), findsNothing);
+    },
+  );
 
   testWidgets(
     'AC2: eliminar confirma, quita la tarjeta, baja las kcal, avisa y sigue en Hoy',
@@ -291,4 +331,18 @@ void main() {
     );
     handle.dispose();
   });
+
+  testWidgets(
+    'SPEC-038: en Historial con el día de hoy, el menú dice "Repetir ahora"',
+    (tester) async {
+      await _pump(
+        tester,
+        home: HistoryScreen(initialDay: DateTime(2026, 10, 8)),
+        seed: _todayTwoMeals,
+      );
+      await _longPress(tester, 'Desayuno');
+      expect(find.text(repeatNowAction), findsOneWidget);
+      expect(find.text(repeatTodayAction), findsNothing);
+    },
+  );
 }

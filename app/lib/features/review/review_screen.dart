@@ -11,6 +11,8 @@ import '../../app_routes.dart';
 import '../../infra/storage/app_database.dart' show PersonalProduct;
 import '../../infra/storage/storage_repository.dart' show MealWithItems;
 import '../../infra/storage/storage_providers.dart';
+import '../../ui/components/meal_actions.dart'
+    show repeatLabelFor, repeatTodayAction;
 import 'meal_analysis_controller.dart' show readErrorMessage;
 import 'meal_detail_view.dart';
 import 'review_controller.dart';
@@ -52,8 +54,10 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
 
   ReviewController? _controller;
 
-  /// SPEC-026 R4: la comida guardada como borrador, para "Repetir hoy".
+  /// SPEC-026 R4 / SPEC-038 R2: la comida guardada como borrador, para
+  /// repetirla ("Repetir hoy" o "Repetir ahora").
   MealDraft? _repeatDraft;
+  String _repeatLabel = repeatTodayAction;
 
   @override
   void initState() {
@@ -106,7 +110,9 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
             day.year == now.year &&
             day.month == now.month &&
             day.day == now.day;
-        _repeatDraft = isToday ? null : draftFromMeal(savedMeal, resolver);
+        // SPEC-038 R2: también las de hoy ("Repetir ahora").
+        _repeatDraft = draftFromMeal(savedMeal, resolver);
+        _repeatLabel = repeatLabelFor(mealIsToday: isToday);
         return;
       }
       _controller = draft != null
@@ -139,7 +145,8 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
       return MealDetailView(
         controller: controller,
         onCorrect: () => Navigator.of(context).maybePop(),
-        // SPEC-026 R4: solo comidas de otros días cuyos alimentos existen.
+        // SPEC-026 R4 / SPEC-038 R2: solo si sus alimentos existen.
+        repeatLabel: _repeatLabel,
         onRepeatToday: repeatDraft == null
             ? null
             : () => Navigator.of(

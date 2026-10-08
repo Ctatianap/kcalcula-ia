@@ -309,6 +309,14 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   dependencies: []
   status: done  # SPEC-037
   spec_required: true    # specs/SPEC-037-menu-al-mantener-presionada-una-comida.md — Standard
+- id: T-038
+  title: Totales por tipo tocables en Historial y "Repetir ahora" para comidas de hoy
+  objective: >
+    Pedido de la usuaria (2026-10-08): las filas "Desayuno 345 kcal…" del Historial llevan a esas
+    comidas, y una comida de hoy se puede repetir a la hora actual.
+  dependencies: [T-037]
+  status: done  # SPEC-038
+  spec_required: true    # specs/SPEC-038-totales-tocables-y-repetir-ahora.md — Standard
 - id: F2
   title: Fase 2 — foto del plato (como Estimación, con confirmación obligatoria), comidas frecuentes (ver T-018), confianza visual
   # SPECs (Draft, 2026-10-04): specs/SPEC-021-foto-del-plato.md (Strict),
