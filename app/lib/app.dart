@@ -8,6 +8,7 @@ import 'features/history/history_screen.dart';
 import 'features/progress/progress_screen.dart';
 import 'features/goals/profile_screen.dart';
 import 'features/capture/capture_screen.dart';
+import 'features/capture/ingredient_label_screen.dart';
 import 'features/diary/diary_screen.dart';
 import 'features/legal/privacy_policy_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
@@ -15,6 +16,7 @@ import 'features/review/meal_analysis_screen.dart';
 import 'features/review/review_screen.dart';
 import 'features/settings/export_screen.dart';
 import 'features/settings/settings_screen.dart';
+import 'infra/food_resolution/ingredient_label_result.dart';
 import 'infra/ai_client/parsed_meal_dto.dart';
 import 'infra/food_resolution/meal_draft.dart';
 import 'infra/crash_reporting/crash_reporting_providers.dart';
@@ -56,6 +58,15 @@ class MyApp extends StatelessWidget {
               builder: (_) => arguments is MealDraft
                   ? ReviewScreen(draft: arguments)
                   : ReviewScreen(parsedMeal: arguments as ParsedMealDto),
+            );
+          case AppRoutes.ingredientLabel:
+            // SPEC-033: etiqueta de un ingrediente; devuelve el resultado al
+            // Detalle.
+            return MaterialPageRoute<IngredientLabelResult>(
+              settings: settings,
+              builder: (_) => IngredientLabelScreen(
+                ingredientName: settings.arguments as String,
+              ),
             );
           case AppRoutes.analysis:
             final text = settings.arguments as String;

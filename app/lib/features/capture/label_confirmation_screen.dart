@@ -5,6 +5,7 @@ import 'package:nutrition_core/nutrition_core.dart';
 import '../../app_routes.dart';
 import '../../infra/ai_client/label_extraction_dto.dart';
 import '../../infra/ai_client/parsed_meal_dto.dart';
+import '../../infra/food_resolution/ingredient_label_result.dart';
 import '../../infra/storage/app_database.dart' show NutritionGoal;
 import '../../infra/storage/storage_providers.dart';
 import '../../ui/components/macro_cards.dart';
@@ -19,6 +20,11 @@ import 'label_confirmation_controller.dart';
 /// SPEC-032 R1: segmentos del selector de "¿Cuánto comiste?".
 const consumedUnitPortionsKey = ValueKey('consumed-unit-portions');
 const consumedUnitServingKey = ValueKey('consumed-unit-serving');
+
+/// SPEC-033 R2: "Confirmar etiqueta" abierta desde un ingrediente.
+const useInIngredientButtonLabel = 'Usar en este ingrediente';
+const useInIngredientNote =
+    'Guardamos el producto en tus productos y lo usamos en este ingrediente.';
 
 /// SPEC-032 R6.
 const reviewMealButtonLabel = 'Revisar comida';
@@ -39,7 +45,21 @@ const _labelMaxDecimals = 2;
 class LabelConfirmationScreen extends ConsumerStatefulWidget {
   final LabelExtractionDto extraction;
 
-  const LabelConfirmationScreen({super.key, required this.extraction});
+  /// SPEC-033 R2: si viene, la etiqueta es de este ingrediente del Detalle:
+  /// el botón dice "Usar en este ingrediente" y, al guardar, la pantalla
+  /// se cierra devolviendo un [IngredientLabelResult] en vez de abrir
+  /// Revisar.
+  final String? ingredientName;
+
+  /// SPEC-033 R8: formulario vacío para escribir los valores a mano.
+  final bool manualEntry;
+
+  const LabelConfirmationScreen({
+    super.key,
+    required this.extraction,
+    this.ingredientName,
+    this.manualEntry = false,
+  });
 
   @override
   ConsumerState<LabelConfirmationScreen> createState() =>
@@ -73,6 +93,8 @@ class _LabelConfirmationScreenState
     super.initState();
     _controller = LabelConfirmationController(
       extraction: widget.extraction,
+      defaultProductName: widget.ingredientName,
+      manualEntry: widget.manualEntry,
       storage: ref.read(storageRepositoryProvider),
     );
     _nameController.text = _controller.productName;
@@ -160,6 +182,15 @@ class _LabelConfirmationScreenState
         return;
       }
       if (!mounted) return;
+      if (widget.ingredientName != null) {
+        final IngredientLabelResult result = (
+          productId: _controller.savedProductId!,
+          quantity: _controller.registeredQuantity,
+          unit: _controller.servingUnit,
+        );
+        Navigator.of(context).pop(result);
+        return;
+      }
       // Mismo pipeline que texto/voz (R8): un ParsedMealDto de un solo
       // ítem con food_query = nombre exacto del producto recién guardado
       // (coincidencia exacta garantizada, ver food_query_resolver.dart) y
@@ -373,11 +404,17 @@ class _LabelConfirmationScreenState
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text(reviewMealButtonLabel),
+                    : Text(
+                        widget.ingredientName == null
+                            ? reviewMealButtonLabel
+                            : useInIngredientButtonLabel,
+                      ),
               ),
               const SizedBox(height: 8),
               Text(
-                reviewMealNote,
+                widget.ingredientName == null
+                    ? reviewMealNote
+                    : useInIngredientNote,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodySmall
                     ?.copyWith(color: KColors.textSecondary),

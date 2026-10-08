@@ -177,7 +177,7 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
         _analyzeButton(canAnalyze),
       ],
       CaptureTab.photo => <Widget>[
-        _PhotoPanel(
+        LabelPhotoPanel(
           labelState: labelState,
           onCamera: () => ref
               .read(labelCaptureControllerProvider.notifier)
@@ -391,12 +391,13 @@ class _VoicePanel extends StatelessWidget {
 }
 
 /// R1, pestaña Foto: tabla nutricional (SPEC-004). La foto del plato es F2.
-class _PhotoPanel extends StatelessWidget {
+class LabelPhotoPanel extends StatelessWidget {
   final LabelCaptureState labelState;
   final VoidCallback onCamera;
   final VoidCallback onGallery;
 
-  const _PhotoPanel({
+  const LabelPhotoPanel({
+    super.key,
     required this.labelState,
     required this.onCamera,
     required this.onGallery,
