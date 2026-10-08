@@ -1,7 +1,7 @@
 # SPEC-036: Buscar en el historial
 
 ## Status
-Draft
+Implementing
 Path: Standard (búsqueda de solo lectura sobre comidas guardadas; no sale ningún dato)
 
 ## Objective
@@ -56,6 +56,7 @@ Como persona que quiere saber cuándo comió arepa, quiero buscarlo en el histor
 
 ## Change Log
 - 2026-10-08: creación al separar R5/AC5 de SPEC-026. Pendiente de aprobación de la usuaria.
+- 2026-10-08: **Approved por la usuaria** ("aprobada la SPEC-036"). Status → Implementing.
 
 ## Review
 Informe del reviewer:
