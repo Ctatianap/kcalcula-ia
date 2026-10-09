@@ -332,12 +332,15 @@ class ReviewController extends ChangeNotifier {
       householdUnitMlByUnit: _householdUnits,
       isLabelProduct: isLabelProduct,
     );
-    final grams = resolution.resolvable
-        ? resolution.grams!
-        : _fallbackGrams(food);
+    // SPEC-043: sin equivalencia, el respaldo y su confianza los da
+    // `nutrition_core`.
+    final withoutEquivalence = !resolution.resolvable;
+    final used = withoutEquivalence ? fallbackResolution(food) : resolution;
+    final grams = used.grams!;
     final confidence = confidenceOfResolution(
-      resolution,
+      used,
       isVague: parsed.isVague,
+      withoutEquivalence: withoutEquivalence,
     );
     return ReviewItem(
       mention: parsed.mention,
@@ -350,17 +353,14 @@ class ReviewController extends ChangeNotifier {
       status: ReviewItemStatus.matched,
       food: food,
       grams: grams,
-      basis: resolution.basis,
+      basis: used.basis,
       confidence: confidence,
       nutrients: calculateItemNutrients(food, grams),
       highlightForEdit:
-          !resolution.resolvable ||
-          resolution.basis == QuantityBasis.defaultPortion,
+          withoutEquivalence || used.basis == QuantityBasis.defaultPortion,
+      withoutEquivalence: withoutEquivalence,
     );
   }
-
-  double _fallbackGrams(FoodCatalogEntry food) =>
-      food.portions.isNotEmpty ? food.portions.first.grams : 100.0;
 
   /// Lo que dijo la persona de este ingrediente, para volver a resolverlo
   /// con otro alimento.
@@ -414,7 +414,7 @@ class ReviewController extends ChangeNotifier {
           isLabelProduct: isPersonalProductFood(food),
         ).resolvable;
     if (!saidQuantityResolved && fallbackQuantity != null) {
-      final grams = resolveGrams(
+      final chosen = resolveGrams(
         input: QuantityInput(
           quantity: fallbackQuantity,
           unit: mapUnit(fallbackUnit),
@@ -422,12 +422,28 @@ class ReviewController extends ChangeNotifier {
         ),
         food: food,
         isLabelProduct: isPersonalProductFood(food),
-      ).grams;
+      );
+      final grams = chosen.grams;
       if (grams != null && grams > 0) {
-        rebuilt = rebuilt.copyWith(
-          grams: grams,
-          nutrients: calculateItemNutrients(food, grams),
-        );
+        rebuilt = rebuilt.withoutEquivalence
+            // SPEC-043: lo dicho no tenía equivalencia; manda la cantidad
+            // elegida en "Confirmar etiqueta", con su base y su confianza.
+            // Sigue destacado para revisar (SPEC-033 R3).
+            ? rebuilt.copyWith(
+                grams: grams,
+                basis: chosen.basis,
+                confidence: confidenceOfResolution(chosen, isVague: false),
+                nutrients: calculateItemNutrients(food, grams),
+                highlightForEdit: true,
+                writtenQuantity: (
+                  quantity: fallbackQuantity,
+                  unit: fallbackUnit ?? 'g',
+                ),
+              )
+            : rebuilt.copyWith(
+                grams: grams,
+                nutrients: calculateItemNutrients(food, grams),
+              );
       }
     }
     _items[index] = rebuilt;

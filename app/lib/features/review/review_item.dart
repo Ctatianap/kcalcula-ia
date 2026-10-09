@@ -32,6 +32,10 @@ class ReviewItem {
   /// persona pida verlo en g/ml.
   final bool showInGrams;
 
+  /// SPEC-043: la cantidad dicha no se pudo convertir y se usó una porción
+  /// típica de respaldo (`fallbackResolution`).
+  final bool withoutEquivalence;
+
   /// SPEC-026 R2/AC4: el ítem tal como se guardó, mientras la persona no lo
   /// cambie: al guardar se conserva su instantánea (nombre y valores),
   /// aunque el catálogo o el producto hayan cambiado. `null` si es nuevo o
@@ -56,6 +60,7 @@ class ReviewItem {
     this.highlightForEdit = false,
     this.showInGrams = false,
     this.savedSnapshot,
+    this.withoutEquivalence = false,
   });
 
   ReviewItem copyWith({
@@ -93,5 +98,6 @@ class ReviewItem {
     highlightForEdit: highlightForEdit ?? this.highlightForEdit,
     showInGrams: showInGrams ?? this.showInGrams,
     savedSnapshot: keepSnapshot ? savedSnapshot : null,
+    withoutEquivalence: writtenQuantity == null && withoutEquivalence,
   );
 }

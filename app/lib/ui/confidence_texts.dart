@@ -17,6 +17,9 @@ enum ConfidenceReason {
   vague,
   curatedPortion,
   densityFallback,
+
+  /// SPEC-043: la cantidad no tiene equivalencia en el catálogo.
+  withoutEquivalence,
 }
 
 /// Lo que la persona puede hacer para mejorar la cifra.
@@ -39,8 +42,13 @@ ConfidenceReason confidenceReasonFor({
   required QuantityBasis? basis,
   required bool isVague,
   required ConfidenceLevel level,
+
+  /// SPEC-043: se usó el respaldo de `fallbackResolution`.
+  bool withoutEquivalence = false,
 }) {
+  // Lo vago se explica primero: es lo que la persona dijo (SPEC-043).
   if (isVague) return ConfidenceReason.vague;
+  if (withoutEquivalence) return ConfidenceReason.withoutEquivalence;
   final estimated = level == ConfidenceLevel.estimacion;
   return switch (basis) {
     QuantityBasis.label when estimated => ConfidenceReason.densityFallback,
@@ -56,75 +64,99 @@ ConfidenceReason confidenceReasonFor({
   };
 }
 
-/// SPEC-023 R3/AC4: explicación en español de cada razón.
-ConfidenceExplanation confidenceExplanation(ConfidenceReason reason) =>
-    switch (reason) {
-      ConfidenceReason.label => (
-        title: 'De tu etiqueta',
-        body:
-            'Los valores salen de la etiqueta que confirmaste y la cantidad '
-            'está en gramos o mililitros.',
-        actions: const <ConfidenceAction>[],
-      ),
-      ConfidenceReason.explicitWeight => (
-        title: 'Peso dicho por ti',
-        body:
-            'Usamos los gramos que dijiste y los valores de la base de '
-            'alimentos. Si es un producto empacado, su etiqueta es más '
-            'precisa.',
-        actions: const [ConfidenceAction.useLabel],
-      ),
-      ConfidenceReason.unitPortion => (
-        title: 'Unidad típica',
-        body:
-            'Cada unidad se convierte a gramos con el peso típico que trae la '
-            'base para este alimento.',
-        actions: const [ConfidenceAction.writeGrams, ConfidenceAction.useLabel],
-      ),
-      ConfidenceReason.sizeDescriptor => (
-        title: 'Tamaño estimado',
-        body:
-            'La porción viene de una medida típica (pequeño, mediano o '
-            'grande), no de un peso.',
-        actions: const [ConfidenceAction.writeGrams, ConfidenceAction.useLabel],
-      ),
-      ConfidenceReason.householdMeasure => (
-        title: 'Medida casera',
-        body:
-            'La taza, el vaso o la cucharada se convierten a gramos con una '
-            'medida típica (y, si no tenemos la densidad del alimento, como si '
-            '1 ml pesara 1 g).',
-        actions: const [ConfidenceAction.writeGrams, ConfidenceAction.useLabel],
-      ),
-      ConfidenceReason.defaultPortion => (
-        title: 'Porción típica',
-        body:
-            'No dijiste cuánto, así que usamos una porción típica de este '
-            'alimento.',
-        actions: const [ConfidenceAction.writeGrams, ConfidenceAction.useLabel],
-      ),
-      ConfidenceReason.vague => (
-        title: 'Cantidad aproximada',
-        body:
-            'La cantidad era aproximada (por ejemplo, «un poco»), así que '
-            'usamos una porción típica.',
-        actions: const [ConfidenceAction.writeGrams, ConfidenceAction.useLabel],
-      ),
-      ConfidenceReason.curatedPortion => (
-        title: 'Porción aproximada',
-        body:
-            'El peso de esta unidad es una aproximación, no un dato de una '
-            'tabla oficial.',
-        actions: const [ConfidenceAction.writeGrams, ConfidenceAction.useLabel],
-      ),
-      ConfidenceReason.densityFallback => (
-        title: 'Mililitros sin densidad',
-        body:
-            'Pasamos de mililitros a gramos como si 1 ml pesara 1 g, porque no '
-            'tenemos la densidad de este alimento.',
-        actions: const [ConfidenceAction.writeGrams, ConfidenceAction.useLabel],
-      ),
-    };
+/// SPEC-043 R4: la palabra de cantidad que dijo la persona ("unidad",
+/// "pequeño", "taza"…), para la explicación.
+String saidQuantityWord({String? unit, String? size}) => switch (size ?? unit) {
+  'pequeno' => 'pequeño',
+  'mediano' => 'mediano',
+  'grande' => 'grande',
+  'cucharadita' => 'cucharadita',
+  'cucharada' => 'cucharada',
+  'taza' => 'taza',
+  'vaso' => 'vaso',
+  'unidad' => 'unidad',
+  _ => 'esa cantidad',
+};
+
+/// SPEC-023 R3/AC4: explicación en español de cada razón. [said] es la
+/// palabra de cantidad (SPEC-043), solo para [ConfidenceReason.withoutEquivalence].
+ConfidenceExplanation confidenceExplanation(
+  ConfidenceReason reason, {
+  String said = 'esa cantidad',
+}) => switch (reason) {
+  ConfidenceReason.withoutEquivalence => (
+    title: 'Sin equivalencia',
+    body:
+        'No tenemos cuánto pesa «$said» de este alimento, así que usamos '
+        'una porción típica.',
+    actions: const [ConfidenceAction.writeGrams, ConfidenceAction.useLabel],
+  ),
+  ConfidenceReason.label => (
+    title: 'De tu etiqueta',
+    body:
+        'Los valores salen de la etiqueta que confirmaste y la cantidad '
+        'está en gramos o mililitros.',
+    actions: const <ConfidenceAction>[],
+  ),
+  ConfidenceReason.explicitWeight => (
+    title: 'Peso dicho por ti',
+    body:
+        'Usamos los gramos que dijiste y los valores de la base de '
+        'alimentos. Si es un producto empacado, su etiqueta es más '
+        'precisa.',
+    actions: const [ConfidenceAction.useLabel],
+  ),
+  ConfidenceReason.unitPortion => (
+    title: 'Unidad típica',
+    body:
+        'Cada unidad se convierte a gramos con el peso típico que trae la '
+        'base para este alimento.',
+    actions: const [ConfidenceAction.writeGrams, ConfidenceAction.useLabel],
+  ),
+  ConfidenceReason.sizeDescriptor => (
+    title: 'Tamaño estimado',
+    body:
+        'La porción viene de una medida típica (pequeño, mediano o '
+        'grande), no de un peso.',
+    actions: const [ConfidenceAction.writeGrams, ConfidenceAction.useLabel],
+  ),
+  ConfidenceReason.householdMeasure => (
+    title: 'Medida casera',
+    body:
+        'La taza, el vaso o la cucharada se convierten a gramos con una '
+        'medida típica (y, si no tenemos la densidad del alimento, como si '
+        '1 ml pesara 1 g).',
+    actions: const [ConfidenceAction.writeGrams, ConfidenceAction.useLabel],
+  ),
+  ConfidenceReason.defaultPortion => (
+    title: 'Porción típica',
+    body:
+        'No dijiste cuánto, así que usamos una porción típica de este '
+        'alimento.',
+    actions: const [ConfidenceAction.writeGrams, ConfidenceAction.useLabel],
+  ),
+  ConfidenceReason.vague => (
+    title: 'Cantidad aproximada',
+    body:
+        'La cantidad era aproximada (por ejemplo, «un poco»), así que '
+        'usamos una porción típica.',
+    actions: const [ConfidenceAction.writeGrams, ConfidenceAction.useLabel],
+  ),
+  ConfidenceReason.curatedPortion => (
+    title: 'Porción aproximada',
+    body:
+        'El peso de esta unidad es una aproximación, no un dato de una '
+        'tabla oficial.',
+    actions: const [ConfidenceAction.writeGrams, ConfidenceAction.useLabel],
+  ),
+  ConfidenceReason.densityFallback => (
+    title: 'Mililitros sin densidad',
+    body:
+        'Pasamos de mililitros a gramos como si 1 ml pesara 1 g, porque no '
+        'tenemos la densidad de este alimento.',
+    actions: const [ConfidenceAction.writeGrams, ConfidenceAction.useLabel],
+  ),
+};
 
 /// SPEC-023 R3: la regla de la comida (invariante 4: la aplica
 /// `mealConfidence`; aquí solo se explica).

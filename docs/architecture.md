@@ -101,7 +101,13 @@ Por ítem:
 |---|---|
 | **Alta precisión** | `label` con cantidad en g/ml |
 | **Buena estimación** | Alimento del catálogo con `explicit_weight`, o `unit_portion` que no sea `is_curated_estimate` |
-| **Estimación** | `size_descriptor`, `household_measure`, `default_portion`, `is_vague`, porciones curadas, o ml sin densidad |
+| **Estimación** | `size_descriptor`, `household_measure`, `default_portion`, `is_vague`, porciones curadas, ml sin densidad, o cantidad sin equivalencia en el catálogo (SPEC-043) |
+
+**Cantidad sin equivalencia (SPEC-043).** Si `resolveGrams` no puede convertir lo dicho (p. ej.
+"unidad" de un alimento sin esa porción), `fallbackResolution` de `nutrition_core` da una porción
+típica (la "porcion" del alimento; si no, la primera; si no tiene, 100 g) con base `default_portion`, y
+`itemConfidence(..., withoutEquivalence: true)` la deja en Estimación. El ingrediente sale destacado
+("Sin equivalencia · ajústala").
 
 Por comida: el nivel más bajo entre los ítems que aportan ≥ 15 % de las kcal de la comida.
 Si ningún ítem llega al 15 %, se usa el nivel más bajo de todos.

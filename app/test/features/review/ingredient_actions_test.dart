@@ -327,9 +327,30 @@ void main() {
         '2 porciones · 60 g',
       );
       // Destacado para revisar, como hoy: el texto de la cantidad en el color
-      // de acento.
-      final source = tester.widget<Text>(find.text('Cantidad dicha por ti'));
+      // de acento. SPEC-043: "1 scoop" no tenía equivalencia, así que la
+      // cantidad es la elegida en la etiqueta ("De tu etiqueta").
+      final source = tester.widget<Text>(find.text('De tu etiqueta'));
       expect(source.style?.color, KColors.accent);
+      // SPEC-043 R7: la cantidad elegida en la etiqueta manda con su base y
+      // su confianza (g de la etiqueta → Alta precisión).
+      expect(
+        find.descendant(
+          of: find.byKey(
+            const Key('ingredient-confidence-1 scoop de proteína'),
+          ),
+          matching: find.text('Alta precisión'),
+        ),
+        findsOneWidget,
+      );
+      // Y "¿Por qué?" lo explica como etiqueta (base `label`).
+      final indicator = find.byKey(
+        const Key('ingredient-confidence-1 scoop de proteína'),
+      );
+      await tester.ensureVisible(indicator);
+      await tester.pumpAndSettle();
+      await tester.tap(indicator);
+      await tester.pumpAndSettle();
+      expect(find.text('De tu etiqueta'), findsNWidgets(2));
     },
   );
 
