@@ -135,4 +135,9 @@ corregirla en vez de confiar en un número inventado.
 | Manual | ⏳ | Un ingrediente sin equivalencia en el teléfono, pendiente |
 
 ## Review
-Informe del reviewer:
+- Revisión 1 (2026-10-08, subagente `reviewer`, sobre `2961f51`): **CHANGES_REQUESTED** por un cambio de
+  confianza al usar la etiqueta que no estaba en la SPEC (MAJOR) y tres MINOR. Invariantes 3 y 4
+  correctas; nada sale del dispositivo; sin valores nutricionales de memoria.
+- Revisión 2 (2026-10-09, sobre `8e4738e`): **PASS**. R7 y AC7 aprobados por la usuaria y con test; lo
+  vago se explica primero (con test); limitación de la marca no guardada documentada. MINOR opcional:
+  comprobar al guardar la base `label` tras R7 (AC7 no lo pide). Falta la prueba manual.
