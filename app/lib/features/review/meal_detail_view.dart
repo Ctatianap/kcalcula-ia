@@ -83,6 +83,18 @@ String quantitySourceLabel(QuantityBasis? basis) => switch (basis) {
 /// SPEC-043 R3.
 const withoutEquivalenceLabel = 'Sin equivalencia · ajústala';
 
+/// SPEC-025 R3.
+String brandWithoutProductMessage(
+  String brand,
+  String query, {
+  bool usedGeneric = true,
+}) => usedGeneric
+    ? 'No tienes «$query» de $brand en Mis productos: usé el genérico. Usa '
+          'su etiqueta para guardarlo.'
+    // No se encontró ni el genérico: no se dice que se usó.
+    : 'No tienes «$query» de $brand en Mis productos. Usa su etiqueta para '
+          'guardarlo.';
+
 String _itemName(ReviewItem item) => item.food?.nameEs ?? item.mention;
 
 /// SPEC-012 R4/R5: "Detalle de comida". Lo usan tanto el análisis de texto
@@ -803,6 +815,25 @@ class _IngredientCard extends StatelessWidget {
             ],
           ),
           Text('“${item.mention}”', style: secondary),
+          // SPEC-025 R3: marca dicha sin producto guardado.
+          if (item.brandWithoutProduct case final notice?) ...[
+            const SizedBox(height: 4),
+            Text(
+              brandWithoutProductMessage(
+                notice.brand,
+                notice.query,
+                usedGeneric: item.status != ReviewItemStatus.notFound,
+              ),
+              key: Key('brand-notice-${item.mention}'),
+              style: const TextStyle(fontSize: 13, color: KColors.accent),
+            ),
+            if (onUseLabel case final useLabel?)
+              TextButton.icon(
+                onPressed: useLabel,
+                icon: const Icon(Icons.receipt_long_outlined, size: 18),
+                label: const Text(useLabelAction),
+              ),
+          ],
           const SizedBox(height: 4),
           switch (item.status) {
             ReviewItemStatus.matched => _MatchedRow(

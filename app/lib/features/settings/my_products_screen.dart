@@ -221,6 +221,9 @@ class EditProductScreen extends ConsumerStatefulWidget {
 
 class _EditProductScreenState extends ConsumerState<EditProductScreen> {
   late final _name = TextEditingController(text: widget.product.nameEs);
+
+  /// SPEC-025 R1.
+  late final _brand = TextEditingController(text: widget.product.brand ?? '');
   final _newAlias = TextEditingController();
   late String _unit = widget.product.servingUnit;
   late final List<String> _aliases = [...widget.aliases];
@@ -232,6 +235,7 @@ class _EditProductScreenState extends ConsumerState<EditProductScreen> {
   @override
   void dispose() {
     _name.dispose();
+    _brand.dispose();
     _newAlias.dispose();
     super.dispose();
   }
@@ -280,6 +284,7 @@ class _EditProductScreenState extends ConsumerState<EditProductScreen> {
             nameEs: _name.text.trim(),
             servingUnit: _unit,
             aliases: _aliases,
+            brand: _brand.text,
           );
       if (mounted) Navigator.of(context).pop();
     } catch (_) {
@@ -337,7 +342,20 @@ class _EditProductScreenState extends ConsumerState<EditProductScreen> {
               errorText: _nameError,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
+          // SPEC-025 R1.
+          TextField(
+            key: const Key('edit-product-brand'),
+            controller: _brand,
+            maxLength: 40,
+            textCapitalization: TextCapitalization.words,
+            decoration: const InputDecoration(
+              labelText: 'Marca (opcional)',
+              hintText: 'Ej: Alpina',
+              helperText: 'Si dices la marca, usamos este producto.',
+            ),
+          ),
+          const SizedBox(height: 4),
           Text('La porción se mide en', style: text.titleSmall),
           const SizedBox(height: 8),
           SegmentedButton<String>(

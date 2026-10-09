@@ -102,6 +102,119 @@ class FoodQueryResolver {
         .toList();
   }
 
+  /// SPEC-025 R2: palabras normalizadas de [text].
+  static List<String> _words(String text) =>
+      normalizeFoodText(text)
+          .split(RegExp(r'[^a-z0-9]+'))
+          .where((w) => w.isNotEmpty)
+          .toList();
+
+  /// Índice donde empieza [part] como palabras seguidas dentro de [words],
+  /// o -1.
+  static int _indexOfWords(List<String> words, List<String> part) {
+    for (var i = 0; i + part.length <= words.length; i++) {
+      var all = true;
+      for (var j = 0; j < part.length; j++) {
+        if (words[i + j] != part[j]) {
+          all = false;
+          break;
+        }
+      }
+      if (all) return i;
+    }
+    return -1;
+  }
+
+  /// SPEC-025 R2: las marcas de mis productos que aparecen como palabra(s)
+  /// completa(s) en [mention] o [foodQuery] (la más larga primero), cada una
+  /// con el resto de la consulta sin la marca. Se omiten las que dejan el
+  /// resto vacío.
+  List<({String brand, List<String> rest})> _brandsIn(
+    String foodQuery,
+    String mention,
+  ) {
+    final brands =
+        {
+            for (final p in _personalProducts)
+              if (p.brand case final b? when _words(b).isNotEmpty) b,
+          }.toList()
+          // La marca más larga primero ("Doña Arepa" antes que "Doña").
+          ..sort((a, b) => _words(b).length.compareTo(_words(a).length));
+    final queryWords = _words(foodQuery);
+    final mentionWords = _words(mention);
+    return [
+      for (final brand in brands)
+        if (_restWithout(queryWords, mentionWords, _words(brand))
+            case final rest?)
+          (brand: brand, rest: rest),
+    ];
+  }
+
+  static List<String>? _restWithout(
+    List<String> queryWords,
+    List<String> mentionWords,
+    List<String> brandWords,
+  ) {
+    final inQuery = _indexOfWords(queryWords, brandWords);
+    if (inQuery < 0 && _indexOfWords(mentionWords, brandWords) < 0) {
+      return null;
+    }
+    final rest = [...queryWords];
+    if (inQuery >= 0) rest.removeRange(inQuery, inQuery + brandWords.length);
+    return rest.isEmpty ? null : rest;
+  }
+
+  /// SPEC-025 R2: la primera marca dicha que tiene productos que
+  /// coinciden, con ellos; `null` si ninguna.
+  List<FoodCatalogEntry>? _brandMatches(String foodQuery, String mention) {
+    for (final found in _brandsIn(foodQuery, mention)) {
+      final ofBrand = _productsOfBrand(found.brand, found.rest);
+      if (ofBrand.isNotEmpty) return ofBrand;
+    }
+    return null;
+  }
+
+  /// SPEC-025 R2: mis productos de [brand] cuyo nombre o nombre alternativo
+  /// contiene, como comienzo de palabra, cada palabra de [rest].
+  List<FoodCatalogEntry> _productsOfBrand(String brand, List<String> rest) {
+    final query = rest.join(' ');
+    final key = _words(brand).join(' ');
+    return _personalProducts
+        .where(
+          (p) =>
+              p.brand != null &&
+              _words(p.brand!).join(' ') == key &&
+              (matchesWordPrefixes(p.nameEs, query) ||
+                  (_aliases[p.id] ?? const []).any(
+                    (a) => matchesWordPrefixes(a, query),
+                  )),
+        )
+        .map(personalProductToFoodCatalogEntry)
+        .toList();
+  }
+
+  /// SPEC-025 R3: la marca de mis productos que se dijo sin que ninguno de
+  /// ellos coincida, y lo que se buscó sin la marca; `null` si no aplica.
+  ({String brand, String query})? brandWithoutProduct(
+    String foodQuery,
+    String mention,
+  ) {
+    if (_exactPersonalProducts(foodQuery).isNotEmpty) return null;
+    final found = _brandsIn(foodQuery, mention);
+    if (found.isEmpty || _brandMatches(foodQuery, mention) != null) {
+      return null;
+    }
+    final first = found.first;
+    final brandWords = _words(first.brand).toSet();
+    final query = foodQuery
+        .split(RegExp(r'\s+'))
+        .where(
+          (w) => w.isNotEmpty && !brandWords.contains(normalizeFoodText(w)),
+        )
+        .join(' ');
+    return (brand: first.brand, query: query.isEmpty ? foodQuery : query);
+  }
+
   /// SPEC-034 R5: "g" o "ml" de un producto personal; "g" para el resto.
   String servingUnitOf(String foodId) {
     final personalId = personalProductIdFrom(foodId);
@@ -112,7 +225,12 @@ class FoodQueryResolver {
     return 'g';
   }
 
-  FoodMatchResult resolve(String foodQuery) {
+  FoodMatchResult resolve(
+    String foodQuery, {
+
+    /// SPEC-025 R2: la frase del ítem, donde también puede venir la marca.
+    String mention = '',
+  }) {
     // SPEC-034 R4: el nombre exacto (o un alias) de un producto personal
     // gana sobre el catálogo; si son varios, se pregunta entre ellos.
     final exact = _exactPersonalProducts(foodQuery);
@@ -120,6 +238,18 @@ class FoodQueryResolver {
     if (exact.length > 1) {
       return FoodAmbiguous(
         exact
+            .map((f) => FoodCandidate(id: f.id, nameEs: f.nameEs))
+            .take(3)
+            .toList(),
+      );
+    }
+
+    // SPEC-025 R2: la marca de mis productos dicha en la frase.
+    final ofBrand = _brandMatches(foodQuery, mention);
+    if (ofBrand != null) {
+      if (ofBrand.length == 1) return FoodMatched(ofBrand.single);
+      return FoodAmbiguous(
+        ofBrand
             .map((f) => FoodCandidate(id: f.id, nameEs: f.nameEs))
             .take(3)
             .toList(),
