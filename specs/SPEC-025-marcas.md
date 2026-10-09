@@ -137,10 +137,10 @@ no los de un alimento genérico.
 | AC5 | ✅ | mismo archivo › "AC5…" |
 | AC6 | ✅ | mismo archivo › "AC6…"; tests de resolución de SPEC-018/020/028/034/035 sin cambios |
 | AC7 | ✅ | mismo archivo › "AC7: "Editar producto" guarda la marca" y "AC7: migrar desde la v9…" |
-| Manual | ⏳ | "un yogur Alpina" con un producto Alpina en el teléfono, pendiente |
+| Manual | ✅ | 2026-10-09, en el Motorola de la usuaria (versión de `1881203`, IA real): se puso la marca "Vita Latti" a "queso lonchas VITA LATTI" en "Editar producto"; "dos lonchas de queso Vita Latti" → ese producto (2 porciones · 60 g). "un yogur Vita Latti" (sin producto y sin yogur en el catálogo) → "No encontrado" y el aviso "No tienes «yogur» de Vita Latti en Mis productos. Usa su etiqueta para guardarlo." con "Usar etiqueta". No se guardó ninguna comida; después se quitó la marca del producto |
 
 ## Review
 Revisión (2026-10-09, subagente `reviewer`, sobre `7422697`): **PASS** con MINOR (ver Change Log).
 AC1–AC7 con evidencia; la prioridad de SPEC-034 R4 se conserva; sin marca nada cambia; migración desde
 v9 y desde versiones viejas; sin IA, sin valores nutricionales nuevos; privacidad y arquitectura al día.
-Falta la prueba manual.
+Prueba manual hecha después (Verificación).
