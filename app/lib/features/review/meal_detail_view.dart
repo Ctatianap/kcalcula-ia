@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../app_routes.dart';
+import '../../infra/ai_client/ai_client.dart';
+import '../../infra/ai_client/ai_client_errors.dart';
+import '../../infra/ai_client/ai_client_providers.dart';
 import '../../infra/clock.dart';
 import '../../infra/food_resolution/food_query_resolver.dart';
 import '../../infra/food_resolution/ingredient_label_result.dart';
@@ -135,6 +139,92 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
 
   /// SPEC-033: error de "Usar etiqueta"; se limpia con la siguiente acción.
   String? _ingredientError;
+
+  /// SPEC-024: corrección conversacional.
+  final _correction = TextEditingController();
+  bool _correcting = false;
+  String? _correctionMessage;
+
+  @override
+  void dispose() {
+    _correction.dispose();
+    super.dispose();
+  }
+
+  /// SPEC-024 R2–R5: pide la corrección, muestra qué cambia y la aplica.
+  Future<void> _applyCorrection() async {
+    final text = _correction.text.trim();
+    if (text.isEmpty || text.length > maxCorrectionLength) return;
+    final controller = widget.controller;
+    setState(() {
+      _correcting = true;
+      _correctionMessage = null;
+    });
+    String? message;
+    try {
+      final dto = await ref
+          .read(aiClientProvider)
+          .correctMeal(correction: text, items: controller.correctionItems);
+      if (!mounted) return;
+      if (dto.operations.isEmpty) {
+        message = noCorrectionChangesMessage;
+      } else {
+        final result = controller.buildCorrection(dto);
+        if (result == null) {
+          message = correctionInvalidMessage;
+        } else {
+          // La respuesta ya llegó: sin indicador mientras se decide.
+          setState(() => _correcting = false);
+          final apply = await _confirmCorrection(result.changes);
+          if (apply && mounted) {
+            controller.applyCorrection(result.items);
+            _correction.clear();
+          }
+        }
+      }
+    } on AiClientException catch (error) {
+      message = error.userMessage;
+    }
+    if (mounted) {
+      setState(() {
+        _correcting = false;
+        _correctionMessage = message;
+      });
+    }
+  }
+
+  /// SPEC-024 R4: vista previa de los cambios. `true` si se aplican.
+  Future<bool> _confirmCorrection(List<String> changes) async {
+    final apply = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('¿Aplico estos cambios?'),
+        content: Column(
+          key: const Key('correction-preview'),
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (final change in changes)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text('• $change'),
+              ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Aplicar'),
+          ),
+        ],
+      ),
+    );
+    return apply ?? false;
+  }
 
   Future<void> _addIngredient() async {
     setState(() => _ingredientError = null);
@@ -516,6 +606,19 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
                               : save,
                           icon: const Icon(Icons.star_outline),
                           label: const Text(saveFavoriteAction),
+                        ),
+                      ],
+                      // SPEC-024 R1: solo en comidas nuevas.
+                      if (!controller.isEditing) ...[
+                        const SizedBox(height: 20),
+                        _CorrectionBox(
+                          controller: _correction,
+                          busy: _correcting || _registering,
+                          message: _correctionMessage,
+                          onApply: _applyCorrection,
+                          onUndo: controller.canUndoCorrection && !_correcting
+                              ? controller.undoCorrection
+                              : null,
                         ),
                       ],
                     ],
@@ -1121,6 +1224,91 @@ class _WriteQuantityDialogState extends State<_WriteQuantityDialog> {
           child: const Text('Listo'),
         ),
       ],
+    );
+  }
+}
+
+/// SPEC-024 R1/AC8.
+const maxCorrectionLength = 300;
+const noCorrectionChangesMessage = 'No vi nada que cambiar.';
+const undoCorrectionAction = 'Deshacer';
+
+/// SPEC-024 R1/R4: "¿Algo no está bien? Cuéntamelo", "Aplicar" y
+/// "Deshacer".
+class _CorrectionBox extends StatelessWidget {
+  final TextEditingController controller;
+  final bool busy;
+  final String? message;
+  final VoidCallback onApply;
+  final VoidCallback? onUndo;
+
+  const _CorrectionBox({
+    required this.controller,
+    required this.busy,
+    required this.message,
+    required this.onApply,
+    required this.onUndo,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: controller,
+      builder: (context, value, _) {
+        final text = value.text.trim();
+        final canApply =
+            !busy && text.isNotEmpty && text.length <= maxCorrectionLength;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              key: const Key('correction-input'),
+              controller: controller,
+              enabled: !busy,
+              maxLength: maxCorrectionLength,
+              maxLengthEnforcement: MaxLengthEnforcement.none,
+              minLines: 1,
+              maxLines: 3,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(
+                labelText: '¿Algo no está bien? Cuéntamelo',
+                hintText: 'Ej: no era arepa, era pan integral',
+              ),
+            ),
+            if (message case final m?)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  m,
+                  key: const Key('correction-message'),
+                  style: const TextStyle(color: KColors.textSecondary),
+                ),
+              ),
+            Row(
+              children: [
+                if (onUndo case final undo?)
+                  TextButton.icon(
+                    key: const Key('correction-undo'),
+                    onPressed: undo,
+                    icon: const Icon(Icons.undo),
+                    label: const Text(undoCorrectionAction),
+                  ),
+                const Spacer(),
+                FilledButton.tonal(
+                  key: const Key('correction-apply'),
+                  onPressed: canApply ? onApply : null,
+                  child: busy
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Aplicar'),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 }

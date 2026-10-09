@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:nutrition_core/nutrition_core.dart';
 
+import '../../infra/ai_client/meal_correction_dto.dart';
 import '../../infra/ai_client/parsed_meal_dto.dart';
 import '../../infra/catalog/food_match_result.dart';
 import '../../infra/food_resolution/food_query_resolver.dart';
@@ -561,6 +562,136 @@ class ReviewController extends ChangeNotifier {
       keepSnapshot: false,
       writtenQuantity: (quantity: quantity, unit: unit),
     );
+    _changed();
+  }
+
+  // ---------------------------------------------------------------------
+  // SPEC-024: corrección conversacional.
+  // ---------------------------------------------------------------------
+
+  static const _correctionUnits = {
+    'g',
+    'ml',
+    'unidad',
+    'cucharada',
+    'cucharadita',
+    'taza',
+    'vaso',
+    'porcion',
+  };
+  static const _correctionSizes = {'pequeno', 'mediano', 'grande'};
+
+  /// R2: lo que se envía de cada ítem: lo dicho y cómo se estructuró, sin
+  /// nutrientes, gramos calculados ni confianza.
+  List<CorrectionDraftItem> get correctionItems => [
+    for (final item in _items)
+      CorrectionDraftItem(
+        mention: item.mention,
+        foodQuery: item.foodQuery,
+        quantity: item.quantityRaw,
+        unit: _correctionUnits.contains(item.unitRaw) ? item.unitRaw : null,
+        size: _correctionSizes.contains(item.sizeRaw) ? item.sizeRaw : null,
+      ),
+  ];
+
+  /// Estados anteriores, para "Deshacer" (R4).
+  final List<List<ReviewItem>> _correctionUndo = [];
+
+  bool get canUndoCorrection => _correctionUndo.isNotEmpty;
+
+  static String _nameOf(ReviewItem item) => item.food?.nameEs ?? item.foodQuery;
+
+  static String _quantityText(CorrectionOperationDto op) {
+    final parts = [
+      if (op.quantity case final q?)
+        '${q == q.roundToDouble() ? q.toInt() : q.toString().replaceAll('.', ',')}'
+            '${op.unit == null ? '' : ' ${op.unit}'}',
+      if (op.size case final size?)
+        switch (size) {
+          'pequeno' => 'pequeño',
+          _ => size,
+        },
+    ];
+    return parts.join(' ');
+  }
+
+  ReviewItem _itemFromParsed(ParsedMealItemDto parsed) => _buildItem(
+    parsed,
+    _resolver.resolve(parsed.foodQuery, mention: parsed.mention),
+  );
+
+  /// R3–R5: el borrador con la corrección aplicada y la lista de cambios
+  /// para la vista previa, **sin** tocar el borrador actual. `null` si
+  /// alguna operación usa un índice que no existe o le falta lo que pide
+  /// (no se aplica a medias). Cada ítem nuevo o cambiado se resuelve y se
+  /// calcula como siempre (catálogo + `nutrition_core`).
+  ({List<ReviewItem> items, List<String> changes})? buildCorrection(
+    MealCorrectionDto correction,
+  ) {
+    final current = <ReviewItem?>[..._items];
+    final added = <ReviewItem>[];
+    final changes = <String>[];
+    for (final op in correction.operations) {
+      final index = op.index;
+      if (op.op == 'add') {
+        final parsed = op.item;
+        if (parsed == null || index != null) return null;
+        final item = _itemFromParsed(parsed);
+        added.add(item);
+        changes.add('Añadir ${_nameOf(item)}');
+        continue;
+      }
+      if (index == null || index < 0 || index >= current.length) return null;
+      final old = current[index];
+      if (old == null) return null;
+      switch (op.op) {
+        case 'replace':
+          final parsed = op.item;
+          if (parsed == null) return null;
+          final item = _itemFromParsed(parsed);
+          current[index] = item;
+          changes.add('${_nameOf(old)} → ${_nameOf(item)}');
+        case 'remove':
+          current[index] = null;
+          changes.add('Quitar ${_nameOf(old)}');
+        case 'set_quantity':
+          if (op.quantity == null && op.size == null) return null;
+          final parsed = ParsedMealItemDto(
+            mention: old.mention,
+            foodQuery: old.foodQuery,
+            isVague: false,
+            quantity: op.quantity,
+            unit: op.unit,
+            size: op.size,
+            parentIndex: old.parentIndex,
+          );
+          final food = old.food;
+          current[index] =
+              food != null && old.status == ReviewItemStatus.matched
+              ? _matchedItem(parsed, food)
+              : _itemFromParsed(parsed);
+          changes.add('${_nameOf(old)}: ${_quantityText(op)}');
+        default:
+          return null;
+      }
+    }
+    return (
+      items: [...current.whereType<ReviewItem>(), ...added],
+      changes: changes,
+    );
+  }
+
+  /// R4: aplica una corrección ya armada con [buildCorrection].
+  void applyCorrection(List<ReviewItem> items) {
+    _correctionUndo.add(List.of(_items));
+    _items = List.of(items);
+    _changed();
+  }
+
+  /// R4/AC9: deshace la última corrección aplicada.
+  void undoCorrection() {
+    if (_correctionUndo.isEmpty) return;
+    _items = _correctionUndo.removeLast();
     _changed();
   }
 

@@ -110,6 +110,31 @@ la aplique, para no empezar de nuevo.
   existen; preguntas resueltas con la opción recomendada; solo comidas nuevas; voz por dictado del
   teclado; la política no cambia de versión (ya cubre el texto escrito); despliegue (R7); AC9 y AC10.
 - 2026-10-09: **Approved por la usuaria** ("aprobada la SPEC-024"). Status → Implementing.
+- 2026-10-09: implementada. Detalles menores:
+  - Operación en forma plana (`op`, `index`, `item`, `quantity`, `unit`, `size`, todos presentes y
+    `null` donde no aplican) para que el modelo la siga con `responseJsonSchema`; qué campos pide cada
+    `op` lo valida zod. El backend también rechaza índices fuera de rango (reintento y
+    `ai-invalid-output`); la app lo vuelve a comprobar antes de aplicar.
+  - Hasta 30 ítems por petición; `timeoutSeconds: 20`. Log con `operationCount` (un número).
+  - Los tests de AC1 usan "papa cocida" (está en el catálogo de prueba) en vez de "pan integral"; AC2
+    usa "una cucharada" de café (el catálogo de prueba solo tiene la cucharada como medida casera).
+  - Evals con Vertex (`gemini-2.5-flash`, presupuesto 0): esquema 20/20, correcciones correctas
+    20/20, p50 1,2 s, p95 3,1 s, ~1.024 tokens de entrada y 72 de salida. Baseline guardado.
+  - functions 71/71, app 533/533.
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/features/review/meal_correction_test.dart` › "AC1…"; backend `functions/src/ai/correct_meal_handler.test.ts` › "SPEC-024 AC1 (backend)…" |
+| AC2 | ✅ | `meal_correction_test.dart` › "AC2…" (cucharada, sin densidad → Estimación por regla) |
+| AC3 | ✅ | `correct_meal_handler.test.ts` › "AC3: el esquema rechaza…" y "AC3: la petición tampoco acepta…"; app › "AC3 (app)…" |
+| AC4 | ✅ | `correct_meal_handler.test.ts` › "AC4/R5…"; app › "AC4…" |
+| AC5 | ✅ | `meal_correction_test.dart` › "AC5…" |
+| AC6 | ✅ | `evals/datasets/correct_meal.v1.jsonl` (20 casos) y `evals/baselines/correct_meal.v1__vertex__gemini-2.5-flash__thinking0__2026-10-09.json`: 20/20 válidas y 20/20 correctas |
+| AC7 | ✅ | `correct_meal_handler.test.ts` › "AC7…" (claves del log y sin el texto) |
+| AC8 | ✅ | `correct_meal_handler.test.ts` › "AC8…"; app › "AC8…" |
+| AC9 | ✅ | `meal_correction_test.dart` › "AC9…" |
+| AC10 | ⏳ | Pendiente: desplegar `correctMeal` (con confirmación) y probar en el teléfono |
 
 ## Review
 Informe del reviewer: pendiente.

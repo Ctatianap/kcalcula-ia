@@ -77,6 +77,16 @@ como un `MealDraft`, igual que una reciente; si algún alimento ya no existe, se
 no se abren. "Guardar como favorita" vive en `ui/favorite_flow.dart` (Hoy, Historial, el detalle de una
 comida guardada y "¿Qué comiste?").
 
+## Flujo: corrección conversacional (SPEC-024)
+En el detalle de una comida nueva, "¿Algo no está bien? Cuéntamelo" → callable `correctMeal`
+(`meal_correction.v1`, prompt `correct_meal.v1`): recibe la corrección y los ítems solo con
+`mention`, `food_query`, `quantity`, `unit` y `size`, y devuelve operaciones (`replace`, `add`,
+`remove`, `set_quantity`) sin valores nutricionales. Un índice fuera de rango invalida toda la
+respuesta (reintento y `ai-invalid-output`). La app arma el borrador nuevo sin tocar el actual
+(`ReviewController.buildCorrection`: cada ítem nuevo o cambiado se resuelve y calcula como siempre),
+muestra la vista previa y, al aplicar, guarda el estado anterior para "Deshacer". No aplica en
+"Editar comida".
+
 ## Flujo: búsqueda manual (SPEC-018)
 "Buscar alimento" (desde "Añadir ingrediente" en el detalle o "Buscar en la base manualmente" en el
 error de la IA) busca en `catalog.db` con FTS5 por prefijo (nombre y sinónimos, desde 2 letras,
