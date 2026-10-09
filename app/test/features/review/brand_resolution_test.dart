@@ -232,7 +232,11 @@ void main() {
         await tester.tap(find.text('Analizar'));
         await tester.pumpAndSettle();
         expect(
-          find.text(brandWithoutProductMessage('Alpina', 'kumis')),
+          // "kumis" no está en el catálogo de prueba: no se dice "usé el
+          // genérico".
+          find.text(
+            brandWithoutProductMessage('Alpina', 'kumis', usedGeneric: false),
+          ),
           findsOneWidget,
         );
         expect(
@@ -322,5 +326,47 @@ void main() {
     );
     await repo.deleteAllUserData();
     expect(await repo.getAllPersonalProducts(), isEmpty);
+  });
+
+  group('SPEC-025 MINOR', () {
+    late AppDatabase db;
+    late StorageRepository repo;
+    setUp(() {
+      db = AppDatabase(NativeDatabase.memory());
+      repo = StorageRepository(db);
+    });
+    tearDown(() => db.close());
+
+    test('R1: la marca se recorta a 40 caracteres en el repositorio', () async {
+      final id = await _product(repo, 'Yogur', brand: '  ${'a' * 45}  ');
+      expect((await repo.getPersonalProductById(id))!.brand, 'a' * 40);
+    });
+
+    test(
+      'Edge: dos marcas en la frase → se usa la que tiene producto',
+      () async {
+        await _product(repo, 'Pan tajado', brand: 'Bimbo');
+        final id = await _product(repo, 'Yogur griego', brand: 'Alpina Plus');
+        final catalog = buildFixtureCatalog();
+        addTearDown(catalog.close);
+        final r = FoodQueryResolver(
+          catalog: catalog,
+          personalProducts: await repo.getAllPersonalProducts(),
+          aliases: await repo.getPersonalProductAliases(),
+        );
+        // "Alpina Plus" (más larga) se prueba primero y sí tiene el yogur.
+        final result = r.resolve(
+          'yogur Alpina Plus',
+          mention: 'un yogur Alpina Plus con pan Bimbo',
+        );
+        expect((result as FoodMatched).food.id, 'personal:$id');
+        // "pan Bimbo": Alpina Plus no tiene pan, pero Bimbo sí.
+        final bread = r.resolve(
+          'pan Bimbo',
+          mention: 'un yogur Alpina Plus con pan Bimbo',
+        );
+        expect((bread as FoodMatched).food.nameEs, 'Pan tajado');
+      },
+    );
   });
 }

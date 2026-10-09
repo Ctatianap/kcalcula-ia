@@ -84,9 +84,16 @@ String quantitySourceLabel(QuantityBasis? basis) => switch (basis) {
 const withoutEquivalenceLabel = 'Sin equivalencia · ajústala';
 
 /// SPEC-025 R3.
-String brandWithoutProductMessage(String brand, String query) =>
-    'No tienes «$query» de $brand en Mis productos: usé el genérico. Usa su '
-    'etiqueta para guardarlo.';
+String brandWithoutProductMessage(
+  String brand,
+  String query, {
+  bool usedGeneric = true,
+}) => usedGeneric
+    ? 'No tienes «$query» de $brand en Mis productos: usé el genérico. Usa '
+          'su etiqueta para guardarlo.'
+    // No se encontró ni el genérico: no se dice que se usó.
+    : 'No tienes «$query» de $brand en Mis productos. Usa su etiqueta para '
+          'guardarlo.';
 
 String _itemName(ReviewItem item) => item.food?.nameEs ?? item.mention;
 
@@ -812,7 +819,11 @@ class _IngredientCard extends StatelessWidget {
           if (item.brandWithoutProduct case final notice?) ...[
             const SizedBox(height: 4),
             Text(
-              brandWithoutProductMessage(notice.brand, notice.query),
+              brandWithoutProductMessage(
+                notice.brand,
+                notice.query,
+                usedGeneric: item.status != ReviewItemStatus.notFound,
+              ),
               key: Key('brand-notice-${item.mention}'),
               style: const TextStyle(fontSize: 13, color: KColors.accent),
             ),

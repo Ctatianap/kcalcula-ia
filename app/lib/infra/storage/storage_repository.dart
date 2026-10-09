@@ -321,7 +321,11 @@ class StorageRepository {
     /// SPEC-025 R1: `null` o vacía = sin marca.
     String? brand,
   }) {
-    final cleanBrand = brand?.trim();
+    // SPEC-025 R1: hasta 40 caracteres.
+    var cleanBrand = brand?.trim();
+    if (cleanBrand != null && cleanBrand.length > 40) {
+      cleanBrand = cleanBrand.substring(0, 40).trimRight();
+    }
     return _db.transaction(() async {
       await (_db.update(
         _db.personalProducts,

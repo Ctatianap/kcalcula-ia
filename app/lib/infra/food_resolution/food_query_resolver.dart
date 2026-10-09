@@ -125,10 +125,11 @@ class FoodQueryResolver {
     return -1;
   }
 
-  /// SPEC-025 R2: una marca de mis productos que aparece como palabra(s)
-  /// completa(s) en [mention] o [foodQuery], con el resto de la consulta
-  /// (sin la marca). `null` si no hay ninguna o el resto queda vacío.
-  ({String brand, List<String> rest})? _brandIn(
+  /// SPEC-025 R2: las marcas de mis productos que aparecen como palabra(s)
+  /// completa(s) en [mention] o [foodQuery] (la más larga primero), cada una
+  /// con el resto de la consulta sin la marca. Se omiten las que dejan el
+  /// resto vacío.
+  List<({String brand, List<String> rest})> _brandsIn(
     String foodQuery,
     String mention,
   ) {
@@ -141,16 +142,34 @@ class FoodQueryResolver {
           ..sort((a, b) => _words(b).length.compareTo(_words(a).length));
     final queryWords = _words(foodQuery);
     final mentionWords = _words(mention);
-    for (final brand in brands) {
-      final brandWords = _words(brand);
-      final inQuery = _indexOfWords(queryWords, brandWords);
-      if (inQuery < 0 && _indexOfWords(mentionWords, brandWords) < 0) {
-        continue;
-      }
-      final rest = [...queryWords];
-      if (inQuery >= 0) rest.removeRange(inQuery, inQuery + brandWords.length);
-      if (rest.isEmpty) continue;
-      return (brand: brand, rest: rest);
+    return [
+      for (final brand in brands)
+        if (_restWithout(queryWords, mentionWords, _words(brand))
+            case final rest?)
+          (brand: brand, rest: rest),
+    ];
+  }
+
+  static List<String>? _restWithout(
+    List<String> queryWords,
+    List<String> mentionWords,
+    List<String> brandWords,
+  ) {
+    final inQuery = _indexOfWords(queryWords, brandWords);
+    if (inQuery < 0 && _indexOfWords(mentionWords, brandWords) < 0) {
+      return null;
+    }
+    final rest = [...queryWords];
+    if (inQuery >= 0) rest.removeRange(inQuery, inQuery + brandWords.length);
+    return rest.isEmpty ? null : rest;
+  }
+
+  /// SPEC-025 R2: la primera marca dicha que tiene productos que
+  /// coinciden, con ellos; `null` si ninguna.
+  List<FoodCatalogEntry>? _brandMatches(String foodQuery, String mention) {
+    for (final found in _brandsIn(foodQuery, mention)) {
+      final ofBrand = _productsOfBrand(found.brand, found.rest);
+      if (ofBrand.isNotEmpty) return ofBrand;
     }
     return null;
   }
@@ -181,17 +200,19 @@ class FoodQueryResolver {
     String mention,
   ) {
     if (_exactPersonalProducts(foodQuery).isNotEmpty) return null;
-    final found = _brandIn(foodQuery, mention);
-    if (found == null) return null;
-    if (_productsOfBrand(found.brand, found.rest).isNotEmpty) return null;
-    final brandWords = _words(found.brand).toSet();
+    final found = _brandsIn(foodQuery, mention);
+    if (found.isEmpty || _brandMatches(foodQuery, mention) != null) {
+      return null;
+    }
+    final first = found.first;
+    final brandWords = _words(first.brand).toSet();
     final query = foodQuery
         .split(RegExp(r'\s+'))
         .where(
           (w) => w.isNotEmpty && !brandWords.contains(normalizeFoodText(w)),
         )
         .join(' ');
-    return (brand: found.brand, query: query.isEmpty ? foodQuery : query);
+    return (brand: first.brand, query: query.isEmpty ? foodQuery : query);
   }
 
   /// SPEC-034 R5: "g" o "ml" de un producto personal; "g" para el resto.
@@ -224,18 +245,15 @@ class FoodQueryResolver {
     }
 
     // SPEC-025 R2: la marca de mis productos dicha en la frase.
-    final brand = _brandIn(foodQuery, mention);
-    if (brand != null) {
-      final ofBrand = _productsOfBrand(brand.brand, brand.rest);
+    final ofBrand = _brandMatches(foodQuery, mention);
+    if (ofBrand != null) {
       if (ofBrand.length == 1) return FoodMatched(ofBrand.single);
-      if (ofBrand.length > 1) {
-        return FoodAmbiguous(
-          ofBrand
-              .map((f) => FoodCandidate(id: f.id, nameEs: f.nameEs))
-              .take(3)
-              .toList(),
-        );
-      }
+      return FoodAmbiguous(
+        ofBrand
+            .map((f) => FoodCandidate(id: f.id, nameEs: f.nameEs))
+            .take(3)
+            .toList(),
+      );
     }
 
     final catalogResult = _catalog.resolve(foodQuery);

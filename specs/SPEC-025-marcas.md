@@ -44,7 +44,8 @@ no los de un alimento genérico.
 - R3. **Marca sin producto:** si se reconoció una marca de mis productos pero ningún producto de esa
   marca coincide, el ingrediente se resuelve como hoy y el detalle dice: "No tienes «{consulta}» de
   {Marca} en Mis productos: usé el genérico. Usa su etiqueta para guardarlo." (con la acción "Usar
-  etiqueta" de SPEC-033).
+  etiqueta" de SPEC-033). Si tampoco se encontró el genérico (el ingrediente queda "No encontrado"),
+  dice: "No tienes «{consulta}» de {Marca} en Mis productos. Usa su etiqueta para guardarlo."
 - R4. La prioridad de SPEC-034 R4 (nombre o alias exacto) se mantiene y va antes que R2.
 - R5. Sin IA, sin fuentes nuevas y sin datos nuevos que salgan del dispositivo.
 
@@ -83,6 +84,8 @@ no los de un alimento genérico.
 - La marca aparece dentro de otra palabra ("alpinas"): solo cuenta como palabra completa.
 - Producto con marca pero también nombre exacto: gana R4 (SPEC-034).
 - Productos sin marca: se comportan como hoy.
+- Dos marcas de mis productos en la misma frase: se prueba primero la más larga; si no tiene un producto
+  que coincida, la siguiente.
 
 ## Security & Privacy
 - ¿Sale algún dato nuevo del dispositivo? No. Dato nuevo local (marca del producto) → `docs/privacy.md`
@@ -118,6 +121,11 @@ no los de un alimento genérico.
   `brandWithoutProduct` da el aviso (marca y consulta sin la marca); la marca se recorta y vacía = sin
   marca; el aviso trae el botón "Usar etiqueta" del ingrediente. Los tests de migración de SPEC-008/015
   que comparaban con la versión 9 ahora esperan 10 (la vigente). app 518/518.
+- 2026-10-09: reviewer PASS con MINOR. Corregidos: la marca se recorta a 40 caracteres también en el
+  repositorio; con dos marcas en la frase se prueba la siguiente si la primera no tiene producto
+  (edge case nuevo); comentario viejo de un test. Cambio de texto propuesto en R3 (**pendiente de
+  aprobación de la usuaria**): si ni el genérico se encontró, el aviso no dice "usé el genérico". app
+  520/520.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -132,4 +140,7 @@ no los de un alimento genérico.
 | Manual | ⏳ | "un yogur Alpina" con un producto Alpina en el teléfono, pendiente |
 
 ## Review
-Informe del reviewer:
+Revisión (2026-10-09, subagente `reviewer`, sobre `7422697`): **PASS** con MINOR (ver Change Log).
+AC1–AC7 con evidencia; la prioridad de SPEC-034 R4 se conserva; sin marca nada cambia; migración desde
+v9 y desde versiones viejas; sin IA, sin valores nutricionales nuevos; privacidad y arquitectura al día.
+Falta la prueba manual.
