@@ -132,7 +132,7 @@ corregirla en vez de confiar en un número inventado.
 | AC5 | ✅ | `quantity_resolution_test.dart` y `confidence_test.dart` sin cambios; app 506/506 (un test de SPEC-033 cambia a propósito, R7) |
 | AC6 | ✅ | `without_equivalence_test.dart` › "AC6…" |
 | AC7 | ✅ | `app/test/features/review/ingredient_actions_test.dart` › "AC3: 1 scoop…" (60 g, "De tu etiqueta", Alta precisión, destacado) |
-| Manual | ⏳ | Un ingrediente sin equivalencia en el teléfono, pendiente |
+| Manual | ✅ | 2026-10-09, en el Motorola de la usuaria (versión de `8e4738e`, IA real de `kcalcula-ia-dev`): "2 unidades de pechuga de pollo" → "Sin equivalencia · ajústala", indicador Estimación, 120 g (porción típica del catálogo real) y la comida en Estimación; "¿Por qué?" muestra "No tenemos cuánto pesa «unidad» de este alimento, así que usamos una porción típica." con "Escribe los gramos" y "Usa la etiqueta". No se guardó |
 
 ## Review
 - Revisión 1 (2026-10-08, subagente `reviewer`, sobre `2961f51`): **CHANGES_REQUESTED** por un cambio de
@@ -140,4 +140,4 @@ corregirla en vez de confiar en un número inventado.
   correctas; nada sale del dispositivo; sin valores nutricionales de memoria.
 - Revisión 2 (2026-10-09, sobre `8e4738e`): **PASS**. R7 y AC7 aprobados por la usuaria y con test; lo
   vago se explica primero (con test); limitación de la marca no guardada documentada. MINOR opcional:
-  comprobar al guardar la base `label` tras R7 (AC7 no lo pide). Falta la prueba manual.
+  comprobar al guardar la base `label` tras R7 (AC7 no lo pide). Prueba manual hecha después (Verificación).
