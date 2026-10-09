@@ -349,6 +349,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     "Buena estimación", y "¿Por qué?" dice que viene del peso típico de la base. Revisar el nivel y el
     texto en ese caso. Strict (confianza).
   dependencies: []
+  status: done  # SPEC-043
   spec_required: true    # specs/SPEC-043-cantidad-sin-equivalencia.md — Strict
 - id: T-042
   title: Un solo helper para resolver una cantidad con su confianza

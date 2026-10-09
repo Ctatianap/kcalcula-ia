@@ -1,7 +1,7 @@
 # SPEC-043: Cantidad sin equivalencia en el catálogo
 
 ## Status
-Implementing
+Done
 Path: Strict (toca `nutrition_core`: unidades y confianza)
 
 ## Objective
@@ -121,6 +121,7 @@ corregirla en vez de confiar en un número inventado.
   guardada queda documentada. `ingredient_actions_test.dart` comprueba Alta precisión y la razón "De tu
   etiqueta". app 506/506.
 - 2026-10-09: **la usuaria aprobó R7, AC7 y el texto de AC5** ("aprobado").
+- 2026-10-09: prueba manual en el teléfono y **aprobación explícita de la usuaria para fusionar** ("sí, fusiona y haz push"). Status → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
