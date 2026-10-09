@@ -47,7 +47,8 @@ export function createOllamaProvider(config: OllamaProviderConfig): AiProvider {
         options: { temperature: 0 },
       });
       return {
-        raw: JSON.parse(response.message.content),
+        // SPEC-044: JSON mal formado = salida inválida.
+        raw: parseJsonOrUndefined(response.message.content),
         modelId: config.model,
         latencyMs: Date.now() - start,
         tokensInput: response.prompt_eval_count,
@@ -91,7 +92,8 @@ export function createOllamaProvider(config: OllamaProviderConfig): AiProvider {
         options: { temperature: 0 },
       });
       return {
-        raw: JSON.parse(response.message.content),
+        // SPEC-044: JSON mal formado = salida inválida.
+        raw: parseJsonOrUndefined(response.message.content),
         modelId: config.model,
         latencyMs: Date.now() - start,
         tokensInput: response.prompt_eval_count,

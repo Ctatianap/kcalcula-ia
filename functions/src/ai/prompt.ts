@@ -19,9 +19,11 @@ const EXTRACT_LABEL_PROMPT_TEMPLATE = readFileSync(
 
 /** Compartido entre todos los `AiProvider` (vertex, ollama, ...): mismo prompt siempre. */
 export function renderParseMealPrompt(input: ParseMealRequest): string {
-  return PARSE_MEAL_PROMPT_TEMPLATE.replace("{{LOCALE}}", input.locale).replace(
+  // SPEC-044: con funciones como reemplazo (sin patrones `$&`) y el texto
+  // del usuario de último: lo que escriba nunca deforma el prompt.
+  return PARSE_MEAL_PROMPT_TEMPLATE.replace("{{LOCALE}}", () => input.locale).replace(
     "{{TEXTO_USUARIO}}",
-    input.text,
+    () => input.text,
   );
 }
 

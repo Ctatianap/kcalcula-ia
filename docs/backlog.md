@@ -376,7 +376,8 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     `renderParseMealPrompt` usa `replace` con string (patrones `$&`). `correctMeal` ya lo resuelve con
     `parseJsonOrUndefined` y reemplazos con función. Strict (capa de IA), sin cambiar prompts.
   dependencies: []
-  spec_required: true
+  status: done  # SPEC-044
+  spec_required: true    # specs/SPEC-044-salida-ia-mal-formada.md — Strict
 - id: F2
   # SPEC-022 (comidas frecuentes y favoritas): Done 2026-10-08.
   # SPEC-023 (confianza visual): Done 2026-10-08.
