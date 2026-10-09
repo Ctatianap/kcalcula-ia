@@ -116,10 +116,11 @@ corregirla en vez de confiar en un número inventado.
   - `confidence_visual_test.dart` (SPEC-023 AC4) incluye la razón nueva en el conjunto que recorre.
   - nutrition_core 112/112, app 505/505.
 - 2026-10-08: reviewer CHANGES_REQUESTED: el cambio de confianza al usar la etiqueta (R7) no estaba en
-  la SPEC. Se proponen R7, AC7 y el texto de AC5 (**pendientes de aprobación de la usuaria**). También:
+  la SPEC. Se proponen R7, AC7 y el texto de AC5 (aprobados después, ver abajo). También:
   lo vago se explica antes que "sin equivalencia" (edge case con test) y la limitación de la marca no
   guardada queda documentada. `ingredient_actions_test.dart` comprueba Alta precisión y la razón "De tu
   etiqueta". app 506/506.
+- 2026-10-09: **la usuaria aprobó R7, AC7 y el texto de AC5** ("aprobado").
 
 ## Verificación
 | AC | Estado | Evidencia |
