@@ -1,7 +1,7 @@
 # SPEC-044: Salida de IA mal formada y prompts seguros en parseMeal y extractLabel
 
 ## Status
-Draft
+Implementing
 Path: Strict (capa de IA: adaptadores y renderizado de prompts; sin cambiar prompts ni esquemas)
 
 ## Objective
@@ -78,6 +78,19 @@ reformúlalo" y nunca deje mi texto en un log.
 
 ## Change Log
 - 2026-10-09: creación (backlog T-044) a pedido de la usuaria ("continuemos con la t 44").
+- 2026-10-09: **Approved por la usuaria** ("si"). Status → Implementing.
+- 2026-10-09: implementada. `vertex.ts` y `ollama.ts` usan `parseJsonOrUndefined` en las tres llamadas
+  (sin texto deja de lanzar "Vertex AI no devolvió texto": es salida inválida); `renderParseMealPrompt`
+  sustituye con funciones. Prompts y esquemas sin cambios. functions 79/79.
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `functions/src/ai/malformed_output.test.ts` › "SPEC-044 AC1…" (dos tests) |
+| AC2 | ✅ | mismo archivo › "SPEC-044 AC2…" |
+| AC3 | ✅ | mismo archivo › "SPEC-044 AC3…" |
+| AC4 | ✅ | mismo archivo › "SPEC-044 AC4…" (tres textos normales, prompt idéntico) |
+| AC5 | ✅ | mismo archivo › "SPEC-044 AC5…"; functions 79/79 sin cambiar tests existentes |
 
 ## Review
 Informe del reviewer:

@@ -45,12 +45,9 @@ export function createVertexAiProvider(
           config.thinkingBudget,
         ),
       });
-      const text = response.text;
-      if (text === undefined) {
-        throw new Error("Vertex AI no devolvió texto en la respuesta.");
-      }
       return {
-        raw: JSON.parse(text),
+        // SPEC-044: JSON mal formado o sin texto = salida inválida.
+        raw: parseJsonOrUndefined(response.text),
         modelId: config.modelId,
         latencyMs: Date.now() - start,
         tokensInput: response.usageMetadata?.promptTokenCount,
@@ -100,12 +97,9 @@ export function createVertexAiProvider(
           config.thinkingBudget,
         ),
       });
-      const text = response.text;
-      if (text === undefined) {
-        throw new Error("Vertex AI no devolvió texto en la respuesta.");
-      }
       return {
-        raw: JSON.parse(text),
+        // SPEC-044: JSON mal formado o sin texto = salida inválida.
+        raw: parseJsonOrUndefined(response.text),
         modelId: config.modelId,
         latencyMs: Date.now() - start,
         tokensInput: response.usageMetadata?.promptTokenCount,
