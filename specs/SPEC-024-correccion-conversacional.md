@@ -11,8 +11,9 @@ era pan integral", "el arroz fue una taza"), sin rehacer todo el registro.
 
 ## Context
 Fase F3 de `docs/backlog.md`. Hoy, en el "Detalle de comida" (SPEC-012) se corrige a mano (−/+,
-quitar, elegir candidato, "Añadir ingrediente" de SPEC-018) o con "Corregir", que vuelve al texto y
-repite el análisis completo. Invariante 1: la IA estructura; aquí estructura **cambios**, nunca
+quitar, elegir candidato, "Añadir ingrediente" de SPEC-018/040, "Usar etiqueta" y "Elegir de mis
+productos" de SPEC-033, "Escribe los gramos" de SPEC-023) o con "Corregir", que vuelve al texto y
+repite el análisis completo (otra llamada a la IA con todo). Invariante 1: la IA estructura; aquí estructura **cambios**, nunca
 valores nutricionales.
 
 ## User Story
@@ -20,8 +21,9 @@ Como persona que ve un error en el borrador, quiero decir la corrección con mis
 la aplique, para no empezar de nuevo.
 
 ## Requirements
-- R1. **Entrada:** en el detalle, un campo "¿Algo no está bien? Cuéntamelo" (texto o voz, 1–300
-  caracteres) con "Aplicar".
+- R1. **Entrada:** en el detalle de una comida nueva (no en "Editar comida" de una guardada), un campo
+  "¿Algo no está bien? Cuéntamelo" (texto, 1–300 caracteres; el dictado del teclado del teléfono
+  sirve para decirlo en voz) con "Aplicar".
 - R2. **Callable `correctMeal`** con esquema `meal_correction.v1`: recibe la corrección y la lista
   actual de ítems **solo con** `mention`, `food_query`, `quantity`, `unit` y `size` (sin nutrientes,
   sin gramos calculados, sin confianza) y devuelve operaciones: `replace(index, item)`, `add(item)`,
@@ -32,10 +34,16 @@ la aplique, para no empezar de nuevo.
   se resuelve y calcula como siempre (catálogo + `nutrition_core`). La confianza se recalcula por
   reglas.
 - R4. **Vista previa y deshacer:** antes de aplicar se muestra qué cambia ("Arepa → Pan integral");
-  después, "Deshacer" vuelve al estado anterior.
+  después, "Deshacer" vuelve al estado anterior. Se pueden hacer varias correcciones seguidas antes de
+  guardar; "Deshacer" quita la última.
 - R5. Una operación con un índice que no existe invalida toda la respuesta (no se aplica a medias).
 - R6. Privacidad: el texto de la corrección y la lista de ítems sin nutrientes salen hacia el proveedor
-  de IA; el backend no los guarda ni los registra. `docs/privacy.md` y política actualizados.
+  de IA; el backend no los guarda ni los registra. No se envía el texto original de la comida (las
+  menciones de cada ítem ya dan el contexto). `docs/privacy.md` se actualiza. La política de la app ya
+  cubre "cuando escribes algo, ese texto se envía a Vertex AI" (v4), así que no cambia de versión ni
+  vuelve a pedir consentimiento.
+- R7. El callable `correctMeal` se despliega en `kcalcula-ia-dev` como `parseMeal` (us-east1, App Check,
+  Vertex con `GEMINI_THINKING_BUDGET`), con confirmación de la usuaria.
 
 ## Acceptance Criteria
 - AC1. Borrador "dos huevos y una arepa" + "no era arepa, era pan integral" con el proveedor falso
@@ -51,8 +59,11 @@ la aplique, para no empezar de nuevo.
 - AC6. Evals con al menos 20 correcciones en es-CO (dataset nuevo): validez de esquema 100 % y
   operaciones correctas con baseline guardado `[eval]`.
 - AC7. Logs del backend solo con metadatos `[unit, functions]`.
-- AC8. El campo de corrección acepta texto o voz; vacío o con más de 300 caracteres, "Aplicar" queda
-  deshabilitado y el backend rechaza la petición (`invalid-argument`) `[widget + unit, functions]`.
+- AC8. Vacío o con más de 300 caracteres, "Aplicar" queda deshabilitado y el backend rechaza la
+  petición (`invalid-argument`) `[widget + unit, functions]`.
+- AC9. Dos correcciones seguidas y "Deshacer" → queda la primera aplicada `[widget]`.
+- AC10. En el teléfono, con el backend desplegado: "dos huevos y una arepa" → "no era arepa, era pan"
+  → vista previa y aplicar `[manual]`.
 
 ## Technical Constraints
 - Invariantes 1, 3, 4, 5, 6 y 7. Skill `ai-pipeline`.
@@ -70,7 +81,7 @@ la aplique, para no empezar de nuevo.
   cambiar".
 - Sin red / timeout → mensaje de SPEC-012, el borrador queda igual.
 - Corrección que pide un alimento no encontrado → el ítem queda "No encontrado en la base".
-- Comida ya guardada: fuera de alcance (ver SPEC-026).
+- Comida ya guardada ("Editar comida", SPEC-026): fuera de alcance; ahí se sigue corrigiendo a mano.
 
 ## Security & Privacy
 - **Sí sale un dato nuevo:** el texto de la corrección y la lista de ítems (sin nutrientes). Strict +
@@ -81,20 +92,23 @@ la aplique, para no empezar de nuevo.
   Integration: AC1. Eval: AC6. Manual: correcciones por voz en el teléfono.
 
 ## Out of Scope
-- Corregir comidas ya guardadas, conversación de varios turnos, que la IA proponga cantidades en
-  gramos.
+- Corregir comidas ya guardadas, conversación de varios turnos con la IA, que la IA proponga
+  cantidades en gramos, un botón de voz propio en el detalle (el dictado del teclado sirve).
 
 ## Open Questions
-- ¿Se envía también el texto original de la comida como contexto? Mejora la precisión pero envía más
-  datos (minimización).
-- ¿Una sola corrección por vez o encadenadas antes de guardar?
+- Ninguna. Resueltas con la opción recomendada (2026-10-09): no se envía el texto original
+  (minimización; las menciones bastan); se pueden encadenar correcciones y "Deshacer" quita la última;
+  solo para comidas nuevas; voz con el dictado del teclado.
 
 ## Definition of Done
-- AC1–AC8 con evidencia · analyze, tests y evals sin regresión · reviewer PASS enlazado · docs y
+- AC1–AC10 con evidencia · analyze, tests y evals sin regresión · reviewer PASS enlazado · docs y
   política actualizados · aprobación de la usuaria antes de fusionar (Strict).
 
 ## Change Log
 - 2026-10-04: creación a partir de F3 ("corrección conversacional").
+- 2026-10-09: actualizada antes de pedir aprobación: contexto con las correcciones a mano que ya
+  existen; preguntas resueltas con la opción recomendada; solo comidas nuevas; voz por dictado del
+  teclado; la política no cambia de versión (ya cubre el texto escrito); despliegue (R7); AC9 y AC10.
 
 ## Review
 Informe del reviewer: pendiente.
