@@ -1,7 +1,7 @@
 import { Ollama } from "ollama";
 import { z } from "zod";
 import type { AiProvider, AiProviderResult } from "./provider.js";
-import { parseJsonOrUndefined } from "./vertex.js";
+import { parseJsonOrUndefined } from "./json.js";
 import {
   renderCorrectMealPrompt,
   renderExtractLabelPrompt,

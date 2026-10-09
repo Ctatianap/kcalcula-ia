@@ -730,7 +730,10 @@ class ReviewController extends ChangeNotifier {
   void setMealType(String type) {
     if (type == mealType) return;
     mealType = type;
+    // No toca los ingredientes: "Deshacer" de la corrección sigue valiendo.
+    _applyingCorrection = true;
     _changed();
+    _applyingCorrection = false;
   }
 
   Future<int> register({DateTime? eatenAt}) {

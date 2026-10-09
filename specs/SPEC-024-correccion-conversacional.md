@@ -1,7 +1,7 @@
 # SPEC-024: Corrección conversacional
 
 ## Status
-Implementing
+Review
 Path: Strict (prompt y esquema de IA nuevos; sale del dispositivo el texto de la corrección y la lista
 de ítems sin nutrientes)
 
@@ -135,6 +135,10 @@ la aplique, para no empezar de nuevo.
   - Respuesta con forma inesperada en la app → mensaje de corrección, sin quedarse cargando.
   - functions 73/73, app 535/535.
 - 2026-10-09: despliegue de `correctMeal` (confirmado por la usuaria) y prueba en el teléfono (AC10).
+- 2026-10-09: reviewer PASS (segunda revisión). MINOR corregidos: `parseJsonOrUndefined` en `ai/json.ts`
+  (Ollama ya no carga el adaptador de Vertex); cambiar el tipo de comida no quita "Deshacer"; test del
+  mensaje con más de 30 ingredientes. functions 73/73, app 537/537. Status → Review: falta la
+  aprobación explícita de la usuaria para fusionar (Strict).
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -151,4 +155,10 @@ la aplique, para no empezar de nuevo.
 | AC10 | ✅ | 2026-10-09: `correctMeal` desplegado en `kcalcula-ia-dev` (us-east1) con confirmación de la usuaria. En el Motorola (versión de `4f8c49b`): "dos huevos y una arepa" → "no era arepa, era pan integral" → vista previa "• Arepa → Pan integral" → Aplicar → "Pan integral" 32 g · 82 kcal (catálogo real, Buena estimación) → "Deshacer" vuelve a "Arepa" 115 g. No se guardó. Cloud Logging de `correctMeal`: solo `requestId`, `promptVersion`, `modelId`, `latencyMs` (1.213 ms), `tokensInput/Output`, `operationCount` (1) y `valid` |
 
 ## Review
-Informe del reviewer: pendiente.
+- Revisión 1 (2026-10-09, subagente `reviewer`, sobre `a869db9`): **CHANGES_REQUESTED** — MAJOR:
+  `set_quantity` perdía la cantidad cuando la IA solo daba el tamaño; AC10 sin evidencia. Más MINOR.
+- Revisión 2 (2026-10-09, sobre `f318bce`): **PASS**. AC1–AC10 con evidencia; prompts anteriores
+  intactos; esquema sin campos nutricionales y estricto; reintento y `ai-invalid-output`; logs solo con
+  metadatos; la app recalcula con `nutrition_core` y la confianza por reglas; R5 sin aplicar a medias;
+  privacidad documentada (sin subir la versión de la política, coherente con su texto). MINOR
+  corregidos (Change Log).

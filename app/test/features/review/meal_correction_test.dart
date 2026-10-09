@@ -353,4 +353,33 @@ void main() {
       expect(find.byKey(const Key('correction-undo')), findsNothing);
     },
   );
+
+  testWidgets('Revisor: con más de 30 ingredientes se pide corregir a mano', (
+    tester,
+  ) async {
+    final (:h, :fake) = await _openDetail(
+      tester,
+      {},
+      meal: parsedMeal([
+        for (var i = 0; i < 31; i++)
+          _item('huevo $i', 'huevo', quantity: 1, unit: 'unidad'),
+      ]),
+    );
+    await _say(tester, 'quita un huevo');
+    expect(find.text(tooManyItemsForCorrectionMessage), findsOneWidget);
+    expect(fake.sent, isEmpty);
+  });
+
+  testWidgets('Revisor: cambiar el tipo de comida no quita "Deshacer"', (
+    tester,
+  ) async {
+    await _openDetail(tester, {'no era arepa, era pan integral': replaceArepa});
+    await _say(tester, 'no era arepa, era pan integral');
+    await _confirm(tester);
+    final snack = find.byKey(const Key('meal-type-snack'));
+    await tester.ensureVisible(snack);
+    await tester.tap(snack);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('correction-undo')), findsOneWidget);
+  });
 }

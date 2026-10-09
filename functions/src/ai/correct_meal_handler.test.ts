@@ -5,7 +5,7 @@ import functionsLogger = require("firebase-functions/logger");
 import { createFakeAiProvider } from "./fake.js";
 import { AI_INVALID_OUTPUT_ERROR_CODE, buildCorrectMealHandler } from "./handler.js";
 import { renderCorrectMealPrompt } from "./prompt.js";
-import { parseJsonOrUndefined } from "./vertex.js";
+import { parseJsonOrUndefined } from "./json.js";
 import type { AiProvider, AiProviderResult } from "./provider.js";
 import {
   correctMealRequestSchema,
