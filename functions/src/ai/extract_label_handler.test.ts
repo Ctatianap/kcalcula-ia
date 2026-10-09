@@ -19,6 +19,10 @@ function countingProvider(
 ): { provider: AiProvider; callCount: () => number } {
   let calls = 0;
   const provider: AiProvider = {
+    // SPEC-024: no usado en estos tests.
+    async correctMeal(): Promise<AiProviderResult> {
+      throw new Error("no usado en estos tests");
+    },
     async parseMeal(): Promise<AiProviderResult> {
       throw new Error("no usado en estos tests");
     },

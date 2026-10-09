@@ -1,5 +1,6 @@
 import 'package:calorias_ia/infra/ai_client/ai_client.dart';
 import 'package:calorias_ia/infra/ai_client/ai_client_errors.dart';
+import 'package:calorias_ia/infra/ai_client/meal_correction_dto.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -130,4 +131,71 @@ void main() {
       ),
     );
   });
+
+  test(
+    'SPEC-024: correctMeal envía corrección e ítems y devuelve las operaciones',
+    () async {
+      final client = AiClient((_) async => {}, null, (data) async {
+        expect(data['correction'], 'eran tres huevos');
+        expect(data['locale'], 'es-CO');
+        expect(data['items'], [
+          {
+            'mention': 'dos huevos',
+            'food_query': 'huevo',
+            'quantity': 2.0,
+            'unit': 'unidad',
+            'size': null,
+          },
+        ]);
+        return {
+          'schema_version': 'meal_correction.v1',
+          'operations': [
+            {
+              'op': 'set_quantity',
+              'index': 0,
+              'item': null,
+              'quantity': 3,
+              'unit': 'unidad',
+              'size': null,
+            },
+          ],
+        };
+      });
+      final result = await client.correctMeal(
+        correction: 'eran tres huevos',
+        items: const [
+          CorrectionDraftItem(
+            mention: 'dos huevos',
+            foodQuery: 'huevo',
+            quantity: 2,
+            unit: 'unidad',
+          ),
+        ],
+      );
+      expect(result.operations.single.op, 'set_quantity');
+      expect(result.operations.single.quantity, 3);
+    },
+  );
+
+  test(
+    'SPEC-024: sin red, correctMeal lanza el error de red en español',
+    () async {
+      final client = AiClient((_) async => {}, null, (_) async {
+        throw FirebaseException(
+          plugin: 'firebase_functions',
+          code: 'unavailable',
+        );
+      });
+      await expectLater(
+        client.correctMeal(correction: 'x', items: const []),
+        throwsA(
+          isA<AiClientException>().having(
+            (e) => e.type,
+            'type',
+            AiClientErrorType.network,
+          ),
+        ),
+      );
+    },
+  );
 }

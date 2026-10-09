@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:nutrition_core/nutrition_core.dart';
 
+import '../../infra/ai_client/meal_correction_dto.dart';
 import '../../infra/ai_client/parsed_meal_dto.dart';
 import '../../infra/catalog/food_match_result.dart';
 import '../../infra/food_resolution/food_query_resolver.dart';
@@ -53,6 +54,8 @@ class ReviewController extends ChangeNotifier {
   /// Para los métodos que cambian datos de la comida.
   void _changed() {
     _hasChanges = true;
+    // SPEC-024: una edición a mano invalida "Deshacer" de la corrección.
+    if (!_applyingCorrection) _correctionUndo.clear();
     notifyListeners();
   }
 
@@ -564,10 +567,173 @@ class ReviewController extends ChangeNotifier {
     _changed();
   }
 
+  // ---------------------------------------------------------------------
+  // SPEC-024: corrección conversacional.
+  // ---------------------------------------------------------------------
+
+  static const _correctionUnits = {
+    'g',
+    'ml',
+    'unidad',
+    'cucharada',
+    'cucharadita',
+    'taza',
+    'vaso',
+    'porcion',
+  };
+  static const _correctionSizes = {'pequeno', 'mediano', 'grande'};
+
+  /// R2: lo que se envía de cada ítem: lo dicho y cómo se estructuró, sin
+  /// nutrientes, gramos calculados ni confianza.
+  List<CorrectionDraftItem> get correctionItems => [
+    for (final item in _items)
+      CorrectionDraftItem(
+        // El backend acepta hasta 300 caracteres por mención.
+        mention: item.mention.length > 300
+            ? item.mention.substring(0, 300)
+            : item.mention,
+        foodQuery: item.foodQuery.length > 200
+            ? item.foodQuery.substring(0, 200)
+            : item.foodQuery,
+        quantity: item.quantityRaw,
+        unit: _correctionUnits.contains(item.unitRaw) ? item.unitRaw : null,
+        size: _correctionSizes.contains(item.sizeRaw) ? item.sizeRaw : null,
+      ),
+  ];
+
+  /// El backend acepta hasta 30 ítems por corrección.
+  static const maxCorrectionItems = 30;
+
+  bool get canCorrect =>
+      _items.isNotEmpty && _items.length <= maxCorrectionItems;
+
+  /// Estados anteriores, para "Deshacer" (R4). Una edición a mano después
+  /// de corregir los vacía: "Deshacer" nunca borra lo que se editó a mano.
+  final List<List<ReviewItem>> _correctionUndo = [];
+  bool _applyingCorrection = false;
+
+  bool get canUndoCorrection => _correctionUndo.isNotEmpty;
+
+  static String _nameOf(ReviewItem item) => item.food?.nameEs ?? item.foodQuery;
+
+  static String _quantityText(double? quantity, String? unit, String? size) {
+    final parts = [
+      if (quantity case final q?)
+        '${q == q.roundToDouble() ? q.toInt() : q.toString().replaceAll('.', ',')}'
+            '${unit == null ? '' : ' $unit'}',
+      if (size case final size?)
+        switch (size) {
+          'pequeno' => 'pequeño',
+          _ => size,
+        },
+    ];
+    return parts.join(' ');
+  }
+
+  ReviewItem _itemFromParsed(ParsedMealItemDto parsed) => _buildItem(
+    parsed,
+    _resolver.resolve(parsed.foodQuery, mention: parsed.mention),
+  );
+
+  /// R3–R5: el borrador con la corrección aplicada y la lista de cambios
+  /// para la vista previa, **sin** tocar el borrador actual. `null` si
+  /// alguna operación usa un índice que no existe o le falta lo que pide
+  /// (no se aplica a medias). Cada ítem nuevo o cambiado se resuelve y se
+  /// calcula como siempre (catálogo + `nutrition_core`).
+  ({List<ReviewItem> items, List<String> changes})? buildCorrection(
+    MealCorrectionDto correction,
+  ) {
+    final current = <ReviewItem?>[..._items];
+    final added = <ReviewItem>[];
+    final changes = <String>[];
+    for (final op in correction.operations) {
+      final index = op.index;
+      if (op.op == 'add') {
+        final parsed = op.item;
+        if (parsed == null || index != null) return null;
+        final item = _itemFromParsed(parsed);
+        added.add(item);
+        changes.add('Añadir ${_nameOf(item)}');
+        continue;
+      }
+      if (index == null || index < 0 || index >= current.length) return null;
+      final old = current[index];
+      if (old == null) return null;
+      switch (op.op) {
+        case 'replace':
+          final parsed = op.item;
+          if (parsed == null) return null;
+          final item = _itemFromParsed(parsed);
+          current[index] = item;
+          changes.add('${_nameOf(old)} → ${_nameOf(item)}');
+        case 'remove':
+          current[index] = null;
+          changes.add('Quitar ${_nameOf(old)}');
+        case 'set_quantity':
+          if (op.quantity == null && op.size == null) return null;
+          // Solo cambia lo que se dijo: "los huevos eran grandes" conserva
+          // "2 unidad"; "eran 3" sin unidad conserva la unidad anterior.
+          final quantity = op.quantity ?? old.quantityRaw;
+          // Con tamaño, "2 unidad" pasa a "2 pequeño" (la regla de tamaño
+          // multiplica la porción de ese tamaño por la cantidad).
+          final unit = op.quantity == null
+              ? (op.size != null && old.unitRaw == 'unidad'
+                    ? null
+                    : old.unitRaw)
+              : (op.unit ?? old.unitRaw);
+          final size = op.size ?? (op.quantity == null ? old.sizeRaw : null);
+          final parsed = ParsedMealItemDto(
+            mention: old.mention,
+            foodQuery: old.foodQuery,
+            isVague: false,
+            quantity: quantity,
+            unit: unit,
+            size: size,
+            parentIndex: old.parentIndex,
+          );
+          final food = old.food;
+          current[index] =
+              food != null && old.status == ReviewItemStatus.matched
+              ? _matchedItem(parsed, food)
+              : _itemFromParsed(parsed);
+          changes.add(
+            '${_nameOf(old)}: ${_quantityText(quantity, unit, size)}',
+          );
+        default:
+          return null;
+      }
+    }
+    return (
+      items: [...current.whereType<ReviewItem>(), ...added],
+      changes: changes,
+    );
+  }
+
+  /// R4: aplica una corrección ya armada con [buildCorrection].
+  void applyCorrection(List<ReviewItem> items) {
+    _correctionUndo.add(List.of(_items));
+    _items = List.of(items);
+    _applyingCorrection = true;
+    _changed();
+    _applyingCorrection = false;
+  }
+
+  /// R4/AC9: deshace la última corrección aplicada.
+  void undoCorrection() {
+    if (_correctionUndo.isEmpty) return;
+    _items = _correctionUndo.removeLast();
+    _applyingCorrection = true;
+    _changed();
+    _applyingCorrection = false;
+  }
+
   void setMealType(String type) {
     if (type == mealType) return;
     mealType = type;
+    // No toca los ingredientes: "Deshacer" de la corrección sigue valiendo.
+    _applyingCorrection = true;
     _changed();
+    _applyingCorrection = false;
   }
 
   Future<int> register({DateTime? eatenAt}) {

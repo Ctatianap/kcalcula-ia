@@ -368,6 +368,15 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   dependencies: []
   spec_required: false
   status: done  # 2026-10-08: el test espera a que termine la exportación en vez de 300 ms fijos
+- id: T-044
+  title: Salida de IA mal formada y reemplazos seguros en parseMeal y extractLabel
+  objective: >
+    Reviewer de SPEC-024: en `vertex.ts`/`ollama.ts`, `JSON.parse` de `parseMeal` y `extractLabel` lanza
+    antes de validar (sin reintento ni `ai-invalid-output`, y el mensaje puede llevar texto del modelo);
+    `renderParseMealPrompt` usa `replace` con string (patrones `$&`). `correctMeal` ya lo resuelve con
+    `parseJsonOrUndefined` y reemplazos con función. Strict (capa de IA), sin cambiar prompts.
+  dependencies: []
+  spec_required: true
 - id: F2
   # SPEC-022 (comidas frecuentes y favoritas): Done 2026-10-08.
   # SPEC-023 (confianza visual): Done 2026-10-08.
@@ -376,6 +385,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   # specs/SPEC-022-comidas-frecuentes-y-favoritas.md, specs/SPEC-023-confianza-visual.md
 - id: F3
   # SPEC-025 (marcas de mis productos): Done 2026-10-09.
+  # SPEC-024 (corrección conversacional): Done 2026-10-09.
   title: Fase 3 — corrección conversacional, marcas, historial avanzado
   # SPECs (Draft, 2026-10-04): specs/SPEC-024-correccion-conversacional.md (Strict),
   # specs/SPEC-025-marcas.md (Strict), specs/SPEC-026-editar-comidas-guardadas.md, specs/SPEC-036-buscar-en-el-historial.md

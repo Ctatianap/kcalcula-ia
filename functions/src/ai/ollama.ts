@@ -1,10 +1,17 @@
 import { Ollama } from "ollama";
 import { z } from "zod";
 import type { AiProvider, AiProviderResult } from "./provider.js";
-import { renderExtractLabelPrompt, renderParseMealPrompt } from "./prompt.js";
+import { parseJsonOrUndefined } from "./json.js";
+import {
+  renderCorrectMealPrompt,
+  renderExtractLabelPrompt,
+  renderParseMealPrompt,
+} from "./prompt.js";
 import {
   labelExtractionSchema,
+  MEAL_CORRECTION_RESPONSE_SCHEMA,
   parsedMealSchema,
+  type CorrectMealRequest,
   type ExtractLabelRequest,
   type ParseMealRequest,
 } from "./schemas.js";
@@ -41,6 +48,25 @@ export function createOllamaProvider(config: OllamaProviderConfig): AiProvider {
       });
       return {
         raw: JSON.parse(response.message.content),
+        modelId: config.model,
+        latencyMs: Date.now() - start,
+        tokensInput: response.prompt_eval_count,
+        tokensOutput: response.eval_count,
+      };
+    },
+
+    async correctMeal(input: CorrectMealRequest): Promise<AiProviderResult> {
+      const start = Date.now();
+      const response = await client.chat({
+        model: config.model,
+        messages: [{ role: "user", content: renderCorrectMealPrompt(input) }],
+        format: MEAL_CORRECTION_RESPONSE_SCHEMA,
+        stream: false,
+        think: false,
+        options: { temperature: 0 },
+      });
+      return {
+        raw: parseJsonOrUndefined(response.message.content),
         modelId: config.model,
         latencyMs: Date.now() - start,
         tokensInput: response.prompt_eval_count,

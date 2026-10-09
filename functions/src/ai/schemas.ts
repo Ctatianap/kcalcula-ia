@@ -250,3 +250,136 @@ export const LABEL_EXTRACTION_RESPONSE_SCHEMA = {
     "unreadable_fields",
   ],
 } as const;
+
+// ---------------------------------------------------------------------------
+// SPEC-024: corrección conversacional (`correctMeal`).
+// ---------------------------------------------------------------------------
+
+export const MEAL_CORRECTION_SCHEMA_VERSION = "meal_correction.v1" as const;
+
+const QUANTITY_UNITS = [
+  "g",
+  "ml",
+  "unidad",
+  "cucharada",
+  "cucharadita",
+  "taza",
+  "vaso",
+  "porcion",
+] as const;
+const SIZES = ["pequeno", "mediano", "grande"] as const;
+
+/**
+ * SPEC-024 R2: un ítem actual del borrador tal como se envía. Solo lo que
+ * la persona dijo y cómo se estructuró: **sin** nutrientes, gramos
+ * calculados ni confianza (`z.strictObject` rechaza cualquier otro campo).
+ */
+const correctionDraftItemSchema = z.strictObject({
+  mention: z.string().min(1).max(300),
+  food_query: z.string().min(1).max(200),
+  quantity: z.number().positive().nullable(),
+  unit: z.enum(QUANTITY_UNITS).nullable(),
+  size: z.enum(SIZES).nullable(),
+});
+
+/** Entrada del callable `correctMeal`. R1/AC8: corrección de 1-300 caracteres. */
+export const correctMealRequestSchema = z.strictObject({
+  correction: z.string().trim().min(1).max(300),
+  locale: z.literal("es-CO"),
+  items: z.array(correctionDraftItemSchema).min(1).max(30),
+});
+
+export type CorrectMealRequest = z.infer<typeof correctMealRequestSchema>;
+
+/**
+ * Una operación sobre el borrador. Forma plana (un solo objeto con `op`) para
+ * que el modelo la siga con `responseJsonSchema`; qué campos se exigen según
+ * `op` lo valida `mealCorrectionSchema`.
+ */
+const correctionOperationSchema = z.strictObject({
+  op: z.enum(["replace", "add", "remove", "set_quantity"]),
+  index: z.number().int().nonnegative().nullable(),
+  item: parsedMealItemSchema.nullable(),
+  quantity: z.number().positive().nullable(),
+  unit: z.enum(QUANTITY_UNITS).nullable(),
+  size: z.enum(SIZES).nullable(),
+});
+
+export type CorrectionOperation = z.infer<typeof correctionOperationSchema>;
+
+/** Qué campos lleva cada operación (R2). */
+function operationShapeError(op: CorrectionOperation): string | null {
+  switch (op.op) {
+    case "replace":
+      return op.index !== null && op.item !== null ? null : "replace pide index e item";
+    case "add":
+      return op.index === null && op.item !== null ? null : "add pide item y no index";
+    case "remove":
+      return op.index !== null && op.item === null ? null : "remove pide solo index";
+    case "set_quantity":
+      return op.index !== null && op.item === null && (op.quantity !== null || op.size !== null)
+        ? null
+        : "set_quantity pide index y cantidad o tamaño";
+  }
+}
+
+/**
+ * `meal_correction.v1` (SPEC-024): la IA estructura **cambios** al borrador,
+ * nunca valores nutricionales (invariante 1). Sin campos de calorías,
+ * nutrientes, gramos calculados ni confianza (`z.strictObject`).
+ */
+export const mealCorrectionSchema = z
+  .strictObject({
+    schema_version: z.literal(MEAL_CORRECTION_SCHEMA_VERSION),
+    operations: z.array(correctionOperationSchema).max(30),
+  })
+  .superRefine((value, ctx) => {
+    value.operations.forEach((op, i) => {
+      const error = operationShapeError(op);
+      if (error) ctx.addIssue({ code: "custom", message: error, path: ["operations", i] });
+    });
+  });
+
+export type MealCorrection = z.infer<typeof mealCorrectionSchema>;
+
+/**
+ * R5: con la lista enviada, ¿todos los índices existen? Una sola operación
+ * fuera de rango invalida toda la respuesta (no se aplica a medias).
+ */
+export function correctionIndexesAreValid(
+  correction: MealCorrection,
+  itemCount: number,
+): boolean {
+  return correction.operations.every(
+    (op) => op.index === null || op.index < itemCount,
+  );
+}
+
+const PARSED_MEAL_ITEM_JSON_SCHEMA =
+  PARSED_MEAL_RESPONSE_SCHEMA.properties.items.items;
+
+/** Espejo de `mealCorrectionSchema` para `responseJsonSchema`. */
+export const MEAL_CORRECTION_RESPONSE_SCHEMA = {
+  type: "object",
+  properties: {
+    schema_version: { type: "string", enum: [MEAL_CORRECTION_SCHEMA_VERSION] },
+    operations: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          op: { type: "string", enum: ["replace", "add", "remove", "set_quantity"] },
+          index: { anyOf: [{ type: "integer" }, nullType] },
+          item: { anyOf: [PARSED_MEAL_ITEM_JSON_SCHEMA, nullType] },
+          quantity: { anyOf: [{ type: "number" }, nullType] },
+          unit: { anyOf: [{ type: "string", enum: [...QUANTITY_UNITS] }, nullType] },
+          size: { anyOf: [{ type: "string", enum: [...SIZES] }, nullType] },
+        },
+        additionalProperties: false,
+        required: ["op", "index", "item", "quantity", "unit", "size"],
+      },
+    },
+  },
+  additionalProperties: false,
+  required: ["schema_version", "operations"],
+} as const;
