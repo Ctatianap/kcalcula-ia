@@ -317,7 +317,11 @@ class StorageRepository {
     required String nameEs,
     required String servingUnit,
     required List<String> aliases,
+
+    /// SPEC-025 R1: `null` o vacía = sin marca.
+    String? brand,
   }) {
+    final cleanBrand = brand?.trim();
     return _db.transaction(() async {
       await (_db.update(
         _db.personalProducts,
@@ -325,6 +329,9 @@ class StorageRepository {
         PersonalProductsCompanion(
           nameEs: Value(nameEs),
           servingUnit: Value(servingUnit),
+          brand: Value(
+            cleanBrand == null || cleanBrand.isEmpty ? null : cleanBrand,
+          ),
         ),
       );
       await (_db.delete(
@@ -668,6 +675,8 @@ class StorageRepository {
               'servingGrams': p.servingGrams,
               // SPEC-034 R6.
               'servingUnit': p.servingUnit,
+              // SPEC-025 R1.
+              'brand': p.brand,
               'aliases': aliases[p.id] ?? const <String>[],
               'sourceRef': p.sourceRef,
             },

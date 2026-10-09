@@ -140,6 +140,11 @@ kcal enteras (redondeo half-up) y macros con 1 decimal. Los valores estimados se
 - `personal_products(..., serving_unit)` y `personal_product_aliases(product_id, term)`: productos de
   etiquetas confirmadas (SPEC-004/033) con su unidad y los nombres con que la persona los llama
   (SPEC-034, `user.db` v8).
+- `personal_products.brand` (SPEC-025, `user.db` v10): marca opcional del producto. Al reconocer
+  (`FoodQueryResolver.resolve(foodQuery, mention:)`), si la frase trae como palabra(s) completa(s) la
+  marca de algún producto, se eligen los productos de esa marca cuyo nombre o alias contiene el resto
+  de la consulta (uno → ese; varios → "¿Cuál de estos?"); si ninguno coincide, se resuelve como antes y
+  el detalle avisa. El nombre o alias exacto (SPEC-034) va primero. Sin cambios de IA.
 - `favorite_meals(id, name, created_at)` y `favorite_meal_items(favorite_id, position, food_id,
   mention, grams, quantity_input, unit_input, size_input, quantity_basis, confidence)`: comidas
   favoritas (SPEC-022, `user.db` v9). `food_id` es el id del catálogo o `personal:<id>`.

@@ -65,6 +65,9 @@ class PersonalProducts extends Table {
 
   /// SPEC-034 R5: "g" o "ml", la unidad de la porción de la etiqueta.
   TextColumn get servingUnit => text().withDefault(const Constant('g'))();
+
+  /// SPEC-025 R1: marca, opcional ("Alpina").
+  TextColumn get brand => text().nullable()();
 }
 
 /// SPEC-034 R2/R4: nombres con que la persona llama a un producto personal
@@ -182,7 +185,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -237,6 +240,16 @@ class AppDatabase extends _$AppDatabase {
         // SPEC-022 R3.
         await m.createTable(favoriteMeals);
         await m.createTable(favoriteMealItems);
+      }
+      if (from < 10) {
+        // SPEC-025 R1. Solo si falta: desde v1 la tabla se crea arriba ya
+        // con la columna.
+        final columns = await m.database
+            .customSelect('PRAGMA table_info(personal_products)')
+            .get();
+        if (!columns.any((c) => c.read<String>('name') == 'brand')) {
+          await m.addColumn(personalProducts, personalProducts.brand);
+        }
       }
     },
   );

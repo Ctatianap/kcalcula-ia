@@ -252,7 +252,10 @@ class ReviewController extends ChangeNotifier {
   static List<FoodMatchResult> resolveAll(
     ParsedMealDto parsedMeal,
     FoodQueryResolver resolver,
-  ) => parsedMeal.items.map((i) => resolver.resolve(i.foodQuery)).toList();
+  ) => parsedMeal.items
+      // SPEC-025 R2: la marca también puede venir en la frase.
+      .map((i) => resolver.resolve(i.foodQuery, mention: i.mention))
+      .toList();
 
   List<ReviewItem> get items => List.unmodifiable(_items);
 
@@ -291,6 +294,16 @@ class ReviewController extends ChangeNotifier {
       );
 
   ReviewItem _buildItem(ParsedMealItemDto parsed, FoodMatchResult match) {
+    final item = _itemFor(parsed, match);
+    // SPEC-025 R3.
+    final notice = _resolver.brandWithoutProduct(
+      parsed.foodQuery,
+      parsed.mention,
+    );
+    return notice == null ? item : item.withBrandNotice(notice);
+  }
+
+  ReviewItem _itemFor(ParsedMealItemDto parsed, FoodMatchResult match) {
     return switch (match) {
       FoodMatched(food: final food) => _matchedItem(parsed, food),
       FoodAmbiguous(candidates: final candidates) => ReviewItem(

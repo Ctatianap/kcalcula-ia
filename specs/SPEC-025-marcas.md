@@ -1,7 +1,7 @@
 # SPEC-025: Marcas de mis productos
 
 ## Status
-Draft
+Implementing
 Path: Strict (cambia la resolución de alimentos y el esquema de `user.db`; sin cambios de IA)
 
 ## Objective
@@ -113,6 +113,23 @@ no los de un alimento genérico.
   llega en el texto, así que se resuelve en la app con un campo "Marca" en Mis productos, sin cambiar
   el prompt ni el esquema (el borrador anterior pedía `parsed_meal.v2`, `label_extraction.v2` y evals).
   Preguntas abiertas resueltas con la opción recomendada.
+- 2026-10-09: **Approved por la usuaria** ("aprobada la SPEC-025"). Status → Implementing.
+- 2026-10-09: implementada. Detalles menores: `FoodQueryResolver.resolve` recibe `mention`;
+  `brandWithoutProduct` da el aviso (marca y consulta sin la marca); la marca se recorta y vacía = sin
+  marca; el aviso trae el botón "Usar etiqueta" del ingrediente. Los tests de migración de SPEC-008/015
+  que comparaban con la versión 9 ahora esperan 10 (la vigente). app 518/518.
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/features/review/brand_resolution_test.dart` › "AC1: "yogur Alpina"…" (unidad) y "AC1: el detalle usa mi producto Alpina…" (pantalla) |
+| AC2 | ✅ | mismo archivo › "AC2…" |
+| AC3 | ✅ | mismo archivo › "AC3…" |
+| AC4 | ✅ | mismo archivo › "AC4 (lógica)…" y "AC4: "kumis Alpina"…" |
+| AC5 | ✅ | mismo archivo › "AC5…" |
+| AC6 | ✅ | mismo archivo › "AC6…"; tests de resolución de SPEC-018/020/028/034/035 sin cambios |
+| AC7 | ✅ | mismo archivo › "AC7: "Editar producto" guarda la marca" y "AC7: migrar desde la v9…" |
+| Manual | ⏳ | "un yogur Alpina" con un producto Alpina en el teléfono, pendiente |
 
 ## Review
 Informe del reviewer:

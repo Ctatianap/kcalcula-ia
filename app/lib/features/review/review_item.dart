@@ -36,6 +36,9 @@ class ReviewItem {
   /// típica de respaldo (`fallbackResolution`).
   final bool withoutEquivalence;
 
+  /// SPEC-025 R3: se dijo una marca de mis productos y ninguno coincidió.
+  final ({String brand, String query})? brandWithoutProduct;
+
   /// SPEC-026 R2/AC4: el ítem tal como se guardó, mientras la persona no lo
   /// cambie: al guardar se conserva su instantánea (nombre y valores),
   /// aunque el catálogo o el producto hayan cambiado. `null` si es nuevo o
@@ -61,6 +64,7 @@ class ReviewItem {
     this.showInGrams = false,
     this.savedSnapshot,
     this.withoutEquivalence = false,
+    this.brandWithoutProduct,
   });
 
   ReviewItem copyWith({
@@ -99,5 +103,30 @@ class ReviewItem {
     showInGrams: showInGrams ?? this.showInGrams,
     savedSnapshot: keepSnapshot ? savedSnapshot : null,
     withoutEquivalence: writtenQuantity == null && withoutEquivalence,
+    brandWithoutProduct: brandWithoutProduct,
   );
+
+  /// SPEC-025 R3.
+  ReviewItem withBrandNotice(({String brand, String query}) notice) =>
+      ReviewItem(
+        mention: mention,
+        foodQuery: foodQuery,
+        isVague: isVague,
+        parentIndex: parentIndex,
+        quantityRaw: quantityRaw,
+        unitRaw: unitRaw,
+        sizeRaw: sizeRaw,
+        status: status,
+        candidates: candidates,
+        food: food,
+        grams: grams,
+        basis: basis,
+        confidence: confidence,
+        nutrients: nutrients,
+        highlightForEdit: highlightForEdit,
+        showInGrams: showInGrams,
+        savedSnapshot: savedSnapshot,
+        withoutEquivalence: withoutEquivalence,
+        brandWithoutProduct: notice,
+      );
 }
