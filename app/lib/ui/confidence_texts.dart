@@ -46,8 +46,9 @@ ConfidenceReason confidenceReasonFor({
   /// SPEC-043: se usó el respaldo de `fallbackResolution`.
   bool withoutEquivalence = false,
 }) {
-  if (withoutEquivalence) return ConfidenceReason.withoutEquivalence;
+  // Lo vago se explica primero: es lo que la persona dijo (SPEC-043).
   if (isVague) return ConfidenceReason.vague;
+  if (withoutEquivalence) return ConfidenceReason.withoutEquivalence;
   final estimated = level == ConfidenceLevel.estimacion;
   return switch (basis) {
     QuantityBasis.label when estimated => ConfidenceReason.densityFallback,

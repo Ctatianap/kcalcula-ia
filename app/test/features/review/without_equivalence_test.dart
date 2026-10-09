@@ -2,6 +2,7 @@ import 'package:calorias_ia/features/review/meal_detail_view.dart';
 import 'package:calorias_ia/ui/confidence_texts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nutrition_core/nutrition_core.dart';
 
 import '../../support/meal_flow_harness.dart';
 
@@ -114,6 +115,21 @@ void main() {
       expect(item.quantityBasis, 'defaultPortion');
       expect(item.grams, 100);
       expect(meals.single.meal.confidence, 'estimacion');
+    },
+  );
+
+  test(
+    'Edge: vaga y sin equivalencia → se explica como cantidad aproximada',
+    () {
+      expect(
+        confidenceReasonFor(
+          basis: QuantityBasis.defaultPortion,
+          isVague: true,
+          level: ConfidenceLevel.estimacion,
+          withoutEquivalence: true,
+        ),
+        ConfidenceReason.vague,
+      );
     },
   );
 }

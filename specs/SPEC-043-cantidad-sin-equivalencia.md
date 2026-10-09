@@ -36,6 +36,10 @@ corregirla en vez de confiar en un número inventado.
   los gramos" y "Usa la etiqueta".
 - R5. Lo que ya está guardado no cambia (las comidas guardadas conservan su confianza).
 - R6. Sin IA y sin datos nuevos que salgan del dispositivo.
+- R7. Si un ingrediente sin equivalencia se corrige con "Usar etiqueta" (SPEC-033), la cantidad
+  elegida en "Confirmar etiqueta" pasa con su base y su confianza según las reglas (g/ml de la etiqueta
+  → `label`, Alta precisión) y el ingrediente sigue destacado. Antes solo cambiaban los gramos y quedaba
+  "Buena estimación" de `unit_portion`.
 
 ## Acceptance Criteria
 - AC1. `nutrition_core`: un alimento sin porción "unidad" con "2 unidad" → no resoluble; el respaldo
@@ -49,7 +53,11 @@ corregirla en vez de confiar en un número inventado.
 - AC4. "¿Por qué?" de ese ingrediente muestra la razón de R4; "Escribe los gramos" 150 → "Peso dicho
   por ti", Buena estimación `[widget]`.
 - AC5. Las cantidades que sí se convierten no cambian: tests existentes de `nutrition_core`
-  (quantity_resolution, confidence) y de la app verdes sin cambiar expectativas `[unit + widget]`.
+  (quantity_resolution, confidence) y de la app verdes sin cambiar expectativas, salvo
+  `ingredient_actions_test.dart` › "AC3: 1 scoop…" (SPEC-033), que es justo un caso sin equivalencia y
+  pasa a esperar lo de R7 `[unit + widget]`.
+- AC7. "1 scoop" (sin porción "scoop") → "Usar etiqueta" con 2 porciones de 30 g → 60 g, "De tu
+  etiqueta", indicador **Alta precisión** y destacado `[widget]`.
 - AC6. Guardar esa comida guarda `confidence = estimacion` y `quantity_basis = defaultPortion` en el
   ítem `[integration]`.
 
@@ -70,6 +78,10 @@ corregirla en vez de confiar en un número inventado.
 - Cantidad vaga sin equivalencia: sigue siendo Estimación (ya lo era).
 - Producto personal (etiqueta): siempre tiene porción "porcion", así que el respaldo es su porción.
 - Cambiar el alimento ("¿Cuál de estos?", "Elegir de mis productos") vuelve a resolver con las reglas.
+- Cantidad vaga y sin equivalencia: "¿Por qué?" la explica como cantidad aproximada (lo que la persona
+  dijo); el nivel es Estimación igual.
+- Limitación conocida: la marca "sin equivalencia" no se guarda. Al reabrir una comida guardada, ese
+  ingrediente se ve como "Porción estimada" (su confianza guardada, Estimación, no cambia).
 
 ## Security & Privacy
 - ¿Sale algún dato nuevo del dispositivo? No.
@@ -103,6 +115,11 @@ corregirla en vez de confiar en un número inventado.
     justo el caso de T-041. El resto de tests no cambió.
   - `confidence_visual_test.dart` (SPEC-023 AC4) incluye la razón nueva en el conjunto que recorre.
   - nutrition_core 112/112, app 505/505.
+- 2026-10-08: reviewer CHANGES_REQUESTED: el cambio de confianza al usar la etiqueta (R7) no estaba en
+  la SPEC. Se proponen R7, AC7 y el texto de AC5 (**pendientes de aprobación de la usuaria**). También:
+  lo vago se explica antes que "sin equivalencia" (edge case con test) y la limitación de la marca no
+  guardada queda documentada. `ingredient_actions_test.dart` comprueba Alta precisión y la razón "De tu
+  etiqueta". app 506/506.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -111,8 +128,9 @@ corregirla en vez de confiar en un número inventado.
 | AC2 | ✅ | mismo archivo › grupo "AC2…" |
 | AC3 | ✅ | `app/test/features/review/without_equivalence_test.dart` › "AC3…" |
 | AC4 | ✅ | mismo archivo › "AC4…" |
-| AC5 | ✅ | `quantity_resolution_test.dart` y `confidence_test.dart` sin cambios; app 505/505 (un test de SPEC-033 cambia a propósito, ver Change Log) |
+| AC5 | ✅ | `quantity_resolution_test.dart` y `confidence_test.dart` sin cambios; app 506/506 (un test de SPEC-033 cambia a propósito, R7) |
 | AC6 | ✅ | `without_equivalence_test.dart` › "AC6…" |
+| AC7 | ✅ | `app/test/features/review/ingredient_actions_test.dart` › "AC3: 1 scoop…" (60 g, "De tu etiqueta", Alta precisión, destacado) |
 | Manual | ⏳ | Un ingrediente sin equivalencia en el teléfono, pendiente |
 
 ## Review
