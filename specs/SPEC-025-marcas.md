@@ -1,7 +1,7 @@
 # SPEC-025: Marcas de mis productos
 
 ## Status
-Implementing
+Done
 Path: Strict (cambia la resolución de alimentos y el esquema de `user.db`; sin cambios de IA)
 
 ## Objective
@@ -123,9 +123,10 @@ no los de un alimento genérico.
   que comparaban con la versión 9 ahora esperan 10 (la vigente). app 518/518.
 - 2026-10-09: reviewer PASS con MINOR. Corregidos: la marca se recorta a 40 caracteres también en el
   repositorio; con dos marcas en la frase se prueba la siguiente si la primera no tiene producto
-  (edge case nuevo); comentario viejo de un test. Cambio de texto propuesto en R3 (**pendiente de
-  aprobación de la usuaria**): si ni el genérico se encontró, el aviso no dice "usé el genérico". app
+  (edge case nuevo); comentario viejo de un test. Cambio de texto propuesto en R3 (aprobado después, ver abajo): si ni el genérico se encontró, el aviso no dice "usé el genérico". app
   520/520.
+- 2026-10-09: prueba manual en el teléfono. **La usuaria aprobó el texto del aviso sin genérico y la
+  fusión** ("sí a ambas, fusiona y haz push"). Status → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
