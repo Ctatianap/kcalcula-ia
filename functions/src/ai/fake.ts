@@ -1,6 +1,8 @@
 import type { AiProvider, AiProviderResult } from "./provider.js";
 import {
   LABEL_EXTRACTION_SCHEMA_VERSION,
+  MEAL_CORRECTION_SCHEMA_VERSION,
+  type MealCorrection,
   PARSED_MEAL_SCHEMA_VERSION,
   type LabelExtraction,
   type ParsedMeal,
@@ -281,6 +283,45 @@ const LABEL_FIXTURES: Record<string, () => LabelExtraction> = {
   "fixture:etiqueta-ilegible": fullyUnreadableLabel,
 };
 
+/**
+ * SPEC-024: correcciones deterministas por texto normalizado. Una corrección
+ * sin fixture devuelve 0 operaciones (nunca se inventa un cambio).
+ */
+const CORRECTION_FIXTURES: Record<string, () => MealCorrection> = {
+  // AC1 sobre "dos huevos y una arepa".
+  "no era arepa, era pan integral": () => ({
+    schema_version: MEAL_CORRECTION_SCHEMA_VERSION,
+    operations: [
+      {
+        op: "replace",
+        index: 1,
+        item: item({
+          mention: "un pan integral",
+          food_query: "pan integral",
+          quantity: 1,
+          unit: "unidad",
+        }),
+        quantity: null,
+        unit: null,
+        size: null,
+      },
+    ],
+  }),
+  "eran tres huevos": () => ({
+    schema_version: MEAL_CORRECTION_SCHEMA_VERSION,
+    operations: [
+      {
+        op: "set_quantity",
+        index: 0,
+        item: null,
+        quantity: 3,
+        unit: "unidad",
+        size: null,
+      },
+    ],
+  }),
+};
+
 export function createFakeAiProvider(): AiProvider {
   return {
     async parseMeal({ text }): Promise<AiProviderResult> {
@@ -292,6 +333,14 @@ export function createFakeAiProvider(): AiProvider {
         modelId: "fake",
         latencyMs: Date.now() - start,
       };
+    },
+    async correctMeal({ correction }): Promise<AiProviderResult> {
+      const start = Date.now();
+      const build = CORRECTION_FIXTURES[normalize(correction)];
+      const raw: MealCorrection = build
+        ? build()
+        : { schema_version: MEAL_CORRECTION_SCHEMA_VERSION, operations: [] };
+      return { raw, modelId: "fake", latencyMs: Date.now() - start };
     },
     async extractLabel({ image_base64 }): Promise<AiProviderResult> {
       const start = Date.now();

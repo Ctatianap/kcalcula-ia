@@ -10,7 +10,8 @@
     "logs": "firebase functions:log",
     "test": "npm run build && cd lib && node --test",
     "evals:parse-meal": "npm run build && node lib/evals/run_parse_meal.js",
-    "evals:extract-label": "npm run build && node lib/evals/run_extract_label.js"
+    "evals:extract-label": "npm run build && node lib/evals/run_extract_label.js",
+    "evals:correct-meal": "npm run build && node lib/evals/run_correct_meal.js"
   },
   "engines": {
     "node": "24"

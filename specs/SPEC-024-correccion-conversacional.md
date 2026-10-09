@@ -1,7 +1,7 @@
 # SPEC-024: Corrección conversacional
 
 ## Status
-Draft
+Implementing
 Path: Strict (prompt y esquema de IA nuevos; sale del dispositivo el texto de la corrección y la lista
 de ítems sin nutrientes)
 
@@ -109,6 +109,7 @@ la aplique, para no empezar de nuevo.
 - 2026-10-09: actualizada antes de pedir aprobación: contexto con las correcciones a mano que ya
   existen; preguntas resueltas con la opción recomendada; solo comidas nuevas; voz por dictado del
   teclado; la política no cambia de versión (ya cubre el texto escrito); despliegue (R7); AC9 y AC10.
+- 2026-10-09: **Approved por la usuaria** ("aprobada la SPEC-024"). Status → Implementing.
 
 ## Review
 Informe del reviewer: pendiente.

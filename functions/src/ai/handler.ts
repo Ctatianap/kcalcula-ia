@@ -1,8 +1,17 @@
 import { randomUUID } from "node:crypto";
 import { HttpsError, type CallableRequest } from "firebase-functions/v2/https";
-import { logExtractLabelAttempt, logParseMealAttempt } from "./logger.js";
+import {
+  logCorrectMealAttempt,
+  logExtractLabelAttempt,
+  logParseMealAttempt,
+} from "./logger.js";
 import type { AiProvider } from "./provider.js";
 import {
+  correctionIndexesAreValid,
+  correctMealRequestSchema,
+  MEAL_CORRECTION_SCHEMA_VERSION,
+  mealCorrectionSchema,
+  type MealCorrection,
   extractLabelRequestSchema,
   labelExtractionSchema,
   LABEL_EXTRACTION_SCHEMA_VERSION,
@@ -127,5 +136,69 @@ export function buildExtractLabelHandler(provider: AiProvider) {
     }
 
     return parsedOutput.data;
+  };
+}
+
+/**
+ * SPEC-024: handler puro de `correctMeal`, mismo patrón que `parseMeal`: 1
+ * reintento si la salida no valida (también si usa un índice que no existe,
+ * R5), nunca repara con heurísticas, log solo con metadatos (AC7).
+ */
+export function buildCorrectMealHandler(provider: AiProvider) {
+  return async (request: CallableRequest<unknown>): Promise<MealCorrection> => {
+    const requestId = randomUUID();
+    const parsedInput = correctMealRequestSchema.safeParse(request.data);
+
+    if (!parsedInput.success) {
+      logCorrectMealAttempt({
+        requestId,
+        promptVersion: MEAL_CORRECTION_SCHEMA_VERSION,
+        modelId: "n/a",
+        latencyMs: 0,
+        valid: false,
+        errorCode: "invalid-argument",
+      });
+      throw new HttpsError(
+        "invalid-argument",
+        "La corrección debe tener entre 1 y 300 caracteres.",
+      );
+    }
+
+    const itemCount = parsedInput.data.items.length;
+    const validate = (raw: unknown) => {
+      const parsed = mealCorrectionSchema.safeParse(raw);
+      return parsed.success && correctionIndexesAreValid(parsed.data, itemCount)
+        ? parsed.data
+        : null;
+    };
+
+    let attempt = await provider.correctMeal(parsedInput.data);
+    let output = validate(attempt.raw);
+    if (output === null) {
+      attempt = await provider.correctMeal(parsedInput.data);
+      output = validate(attempt.raw);
+    }
+
+    logCorrectMealAttempt({
+      requestId,
+      promptVersion: MEAL_CORRECTION_SCHEMA_VERSION,
+      modelId: attempt.modelId,
+      latencyMs: attempt.latencyMs,
+      tokensInput: attempt.tokensInput,
+      tokensOutput: attempt.tokensOutput,
+      tokensThinking: attempt.tokensThinking,
+      operationCount: output?.operations.length,
+      valid: output !== null,
+      errorCode: output === null ? AI_INVALID_OUTPUT_ERROR_CODE : undefined,
+    });
+
+    if (output === null) {
+      throw new HttpsError(
+        "invalid-argument",
+        "No pude aplicar esa corrección. Prueba a decirla de otra forma.",
+        { errorCode: AI_INVALID_OUTPUT_ERROR_CODE },
+      );
+    }
+    return output;
   };
 }

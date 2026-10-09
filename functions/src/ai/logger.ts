@@ -51,3 +51,22 @@ export function logExtractLabelAttempt(entry: ExtractLabelLogEntry): void {
 export function logInvalidConfig(variable: string): void {
   logger.warn("config", { errorCode: "invalid-config", variable });
 }
+
+/** SPEC-024 AC7: igual que `ParseMealLogEntry`, para `correctMeal`. */
+export interface CorrectMealLogEntry {
+  requestId: string;
+  promptVersion: string;
+  modelId: string;
+  latencyMs: number;
+  valid: boolean;
+  tokensInput?: number;
+  tokensOutput?: number;
+  tokensThinking?: number;
+  /** Cuántas operaciones devolvió (un número, nunca su contenido). */
+  operationCount?: number;
+  errorCode?: string;
+}
+
+export function logCorrectMealAttempt(entry: CorrectMealLogEntry): void {
+  logger.info("correctMeal", entry);
+}

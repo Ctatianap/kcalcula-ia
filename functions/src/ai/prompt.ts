@@ -1,9 +1,14 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { ParseMealRequest } from "./schemas.js";
+import type { CorrectMealRequest, ParseMealRequest } from "./schemas.js";
 
 const PARSE_MEAL_PROMPT_TEMPLATE = readFileSync(
   join(__dirname, "prompts", "parse_meal.v1.md"),
+  "utf-8",
+);
+
+const CORRECT_MEAL_PROMPT_TEMPLATE = readFileSync(
+  join(__dirname, "prompts", "correct_meal.v1.md"),
   "utf-8",
 );
 
@@ -27,4 +32,19 @@ export function renderParseMealPrompt(input: ParseMealRequest): string {
  */
 export function renderExtractLabelPrompt(): string {
   return EXTRACT_LABEL_PROMPT_TEMPLATE;
+}
+
+/**
+ * SPEC-024: los ítems actuales (sin nutrientes, R2) como JSON con su índice,
+ * y la corrección del usuario.
+ */
+export function renderCorrectMealPrompt(input: CorrectMealRequest): string {
+  const items = JSON.stringify(
+    input.items.map((item, index) => ({ index, ...item })),
+    null,
+    2,
+  );
+  return CORRECT_MEAL_PROMPT_TEMPLATE.replace("{{ITEMS}}", items)
+    .replace("{{LOCALE}}", input.locale)
+    .replace("{{CORRECCION}}", input.correction);
 }

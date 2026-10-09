@@ -43,6 +43,10 @@ test("SPEC-039 AC2: el log de parseMeal registra tokensThinking y no el texto", 
   const infoMock = mock.method(functionsLogger, "info", () => {});
   try {
     const provider: AiProvider = {
+      // SPEC-024: no usado en estos tests.
+      async correctMeal(): Promise<AiProviderResult> {
+        throw new Error("no usado en estos tests");
+      },
       async parseMeal(): Promise<AiProviderResult> {
         return {
           raw: {

@@ -6,7 +6,11 @@ import {
   vertexProjectIdParam,
 } from "./ai/config.js";
 import { createFakeAiProvider } from "./ai/fake.js";
-import { buildExtractLabelHandler, buildParseMealHandler } from "./ai/handler.js";
+import {
+  buildCorrectMealHandler,
+  buildExtractLabelHandler,
+  buildParseMealHandler,
+} from "./ai/handler.js";
 import { createOllamaProvider } from "./ai/ollama.js";
 import type { AiProvider } from "./ai/provider.js";
 import { resolveThinkingBudget } from "./ai/thinking.js";
@@ -73,6 +77,8 @@ const aiProvider: AiProvider = {
   parseMeal: (input) => (selectedProvider ??= selectProvider()).parseMeal(input),
   extractLabel: (input) =>
     (selectedProvider ??= selectProvider()).extractLabel(input),
+  correctMeal: (input) =>
+    (selectedProvider ??= selectProvider()).correctMeal(input),
 };
 
 export const parseMeal = onCall(
@@ -93,6 +99,17 @@ export const extractLabel = onCall(
     timeoutSeconds: 60,
   },
   buildExtractLabelHandler(aiProvider),
+);
+
+// SPEC-024 R7: como `parseMeal`, con un poco más de margen (la corrección
+// lleva la lista de ítems).
+export const correctMeal = onCall(
+  {
+    region: "us-east1",
+    enforceAppCheck: true,
+    timeoutSeconds: 20,
+  },
+  buildCorrectMealHandler(aiProvider),
 );
 
 // Placeholder de T-000 para verificar que el emulador arranca.

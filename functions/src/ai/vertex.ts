@@ -1,10 +1,16 @@
 import { GoogleGenAI } from "@google/genai";
 import type { AiProvider, AiProviderResult } from "./provider.js";
 import { buildGenerationConfig } from "./thinking.js";
-import { renderExtractLabelPrompt, renderParseMealPrompt } from "./prompt.js";
+import {
+  renderCorrectMealPrompt,
+  renderExtractLabelPrompt,
+  renderParseMealPrompt,
+} from "./prompt.js";
 import {
   LABEL_EXTRACTION_RESPONSE_SCHEMA,
+  MEAL_CORRECTION_RESPONSE_SCHEMA,
   PARSED_MEAL_RESPONSE_SCHEMA,
+  type CorrectMealRequest,
   type ExtractLabelRequest,
   type ParseMealRequest,
 } from "./schemas.js";
@@ -49,6 +55,30 @@ export function createVertexAiProvider(
         tokensInput: response.usageMetadata?.promptTokenCount,
         tokensOutput: response.usageMetadata?.candidatesTokenCount,
         // SPEC-039 R2.
+        tokensThinking: response.usageMetadata?.thoughtsTokenCount,
+      };
+    },
+
+    async correctMeal(input: CorrectMealRequest): Promise<AiProviderResult> {
+      const start = Date.now();
+      const response = await client.models.generateContent({
+        model: config.modelId,
+        contents: renderCorrectMealPrompt(input),
+        config: buildGenerationConfig(
+          MEAL_CORRECTION_RESPONSE_SCHEMA,
+          config.thinkingBudget,
+        ),
+      });
+      const text = response.text;
+      if (text === undefined) {
+        throw new Error("Vertex AI no devolvió texto en la respuesta.");
+      }
+      return {
+        raw: JSON.parse(text),
+        modelId: config.modelId,
+        latencyMs: Date.now() - start,
+        tokensInput: response.usageMetadata?.promptTokenCount,
+        tokensOutput: response.usageMetadata?.candidatesTokenCount,
         tokensThinking: response.usageMetadata?.thoughtsTokenCount,
       };
     },
