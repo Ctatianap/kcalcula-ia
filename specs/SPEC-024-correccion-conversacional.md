@@ -1,7 +1,7 @@
 # SPEC-024: Corrección conversacional
 
 ## Status
-Review
+Done
 Path: Strict (prompt y esquema de IA nuevos; sale del dispositivo el texto de la corrección y la lista
 de ítems sin nutrientes)
 
@@ -139,6 +139,8 @@ la aplique, para no empezar de nuevo.
   (Ollama ya no carga el adaptador de Vertex); cambiar el tipo de comida no quita "Deshacer"; test del
   mensaje con más de 30 ingredientes. functions 73/73, app 537/537. Status → Review: falta la
   aprobación explícita de la usuaria para fusionar (Strict).
+- 2026-10-09: **aprobación explícita de la usuaria para fusionar y hacer push** ("sí, haz push cuando pase
+  el revisor"; el reviewer ya había dado PASS). Status → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |

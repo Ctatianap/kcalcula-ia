@@ -385,6 +385,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   # specs/SPEC-022-comidas-frecuentes-y-favoritas.md, specs/SPEC-023-confianza-visual.md
 - id: F3
   # SPEC-025 (marcas de mis productos): Done 2026-10-09.
+  # SPEC-024 (corrección conversacional): Done 2026-10-09.
   title: Fase 3 — corrección conversacional, marcas, historial avanzado
   # SPECs (Draft, 2026-10-04): specs/SPEC-024-correccion-conversacional.md (Strict),
   # specs/SPEC-025-marcas.md (Strict), specs/SPEC-026-editar-comidas-guardadas.md, specs/SPEC-036-buscar-en-el-historial.md
