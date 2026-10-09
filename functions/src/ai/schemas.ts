@@ -1,0 +1,385 @@
+import { z } from "zod";
+
+export const PARSED_MEAL_SCHEMA_VERSION = "parsed_meal.v1" as const;
+
+/**
+ * Esquema de entrada del callable `parseMeal`. R1: 1-500 caracteres.
+ */
+export const parseMealRequestSchema = z.strictObject({
+  text: z.string().min(1).max(500),
+  locale: z.literal("es-CO"),
+});
+
+export type ParseMealRequest = z.infer<typeof parseMealRequestSchema>;
+
+const parsedMealItemSchema = z.strictObject({
+  mention: z.string().min(1),
+  food_query: z.string().min(1),
+  quantity: z.number().positive().nullable(),
+  unit: z
+    .enum([
+      "g",
+      "ml",
+      "unidad",
+      "cucharada",
+      "cucharadita",
+      "taza",
+      "vaso",
+      "porcion",
+    ])
+    .nullable(),
+  size: z.enum(["pequeno", "mediano", "grande"]).nullable(),
+  preparation: z.string().nullable(),
+  is_vague: z.boolean(),
+  parent_index: z.number().int().nonnegative().nullable(),
+});
+
+/**
+ * `parsed_meal.v1`: la IA solo estructura, nunca calcula (invariante 1).
+ * Sin campos de calorías ni nutrientes; `additionalProperties: false` en
+ * todos los niveles vía `z.strictObject`.
+ */
+export const parsedMealSchema = z.strictObject({
+  schema_version: z.literal(PARSED_MEAL_SCHEMA_VERSION),
+  meal_type: z.enum(["desayuno", "almuerzo", "cena", "snack"]).nullable(),
+  items: z.array(parsedMealItemSchema),
+});
+
+export type ParsedMealItem = z.infer<typeof parsedMealItemSchema>;
+export type ParsedMeal = z.infer<typeof parsedMealSchema>;
+
+const nullType = { type: "null" } as const;
+
+/**
+ * JSON Schema estándar para `responseJsonSchema` de `@google/genai`.
+ * Es solo una guía estructural para el modelo: la única puerta autoritativa
+ * es `parsedMealSchema.safeParse` (regla 5 de `ai-pipeline`). `responseJsonSchema`
+ * no soporta la palabra clave OpenAPI `nullable`: los campos opcionales se
+ * expresan con `anyOf` + `{type: "null"}`.
+ */
+export const LABEL_EXTRACTION_SCHEMA_VERSION = "label_extraction.v1" as const;
+
+/**
+ * Esquema de entrada del callable `extractLabel`. R10 (SPEC-004): el
+ * cliente ya redimensiona/comprime la imagen (~1600 px, JPEG ~85 %) antes de
+ * enviarla; este límite de `image_base64` es una defensa adicional en el
+ * backend, no el mecanismo principal de control de tamaño.
+ */
+export const extractLabelRequestSchema = z.strictObject({
+  image_base64: z.string().min(1).max(3_000_000),
+  mime_type: z.enum(["image/jpeg", "image/png"]),
+});
+
+export type ExtractLabelRequest = z.infer<typeof extractLabelRequestSchema>;
+
+/** Nombres de campo que la IA puede listar en `unreadable_fields`. */
+const LABEL_FIELD_NAMES = [
+  "product_name",
+  "serving_size",
+  "energy_kcal",
+  "protein_g",
+  "carbs_g",
+  "fat_g",
+  "fiber_g",
+  "sugar_g",
+  "sodium_mg",
+] as const;
+
+const labelNutrientSetSchema = z.strictObject({
+  energy_kcal: z.number().nonnegative().nullable(),
+  protein_g: z.number().nonnegative().nullable(),
+  carbs_g: z.number().nonnegative().nullable(),
+  fat_g: z.number().nonnegative().nullable(),
+  fiber_g: z.number().nonnegative().nullable(),
+  sugar_g: z.number().nonnegative().nullable(),
+  sodium_mg: z.number().nonnegative().nullable(),
+});
+
+export type LabelNutrientSet = z.infer<typeof labelNutrientSetSchema>;
+
+const labelServingSizeSchema = z.strictObject({
+  quantity: z.number().positive(),
+  unit: z.enum(["g", "ml"]),
+});
+
+/**
+ * `label_extraction.v1`: la IA solo transcribe lo impreso en la etiqueta
+ * (invariante 1 y 2 de CLAUDE.md) — nunca calcula, nunca completa un campo
+ * que no pudo leer. Lo que no se pudo leer va en `unreadable_fields`, con
+ * su valor en `null`; un campo que simplemente no está impreso (por
+ * ejemplo, muchas etiquetas no traen `fiber_g`) también queda en `null`
+ * pero NO se lista en `unreadable_fields` (distinción para la UI: uno
+ * sugiere pedirle al usuario que lo complete porque probablemente exista,
+ * el otro no).
+ */
+export const labelExtractionSchema = z.strictObject({
+  schema_version: z.literal(LABEL_EXTRACTION_SCHEMA_VERSION),
+  product_name: z.string().nullable(),
+  serving_size: labelServingSizeSchema.nullable(),
+  per_serving: labelNutrientSetSchema.nullable(),
+  per_100: labelNutrientSetSchema.nullable(),
+  unreadable_fields: z.array(z.enum(LABEL_FIELD_NAMES)),
+});
+
+export type LabelExtraction = z.infer<typeof labelExtractionSchema>;
+
+export const PARSED_MEAL_RESPONSE_SCHEMA = {
+  type: "object",
+  properties: {
+    schema_version: { type: "string", enum: [PARSED_MEAL_SCHEMA_VERSION] },
+    meal_type: {
+      anyOf: [
+        { type: "string", enum: ["desayuno", "almuerzo", "cena", "snack"] },
+        nullType,
+      ],
+    },
+    items: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          mention: { type: "string" },
+          food_query: { type: "string" },
+          quantity: { anyOf: [{ type: "number" }, nullType] },
+          unit: {
+            anyOf: [
+              {
+                type: "string",
+                enum: [
+                  "g",
+                  "ml",
+                  "unidad",
+                  "cucharada",
+                  "cucharadita",
+                  "taza",
+                  "vaso",
+                  "porcion",
+                ],
+              },
+              nullType,
+            ],
+          },
+          size: {
+            anyOf: [
+              { type: "string", enum: ["pequeno", "mediano", "grande"] },
+              nullType,
+            ],
+          },
+          preparation: { anyOf: [{ type: "string" }, nullType] },
+          is_vague: { type: "boolean" },
+          parent_index: { anyOf: [{ type: "integer" }, nullType] },
+        },
+        additionalProperties: false,
+        required: [
+          "mention",
+          "food_query",
+          "quantity",
+          "unit",
+          "size",
+          "preparation",
+          "is_vague",
+          "parent_index",
+        ],
+      },
+    },
+  },
+  additionalProperties: false,
+  required: ["schema_version", "meal_type", "items"],
+} as const;
+
+const LABEL_NUTRIENT_SET_JSON_SCHEMA = {
+  type: "object",
+  properties: {
+    energy_kcal: { anyOf: [{ type: "number" }, nullType] },
+    protein_g: { anyOf: [{ type: "number" }, nullType] },
+    carbs_g: { anyOf: [{ type: "number" }, nullType] },
+    fat_g: { anyOf: [{ type: "number" }, nullType] },
+    fiber_g: { anyOf: [{ type: "number" }, nullType] },
+    sugar_g: { anyOf: [{ type: "number" }, nullType] },
+    sodium_mg: { anyOf: [{ type: "number" }, nullType] },
+  },
+  additionalProperties: false,
+  required: [
+    "energy_kcal",
+    "protein_g",
+    "carbs_g",
+    "fat_g",
+    "fiber_g",
+    "sugar_g",
+    "sodium_mg",
+  ],
+} as const;
+
+/** Espejo de `labelExtractionSchema` para `responseJsonSchema` (ver nota de `PARSED_MEAL_RESPONSE_SCHEMA`). */
+export const LABEL_EXTRACTION_RESPONSE_SCHEMA = {
+  type: "object",
+  properties: {
+    schema_version: {
+      type: "string",
+      enum: [LABEL_EXTRACTION_SCHEMA_VERSION],
+    },
+    product_name: { anyOf: [{ type: "string" }, nullType] },
+    serving_size: {
+      anyOf: [
+        {
+          type: "object",
+          properties: {
+            quantity: { type: "number" },
+            unit: { type: "string", enum: ["g", "ml"] },
+          },
+          additionalProperties: false,
+          required: ["quantity", "unit"],
+        },
+        nullType,
+      ],
+    },
+    per_serving: { anyOf: [LABEL_NUTRIENT_SET_JSON_SCHEMA, nullType] },
+    per_100: { anyOf: [LABEL_NUTRIENT_SET_JSON_SCHEMA, nullType] },
+    unreadable_fields: {
+      type: "array",
+      items: { type: "string", enum: [...LABEL_FIELD_NAMES] },
+    },
+  },
+  additionalProperties: false,
+  required: [
+    "schema_version",
+    "product_name",
+    "serving_size",
+    "per_serving",
+    "per_100",
+    "unreadable_fields",
+  ],
+} as const;
+
+// ---------------------------------------------------------------------------
+// SPEC-024: corrección conversacional (`correctMeal`).
+// ---------------------------------------------------------------------------
+
+export const MEAL_CORRECTION_SCHEMA_VERSION = "meal_correction.v1" as const;
+
+const QUANTITY_UNITS = [
+  "g",
+  "ml",
+  "unidad",
+  "cucharada",
+  "cucharadita",
+  "taza",
+  "vaso",
+  "porcion",
+] as const;
+const SIZES = ["pequeno", "mediano", "grande"] as const;
+
+/**
+ * SPEC-024 R2: un ítem actual del borrador tal como se envía. Solo lo que
+ * la persona dijo y cómo se estructuró: **sin** nutrientes, gramos
+ * calculados ni confianza (`z.strictObject` rechaza cualquier otro campo).
+ */
+const correctionDraftItemSchema = z.strictObject({
+  mention: z.string().min(1).max(300),
+  food_query: z.string().min(1).max(200),
+  quantity: z.number().positive().nullable(),
+  unit: z.enum(QUANTITY_UNITS).nullable(),
+  size: z.enum(SIZES).nullable(),
+});
+
+/** Entrada del callable `correctMeal`. R1/AC8: corrección de 1-300 caracteres. */
+export const correctMealRequestSchema = z.strictObject({
+  correction: z.string().trim().min(1).max(300),
+  locale: z.literal("es-CO"),
+  items: z.array(correctionDraftItemSchema).min(1).max(30),
+});
+
+export type CorrectMealRequest = z.infer<typeof correctMealRequestSchema>;
+
+/**
+ * Una operación sobre el borrador. Forma plana (un solo objeto con `op`) para
+ * que el modelo la siga con `responseJsonSchema`; qué campos se exigen según
+ * `op` lo valida `mealCorrectionSchema`.
+ */
+const correctionOperationSchema = z.strictObject({
+  op: z.enum(["replace", "add", "remove", "set_quantity"]),
+  index: z.number().int().nonnegative().nullable(),
+  item: parsedMealItemSchema.nullable(),
+  quantity: z.number().positive().nullable(),
+  unit: z.enum(QUANTITY_UNITS).nullable(),
+  size: z.enum(SIZES).nullable(),
+});
+
+export type CorrectionOperation = z.infer<typeof correctionOperationSchema>;
+
+/** Qué campos lleva cada operación (R2). */
+function operationShapeError(op: CorrectionOperation): string | null {
+  switch (op.op) {
+    case "replace":
+      return op.index !== null && op.item !== null ? null : "replace pide index e item";
+    case "add":
+      return op.index === null && op.item !== null ? null : "add pide item y no index";
+    case "remove":
+      return op.index !== null && op.item === null ? null : "remove pide solo index";
+    case "set_quantity":
+      return op.index !== null && op.item === null && (op.quantity !== null || op.size !== null)
+        ? null
+        : "set_quantity pide index y cantidad o tamaño";
+  }
+}
+
+/**
+ * `meal_correction.v1` (SPEC-024): la IA estructura **cambios** al borrador,
+ * nunca valores nutricionales (invariante 1). Sin campos de calorías,
+ * nutrientes, gramos calculados ni confianza (`z.strictObject`).
+ */
+export const mealCorrectionSchema = z
+  .strictObject({
+    schema_version: z.literal(MEAL_CORRECTION_SCHEMA_VERSION),
+    operations: z.array(correctionOperationSchema).max(30),
+  })
+  .superRefine((value, ctx) => {
+    value.operations.forEach((op, i) => {
+      const error = operationShapeError(op);
+      if (error) ctx.addIssue({ code: "custom", message: error, path: ["operations", i] });
+    });
+  });
+
+export type MealCorrection = z.infer<typeof mealCorrectionSchema>;
+
+/**
+ * R5: con la lista enviada, ¿todos los índices existen? Una sola operación
+ * fuera de rango invalida toda la respuesta (no se aplica a medias).
+ */
+export function correctionIndexesAreValid(
+  correction: MealCorrection,
+  itemCount: number,
+): boolean {
+  return correction.operations.every(
+    (op) => op.index === null || op.index < itemCount,
+  );
+}
+
+const PARSED_MEAL_ITEM_JSON_SCHEMA =
+  PARSED_MEAL_RESPONSE_SCHEMA.properties.items.items;
+
+/** Espejo de `mealCorrectionSchema` para `responseJsonSchema`. */
+export const MEAL_CORRECTION_RESPONSE_SCHEMA = {
+  type: "object",
+  properties: {
+    schema_version: { type: "string", enum: [MEAL_CORRECTION_SCHEMA_VERSION] },
+    operations: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          op: { type: "string", enum: ["replace", "add", "remove", "set_quantity"] },
+          index: { anyOf: [{ type: "integer" }, nullType] },
+          item: { anyOf: [PARSED_MEAL_ITEM_JSON_SCHEMA, nullType] },
+          quantity: { anyOf: [{ type: "number" }, nullType] },
+          unit: { anyOf: [{ type: "string", enum: [...QUANTITY_UNITS] }, nullType] },
+          size: { anyOf: [{ type: "string", enum: [...SIZES] }, nullType] },
+        },
+        additionalProperties: false,
+        required: ["op", "index", "item", "quantity", "unit", "size"],
+      },
+    },
+  },
+  additionalProperties: false,
+  required: ["schema_version", "operations"],
+} as const;

@@ -1,0 +1,598 @@
+{
+  "dataset": "correct_meal.v1",
+  "provider": "vertex",
+  "modelId": "gemini-2.5-flash",
+  "ranAt": "2026-10-09T19:26:41.390Z",
+  "schemaValidRate": "20/20 (100.0%)",
+  "correctionAccuracy": "20/20 (100.0%)",
+  "latencyP50Ms": 1230,
+  "latencyP95Ms": 3090,
+  "avgTokensInput": 1024,
+  "avgTokensOutput": 72,
+  "avgTokensThinking": "n/a",
+  "thinkingBudget": 0,
+  "results": [
+    {
+      "id": "c01",
+      "correction": "no era arepa, era pan integral",
+      "schemaValid": true,
+      "correct": true,
+      "latencyMs": 3090,
+      "tokensInput": 1024,
+      "tokensOutput": 99,
+      "expected": [
+        {
+          "op": "replace",
+          "index": 1,
+          "food_query": "pan integral"
+        }
+      ],
+      "actual": [
+        {
+          "op": "replace",
+          "index": 1,
+          "item": {
+            "mention": "pan integral",
+            "food_query": "pan integral",
+            "quantity": 1,
+            "unit": "unidad",
+            "size": null,
+            "preparation": null,
+            "is_vague": false,
+            "parent_index": null
+          },
+          "quantity": null,
+          "unit": null,
+          "size": null
+        }
+      ]
+    },
+    {
+      "id": "c02",
+      "correction": "el arroz fue una taza",
+      "schemaValid": true,
+      "correct": true,
+      "latencyMs": 1322,
+      "tokensInput": 1026,
+      "tokensOutput": 53,
+      "expected": [
+        {
+          "op": "set_quantity",
+          "index": 0,
+          "quantity": 1,
+          "unit": "taza"
+        }
+      ],
+      "actual": [
+        {
+          "op": "set_quantity",
+          "index": 0,
+          "item": null,
+          "quantity": 1,
+          "unit": "taza",
+          "size": null
+        }
+      ]
+    },
+    {
+      "id": "c03",
+      "correction": "eran tres huevos",
+      "schemaValid": true,
+      "correct": true,
+      "latencyMs": 1229,
+      "tokensInput": 1019,
+      "tokensOutput": 52,
+      "expected": [
+        {
+          "op": "set_quantity",
+          "index": 0,
+          "quantity": 3,
+          "unit": "unidad"
+        }
+      ],
+      "actual": [
+        {
+          "op": "set_quantity",
+          "index": 0,
+          "item": null,
+          "quantity": 3,
+          "unit": "unidad",
+          "size": null
+        }
+      ]
+    },
+    {
+      "id": "c04",
+      "correction": "también me comí un banano",
+      "schemaValid": true,
+      "correct": true,
+      "latencyMs": 1240,
+      "tokensInput": 1023,
+      "tokensOutput": 99,
+      "expected": [
+        {
+          "op": "add",
+          "food_query": "banano"
+        }
+      ],
+      "actual": [
+        {
+          "op": "add",
+          "index": null,
+          "item": {
+            "mention": "un banano",
+            "food_query": "banano",
+            "quantity": 1,
+            "unit": "unidad",
+            "size": null,
+            "preparation": null,
+            "is_vague": false,
+            "parent_index": null
+          },
+          "quantity": null,
+          "unit": null,
+          "size": null
+        }
+      ]
+    },
+    {
+      "id": "c05",
+      "correction": "no me tomé el tinto",
+      "schemaValid": true,
+      "correct": true,
+      "latencyMs": 1292,
+      "tokensInput": 1081,
+      "tokensOutput": 48,
+      "expected": [
+        {
+          "op": "remove",
+          "index": 2
+        }
+      ],
+      "actual": [
+        {
+          "op": "remove",
+          "index": 2,
+          "item": null,
+          "quantity": null,
+          "unit": null,
+          "size": null
+        }
+      ]
+    },
+    {
+      "id": "c06",
+      "correction": "está bien así",
+      "schemaValid": true,
+      "correct": true,
+      "latencyMs": 948,
+      "tokensInput": 1020,
+      "tokensOutput": 18,
+      "expected": [],
+      "actual": []
+    },
+    {
+      "id": "c07",
+      "correction": "no era pollo, era carne de res",
+      "schemaValid": true,
+      "correct": true,
+      "latencyMs": 2559,
+      "tokensInput": 1083,
+      "tokensOutput": 102,
+      "expected": [
+        {
+          "op": "replace",
+          "index": 1,
+          "food_query": "carne de res"
+        }
+      ],
+      "actual": [
+        {
+          "op": "replace",
+          "index": 1,
+          "item": {
+            "mention": "carne de res",
+            "food_query": "carne de res",
+            "quantity": null,
+            "unit": null,
+            "size": null,
+            "preparation": null,
+            "is_vague": false,
+            "parent_index": null
+          },
+          "quantity": null,
+          "unit": null,
+          "size": null
+        }
+      ]
+    },
+    {
+      "id": "c08",
+      "correction": "la arepa era grande",
+      "schemaValid": true,
+      "correct": true,
+      "latencyMs": 1127,
+      "tokensInput": 1021,
+      "tokensOutput": 52,
+      "expected": [
+        {
+          "op": "set_quantity",
+          "index": 1,
+          "size": "grande"
+        }
+      ],
+      "actual": [
+        {
+          "op": "set_quantity",
+          "index": 1,
+          "item": null,
+          "quantity": null,
+          "unit": null,
+          "size": "grande"
+        }
+      ]
+    },
+    {
+      "id": "c09",
+      "correction": "faltó un vaso de jugo de naranja",
+      "schemaValid": true,
+      "correct": true,
+      "latencyMs": 1230,
+      "tokensInput": 1024,
+      "tokensOutput": 106,
+      "expected": [
+        {
+          "op": "add",
+          "food_query": "jugo de naranja"
+        }
+      ],
+      "actual": [
+        {
+          "op": "add",
+          "index": null,
+          "item": {
+            "mention": "un vaso de jugo de naranja",
+            "food_query": "jugo de naranja",
+            "quantity": 1,
+            "unit": "vaso",
+            "size": null,
+            "preparation": null,
+            "is_vague": false,
+            "parent_index": null
+          },
+          "quantity": null,
+          "unit": null,
+          "size": null
+        }
+      ]
+    },
+    {
+      "id": "c10",
+      "correction": "quita los huevos",
+      "schemaValid": true,
+      "correct": true,
+      "latencyMs": 891,
+      "tokensInput": 1019,
+      "tokensOutput": 48,
+      "expected": [
+        {
+          "op": "remove",
+          "index": 0
+        }
+      ],
+      "actual": [
+        {
+          "op": "remove",
+          "index": 0,
+          "item": null,
+          "quantity": null,
+          "unit": null,
+          "size": null
+        }
+      ]
+    },
+    {
+      "id": "c11",
+      "correction": "fueron 200 gramos de pollo",
+      "schemaValid": true,
+      "correct": true,
+      "latencyMs": 894,
+      "tokensInput": 1031,
+      "tokensOutput": 54,
+      "expected": [
+        {
+          "op": "set_quantity",
+          "index": 1,
+          "quantity": 200,
+          "unit": "g"
+        }
+      ],
+      "actual": [
+        {
+          "op": "set_quantity",
+          "index": 1,
+          "item": null,
+          "quantity": 200,
+          "unit": "g",
+          "size": null
+        }
+      ]
+    },
+    {
+      "id": "c12",
+      "correction": "el jugo era de mora, no de naranja",
+      "schemaValid": true,
+      "correct": true,
+      "latencyMs": 965,
+      "tokensInput": 1028,
+      "tokensOutput": 104,
+      "expected": [
+        {
+          "op": "replace",
+          "index": 0,
+          "food_query": "jugo de mora"
+        }
+      ],
+      "actual": [
+        {
+          "op": "replace",
+          "index": 0,
+          "item": {
+            "mention": "jugo de mora",
+            "food_query": "jugo de mora",
+            "quantity": 1,
+            "unit": "vaso",
+            "size": null,
+            "preparation": null,
+            "is_vague": false,
+            "parent_index": null
+          },
+          "quantity": null,
+          "unit": null,
+          "size": null
+        }
+      ]
+    },
+    {
+      "id": "c13",
+      "correction": "no comí arepa y además me tomé un café",
+      "schemaValid": true,
+      "correct": true,
+      "latencyMs": 1280,
+      "tokensInput": 1028,
+      "tokensOutput": 130,
+      "expected": [
+        {
+          "op": "remove",
+          "index": 1
+        },
+        {
+          "op": "add",
+          "food_query": "café"
+        }
+      ],
+      "actual": [
+        {
+          "op": "remove",
+          "index": 1,
+          "item": null,
+          "quantity": null,
+          "unit": null,
+          "size": null
+        },
+        {
+          "op": "add",
+          "index": null,
+          "item": {
+            "mention": "un cafe",
+            "food_query": "cafe",
+            "quantity": 1,
+            "unit": "taza",
+            "size": null,
+            "preparation": null,
+            "is_vague": false,
+            "parent_index": null
+          },
+          "quantity": null,
+          "unit": null,
+          "size": null
+        }
+      ]
+    },
+    {
+      "id": "c14",
+      "correction": "eran dos bananos",
+      "schemaValid": true,
+      "correct": true,
+      "latencyMs": 904,
+      "tokensInput": 964,
+      "tokensOutput": 52,
+      "expected": [
+        {
+          "op": "set_quantity",
+          "index": 0,
+          "quantity": 2,
+          "unit": "unidad"
+        }
+      ],
+      "actual": [
+        {
+          "op": "set_quantity",
+          "index": 0,
+          "item": null,
+          "quantity": 2,
+          "unit": "unidad",
+          "size": null
+        }
+      ]
+    },
+    {
+      "id": "c15",
+      "correction": "en vez de frijoles eran lentejas",
+      "schemaValid": true,
+      "correct": true,
+      "latencyMs": 1516,
+      "tokensInput": 1022,
+      "tokensOutput": 99,
+      "expected": [
+        {
+          "op": "replace",
+          "index": 1,
+          "food_query": "lentejas"
+        }
+      ],
+      "actual": [
+        {
+          "op": "replace",
+          "index": 1,
+          "item": {
+            "mention": "lentejas",
+            "food_query": "lentejas",
+            "quantity": null,
+            "unit": null,
+            "size": null,
+            "preparation": null,
+            "is_vague": false,
+            "parent_index": null
+          },
+          "quantity": null,
+          "unit": null,
+          "size": null
+        }
+      ]
+    },
+    {
+      "id": "c16",
+      "correction": "la leche era deslactosada",
+      "schemaValid": true,
+      "correct": true,
+      "latencyMs": 1330,
+      "tokensInput": 969,
+      "tokensOutput": 108,
+      "expected": [
+        {
+          "op": "replace",
+          "index": 0,
+          "food_query": "leche deslactosada"
+        }
+      ],
+      "actual": [
+        {
+          "op": "replace",
+          "index": 0,
+          "item": {
+            "mention": "leche deslactosada",
+            "food_query": "leche deslactosada",
+            "quantity": 1,
+            "unit": "vaso",
+            "size": null,
+            "preparation": null,
+            "is_vague": false,
+            "parent_index": null
+          },
+          "quantity": null,
+          "unit": null,
+          "size": null
+        }
+      ]
+    },
+    {
+      "id": "c17",
+      "correction": "hola, ¿cómo vas?",
+      "schemaValid": true,
+      "correct": true,
+      "latencyMs": 717,
+      "tokensInput": 1022,
+      "tokensOutput": 18,
+      "expected": [],
+      "actual": []
+    },
+    {
+      "id": "c18",
+      "correction": "no hubo ensalada",
+      "schemaValid": true,
+      "correct": true,
+      "latencyMs": 1025,
+      "tokensInput": 1079,
+      "tokensOutput": 48,
+      "expected": [
+        {
+          "op": "remove",
+          "index": 2
+        }
+      ],
+      "actual": [
+        {
+          "op": "remove",
+          "index": 2,
+          "item": null,
+          "quantity": null,
+          "unit": null,
+          "size": null
+        }
+      ]
+    },
+    {
+      "id": "c19",
+      "correction": "el café fue con leche",
+      "schemaValid": true,
+      "correct": true,
+      "latencyMs": 1330,
+      "tokensInput": 966,
+      "tokensOutput": 104,
+      "expected": [
+        {
+          "op": "replace",
+          "index": 0,
+          "food_query": "café con leche"
+        }
+      ],
+      "actual": [
+        {
+          "op": "replace",
+          "index": 0,
+          "item": {
+            "mention": "café con leche",
+            "food_query": "café con leche",
+            "quantity": 1,
+            "unit": "vaso",
+            "size": null,
+            "preparation": null,
+            "is_vague": false,
+            "parent_index": null
+          },
+          "quantity": null,
+          "unit": null,
+          "size": null
+        }
+      ]
+    },
+    {
+      "id": "c20",
+      "correction": "me comí media arepa",
+      "schemaValid": true,
+      "correct": true,
+      "latencyMs": 1025,
+      "tokensInput": 1022,
+      "tokensOutput": 54,
+      "expected": [
+        {
+          "op": "set_quantity",
+          "index": 1,
+          "quantity": 0.5,
+          "unit": "unidad"
+        }
+      ],
+      "actual": [
+        {
+          "op": "set_quantity",
+          "index": 1,
+          "item": null,
+          "quantity": 0.5,
+          "unit": "unidad",
+          "size": null
+        }
+      ]
+    }
+  ]
+}

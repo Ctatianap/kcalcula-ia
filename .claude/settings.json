@@ -14,8 +14,7 @@
     ],
     "ask": [
       "Bash(firebase deploy:*)",
-      "Bash(gcloud:*)",
-      "Bash(git push:*)"
+      "Bash(gcloud:*)"
     ],
     "deny": [
       "Read(./.env)",
@@ -51,6 +50,18 @@
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/format-dart.mjs\"",
             "timeout": 30
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/scripts/cloud-session-start.sh\"",
+            "timeout": 600
           }
         ]
       }

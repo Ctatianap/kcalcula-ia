@@ -1,0 +1,155 @@
+food_id,descriptor,grams,source_id,source_ref,is_curated_estimate
+huevo,unidad,50,usda_fdc_sr_legacy,FDC ID 171287 (sr_legacy) — large (portion FDC) — https://fdc.nal.usda.gov/food-details/171287/nutrients — consultado 2026-09-27,False
+arepa,unidad,115,usda_fdc_fndds,"FDC ID 2707828 (fndds) — 1 piece (4in x 2in x 1-3/4in), portion FDC — https://fdc.nal.usda.gov/food-details/2707828/nutrients — consultado 2026-09-27",False
+arepa,pequeno,70,curated,Estimación curada: arepa pequeña ≈ 60% del tamaño de una arepa Dominicana estándar (115 g de FDC ID 2707828). No hay dato FDC directo de tamaño 'pequeño'.,True
+queso_campesino,porcion,30,curated,Estimación curada: porción típica de queso campesino agregado a una arepa o comida (no hay porción estándar en FDC para este alimento).,True
+arroz_blanco_cocido,porcion,150,curated,"Estimación curada: porción de arroz servida como acompañante típico (referencia: FDC ID 168935 da 158 g por taza, se usa una porción de plato algo menor).",True
+pechuga_de_pollo,porcion,120,curated,Estimación curada: porción de pechuga de pollo servida como plato principal.,True
+aguacate,unidad,136,usda_fdc_sr_legacy,"FDC ID 171706 (sr_legacy) — fruit, without skin and seed, portion FDC — https://fdc.nal.usda.gov/food-details/171706/nutrients — consultado 2026-09-27",False
+platano_maduro,unidad,150,curated,"Estimación curada: plátano maduro mediano entero; FDC (Foundation, fdc_id 2710817) no incluye una fila de food_portion para este alimento.",True
+papa_cocida,unidad,136,usda_fdc_sr_legacy,"FDC ID 170438 (sr_legacy) — potato (2-1/2"" dia, sphere), portion FDC — https://fdc.nal.usda.gov/food-details/170438/nutrients — consultado 2026-09-27",False
+pan_integral,unidad,32.1,usda_fdc_foundation,"FDC ID 335240 (foundation) — 1 slice, portion FDC — https://fdc.nal.usda.gov/food-details/335240/nutrients — consultado 2026-09-27",False
+cafe,porcion,237,usda_fdc_sr_legacy,"FDC ID 171890 (sr_legacy) — cup (8 fl oz), portion FDC — https://fdc.nal.usda.gov/food-details/171890/nutrients — consultado 2026-09-27",False
+leche_entera,porcion,244,usda_fdc_sr_legacy,"FDC ID 171265 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/171265/nutrients — consultado 2026-09-27",False
+aceite_vegetal,porcion,5,curated,Estimación curada: un chorrito de aceite para sofreír (no hay porción estándar; para cantidades explícitas se usa household_units + densidad).,True
+aceite_de_oliva,porcion,5,curated,Estimación curada: un chorrito de aceite (no hay porción estándar; para cantidades explícitas se usa household_units + densidad).,True
+mantequilla,unidad,5,usda_fdc_sr_legacy,"FDC ID 173430 (sr_legacy) — pat (1"" sq, 1/3"" high), portion FDC — https://fdc.nal.usda.gov/food-details/173430/nutrients — consultado 2026-09-27",False
+azucar,porcion,4,usda_fdc_foundation,FDC ID 334247 (foundation) — portion FDC (sobre/cucharadita rasa) — https://fdc.nal.usda.gov/food-details/334247/nutrients — consultado 2026-09-27,False
+manzana,unidad,182,usda_fdc_sr_legacy,"FDC ID 171688 (sr_legacy) — medium (3"" dia), portion FDC — https://fdc.nal.usda.gov/food-details/171688/nutrients — consultado 2026-09-27",False
+banano,unidad,118,usda_fdc_sr_legacy,"FDC ID 173944 (sr_legacy) — medium (7"" to 7-7/8"" long), portion FDC — https://fdc.nal.usda.gov/food-details/173944/nutrients — consultado 2026-09-27",False
+frijol_cocido,porcion,177,usda_fdc_sr_legacy,"FDC ID 173740 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/173740/nutrients — consultado 2026-09-27",False
+lenteja_cocida,porcion,198,usda_fdc_sr_legacy,"FDC ID 172421 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/172421/nutrients — consultado 2026-09-27",False
+carne_de_res,porcion,85,usda_fdc_sr_legacy,"FDC ID 173118 (sr_legacy) — 3 oz, portion FDC — https://fdc.nal.usda.gov/food-details/173118/nutrients — consultado 2026-09-27",False
+jugo_de_naranja,porcion,248,usda_fdc_sr_legacy,"FDC ID 169098 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/169098/nutrients — consultado 2026-09-27",False
+mantequilla_de_mani,porcion,32,usda_fdc_sr_legacy,"FDC ID 172470 (sr_legacy) — 2 tbsp, portion FDC — https://fdc.nal.usda.gov/food-details/172470/nutrients — consultado 2026-09-27",False
+tomate,unidad,123,usda_fdc_sr_legacy,"FDC ID 170457 (sr_legacy) — medium whole (2-3/5"" dia), portion FDC — https://fdc.nal.usda.gov/food-details/170457/nutrients — consultado 2026-09-27",False
+cebolla,unidad,110,usda_fdc_sr_legacy,"FDC ID 170000 (sr_legacy) — medium (2-1/2"" dia), portion FDC — https://fdc.nal.usda.gov/food-details/170000/nutrients — consultado 2026-09-27",False
+yuca_cocida,porcion,160,usda_fdc_fndds,"FDC ID 2709564 (fndds) — 1 cup, portion FDC — https://fdc.nal.usda.gov/food-details/2709564/nutrients — consultado 2026-09-27",False
+pasta_cocida,porcion,124,usda_fdc_sr_legacy,"FDC ID 168928 (sr_legacy) — cup spaghetti not packed, portion FDC — https://fdc.nal.usda.gov/food-details/168928/nutrients — consultado 2026-09-27",False
+zanahoria,unidad,61,usda_fdc_sr_legacy,"FDC ID 170393 (sr_legacy) — medium, portion FDC — https://fdc.nal.usda.gov/food-details/170393/nutrients — consultado 2026-09-27",False
+naranja,unidad,131,usda_fdc_sr_legacy,"FDC ID 169097 (sr_legacy) — fruit (2-5/8"" dia), portion FDC — https://fdc.nal.usda.gov/food-details/169097/nutrients — consultado 2026-09-27",False
+arroz_integral_cocido,taza,202,usda_fdc_sr_legacy,"FDC ID 169704 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/169704/nutrients — consultado 2026-09-27",False
+maiz_tierno,mazorca_mediana,103,usda_fdc_sr_legacy,"FDC ID 169999 (sr_legacy) — ear medium (6-3/4"" to 7-1/2"" long), portion FDC — https://fdc.nal.usda.gov/food-details/169999/nutrients — consultado 2026-09-27",False
+harina_de_trigo,taza,125,usda_fdc_sr_legacy,"FDC ID 168894 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/168894/nutrients — consultado 2026-09-27",False
+avena_cocida,taza,234,usda_fdc_sr_legacy,"FDC ID 173905 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/173905/nutrients — consultado 2026-09-27",False
+papa_criolla,porcion,150,curated,"Estimación curada: porción típica de papas criollas servidas como acompañante (p. ej. en ajiaco); FDC (Foundation, fdc_id 2346403) no incluye filas de food_portion para este alimento.",True
+platano_verde_cocido,unidad,267,usda_fdc_sr_legacy,"FDC ID 168215 (sr_legacy) — plantain, portion FDC — https://fdc.nal.usda.gov/food-details/168215/nutrients — consultado 2026-09-27",False
+name_cocido,porcion,136,usda_fdc_sr_legacy,"FDC ID 170551 (sr_legacy) — cup, cubes, portion FDC — https://fdc.nal.usda.gov/food-details/170551/nutrients — consultado 2026-09-27",False
+quinoa_cocida,taza,185,usda_fdc_sr_legacy,"FDC ID 168917 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/168917/nutrients — consultado 2026-09-27",False
+pan_frances,rebanada,139,usda_fdc_sr_legacy,"FDC ID 172675 (sr_legacy) — slice, portion FDC — https://fdc.nal.usda.gov/food-details/172675/nutrients — consultado 2026-09-27",False
+galletas_tipo_soda,unidad,14.9,usda_fdc_sr_legacy,"FDC ID 172746 (sr_legacy) — crackers (1), portion FDC — https://fdc.nal.usda.gov/food-details/172746/nutrients — consultado 2026-09-27",False
+masarepa,taza,114,usda_fdc_sr_legacy,"FDC ID 169694 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/169694/nutrients — consultado 2026-09-27",False
+maicena,taza,128,usda_fdc_sr_legacy,"FDC ID 169698 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/169698/nutrients — consultado 2026-09-27",False
+garbanzo_cocido,taza,164,usda_fdc_sr_legacy,"FDC ID 173757 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/173757/nutrients — consultado 2026-09-27",False
+arveja_verde_cocida,taza,160,usda_fdc_sr_legacy,"FDC ID 170420 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/170420/nutrients — consultado 2026-09-27",False
+arveja_seca_cocida,taza,196,usda_fdc_sr_legacy,"FDC ID 172429 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/172429/nutrients — consultado 2026-09-27",False
+haba_cocida,taza,170,usda_fdc_sr_legacy,"FDC ID 173753 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/173753/nutrients — consultado 2026-09-27",False
+soya_granos,taza,172,usda_fdc_sr_legacy,"FDC ID 174271 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/174271/nutrients — consultado 2026-09-27",False
+mani_crudo,porcion,30,curated,"Estimación curada: puñado típico de maní crudo (30 g); FDC (Foundation, fdc_id 2515376) no incluye filas de food_portion para este alimento.",True
+muslo_de_pollo,unidad,137,usda_fdc_sr_legacy,"FDC ID 173625 (sr_legacy) — thigh with skin, portion FDC — https://fdc.nal.usda.gov/food-details/173625/nutrients — consultado 2026-09-27",False
+alas_de_pollo,unidad,85,usda_fdc_sr_legacy,"FDC ID 173630 (sr_legacy) — 1 piece, portion FDC — https://fdc.nal.usda.gov/food-details/173630/nutrients — consultado 2026-09-27",False
+lomo_de_cerdo,porcion,85,usda_fdc_sr_legacy,"FDC ID 168233 (sr_legacy) — 3 oz, portion FDC — https://fdc.nal.usda.gov/food-details/168233/nutrients — consultado 2026-09-27",False
+costilla_de_cerdo,porcion,85,usda_fdc_sr_legacy,"FDC ID 167854 (sr_legacy) — 3 oz, portion FDC — https://fdc.nal.usda.gov/food-details/167854/nutrients — consultado 2026-09-27",False
+costilla_de_res,porcion,85,usda_fdc_sr_legacy,"FDC ID 168613 (sr_legacy) — 3 oz, portion FDC — https://fdc.nal.usda.gov/food-details/168613/nutrients — consultado 2026-09-27",False
+chuleta_de_cerdo,unidad,146,usda_fdc_sr_legacy,"FDC ID 168240 (sr_legacy) — chop without refuse, portion FDC — https://fdc.nal.usda.gov/food-details/168240/nutrients — consultado 2026-09-27",False
+tocino,tajada,8.1,usda_fdc_sr_legacy,"FDC ID 167914 (sr_legacy) — slice cooked, portion FDC — https://fdc.nal.usda.gov/food-details/167914/nutrients — consultado 2026-09-27",False
+carne_molida_de_res,porcion,85,usda_fdc_sr_legacy,"FDC ID 171798 (sr_legacy) — 3 oz, portion FDC — https://fdc.nal.usda.gov/food-details/171798/nutrients — consultado 2026-09-27",False
+higado_de_res,tajada,68,usda_fdc_sr_legacy,"FDC ID 168626 (sr_legacy) — slice, portion FDC — https://fdc.nal.usda.gov/food-details/168626/nutrients — consultado 2026-09-27",False
+chorizo,unidad,60,usda_fdc_sr_legacy,"FDC ID 173859 (sr_legacy) — link (4in long), portion FDC — https://fdc.nal.usda.gov/food-details/173859/nutrients — consultado 2026-09-27",False
+longaniza,unidad,48,usda_fdc_sr_legacy,"FDC ID 174578 (sr_legacy) — serving, portion FDC — https://fdc.nal.usda.gov/food-details/174578/nutrients — consultado 2026-09-27",False
+jamon,tajada,28,usda_fdc_sr_legacy,"FDC ID 173864 (sr_legacy) — slice, portion FDC — https://fdc.nal.usda.gov/food-details/173864/nutrients — consultado 2026-09-27",False
+mortadela,porcion,100,usda_fdc_sr_legacy,"FDC ID 172013 (sr_legacy) — 3.52 oz, portion FDC — https://fdc.nal.usda.gov/food-details/172013/nutrients — consultado 2026-09-27",False
+salchicha,unidad,48,usda_fdc_sr_legacy,"FDC ID 174614 (sr_legacy) — 1 frankfurter, portion FDC — https://fdc.nal.usda.gov/food-details/174614/nutrients — consultado 2026-09-27",False
+bagre,unidad,143,usda_fdc_sr_legacy,"FDC ID 173714 (sr_legacy) — fillet, portion FDC — https://fdc.nal.usda.gov/food-details/173714/nutrients — consultado 2026-09-27",False
+tilapia,unidad,87,usda_fdc_sr_legacy,"FDC ID 175177 (sr_legacy) — fillet, portion FDC — https://fdc.nal.usda.gov/food-details/175177/nutrients — consultado 2026-09-27",False
+trucha,unidad,143,usda_fdc_sr_legacy,"FDC ID 175155 (sr_legacy) — fillet, portion FDC — https://fdc.nal.usda.gov/food-details/175155/nutrients — consultado 2026-09-27",False
+atun_enlatado,lata,165,usda_fdc_sr_legacy,"FDC ID 171986 (sr_legacy) — 1 can, portion FDC — https://fdc.nal.usda.gov/food-details/171986/nutrients — consultado 2026-09-27",False
+camaron,unidad,22,usda_fdc_sr_legacy,"FDC ID 171971 (sr_legacy) — 1 large shrimp, portion FDC — https://fdc.nal.usda.gov/food-details/171971/nutrients — consultado 2026-09-27",False
+pavo_pechuga,porcion,85,usda_fdc_sr_legacy,"FDC ID 171496 (sr_legacy) — 3 oz, portion FDC — https://fdc.nal.usda.gov/food-details/171496/nutrients — consultado 2026-09-27",False
+leche_descremada,porcion,245,usda_fdc_sr_legacy,"FDC ID 171269 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/171269/nutrients — consultado 2026-09-27",False
+yogur_natural,porcion,227,usda_fdc_sr_legacy,"FDC ID 171284 (sr_legacy) — container (8 oz), portion FDC — https://fdc.nal.usda.gov/food-details/171284/nutrients — consultado 2026-09-27",False
+yogur_con_frutas,porcion,170,usda_fdc_sr_legacy,"FDC ID 170889 (sr_legacy) — container (6 oz), portion FDC — https://fdc.nal.usda.gov/food-details/170889/nutrients — consultado 2026-09-27",False
+queso_doble_crema,porcion,30,curated,Estimación curada: porción típica de queso doble crema agregado a una arepa o comida (no hay porción estándar en FDC para este alimento).,True
+queso_mozzarella,porcion,28.35,usda_fdc_sr_legacy,"FDC ID 170846 (sr_legacy) — oz, portion FDC — https://fdc.nal.usda.gov/food-details/170846/nutrients — consultado 2026-09-27",False
+queso_costeno,porcion,30,curated,Estimación curada: porción típica de queso costeño rallado/desmenuzado sobre una comida (no hay porción estándar en FDC para este alimento; el único portion FDC de queso cotija es 1 tsp/5g, muy pequeño para uso típico colombiano).,True
+queso_paipa,porcion,30,curated,Estimación curada: porción típica de queso paipa en tajada (no hay porción estándar en FDC para este alimento).,True
+kumis,porcion,200,curated,"Estimación curada: vaso de kumis típico (~200 mL); FDC (buttermilk) da porciones en cup/fl oz/quart, se usa una fracción razonable de cup (245g) para un vaso más pequeño.",True
+arequipe,porcion,19,usda_fdc_sr_legacy,"FDC ID 173461 (sr_legacy) — tbsp, portion FDC — https://fdc.nal.usda.gov/food-details/173461/nutrients — consultado 2026-09-27",False
+crema_de_leche,porcion,15,usda_fdc_sr_legacy,"FDC ID 170859 (sr_legacy) — tbsp, portion FDC — https://fdc.nal.usda.gov/food-details/170859/nutrients — consultado 2026-09-27",False
+leche_condensada,porcion,38.2,usda_fdc_sr_legacy,"FDC ID 171275 (sr_legacy) — fl oz, portion FDC — https://fdc.nal.usda.gov/food-details/171275/nutrients — consultado 2026-09-27",False
+leche_en_polvo,porcion,32,usda_fdc_sr_legacy,"FDC ID 170876 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/170876/nutrients — consultado 2026-09-27",False
+helado,porcion,66,usda_fdc_sr_legacy,"FDC ID 167575 (sr_legacy) — serving 1/2 cup, portion FDC — https://fdc.nal.usda.gov/food-details/167575/nutrients — consultado 2026-09-27",False
+mango,unidad,336,usda_fdc_sr_legacy,"FDC ID 169910 (sr_legacy) — fruit without refuse, portion FDC — https://fdc.nal.usda.gov/food-details/169910/nutrients — consultado 2026-09-27",False
+papaya,porcion,157,usda_fdc_sr_legacy,"FDC ID 169926 (sr_legacy) — fruit, small, portion FDC — https://fdc.nal.usda.gov/food-details/169926/nutrients — consultado 2026-09-27",False
+pina,porcion,165,usda_fdc_sr_legacy,"FDC ID 169124 (sr_legacy) — cup, chunks, portion FDC — https://fdc.nal.usda.gov/food-details/169124/nutrients — consultado 2026-09-27",False
+maracuya,unidad,18,usda_fdc_sr_legacy,"FDC ID 169108 (sr_legacy) — fruit without refuse, portion FDC — https://fdc.nal.usda.gov/food-details/169108/nutrients — consultado 2026-09-27",False
+granadilla,unidad,18,usda_fdc_sr_legacy,"FDC ID 169108 (sr_legacy) — fruit without refuse, portion FDC (proxy, ver nota en foods.csv) — https://fdc.nal.usda.gov/food-details/169108/nutrients — consultado 2026-09-27",False
+guayaba,unidad,55,usda_fdc_sr_legacy,"FDC ID 173044 (sr_legacy) — fruit, without refuse, portion FDC — https://fdc.nal.usda.gov/food-details/173044/nutrients — consultado 2026-09-27",False
+mora,porcion,144,usda_fdc_sr_legacy,"FDC ID 173946 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/173946/nutrients — consultado 2026-09-27",False
+fresa,porcion,144,usda_fdc_sr_legacy,"FDC ID 167762 (sr_legacy) — cup, whole, portion FDC — https://fdc.nal.usda.gov/food-details/167762/nutrients — consultado 2026-09-27",False
+lulo,porcion,120,usda_fdc_sr_legacy,"FDC ID 167790 (sr_legacy) — cup thawed, portion FDC — https://fdc.nal.usda.gov/food-details/167790/nutrients — consultado 2026-09-27",False
+guanabana,porcion,225,usda_fdc_sr_legacy,"FDC ID 167761 (sr_legacy) — cup, pulp, portion FDC — https://fdc.nal.usda.gov/food-details/167761/nutrients — consultado 2026-09-27",False
+uva,porcion,151,usda_fdc_sr_legacy,"FDC ID 174683 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/174683/nutrients — consultado 2026-09-27",False
+pera,unidad,178,usda_fdc_sr_legacy,"FDC ID 169118 (sr_legacy) — medium, portion FDC — https://fdc.nal.usda.gov/food-details/169118/nutrients — consultado 2026-09-27",False
+sandia,porcion,152,usda_fdc_sr_legacy,"FDC ID 167765 (sr_legacy) — cup, diced, portion FDC — https://fdc.nal.usda.gov/food-details/167765/nutrients — consultado 2026-09-27",False
+melon,porcion,160,usda_fdc_sr_legacy,"FDC ID 169092 (sr_legacy) — cup, cubes, portion FDC — https://fdc.nal.usda.gov/food-details/169092/nutrients — consultado 2026-09-27",False
+durazno,unidad,150,usda_fdc_sr_legacy,"FDC ID 169928 (sr_legacy) — medium (2-2/3in dia), portion FDC — https://fdc.nal.usda.gov/food-details/169928/nutrients — consultado 2026-09-27",False
+ciruela,unidad,66,usda_fdc_sr_legacy,"FDC ID 169949 (sr_legacy) — fruit (2-1/8in dia), portion FDC — https://fdc.nal.usda.gov/food-details/169949/nutrients — consultado 2026-09-27",False
+coco,porcion,45,usda_fdc_sr_legacy,"FDC ID 170169 (sr_legacy) — piece (2in x 2in x 1/2in), portion FDC — https://fdc.nal.usda.gov/food-details/170169/nutrients — consultado 2026-09-27",False
+feijoa,unidad,42,usda_fdc_sr_legacy,"FDC ID 168176 (sr_legacy) — fruit without peel, portion FDC — https://fdc.nal.usda.gov/food-details/168176/nutrients — consultado 2026-09-27",False
+limon,unidad,67,usda_fdc_sr_legacy,"FDC ID 168155 (sr_legacy) — fruit (2in dia), portion FDC — https://fdc.nal.usda.gov/food-details/168155/nutrients — consultado 2026-09-27",False
+mandarina,unidad,88,usda_fdc_sr_legacy,"FDC ID 169105 (sr_legacy) — medium (2-1/2in dia), portion FDC — https://fdc.nal.usda.gov/food-details/169105/nutrients — consultado 2026-09-27",False
+zapote,porcion,175,usda_fdc_sr_legacy,"FDC ID 167760 (sr_legacy) — cup 1in pieces, portion FDC — https://fdc.nal.usda.gov/food-details/167760/nutrients — consultado 2026-09-27",False
+nispero,porcion,149,usda_fdc_sr_legacy,"FDC ID 169908 (sr_legacy) — cup, cubed, portion FDC — https://fdc.nal.usda.gov/food-details/169908/nutrients — consultado 2026-09-27",False
+pitahaya,unidad,75,usda_fdc_fndds,"FDC ID 2709234 (fndds) — 1 fruit, portion FDC — https://fdc.nal.usda.gov/food-details/2709234/nutrients — consultado 2026-09-27",False
+tamarindo,porcion,120,usda_fdc_sr_legacy,"FDC ID 167763 (sr_legacy) — cup, pulp, portion FDC — https://fdc.nal.usda.gov/food-details/167763/nutrients — consultado 2026-09-27",False
+lechuga,taza,36,usda_fdc_sr_legacy,"FDC ID 169249 (sr_legacy) — cup shredded, portion FDC — https://fdc.nal.usda.gov/food-details/169249/nutrients — consultado 2026-09-27",False
+espinaca,taza,30,usda_fdc_sr_legacy,"FDC ID 168462 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/168462/nutrients — consultado 2026-09-27",False
+pepino_cohombro,unidad,301,usda_fdc_sr_legacy,"FDC ID 168409 (sr_legacy) — cucumber (8-1/4in), portion FDC — https://fdc.nal.usda.gov/food-details/168409/nutrients — consultado 2026-09-27",False
+pimenton,unidad,119,usda_fdc_sr_legacy,"FDC ID 170108 (sr_legacy) — medium (approx 2-3/4in long, 2-1/2in dia), portion FDC — https://fdc.nal.usda.gov/food-details/170108/nutrients — consultado 2026-09-27",False
+brocoli,taza,91,usda_fdc_sr_legacy,"FDC ID 170379 (sr_legacy) — cup chopped, portion FDC — https://fdc.nal.usda.gov/food-details/170379/nutrients — consultado 2026-09-27",False
+coliflor,taza,107,usda_fdc_sr_legacy,"FDC ID 169986 (sr_legacy) — cup chopped (1/2in pieces), portion FDC — https://fdc.nal.usda.gov/food-details/169986/nutrients — consultado 2026-09-27",False
+calabacin,unidad,196,usda_fdc_sr_legacy,"FDC ID 169291 (sr_legacy) — medium, portion FDC — https://fdc.nal.usda.gov/food-details/169291/nutrients — consultado 2026-09-27",False
+ahuyama,taza,205,usda_fdc_sr_legacy,"FDC ID 170490 (sr_legacy) — cup cubes, portion FDC — https://fdc.nal.usda.gov/food-details/170490/nutrients — consultado 2026-09-27",False
+habichuela,taza,125,usda_fdc_sr_legacy,"FDC ID 169141 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/169141/nutrients — consultado 2026-09-27",False
+remolacha,unidad,100,usda_fdc_sr_legacy,"FDC ID 169146 (sr_legacy) — beets (2in dia, sphere), portion FDC — https://fdc.nal.usda.gov/food-details/169146/nutrients — consultado 2026-09-27",False
+apio,tallo,40,usda_fdc_sr_legacy,"FDC ID 169988 (sr_legacy) — stalk, medium (7-1/2in - 8in long), portion FDC — https://fdc.nal.usda.gov/food-details/169988/nutrients — consultado 2026-09-27",False
+cilantro,porcion,20,usda_fdc_sr_legacy,"FDC ID 169997 (sr_legacy) — sprigs, portion FDC — https://fdc.nal.usda.gov/food-details/169997/nutrients — consultado 2026-09-27",False
+ajo,diente,3,usda_fdc_sr_legacy,"FDC ID 169230 (sr_legacy) — clove, portion FDC — https://fdc.nal.usda.gov/food-details/169230/nutrients — consultado 2026-09-27",False
+repollo,taza,70,usda_fdc_sr_legacy,"FDC ID 169975 (sr_legacy) — cup, shredded, portion FDC — https://fdc.nal.usda.gov/food-details/169975/nutrients — consultado 2026-09-27",False
+rabano,taza,116,usda_fdc_sr_legacy,"FDC ID 169276 (sr_legacy) — cup slices, portion FDC — https://fdc.nal.usda.gov/food-details/169276/nutrients — consultado 2026-09-27",False
+perejil,cucharada,3.8,usda_fdc_sr_legacy,"FDC ID 170416 (sr_legacy) — tbsp, portion FDC — https://fdc.nal.usda.gov/food-details/170416/nutrients — consultado 2026-09-27",False
+berenjena,taza,82,usda_fdc_sr_legacy,"FDC ID 169228 (sr_legacy) — cup, cubes, portion FDC — https://fdc.nal.usda.gov/food-details/169228/nutrients — consultado 2026-09-27",False
+champinones,taza,70,usda_fdc_sr_legacy,"FDC ID 169251 (sr_legacy) — cup, pieces or slices, portion FDC — https://fdc.nal.usda.gov/food-details/169251/nutrients — consultado 2026-09-27",False
+alcachofa,unidad,128,usda_fdc_sr_legacy,"FDC ID 169205 (sr_legacy) — artichoke, medium, portion FDC — https://fdc.nal.usda.gov/food-details/169205/nutrients — consultado 2026-09-27",False
+esparragos,taza,134,usda_fdc_sr_legacy,"FDC ID 168389 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/168389/nutrients — consultado 2026-09-27",False
+margarina,cucharadita,4.7,usda_fdc_sr_legacy,"FDC ID 171018 (sr_legacy) — tsp, portion FDC — https://fdc.nal.usda.gov/food-details/171018/nutrients — consultado 2026-09-27",False
+aceite_de_coco,cucharada,13.6,usda_fdc_sr_legacy,"FDC ID 171412 (sr_legacy) — tbsp, portion FDC — https://fdc.nal.usda.gov/food-details/171412/nutrients — consultado 2026-09-27",False
+manteca_de_cerdo,cucharada,12.8,usda_fdc_sr_legacy,"FDC ID 171401 (sr_legacy) — tbsp, portion FDC — https://fdc.nal.usda.gov/food-details/171401/nutrients — consultado 2026-09-27",False
+aceite_de_girasol,cucharada,13.6,usda_fdc_sr_legacy,"FDC ID 171025 (sr_legacy) — tbsp, portion FDC — https://fdc.nal.usda.gov/food-details/171025/nutrients — consultado 2026-09-27",False
+aceite_de_canola,cucharada,14,usda_fdc_sr_legacy,"FDC ID 172336 (sr_legacy) — tbsp, portion FDC — https://fdc.nal.usda.gov/food-details/172336/nutrients — consultado 2026-09-27",False
+panela,cucharadita,4.6,usda_fdc_sr_legacy,"FDC ID 168833 (sr_legacy) — tsp packed, portion FDC — https://fdc.nal.usda.gov/food-details/168833/nutrients — consultado 2026-09-27",False
+miel_de_abejas,cucharada,21,usda_fdc_sr_legacy,"FDC ID 169640 (sr_legacy) — tbsp, portion FDC — https://fdc.nal.usda.gov/food-details/169640/nutrients — consultado 2026-09-27",False
+bocadillo_de_guayaba,trozo_mediano,32,usda_fdc_fndds,"FDC ID 2710307 (fndds) — 1 medium piece, portion FDC — https://fdc.nal.usda.gov/food-details/2710307/nutrients — consultado 2026-09-27",False
+chocolate_de_mesa,pastilla,20,usda_fdc_sr_legacy,"FDC ID 167999 (sr_legacy) — tablet, portion FDC — https://fdc.nal.usda.gov/food-details/167999/nutrients — consultado 2026-09-27",False
+sal,cucharadita,6,usda_fdc_sr_legacy,"FDC ID 173468 (sr_legacy) — tsp, portion FDC — https://fdc.nal.usda.gov/food-details/173468/nutrients — consultado 2026-09-27",False
+vinagre,cucharada,14.9,usda_fdc_sr_legacy,"FDC ID 173469 (sr_legacy) — tbsp, portion FDC — https://fdc.nal.usda.gov/food-details/173469/nutrients — consultado 2026-09-27",False
+salsa_de_tomate,taza,245,usda_fdc_sr_legacy,"FDC ID 169074 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/169074/nutrients — consultado 2026-09-27",False
+salsa_de_tomate,cucharada,15,curated,"Estimación curada: cucharada de salsa de tomate como condimento (no hay porción FDC de tamaño cucharada para este alimento; se agrega junto a la porción real de taza).",True
+mayonesa,cucharada,13.8,usda_fdc_sr_legacy,"FDC ID 171009 (sr_legacy) — tbsp, portion FDC — https://fdc.nal.usda.gov/food-details/171009/nutrients — consultado 2026-09-27",False
+mostaza,cucharadita,5,usda_fdc_sr_legacy,"FDC ID 172234 (sr_legacy) — tsp or 1 packet, portion FDC — https://fdc.nal.usda.gov/food-details/172234/nutrients — consultado 2026-09-27",False
+caldo_de_pollo_en_cubo,cubo,4.8,usda_fdc_sr_legacy,"FDC ID 171563 (sr_legacy) — cube, portion FDC — https://fdc.nal.usda.gov/food-details/171563/nutrients — consultado 2026-09-27",False
+pimienta,cucharadita,2.3,usda_fdc_sr_legacy,"FDC ID 170931 (sr_legacy) — tsp, ground, portion FDC — https://fdc.nal.usda.gov/food-details/170931/nutrients — consultado 2026-09-27",False
+comino,cucharadita,2.1,usda_fdc_sr_legacy,"FDC ID 170923 (sr_legacy) — tsp, whole, portion FDC — https://fdc.nal.usda.gov/food-details/170923/nutrients — consultado 2026-09-27",False
+oregano,cucharadita,1,usda_fdc_sr_legacy,"FDC ID 171328 (sr_legacy) — tsp, leaves, portion FDC — https://fdc.nal.usda.gov/food-details/171328/nutrients — consultado 2026-09-27",False
+cereal_de_maiz,taza,30,usda_fdc_fndds,"FDC ID 2708453 (fndds) — 1 cup, portion FDC — https://fdc.nal.usda.gov/food-details/2708453/nutrients — consultado 2026-09-27",False
+papas_fritas,porcion,28,usda_fdc_sr_legacy,"FDC ID 169677 (sr_legacy) — oz, portion FDC — https://fdc.nal.usda.gov/food-details/169677/nutrients — consultado 2026-09-27",False
+palomitas_de_maiz,taza,8,usda_fdc_sr_legacy,"FDC ID 167959 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/167959/nutrients — consultado 2026-09-27",False
+gelatina,porcion,95,usda_fdc_fndds,"FDC ID 2710310 (fndds) — 1 snack size container, portion FDC — https://fdc.nal.usda.gov/food-details/2710310/nutrients — consultado 2026-09-27",False
+chocolate_caliente,porcion,250,usda_fdc_sr_legacy,"FDC ID 171277 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/171277/nutrients — consultado 2026-09-27",False
+avena_bebida,porcion,244,usda_fdc_fndds,"FDC ID 2705412 (fndds) — 1 cup, portion FDC — https://fdc.nal.usda.gov/food-details/2705412/nutrients — consultado 2026-09-27",False
+gaseosa,lata,370,usda_fdc_sr_legacy,"FDC ID 174852 (sr_legacy) — can or bottle (12 fl oz), portion FDC — https://fdc.nal.usda.gov/food-details/174852/nutrients — consultado 2026-09-27",False
+jugo_de_mora,porcion,250,usda_fdc_sr_legacy,"FDC ID 173947 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/173947/nutrients — consultado 2026-09-27",False
+te,porcion,237,usda_fdc_sr_legacy,"FDC ID 173227 (sr_legacy) — cup (8 fl oz), portion FDC — https://fdc.nal.usda.gov/food-details/173227/nutrients — consultado 2026-09-27",False
+malta,porcion,237,usda_fdc_sr_legacy,"FDC ID 174863 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/174863/nutrients — consultado 2026-09-27",False
+agua_de_coco,porcion,245,usda_fdc_sr_legacy,"FDC ID 174831 (sr_legacy) — cup, portion FDC — https://fdc.nal.usda.gov/food-details/174831/nutrients — consultado 2026-09-27",False

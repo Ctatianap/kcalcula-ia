@@ -57,15 +57,23 @@ Reglas:
   en la SPEC y espera aprobación. No reinterpretes en silencio.
 - Una SPEC a la vez, en una rama `spec-NNN-slug`.
 - `firebase deploy`, `git push` y `gcloud` requieren confirmación humana (hay hook y permisos).
+  Excepción: en sesiones en la nube, `git push` sin forzar a ramas distintas de `main` no pregunta.
 - Acciones que solo el usuario puede hacer (consolas de Firebase/Google Cloud, cuentas, facturación):
   dale los pasos exactos y espera su confirmación.
+- **Detalles menores: decide tú** con la opción recomendada y dilo en una línea. Pregunta solo por
+  aprobación de SPECs, acciones que solo puede hacer la usuaria o decisiones grandes de producto.
+- **Sesiones en la nube** (claude.ai/code): el entorno instala Flutter con `scripts/cloud-setup.sh`
+  (pegado en el campo "Setup script") y el hook SessionStart corre `scripts/cloud-session-start.sh`
+  (dependencias y `catalog.db`). Las autorizaciones puntuales llegan en el mensaje de la usuaria,
+  no en el repo.
 
 ## Agentes y skills
 - **reviewer** (subagente, solo lectura): antes de mover cualquier SPEC a `Done`.
   Pásale la ruta de la SPEC y el nombre de la rama.
 - **researcher** (subagente): ítems `POR VERIFICAR` o decisiones que dependan de información
   externa actual. Escribe notas en `docs/research/`.
-- Skills (`.claude/skills/`): `write-spec`, `nutrition-data`, `ai-pipeline`.
+- Skills (`.claude/skills/`): `write-spec`, `nutrition-data`, `ai-pipeline`, `loop-impl` (avanza
+  `docs/backlog.md` una tarea a la vez; nunca aprueba SPECs por su cuenta).
 
 Al terminar una tarea, cierra con este handoff:
 ```yaml
@@ -93,7 +101,12 @@ specs/  docs/
 - App: `cd app && flutter analyze && flutter test`
 - Núcleo: `cd packages/nutrition_core && dart analyze && dart test`
 - Backend: `npm --prefix functions run build && npm --prefix functions test`
-- Emulador: `firebase emulators:start --only functions`
+- Emulador (fake, sin costo): `firebase emulators:start --only functions`
+- Emulador con IA real local (gratis, MVP — ver ADR-002): `AI_PROVIDER=ollama OLLAMA_MODEL=gemma4:e4b firebase emulators:start --only functions`
+  (requiere `brew install ollama && ollama pull gemma4:e4b` una vez).
+- Emulador con Vertex AI real (cuesta dinero): `AI_PROVIDER=vertex VERTEX_PROJECT_ID=<proyecto> firebase emulators:start --only functions`
+- Backend desplegado de `kcalcula-ia-dev`: usa Vertex AI (SPEC-029) por `functions/.env.kcalcula-ia-dev` (`DEPLOYED_AI_PROVIDER=vertex`,
+  `VERTEX_PROJECT_ID`, `VERTEX_LOCATION`, `GEMINI_MODEL_ID`), que crea la usuaria (fuera de git); el emulador lo ignora. `firebase deploy --only functions` requiere confirmación.
 - Catálogo: `cd data/build_catalog && dart run` (regenera `app/assets/catalog/catalog.db`)
 Si un comando aún no existe, créalo en la tarea que lo necesite y actualiza esta lista.
 

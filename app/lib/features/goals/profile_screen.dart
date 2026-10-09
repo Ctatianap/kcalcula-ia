@@ -1,0 +1,365 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nutrition_core/nutrition_core.dart';
+
+import '../../app_routes.dart';
+import '../../infra/storage/storage_providers.dart';
+import 'goal_calculation.dart';
+import 'profile_controller.dart';
+
+/// SPEC-008 R1–R5: "Mi perfil", con el punto de partida en vivo.
+class ProfileScreen extends ConsumerStatefulWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  late final ProfileController _controller;
+  final _height = TextEditingController();
+  final _weight = TextEditingController();
+  final _measured = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = ProfileController(
+      storage: ref.read(storageRepositoryProvider),
+    );
+    _controller.load().then((_) {
+      _height.text = _controller.heightText;
+      _weight.text = _controller.weightText;
+      _measured.text = _controller.measuredText;
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _height.dispose();
+    _weight.dispose();
+    _measured.dispose();
+    super.dispose();
+  }
+
+  /// SPEC-008 R1: al guardar, vuelve a la pantalla desde donde se abrió
+  /// (Ajustes, Objetivo o Hoy) y el aviso se ve allí. Si hay un aviso que
+  /// leer aquí (la meta no se recalculó, R9), se queda en el perfil.
+  Future<void> _save() async {
+    final saved = await _controller.save();
+    if (saved && mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Perfil guardado.')));
+      if (_controller.infoMessage == null) Navigator.of(context).maybePop();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const decimal = TextInputType.numberWithOptions(decimal: true);
+    return Scaffold(
+      appBar: AppBar(title: const Text('Mi perfil')),
+      body: ListenableBuilder(
+        listenable: _controller,
+        builder: (context, _) {
+          final c = _controller;
+          if (!c.loaded) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              const Text('Sexo (lo usa la fórmula)'),
+              const SizedBox(height: 4),
+              SegmentedButton<BiologicalSex>(
+                segments: const [
+                  ButtonSegment(
+                    value: BiologicalSex.female,
+                    label: Text('Femenino'),
+                  ),
+                  ButtonSegment(
+                    value: BiologicalSex.male,
+                    label: Text('Masculino'),
+                  ),
+                ],
+                emptySelectionAllowed: true,
+                selected: {?c.sex},
+                onSelectionChanged: (s) {
+                  if (s.isNotEmpty) c.setSex(s.first);
+                },
+              ),
+              const SizedBox(height: 12),
+              _BirthDatePicker(controller: c),
+              TextField(
+                key: const Key('profile-height'),
+                controller: _height,
+                keyboardType: decimal,
+                decoration: InputDecoration(
+                  labelText: 'Estatura (cm)',
+                  errorText: c.heightError,
+                ),
+                onChanged: c.setHeight,
+              ),
+              TextField(
+                key: const Key('profile-weight'),
+                controller: _weight,
+                keyboardType: decimal,
+                decoration: InputDecoration(
+                  labelText: 'Peso (kg)',
+                  errorText: c.weightError,
+                ),
+                onChanged: c.setWeight,
+              ),
+              const SizedBox(height: 12),
+              const Text('Nivel de actividad (cámbialo según la temporada)'),
+              RadioGroup<ActivityLevel>(
+                groupValue: c.activityLevel,
+                onChanged: (v) {
+                  if (v != null) c.setActivityLevel(v);
+                },
+                child: Column(
+                  children: [
+                    for (final level in ActivityLevel.values)
+                      RadioListTile<ActivityLevel>(
+                        contentPadding: EdgeInsets.zero,
+                        value: level,
+                        title: Text(activityLevelTexts[level]!.$1),
+                        subtitle: Text(activityLevelTexts[level]!.$2),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                key: const Key('profile-measured'),
+                controller: _measured,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: 'Mi mantenimiento medido (opcional, kcal)',
+                  helperText:
+                      'Si usas reloj: el promedio de "Total de calorías '
+                      'quemadas" de tus últimos 7 días completos. Si lo '
+                      'llenas, se usa en vez de la fórmula.',
+                  helperMaxLines: 4,
+                  errorText: c.measuredError,
+                ),
+                onChanged: c.setMeasured,
+              ),
+              if (c.basalKcal != null) _StartingPoint(controller: c),
+              if (c.infoMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Text(c.infoMessage!),
+                ),
+              if (c.loadFailed)
+                TextButton(
+                  onPressed: () => c.load().then((_) {
+                    _height.text = c.heightText;
+                    _weight.text = c.weightText;
+                  }),
+                  child: const Text('Reintentar'),
+                ),
+              if (c.errorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Text(
+                    c.errorMessage!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 16),
+              FilledButton(
+                onPressed: c.canSave ? _save : null,
+                child: const Text('Guardar perfil'),
+              ),
+              if (c.hasSavedProfile)
+                TextButton(
+                  onPressed: () =>
+                      Navigator.of(context).pushNamed(AppRoutes.objective),
+                  child: const Text('Elegir mi objetivo'),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// SPEC-008 R5/R14: metabolismo basal y mantenimiento.
+class _StartingPoint extends StatelessWidget {
+  final ProfileController controller;
+
+  const _StartingPoint({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    return Card(
+      margin: const EdgeInsets.only(top: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Mi punto de partida', style: text.titleMedium),
+            const SizedBox(height: 8),
+            Text(
+              'Metabolismo basal: ${approxKcal(controller.basalKcal!)}',
+              key: const Key('basal-kcal'),
+            ),
+            Text('Lo que tu cuerpo gasta en reposo.', style: text.bodySmall),
+            const SizedBox(height: 8),
+            if (controller.usesMeasured) ...[
+              Text(
+                'Mantenimiento (medido): '
+                '${formatThousandsEs(presentKcal(controller.maintenanceKcal!))} kcal',
+                key: const Key('maintenance-kcal'),
+              ),
+              Text(
+                'Según la fórmula serían '
+                '${approxKcal(controller.formulaMaintenanceKcal!)}; se usa '
+                'tu valor medido.',
+                style: text.bodySmall,
+              ),
+            ] else ...[
+              Text(
+                'Mantenimiento: ${approxKcal(controller.maintenanceKcal!)}',
+                key: const Key('maintenance-kcal'),
+              ),
+              Text(
+                'Lo que gastas en un día con tu nivel de actividad.',
+                style: text.bodySmall,
+              ),
+            ],
+            const SizedBox(height: 8),
+            Text(disclaimerText, style: text.bodySmall),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// SPEC-041: fecha de nacimiento en tres selectores (día, mes y año), sin
+/// teclado.
+class _BirthDatePicker extends StatelessWidget {
+  final ProfileController controller;
+
+  const _BirthDatePicker({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = controller;
+    final error = c.birthDateError;
+    final age = c.age;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Fecha de nacimiento'),
+        const SizedBox(height: 4),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 2,
+              child: _Select(
+                key: const Key('profile-birth-day'),
+                label: 'Día',
+                value: c.birthDay,
+                options: {for (final d in c.birthDays) d: '$d'},
+                onChanged: c.setBirthDay,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 4,
+              child: _Select(
+                key: const Key('profile-birth-month'),
+                label: 'Mes',
+                value: c.birthMonth,
+                options: {
+                  for (final (i, name) in monthNamesEs.indexed) i + 1: name,
+                },
+                onChanged: c.setBirthMonth,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 3,
+              child: _Select(
+                key: const Key('profile-birth-year'),
+                label: 'Año',
+                value: c.birthYear,
+                options: {for (final y in c.birthYears) y: '$y'},
+                onChanged: c.setBirthYear,
+              ),
+            ),
+          ],
+        ),
+        if (error != null || age != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4, left: 12),
+            child: error != null
+                ? Text(
+                    error,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                      fontSize: 12,
+                    ),
+                  )
+                : Text('$age años', style: const TextStyle(fontSize: 12)),
+          ),
+      ],
+    );
+  }
+}
+
+/// Un selector con etiqueta (el lector de pantalla la anuncia).
+class _Select extends StatelessWidget {
+  final String label;
+  final int? value;
+  final Map<int, String> options;
+  final ValueChanged<int> onChanged;
+
+  const _Select({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.options,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) => InputDecorator(
+    decoration: InputDecoration(
+      labelText: label,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+    ),
+    child: DropdownButtonHideUnderline(
+      // El lector de pantalla anuncia "Día", "Mes" o "Año" con el valor.
+      child: Semantics(
+        label: label,
+        child: DropdownButton<int>(
+          value: options.containsKey(value) ? value : null,
+          isExpanded: true,
+          isDense: true,
+          menuMaxHeight: 320,
+          items: [
+            for (final MapEntry(:key, value: text) in options.entries)
+              DropdownMenuItem(
+                value: key,
+                child: Text(text, overflow: TextOverflow.ellipsis),
+              ),
+          ],
+          onChanged: (v) {
+            if (v != null) onChanged(v);
+          },
+        ),
+      ),
+    ),
+  );
+}

@@ -1,22 +1,28 @@
 {
   "name": "functions",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && mkdir -p lib/ai/prompts && cp src/ai/prompts/*.md lib/ai/prompts/",
     "build:watch": "tsc --watch",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "test": "npm run build && node --test lib"
+    "test": "npm run build && cd lib && node --test",
+    "evals:parse-meal": "npm run build && node lib/evals/run_parse_meal.js",
+    "evals:extract-label": "npm run build && node lib/evals/run_extract_label.js",
+    "evals:correct-meal": "npm run build && node lib/evals/run_correct_meal.js"
   },
   "engines": {
     "node": "24"
   },
   "main": "lib/index.js",
   "dependencies": {
+    "@google/genai": "^2.24.0",
     "firebase-admin": "^14.5.0",
-    "firebase-functions": "^7.4.0"
+    "firebase-functions": "^7.4.0",
+    "ollama": "^0.6.3",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "typescript": "^7.0.2",

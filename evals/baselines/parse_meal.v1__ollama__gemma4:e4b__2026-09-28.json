@@ -1,0 +1,937 @@
+{
+  "dataset": "parse_meal.v1",
+  "provider": "ollama",
+  "modelId": "gemma4:e4b",
+  "ranAt": "2026-09-28T21:04:01.412Z",
+  "schemaValidRate": "50/50 (100.0%)",
+  "foodDetectionRate": "83/91 (91.2%)",
+  "quantityUnitAccuracy": "77/83 (92.8%)",
+  "latencyP50Ms": 3027,
+  "latencyP95Ms": 4383,
+  "avgTokensInput": 656,
+  "avgTokensOutput": 172,
+  "results": [
+    {
+      "id": "s01",
+      "text": "dos huevos revueltos y una arepa pequeña con queso",
+      "schemaValid": true,
+      "latencyMs": 8890,
+      "tokensInput": 658,
+      "tokensOutput": 271,
+      "itemsFound": [
+        "huevo",
+        "arepa",
+        "queso"
+      ],
+      "expectedFoods": [
+        "huevo",
+        "arepa",
+        "queso"
+      ],
+      "expectedCount": 3,
+      "matchedCount": 3,
+      "quantityUnitCorrect": 2
+    },
+    {
+      "id": "s02",
+      "text": "150 gramos de pechuga de pollo a la plancha",
+      "schemaValid": true,
+      "latencyMs": 2174,
+      "tokensInput": 660,
+      "tokensOutput": 132,
+      "itemsFound": [
+        "pechuga de pollo"
+      ],
+      "expectedFoods": [
+        "pechuga de pollo"
+      ],
+      "expectedCount": 1,
+      "matchedCount": 1,
+      "quantityUnitCorrect": 1
+    },
+    {
+      "id": "s03",
+      "text": "un café con leche",
+      "schemaValid": true,
+      "latencyMs": 1854,
+      "tokensInput": 650,
+      "tokensOutput": 113,
+      "itemsFound": [
+        "café con leche"
+      ],
+      "expectedFoods": [
+        "café con leche"
+      ],
+      "expectedCount": 1,
+      "matchedCount": 1,
+      "quantityUnitCorrect": 1
+    },
+    {
+      "id": "s04",
+      "text": "media taza de arroz blanco y un plátano maduro frito",
+      "schemaValid": true,
+      "latencyMs": 3269,
+      "tokensInput": 660,
+      "tokensOutput": 203,
+      "itemsFound": [
+        "arroz blanco",
+        "plátano maduro"
+      ],
+      "expectedFoods": [
+        "arroz blanco",
+        "plátano maduro"
+      ],
+      "expectedCount": 2,
+      "matchedCount": 2,
+      "quantityUnitCorrect": 2
+    },
+    {
+      "id": "s05",
+      "text": "almorcé 180 g de arroz, medio aguacate y ensalada con una cucharada de aceite de oliva",
+      "schemaValid": true,
+      "latencyMs": 5579,
+      "tokensInput": 671,
+      "tokensOutput": 357,
+      "itemsFound": [
+        "arroz",
+        "aguacate",
+        "ensalada",
+        "aceite de oliva"
+      ],
+      "expectedFoods": [
+        "arroz",
+        "aguacate",
+        "ensalada",
+        "aceite de oliva"
+      ],
+      "expectedCount": 4,
+      "matchedCount": 4,
+      "quantityUnitCorrect": 3
+    },
+    {
+      "id": "s06",
+      "text": "me comí un poquito de queso",
+      "schemaValid": true,
+      "latencyMs": 1799,
+      "tokensInput": 653,
+      "tokensOutput": 111,
+      "itemsFound": [
+        "queso"
+      ],
+      "expectedFoods": [
+        "queso"
+      ],
+      "expectedCount": 1,
+      "matchedCount": 1,
+      "quantityUnitCorrect": 1
+    },
+    {
+      "id": "s07",
+      "text": "una manzana",
+      "schemaValid": true,
+      "latencyMs": 1756,
+      "tokensInput": 648,
+      "tokensOutput": 111,
+      "itemsFound": [
+        "manzana"
+      ],
+      "expectedFoods": [
+        "manzana"
+      ],
+      "expectedCount": 1,
+      "matchedCount": 1,
+      "quantityUnitCorrect": 1
+    },
+    {
+      "id": "s08",
+      "text": "dos tajadas de pan integral con mantequilla de maní",
+      "schemaValid": true,
+      "latencyMs": 3212,
+      "tokensInput": 658,
+      "tokensOutput": 202,
+      "itemsFound": [
+        "pan integral",
+        "mantequilla de maní"
+      ],
+      "expectedFoods": [
+        "pan integral",
+        "mantequilla de maní"
+      ],
+      "expectedCount": 2,
+      "matchedCount": 2,
+      "quantityUnitCorrect": 2
+    },
+    {
+      "id": "s09",
+      "text": "un vaso de jugo de naranja",
+      "schemaValid": true,
+      "latencyMs": 1948,
+      "tokensInput": 652,
+      "tokensOutput": 118,
+      "itemsFound": [
+        "jugo de naranja"
+      ],
+      "expectedFoods": [
+        "jugo de naranja"
+      ],
+      "expectedCount": 1,
+      "matchedCount": 1,
+      "quantityUnitCorrect": 1
+    },
+    {
+      "id": "s10",
+      "text": "hola, ¿cómo estás?",
+      "schemaValid": true,
+      "latencyMs": 635,
+      "tokensInput": 652,
+      "tokensOutput": 34,
+      "itemsFound": [],
+      "expectedFoods": [],
+      "expectedCount": 0,
+      "matchedCount": 0,
+      "quantityUnitCorrect": 0
+    },
+    {
+      "id": "s11",
+      "text": "desayuné dos huevos fritos con una arepa",
+      "schemaValid": true,
+      "latencyMs": 3061,
+      "tokensInput": 658,
+      "tokensOutput": 193,
+      "itemsFound": [
+        "huevo",
+        "arepa"
+      ],
+      "expectedFoods": [
+        "huevo",
+        "arepa"
+      ],
+      "expectedCount": 2,
+      "matchedCount": 2,
+      "quantityUnitCorrect": 2
+    },
+    {
+      "id": "s12",
+      "text": "almorcé arroz con pollo y ensalada",
+      "schemaValid": true,
+      "latencyMs": 2986,
+      "tokensInput": 655,
+      "tokensOutput": 188,
+      "itemsFound": [
+        "arroz con pollo",
+        "ensalada"
+      ],
+      "expectedFoods": [
+        "arroz",
+        "pollo",
+        "ensalada"
+      ],
+      "expectedCount": 3,
+      "matchedCount": 2,
+      "quantityUnitCorrect": 2
+    },
+    {
+      "id": "s13",
+      "text": "cené una sopa de verduras y dos arepas medianas",
+      "schemaValid": true,
+      "latencyMs": 3065,
+      "tokensInput": 658,
+      "tokensOutput": 193,
+      "itemsFound": [
+        "sopa de verduras",
+        "arepa"
+      ],
+      "expectedFoods": [
+        "sopa de verduras",
+        "arepa"
+      ],
+      "expectedCount": 2,
+      "matchedCount": 2,
+      "quantityUnitCorrect": 1
+    },
+    {
+      "id": "s14",
+      "text": "comí 200 gramos de carne asada con papa cocida",
+      "schemaValid": true,
+      "latencyMs": 3147,
+      "tokensInput": 661,
+      "tokensOutput": 198,
+      "itemsFound": [
+        "carne asada",
+        "papa"
+      ],
+      "expectedFoods": [
+        "carne",
+        "papa"
+      ],
+      "expectedCount": 2,
+      "matchedCount": 2,
+      "quantityUnitCorrect": 2
+    },
+    {
+      "id": "s15",
+      "text": "un huevo cocido y medio aguacate",
+      "schemaValid": true,
+      "latencyMs": 3047,
+      "tokensInput": 654,
+      "tokensOutput": 192,
+      "itemsFound": [
+        "huevo",
+        "aguacate"
+      ],
+      "expectedFoods": [
+        "huevo",
+        "aguacate"
+      ],
+      "expectedCount": 2,
+      "matchedCount": 2,
+      "quantityUnitCorrect": 2
+    },
+    {
+      "id": "s16",
+      "text": "tomé un jugo de mora con dos galletas",
+      "schemaValid": true,
+      "latencyMs": 2987,
+      "tokensInput": 656,
+      "tokensOutput": 188,
+      "itemsFound": [
+        "jugo de mora",
+        "galleta"
+      ],
+      "expectedFoods": [
+        "jugo de mora",
+        "galleta"
+      ],
+      "expectedCount": 2,
+      "matchedCount": 2,
+      "quantityUnitCorrect": 2
+    },
+    {
+      "id": "s17",
+      "text": "en la tarde comí dos tostadas pequeñas con mermelada",
+      "schemaValid": true,
+      "latencyMs": 3136,
+      "tokensInput": 660,
+      "tokensOutput": 197,
+      "itemsFound": [
+        "tostada",
+        "mermelada"
+      ],
+      "expectedFoods": [
+        "tostada",
+        "mermelada"
+      ],
+      "expectedCount": 2,
+      "matchedCount": 2,
+      "quantityUnitCorrect": 2
+    },
+    {
+      "id": "s18",
+      "text": "almuerzo: 150 g de pescado, arroz y ensalada",
+      "schemaValid": true,
+      "latencyMs": 4149,
+      "tokensInput": 662,
+      "tokensOutput": 264,
+      "itemsFound": [
+        "pescado",
+        "arroz",
+        "ensalada"
+      ],
+      "expectedFoods": [
+        "pescado",
+        "arroz",
+        "ensalada"
+      ],
+      "expectedCount": 3,
+      "matchedCount": 3,
+      "quantityUnitCorrect": 3
+    },
+    {
+      "id": "s19",
+      "text": "me tomé media taza de avena con leche",
+      "schemaValid": true,
+      "latencyMs": 2017,
+      "tokensInput": 656,
+      "tokensOutput": 124,
+      "itemsFound": [
+        "avena con leche"
+      ],
+      "expectedFoods": [
+        "avena",
+        "leche"
+      ],
+      "expectedCount": 2,
+      "matchedCount": 1,
+      "quantityUnitCorrect": 1
+    },
+    {
+      "id": "s20",
+      "text": "un plato de lentejas con arroz blanco",
+      "schemaValid": true,
+      "latencyMs": 3066,
+      "tokensInput": 654,
+      "tokensOutput": 193,
+      "itemsFound": [
+        "lentejas",
+        "arroz blanco"
+      ],
+      "expectedFoods": [
+        "lenteja",
+        "arroz blanco"
+      ],
+      "expectedCount": 2,
+      "matchedCount": 2,
+      "quantityUnitCorrect": 0
+    },
+    {
+      "id": "s21",
+      "text": "comí tres galletas integrales",
+      "schemaValid": true,
+      "latencyMs": 1872,
+      "tokensInput": 653,
+      "tokensOutput": 115,
+      "itemsFound": [
+        "galleta integral"
+      ],
+      "expectedFoods": [
+        "galleta integral"
+      ],
+      "expectedCount": 1,
+      "matchedCount": 1,
+      "quantityUnitCorrect": 1
+    },
+    {
+      "id": "s22",
+      "text": "una porción de pastel de pollo",
+      "schemaValid": true,
+      "latencyMs": 1904,
+      "tokensInput": 653,
+      "tokensOutput": 117,
+      "itemsFound": [
+        "pastel de pollo"
+      ],
+      "expectedFoods": [
+        "pastel de pollo"
+      ],
+      "expectedCount": 1,
+      "matchedCount": 1,
+      "quantityUnitCorrect": 1
+    },
+    {
+      "id": "s23",
+      "text": "desayuné avena con banano picado",
+      "schemaValid": true,
+      "latencyMs": 3059,
+      "tokensInput": 657,
+      "tokensOutput": 192,
+      "itemsFound": [
+        "avena",
+        "banano"
+      ],
+      "expectedFoods": [
+        "avena",
+        "banano"
+      ],
+      "expectedCount": 2,
+      "matchedCount": 2,
+      "quantityUnitCorrect": 2
+    },
+    {
+      "id": "s24",
+      "text": "almorcé sancocho de gallina",
+      "schemaValid": true,
+      "latencyMs": 1953,
+      "tokensInput": 655,
+      "tokensOutput": 120,
+      "itemsFound": [
+        "sancocho de gallina"
+      ],
+      "expectedFoods": [
+        "sancocho de gallina"
+      ],
+      "expectedCount": 1,
+      "matchedCount": 1,
+      "quantityUnitCorrect": 1
+    },
+    {
+      "id": "s25",
+      "text": "merienda: un yogur con granola",
+      "schemaValid": true,
+      "latencyMs": 3065,
+      "tokensInput": 654,
+      "tokensOutput": 187,
+      "itemsFound": [
+        "yogur",
+        "granola"
+      ],
+      "expectedFoods": [
+        "yogur",
+        "granola"
+      ],
+      "expectedCount": 2,
+      "matchedCount": 2,
+      "quantityUnitCorrect": 1
+    },
+    {
+      "id": "s26",
+      "text": "cené dos huevos revueltos con tomate y cebolla",
+      "schemaValid": true,
+      "latencyMs": 4383,
+      "tokensInput": 658,
+      "tokensOutput": 266,
+      "itemsFound": [
+        "huevo",
+        "tomate",
+        "cebolla"
+      ],
+      "expectedFoods": [
+        "huevo",
+        "tomate",
+        "cebolla"
+      ],
+      "expectedCount": 3,
+      "matchedCount": 3,
+      "quantityUnitCorrect": 3
+    },
+    {
+      "id": "s27",
+      "text": "tomé un vaso de leche con dos galletas de soda",
+      "schemaValid": true,
+      "latencyMs": 3090,
+      "tokensInput": 658,
+      "tokensOutput": 193,
+      "itemsFound": [
+        "leche",
+        "galletas de soda"
+      ],
+      "expectedFoods": [
+        "leche",
+        "galleta de soda"
+      ],
+      "expectedCount": 2,
+      "matchedCount": 1,
+      "quantityUnitCorrect": 1
+    },
+    {
+      "id": "s28",
+      "text": "comí una hamburguesa con papas fritas",
+      "schemaValid": true,
+      "latencyMs": 3073,
+      "tokensInput": 656,
+      "tokensOutput": 193,
+      "itemsFound": [
+        "hamburguesa",
+        "papas fritas"
+      ],
+      "expectedFoods": [
+        "hamburguesa",
+        "papas fritas"
+      ],
+      "expectedCount": 2,
+      "matchedCount": 2,
+      "quantityUnitCorrect": 2
+    },
+    {
+      "id": "s29",
+      "text": "almuerzo: 100 g de pechuga a la plancha con puré de papa",
+      "schemaValid": true,
+      "latencyMs": 3349,
+      "tokensInput": 668,
+      "tokensOutput": 211,
+      "itemsFound": [
+        "pechuga de pollo",
+        "puré de papa"
+      ],
+      "expectedFoods": [
+        "pechuga",
+        "puré de papa"
+      ],
+      "expectedCount": 2,
+      "matchedCount": 2,
+      "quantityUnitCorrect": 2
+    },
+    {
+      "id": "s30",
+      "text": "desayuné caldo de costilla con arepa",
+      "schemaValid": true,
+      "latencyMs": 3027,
+      "tokensInput": 657,
+      "tokensOutput": 190,
+      "itemsFound": [
+        "caldo de costilla",
+        "arepa"
+      ],
+      "expectedFoods": [
+        "caldo de costilla",
+        "arepa"
+      ],
+      "expectedCount": 2,
+      "matchedCount": 2,
+      "quantityUnitCorrect": 2
+    },
+    {
+      "id": "s31",
+      "text": "una taza de café con dos cucharaditas de azúcar",
+      "schemaValid": true,
+      "latencyMs": 3136,
+      "tokensInput": 657,
+      "tokensOutput": 197,
+      "itemsFound": [
+        "café",
+        "azúcar"
+      ],
+      "expectedFoods": [
+        "café",
+        "azúcar"
+      ],
+      "expectedCount": 2,
+      "matchedCount": 2,
+      "quantityUnitCorrect": 2
+    },
+    {
+      "id": "s32",
+      "text": "cené una pizza personal",
+      "schemaValid": true,
+      "latencyMs": 1924,
+      "tokensInput": 651,
+      "tokensOutput": 115,
+      "itemsFound": [
+        "pizza"
+      ],
+      "expectedFoods": [
+        "pizza"
+      ],
+      "expectedCount": 1,
+      "matchedCount": 1,
+      "quantityUnitCorrect": 1
+    },
+    {
+      "id": "s33",
+      "text": "comí medio pollo asado",
+      "schemaValid": true,
+      "latencyMs": 1890,
+      "tokensInput": 652,
+      "tokensOutput": 116,
+      "itemsFound": [
+        "pollo"
+      ],
+      "expectedFoods": [
+        "pollo"
+      ],
+      "expectedCount": 1,
+      "matchedCount": 1,
+      "quantityUnitCorrect": 1
+    },
+    {
+      "id": "s34",
+      "text": "almorcé fríjoles con arroz, chicharrón y plátano maduro",
+      "schemaValid": true,
+      "latencyMs": 4286,
+      "tokensInput": 665,
+      "tokensOutput": 272,
+      "itemsFound": [
+        "fríjoles con arroz",
+        "chicharrón",
+        "plátano maduro"
+      ],
+      "expectedFoods": [
+        "fríjol",
+        "arroz",
+        "chicharrón",
+        "plátano maduro"
+      ],
+      "expectedCount": 4,
+      "matchedCount": 3,
+      "quantityUnitCorrect": 3
+    },
+    {
+      "id": "s35",
+      "text": "tomé un tinto sin azúcar",
+      "schemaValid": true,
+      "latencyMs": 1841,
+      "tokensInput": 653,
+      "tokensOutput": 113,
+      "itemsFound": [
+        "café negro"
+      ],
+      "expectedFoods": [
+        "tinto"
+      ],
+      "expectedCount": 1,
+      "matchedCount": 0,
+      "quantityUnitCorrect": 0
+    },
+    {
+      "id": "s36",
+      "text": "cené una arepa con huevo y queso",
+      "schemaValid": true,
+      "latencyMs": 4077,
+      "tokensInput": 655,
+      "tokensOutput": 259,
+      "itemsFound": [
+        "arepa",
+        "huevo",
+        "queso"
+      ],
+      "expectedFoods": [
+        "arepa",
+        "huevo",
+        "queso"
+      ],
+      "expectedCount": 3,
+      "matchedCount": 3,
+      "quantityUnitCorrect": 3
+    },
+    {
+      "id": "s37",
+      "text": "comí 250 ml de jugo de lulo",
+      "schemaValid": true,
+      "latencyMs": 1999,
+      "tokensInput": 658,
+      "tokensOutput": 123,
+      "itemsFound": [
+        "jugo de lulo"
+      ],
+      "expectedFoods": [
+        "jugo de lulo"
+      ],
+      "expectedCount": 1,
+      "matchedCount": 1,
+      "quantityUnitCorrect": 1
+    },
+    {
+      "id": "s38",
+      "text": "desayuné pan tostado con mantequilla y café",
+      "schemaValid": true,
+      "latencyMs": 4122,
+      "tokensInput": 658,
+      "tokensOutput": 262,
+      "itemsFound": [
+        "pan",
+        "mantequilla",
+        "café"
+      ],
+      "expectedFoods": [
+        "pan tostado",
+        "mantequilla",
+        "café"
+      ],
+      "expectedCount": 3,
+      "matchedCount": 3,
+      "quantityUnitCorrect": 3
+    },
+    {
+      "id": "s39",
+      "text": "almuerzo de hoy: bandeja paisa completa",
+      "schemaValid": true,
+      "latencyMs": 1948,
+      "tokensInput": 656,
+      "tokensOutput": 119,
+      "itemsFound": [
+        "bandeja paisa"
+      ],
+      "expectedFoods": [
+        "bandeja paisa"
+      ],
+      "expectedCount": 1,
+      "matchedCount": 1,
+      "quantityUnitCorrect": 1
+    },
+    {
+      "id": "s40",
+      "text": "una empanada con ají",
+      "schemaValid": true,
+      "latencyMs": 2983,
+      "tokensInput": 653,
+      "tokensOutput": 187,
+      "itemsFound": [
+        "empanada",
+        "ají"
+      ],
+      "expectedFoods": [
+        "empanada",
+        "ají"
+      ],
+      "expectedCount": 2,
+      "matchedCount": 2,
+      "quantityUnitCorrect": 2
+    },
+    {
+      "id": "s41",
+      "text": "cené dos salchichas con puré",
+      "schemaValid": true,
+      "latencyMs": 2997,
+      "tokensInput": 656,
+      "tokensOutput": 188,
+      "itemsFound": [
+        "salchicha",
+        "puré"
+      ],
+      "expectedFoods": [
+        "salchicha",
+        "puré"
+      ],
+      "expectedCount": 2,
+      "matchedCount": 2,
+      "quantityUnitCorrect": 2
+    },
+    {
+      "id": "s42",
+      "text": "comí un pandebono grande",
+      "schemaValid": true,
+      "latencyMs": 1896,
+      "tokensInput": 653,
+      "tokensOutput": 116,
+      "itemsFound": [
+        "pandebono"
+      ],
+      "expectedFoods": [
+        "pandebono"
+      ],
+      "expectedCount": 1,
+      "matchedCount": 1,
+      "quantityUnitCorrect": 1
+    },
+    {
+      "id": "s43",
+      "text": "almuerzo: ajiaco con pollo y alcaparras",
+      "schemaValid": true,
+      "latencyMs": 1928,
+      "tokensInput": 659,
+      "tokensOutput": 118,
+      "itemsFound": [
+        "ajiaco"
+      ],
+      "expectedFoods": [
+        "ajiaco",
+        "pollo",
+        "alcaparras"
+      ],
+      "expectedCount": 3,
+      "matchedCount": 1,
+      "quantityUnitCorrect": 1
+    },
+    {
+      "id": "s44",
+      "text": "tomé una malteada de fresa",
+      "schemaValid": true,
+      "latencyMs": 1952,
+      "tokensInput": 655,
+      "tokensOutput": 120,
+      "itemsFound": [
+        "malteada de fresa"
+      ],
+      "expectedFoods": [
+        "malteada de fresa"
+      ],
+      "expectedCount": 1,
+      "matchedCount": 1,
+      "quantityUnitCorrect": 1
+    },
+    {
+      "id": "s45",
+      "text": "cené un caldo de pollo con una cucharada de crema de leche",
+      "schemaValid": true,
+      "latencyMs": 3203,
+      "tokensInput": 660,
+      "tokensOutput": 198,
+      "itemsFound": [
+        "caldo de pollo",
+        "crema de leche"
+      ],
+      "expectedFoods": [
+        "caldo de pollo",
+        "crema de leche"
+      ],
+      "expectedCount": 2,
+      "matchedCount": 2,
+      "quantityUnitCorrect": 2
+    },
+    {
+      "id": "s46",
+      "text": "comí un mango biche con sal",
+      "schemaValid": true,
+      "latencyMs": 1899,
+      "tokensInput": 654,
+      "tokensOutput": 116,
+      "itemsFound": [
+        "mango biche"
+      ],
+      "expectedFoods": [
+        "mango",
+        "sal"
+      ],
+      "expectedCount": 2,
+      "matchedCount": 1,
+      "quantityUnitCorrect": 1
+    },
+    {
+      "id": "s47",
+      "text": "desayuné huevos pericos con arepa y chocolate",
+      "schemaValid": true,
+      "latencyMs": 4071,
+      "tokensInput": 658,
+      "tokensOutput": 258,
+      "itemsFound": [
+        "huevos pericos",
+        "arepa",
+        "chocolate"
+      ],
+      "expectedFoods": [
+        "huevos pericos",
+        "arepa",
+        "chocolate"
+      ],
+      "expectedCount": 3,
+      "matchedCount": 3,
+      "quantityUnitCorrect": 3
+    },
+    {
+      "id": "s48",
+      "text": "una arepa de choclo con queso derretido",
+      "schemaValid": true,
+      "latencyMs": 3209,
+      "tokensInput": 657,
+      "tokensOutput": 202,
+      "itemsFound": [
+        "arepa de choclo",
+        "queso"
+      ],
+      "expectedFoods": [
+        "arepa de choclo",
+        "queso"
+      ],
+      "expectedCount": 2,
+      "matchedCount": 2,
+      "quantityUnitCorrect": 2
+    },
+    {
+      "id": "s49",
+      "text": "no he comido nada todavía",
+      "schemaValid": true,
+      "latencyMs": 623,
+      "tokensInput": 652,
+      "tokensOutput": 34,
+      "itemsFound": [],
+      "expectedFoods": [],
+      "expectedCount": 0,
+      "matchedCount": 0,
+      "quantityUnitCorrect": 0
+    },
+    {
+      "id": "s50",
+      "text": "¿cuántas calorías tiene una manzana?",
+      "schemaValid": true,
+      "latencyMs": 1818,
+      "tokensInput": 655,
+      "tokensOutput": 111,
+      "itemsFound": [
+        "manzana"
+      ],
+      "expectedFoods": [],
+      "expectedCount": 0,
+      "matchedCount": 0,
+      "quantityUnitCorrect": 0
+    }
+  ]
+}

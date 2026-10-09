@@ -1,125 +1,94 @@
+import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:nutrition_core/nutrition_core.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 
-void main() {
-  // Prueba de enlace con el paquete Dart puro nutrition_core (T-000).
-  debugPrint('nutrition_core linked: ${Awesome().isAwesome}');
-  runApp(const MyApp());
-}
+import 'app.dart';
+import 'firebase_options.dart';
+import 'ui/licenses.dart';
+import 'infra/ai_client/ai_client.dart';
+import 'infra/ai_client/ai_client_providers.dart';
+import 'infra/catalog/catalog_asset_loader.dart';
+import 'infra/catalog/catalog_providers.dart';
+import 'infra/catalog/catalog_repository.dart';
+import 'infra/crash_reporting/crash_reporter.dart';
+import 'infra/crash_reporting/crash_reporting_providers.dart';
+import 'infra/sharing/sharing_providers.dart';
+import 'infra/storage/app_database.dart';
+import 'infra/storage/storage_providers.dart';
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+/// Misma región que `functions/src/index.ts` (SPEC-007 R2).
+const _functionsRegion = 'us-east1';
 
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // SPEC-007 R1: primera conexión real a Firebase (`kcalcula-ia-dev`),
+  // generado por `flutterfire configure` — ver Checklist de beta de
+  // SPEC-007.
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // SPEC-007 R3/AC14/PV-08: proveedor de depuración en debug, real en
+  // release — decidido en tiempo de compilación (`kDebugMode`), nunca por
+  // una variable de entorno que pudiera quedar mal puesta (Firebase
+  // advierte que el proveedor de depuración en una build de release
+  // expone el backend a dispositivos no verificados).
+  await FirebaseAppCheck.instance.activate(
+    providerAndroid: kDebugMode
+        ? const AndroidDebugProvider()
+        : const AndroidPlayIntegrityProvider(),
+    providerApple: kDebugMode
+        ? const AppleDebugProvider()
+        : const AppleAppAttestWithDeviceCheckFallbackProvider(),
+  );
+
+  // SPEC-007 R4: la recolección arranca desactivada — solo `_RootGate` la
+  // activa, y solo tras confirmar consentimiento vigente (ver app.dart).
+  // SPEC-009 R1: los errores de `user.db` se reportan sin su mensaje.
+  final CrashReporter crashReporter = SanitizingCrashReporter(
+    FirebaseCrashReporter(),
+  );
+  try {
+    await crashReporter.setCollectionEnabled(false);
+  } catch (_) {
+    // AC12: un fallo aquí no debe impedir que la app arranque.
   }
-}
+  FlutterError.onError = crashReporter.recordFlutterFatalError;
+  PlatformDispatcher.instance.onError = (error, stack) {
+    crashReporter.recordError(error, stack);
+    return true;
+  };
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  final docsDir = await getApplicationDocumentsDirectory();
+  final db = AppDatabase(AppDatabase.openFile('${docsDir.path}/user.db'));
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
+  final catalogDbPath = await ensureCatalogDbFile(docsDir.path);
+  final catalog = CatalogRepository.openFile(catalogDbPath);
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+  // SPEC-006 R7: directorio de escritura para el JSON de "Exportar mis
+  // datos" antes de pasarlo al share sheet — temporal, no `user.db`.
+  final tempDir = await getTemporaryDirectory();
 
-  final String title;
+  // SPEC-010 R2: licencia de la fuente embebida (OFL 1.1).
+  registerFontLicenses();
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
-          children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+  runApp(
+    ProviderScope(
+      overrides: [
+        appDatabaseProvider.overrideWithValue(db),
+        catalogRepositoryProvider.overrideWithValue(catalog),
+        exportDirectoryPathProvider.overrideWithValue(tempDir.path),
+        crashReporterProvider.overrideWithValue(crashReporter),
+        aiClientProvider.overrideWithValue(
+          AiClient.firebase(
+            FirebaseFunctions.instanceFor(region: _functionsRegion),
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
+      ],
+      child: const MyApp(),
+    ),
+  );
 }

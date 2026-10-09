@@ -1,0 +1,5 @@
+unit,ml,source_ref
+cucharada,15,"FDA 21 CFR 101.9(b)(5)(viii): 1 tablespoon = 15 mL, medida doméstica estándar para etiquetado nutricional"
+cucharadita,5,"FDA 21 CFR 101.9(b)(5)(viii): 1 teaspoon = 5 mL, medida doméstica estándar para etiquetado nutricional"
+taza,240,"FDA 21 CFR 101.9(b)(5)(viii): 1 cup = 240 mL, medida doméstica estándar para etiquetado nutricional"
+vaso,250,"Convención culinaria colombiana (no hay estándar oficial de 'vaso'); 250 mL es el tamaño de vaso de agua/jugo más citado en recetas colombianas. Curada por el equipo, no de una fuente nutricional — revisar si se dispone de una referencia mejor."
