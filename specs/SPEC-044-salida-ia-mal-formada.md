@@ -1,7 +1,7 @@
 # SPEC-044: Salida de IA mal formada y prompts seguros en parseMeal y extractLabel
 
 ## Status
-Implementing
+Review
 Path: Strict (capa de IA: adaptadores y renderizado de prompts; sin cambiar prompts ni esquemas)
 
 ## Objective
@@ -82,6 +82,7 @@ reformúlalo" y nunca deje mi texto en un log.
 - 2026-10-09: implementada. `vertex.ts` y `ollama.ts` usan `parseJsonOrUndefined` en las tres llamadas
   (sin texto deja de lanzar "Vertex AI no devolvió texto": es salida inválida); `renderParseMealPrompt`
   sustituye con funciones. Prompts y esquemas sin cambios. functions 79/79.
+- 2026-10-09: reviewer PASS. Status → Review: falta la aprobación explícita de la usuaria para fusionar.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -93,4 +94,8 @@ reformúlalo" y nunca deje mi texto en un log.
 | AC5 | ✅ | mismo archivo › "SPEC-044 AC5…"; functions 79/79 sin cambiar tests existentes |
 
 ## Review
-Informe del reviewer:
+Revisión (2026-10-09, subagente `reviewer`, sobre `4938b43`): **PASS**. AC1–AC5 con evidencia; prompts y
+esquemas sin cambios; prompt idéntico para textos normales; salida mal formada por reintento y
+`ai-invalid-output`; errores de red o cuota se propagan como antes; logs solo con metadatos. MINOR
+(sin bloquear): los tests usan un proveedor simulado, no los adaptadores reales; el test de AC5 busca
+la cadena `JSON.parse(` (la revisión de código lo confirma).
