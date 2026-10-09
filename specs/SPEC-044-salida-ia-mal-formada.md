@@ -1,7 +1,7 @@
 # SPEC-044: Salida de IA mal formada y prompts seguros en parseMeal y extractLabel
 
 ## Status
-Review
+Done
 Path: Strict (capa de IA: adaptadores y renderizado de prompts; sin cambiar prompts ni esquemas)
 
 ## Objective
@@ -83,6 +83,7 @@ reformúlalo" y nunca deje mi texto en un log.
   (sin texto deja de lanzar "Vertex AI no devolvió texto": es salida inválida); `renderParseMealPrompt`
   sustituye con funciones. Prompts y esquemas sin cambios. functions 79/79.
 - 2026-10-09: reviewer PASS. Status → Review: falta la aprobación explícita de la usuaria para fusionar.
+- 2026-10-09: **aprobación explícita de la usuaria para fusionar, hacer push y desplegar** ("si"). Status → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
