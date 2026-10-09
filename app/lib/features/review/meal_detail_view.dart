@@ -156,6 +156,10 @@ class _MealDetailViewState extends ConsumerState<MealDetailView> {
     final text = _correction.text.trim();
     if (text.isEmpty || text.length > maxCorrectionLength) return;
     final controller = widget.controller;
+    if (!controller.canCorrect) {
+      setState(() => _correctionMessage = tooManyItemsForCorrectionMessage);
+      return;
+    }
     setState(() {
       _correcting = true;
       _correctionMessage = null;
@@ -1231,6 +1235,9 @@ class _WriteQuantityDialogState extends State<_WriteQuantityDialog> {
 /// SPEC-024 R1/AC8.
 const maxCorrectionLength = 300;
 const noCorrectionChangesMessage = 'No vi nada que cambiar.';
+const tooManyItemsForCorrectionMessage =
+    'Para corregir así, la comida debe tener hasta 30 ingredientes. '
+    'Corrígela a mano.';
 const undoCorrectionAction = 'Deshacer';
 
 /// SPEC-024 R1/R4: "¿Algo no está bien? Cuéntamelo", "Aplicar" y

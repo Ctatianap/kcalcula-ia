@@ -116,17 +116,30 @@ la aplique, para no empezar de nuevo.
     `op` lo valida zod. El backend también rechaza índices fuera de rango (reintento y
     `ai-invalid-output`); la app lo vuelve a comprobar antes de aplicar.
   - Hasta 30 ítems por petición; `timeoutSeconds: 20`. Log con `operationCount` (un número).
-  - Los tests de AC1 usan "papa cocida" (está en el catálogo de prueba) en vez de "pan integral"; AC2
-    usa "una cucharada" de café (el catálogo de prueba solo tiene la cucharada como medida casera).
   - Evals con Vertex (`gemini-2.5-flash`, presupuesto 0): esquema 20/20, correcciones correctas
     20/20, p50 1,2 s, p95 3,1 s, ~1.024 tokens de entrada y 72 de salida. Baseline guardado.
   - functions 71/71, app 533/533.
+- 2026-10-09: reviewer CHANGES_REQUESTED. Corregido:
+  - (MAJOR) `set_quantity` conserva lo que no se dijo: "las arepas eran pequeñas" sobre "dos arepas"
+    queda en 2 pequeñas (antes 1). Con solo tamaño, "unidad" se quita para que aplique la regla de
+    tamaño; una cantidad sin unidad conserva la unidad anterior. Test nuevo.
+  - AC1 y AC2 se prueban como dice la SPEC: el catálogo de prueba suma "Pan integral" y "Arroz blanco"
+    con densidad y la taza (valores de prueba); AC2 comprueba que la confianza baja de Buena
+    estimación a Estimación.
+  - Menciones recortadas a 300 caracteres al enviar; con más de 30 ingredientes se pide corregir a
+    mano (mensaje propio).
+  - Una edición a mano después de corregir vacía "Deshacer" (test nuevo).
+  - Prompt de corrección con reemplazos seguros (`$&`, "{{CORRECCION}}" en el texto) y JSON mal formado
+    del modelo = salida inválida, sin propagar su texto (tests nuevos). Lo mismo para `parseMeal` y
+    `extractLabel` queda en el backlog (T-044).
+  - Respuesta con forma inesperada en la app → mensaje de corrección, sin quedarse cargando.
+  - functions 73/73, app 535/535.
 
 ## Verificación
 | AC | Estado | Evidencia |
 |----|--------|-----------|
-| AC1 | ✅ | `app/test/features/review/meal_correction_test.dart` › "AC1…"; backend `functions/src/ai/correct_meal_handler.test.ts` › "SPEC-024 AC1 (backend)…" |
-| AC2 | ✅ | `meal_correction_test.dart` › "AC2…" (cucharada, sin densidad → Estimación por regla) |
+| AC1 | ✅ | `app/test/features/review/meal_correction_test.dart` › "AC1…" (pan integral); backend `functions/src/ai/correct_meal_handler.test.ts` › "SPEC-024 AC1 (backend)…" |
+| AC2 | ✅ | `meal_correction_test.dart` › "AC2…" (taza × densidad = 192 g; Buena estimación → Estimación) |
 | AC3 | ✅ | `correct_meal_handler.test.ts` › "AC3: el esquema rechaza…" y "AC3: la petición tampoco acepta…"; app › "AC3 (app)…" |
 | AC4 | ✅ | `correct_meal_handler.test.ts` › "AC4/R5…"; app › "AC4…" |
 | AC5 | ✅ | `meal_correction_test.dart` › "AC5…" |

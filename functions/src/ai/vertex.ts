@@ -69,12 +69,10 @@ export function createVertexAiProvider(
           config.thinkingBudget,
         ),
       });
-      const text = response.text;
-      if (text === undefined) {
-        throw new Error("Vertex AI no devolvió texto en la respuesta.");
-      }
       return {
-        raw: JSON.parse(text),
+        // JSON mal formado = salida inválida (reintento y
+        // `ai-invalid-output`), nunca un error con el texto del modelo.
+        raw: parseJsonOrUndefined(response.text),
         modelId: config.modelId,
         latencyMs: Date.now() - start,
         tokensInput: response.usageMetadata?.promptTokenCount,
@@ -116,4 +114,14 @@ export function createVertexAiProvider(
       };
     },
   };
+}
+
+/** SPEC-024: `undefined` si no hay texto o no es JSON (sin propagar el texto). */
+export function parseJsonOrUndefined(text: string | undefined): unknown {
+  if (text === undefined) return undefined;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return undefined;
+  }
 }

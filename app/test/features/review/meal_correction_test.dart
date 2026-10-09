@@ -87,62 +87,70 @@ void main() {
     _op(
       'replace',
       index: 1,
-      item: _item('una papa cocida', 'papa cocida', quantity: 100, unit: 'g'),
+      item: _item(
+        'un pan integral',
+        'pan integral',
+        quantity: 1,
+        unit: 'unidad',
+      ),
     ),
   ]);
 
   testWidgets(
-    'AC1: "no era arepa…" → vista previa "Arepa → Papa cocida" y al aplicar el ítem 2 es la papa con sus kcal',
+    'AC1: "no era arepa…" → vista previa "Arepa → Pan integral" y al aplicar el ítem 2 es el pan con sus kcal',
     (tester) async {
       final (:h, :fake) = await _openDetail(tester, {
-        'no era arepa, era papa cocida': replaceArepa,
+        'no era arepa, era pan integral': replaceArepa,
       });
       expect(_kcal(tester), '~450 kcal');
-      await _say(tester, 'no era arepa, era papa cocida');
+      await _say(tester, 'no era arepa, era pan integral');
 
       expect(find.byKey(const Key('correction-preview')), findsOneWidget);
-      expect(find.text('• Arepa → Papa cocida'), findsOneWidget);
+      expect(find.text('• Arepa → Pan integral'), findsOneWidget);
       await _confirm(tester);
 
-      expect(find.text('Papa cocida'), findsWidgets);
+      expect(find.text('Pan integral'), findsWidgets);
       expect(find.text('Arepa'), findsNothing);
-      // 143 (huevo 100 g) + 87 (papa 100 g), calculado por nutrition_core.
-      expect(_kcal(tester), '~230 kcal');
+      // 143 (huevo 100 g) + 75 (pan 30 g × 250/100), calculado por
+      // nutrition_core.
+      expect(_kcal(tester), '~218 kcal');
       expect(fake.sent, hasLength(1));
     },
   );
 
   testWidgets(
-    'AC2: "fue una cucharada" → set_quantity con medida casera y Estimación por regla',
+    'AC2: "el arroz fue una taza" → taza × densidad y la confianza baja a Estimación',
     (tester) async {
       await _openDetail(
         tester,
         {
-          'fue una cucharada': _correction([
-            _op('set_quantity', index: 0, quantity: 1, unit: 'cucharada'),
+          'el arroz fue una taza': _correction([
+            _op('set_quantity', index: 0, quantity: 1, unit: 'taza'),
           ]),
         },
         meal: parsedMeal([
-          _item('un tinto', 'café', quantity: 1, unit: 'unidad'),
+          _item('150 g de arroz', 'arroz blanco', quantity: 150, unit: 'g'),
         ]),
       );
-      await _say(tester, 'fue una cucharada');
-      expect(find.text('• Café: 1 cucharada'), findsOneWidget);
+      Finder level(String text) => find.descendant(
+        of: find.byKey(const Key('ingredient-confidence-150 g de arroz')),
+        matching: find.text(text),
+      );
+      // Antes: peso dicho → Buena estimación.
+      expect(level('Buena estimación'), findsOneWidget);
+      await _say(tester, 'el arroz fue una taza');
+      expect(find.text('• Arroz blanco: 1 taza'), findsOneWidget);
       await _confirm(tester);
-      // 15 ml × 1 g/ml (sin densidad) = 15 g.
+      // 240 ml × 0,8 g/ml = 192 g (household_units × densidad).
       expect(
         tester
-            .widget<Text>(find.byKey(const Key('ingredient-quantity-un tinto')))
+            .widget<Text>(
+              find.byKey(const Key('ingredient-quantity-150 g de arroz')),
+            )
             .data,
-        '15 g',
+        '192 g',
       );
-      expect(
-        find.descendant(
-          of: find.byKey(const Key('ingredient-confidence-un tinto')),
-          matching: find.text('Estimación'),
-        ),
-        findsOneWidget,
-      );
+      expect(level('Estimación'), findsOneWidget);
     },
   );
 
@@ -192,10 +200,10 @@ void main() {
   testWidgets('AC5: "Deshacer" restaura exactamente el borrador anterior', (
     tester,
   ) async {
-    await _openDetail(tester, {'no era arepa, era papa cocida': replaceArepa});
-    await _say(tester, 'no era arepa, era papa cocida');
+    await _openDetail(tester, {'no era arepa, era pan integral': replaceArepa});
+    await _say(tester, 'no era arepa, era pan integral');
     await _confirm(tester);
-    expect(_kcal(tester), '~230 kcal');
+    expect(_kcal(tester), '~218 kcal');
 
     await tester.ensureVisible(find.byKey(const Key('correction-undo')));
     await tester.tap(find.byKey(const Key('correction-undo')));
@@ -215,28 +223,28 @@ void main() {
     tester,
   ) async {
     await _openDetail(tester, {
-      'no era arepa, era papa cocida': replaceArepa,
+      'no era arepa, era pan integral': replaceArepa,
       'quita los huevos': _correction([_op('remove', index: 0)]),
     });
-    await _say(tester, 'no era arepa, era papa cocida');
+    await _say(tester, 'no era arepa, era pan integral');
     await _confirm(tester);
     await _say(tester, 'quita los huevos');
     expect(find.text('• Quitar Huevo'), findsOneWidget);
     await _confirm(tester);
-    expect(_kcal(tester), '~87 kcal');
+    expect(_kcal(tester), '~75 kcal');
 
     await tester.ensureVisible(find.byKey(const Key('correction-undo')));
     await tester.tap(find.byKey(const Key('correction-undo')));
     await tester.pumpAndSettle();
-    expect(_kcal(tester), '~230 kcal');
-    expect(find.text('Papa cocida'), findsWidgets);
+    expect(_kcal(tester), '~218 kcal');
+    expect(find.text('Pan integral'), findsWidgets);
   });
 
   testWidgets('R4: "Cancelar" en la vista previa no cambia nada', (
     tester,
   ) async {
-    await _openDetail(tester, {'no era arepa, era papa cocida': replaceArepa});
-    await _say(tester, 'no era arepa, era papa cocida');
+    await _openDetail(tester, {'no era arepa, era pan integral': replaceArepa});
+    await _say(tester, 'no era arepa, era pan integral');
     await tester.tap(find.text('Cancelar'));
     await tester.pumpAndSettle();
     expect(_kcal(tester), '~450 kcal');
@@ -299,4 +307,50 @@ void main() {
     expect(find.text('Editar comida'), findsOneWidget);
     expect(find.byKey(const Key('correction-input')), findsNothing);
   });
+
+  testWidgets(
+    'Revisor: cambiar solo el tamaño conserva la cantidad ("las arepas eran pequeñas")',
+    (tester) async {
+      await _openDetail(
+        tester,
+        {
+          'las arepas eran pequeñas': _correction([
+            _op('set_quantity', index: 0, size: 'pequeno'),
+          ]),
+        },
+        meal: parsedMeal([
+          _item('dos arepas', 'arepa', quantity: 2, unit: 'unidad'),
+        ]),
+      );
+      await _say(tester, 'las arepas eran pequeñas');
+      expect(find.text('• Arepa: 2 pequeño'), findsOneWidget);
+      await _confirm(tester);
+      // 2 × 70 g, no 1 × 70 g.
+      expect(
+        tester
+            .widget<Text>(
+              find.byKey(const Key('ingredient-quantity-dos arepas')),
+            )
+            .data,
+        '140 g',
+      );
+    },
+  );
+
+  testWidgets(
+    'Revisor: una edición a mano después de corregir quita "Deshacer"',
+    (tester) async {
+      await _openDetail(tester, {
+        'no era arepa, era pan integral': replaceArepa,
+      });
+      await _say(tester, 'no era arepa, era pan integral');
+      await _confirm(tester);
+      expect(find.byKey(const Key('correction-undo')), findsOneWidget);
+      final plus = find.byTooltip('Más').first;
+      await tester.ensureVisible(plus);
+      await tester.tap(plus);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('correction-undo')), findsNothing);
+    },
+  );
 }

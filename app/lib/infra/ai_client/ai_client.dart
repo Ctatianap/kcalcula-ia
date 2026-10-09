@@ -102,7 +102,15 @@ class AiClient {
     } catch (_) {
       throw networkAiClientException;
     }
-    return MealCorrectionDto.fromJson(data);
+    try {
+      return MealCorrectionDto.fromJson(data);
+    } catch (_) {
+      // Una forma inesperada no deja la pantalla esperando.
+      throw const AiClientException(
+        AiClientErrorType.invalidOutput,
+        correctionInvalidMessage,
+      );
+    }
   }
 
   static AiClientException _correctionError(AiClientException error) =>

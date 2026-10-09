@@ -44,7 +44,9 @@ export function renderCorrectMealPrompt(input: CorrectMealRequest): string {
     null,
     2,
   );
-  return CORRECT_MEAL_PROMPT_TEMPLATE.replace("{{ITEMS}}", items)
-    .replace("{{LOCALE}}", input.locale)
-    .replace("{{CORRECCION}}", input.correction);
+  // La corrección primero y con funciones como reemplazo: así un `$&` o un
+  // "{{CORRECCION}}" dentro del texto del usuario no deforma el prompt.
+  return CORRECT_MEAL_PROMPT_TEMPLATE.replace("{{CORRECCION}}", () => input.correction)
+    .replace("{{LOCALE}}", () => input.locale)
+    .replace("{{ITEMS}}", () => items);
 }

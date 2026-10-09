@@ -54,6 +54,8 @@ class ReviewController extends ChangeNotifier {
   /// Para los métodos que cambian datos de la comida.
   void _changed() {
     _hasChanges = true;
+    // SPEC-024: una edición a mano invalida "Deshacer" de la corrección.
+    if (!_applyingCorrection) _correctionUndo.clear();
     notifyListeners();
   }
 
@@ -586,27 +588,40 @@ class ReviewController extends ChangeNotifier {
   List<CorrectionDraftItem> get correctionItems => [
     for (final item in _items)
       CorrectionDraftItem(
-        mention: item.mention,
-        foodQuery: item.foodQuery,
+        // El backend acepta hasta 300 caracteres por mención.
+        mention: item.mention.length > 300
+            ? item.mention.substring(0, 300)
+            : item.mention,
+        foodQuery: item.foodQuery.length > 200
+            ? item.foodQuery.substring(0, 200)
+            : item.foodQuery,
         quantity: item.quantityRaw,
         unit: _correctionUnits.contains(item.unitRaw) ? item.unitRaw : null,
         size: _correctionSizes.contains(item.sizeRaw) ? item.sizeRaw : null,
       ),
   ];
 
-  /// Estados anteriores, para "Deshacer" (R4).
+  /// El backend acepta hasta 30 ítems por corrección.
+  static const maxCorrectionItems = 30;
+
+  bool get canCorrect =>
+      _items.isNotEmpty && _items.length <= maxCorrectionItems;
+
+  /// Estados anteriores, para "Deshacer" (R4). Una edición a mano después
+  /// de corregir los vacía: "Deshacer" nunca borra lo que se editó a mano.
   final List<List<ReviewItem>> _correctionUndo = [];
+  bool _applyingCorrection = false;
 
   bool get canUndoCorrection => _correctionUndo.isNotEmpty;
 
   static String _nameOf(ReviewItem item) => item.food?.nameEs ?? item.foodQuery;
 
-  static String _quantityText(CorrectionOperationDto op) {
+  static String _quantityText(double? quantity, String? unit, String? size) {
     final parts = [
-      if (op.quantity case final q?)
+      if (quantity case final q?)
         '${q == q.roundToDouble() ? q.toInt() : q.toString().replaceAll('.', ',')}'
-            '${op.unit == null ? '' : ' ${op.unit}'}',
-      if (op.size case final size?)
+            '${unit == null ? '' : ' $unit'}',
+      if (size case final size?)
         switch (size) {
           'pequeno' => 'pequeño',
           _ => size,
@@ -656,13 +671,24 @@ class ReviewController extends ChangeNotifier {
           changes.add('Quitar ${_nameOf(old)}');
         case 'set_quantity':
           if (op.quantity == null && op.size == null) return null;
+          // Solo cambia lo que se dijo: "los huevos eran grandes" conserva
+          // "2 unidad"; "eran 3" sin unidad conserva la unidad anterior.
+          final quantity = op.quantity ?? old.quantityRaw;
+          // Con tamaño, "2 unidad" pasa a "2 pequeño" (la regla de tamaño
+          // multiplica la porción de ese tamaño por la cantidad).
+          final unit = op.quantity == null
+              ? (op.size != null && old.unitRaw == 'unidad'
+                    ? null
+                    : old.unitRaw)
+              : (op.unit ?? old.unitRaw);
+          final size = op.size ?? (op.quantity == null ? old.sizeRaw : null);
           final parsed = ParsedMealItemDto(
             mention: old.mention,
             foodQuery: old.foodQuery,
             isVague: false,
-            quantity: op.quantity,
-            unit: op.unit,
-            size: op.size,
+            quantity: quantity,
+            unit: unit,
+            size: size,
             parentIndex: old.parentIndex,
           );
           final food = old.food;
@@ -670,7 +696,9 @@ class ReviewController extends ChangeNotifier {
               food != null && old.status == ReviewItemStatus.matched
               ? _matchedItem(parsed, food)
               : _itemFromParsed(parsed);
-          changes.add('${_nameOf(old)}: ${_quantityText(op)}');
+          changes.add(
+            '${_nameOf(old)}: ${_quantityText(quantity, unit, size)}',
+          );
         default:
           return null;
       }
@@ -685,14 +713,18 @@ class ReviewController extends ChangeNotifier {
   void applyCorrection(List<ReviewItem> items) {
     _correctionUndo.add(List.of(_items));
     _items = List.of(items);
+    _applyingCorrection = true;
     _changed();
+    _applyingCorrection = false;
   }
 
   /// R4/AC9: deshace la última corrección aplicada.
   void undoCorrection() {
     if (_correctionUndo.isEmpty) return;
     _items = _correctionUndo.removeLast();
+    _applyingCorrection = true;
     _changed();
+    _applyingCorrection = false;
   }
 
   void setMealType(String type) {

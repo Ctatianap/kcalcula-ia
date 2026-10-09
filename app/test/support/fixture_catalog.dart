@@ -50,11 +50,12 @@ CatalogRepository buildFixtureCatalog({
     double p = 1,
     double c = 1,
     double f = 1,
+    double? density,
   }) {
     db.execute(
-      'INSERT INTO foods (id, name_es, source_id, source_ref, energy_kcal, protein_g, carbs_g, fat_g) '
-      "VALUES (?, ?, 'test', 'fixture', ?, ?, ?, ?)",
-      [id, name, kcal, p, c, f],
+      'INSERT INTO foods (id, name_es, source_id, source_ref, energy_kcal, protein_g, carbs_g, fat_g, density_g_per_ml) '
+      "VALUES (?, ?, 'test', 'fixture', ?, ?, ?, ?, ?)",
+      [id, name, kcal, p, c, f, density],
     );
     db.execute(
       'INSERT INTO food_search (food_id, name_es, term) VALUES (?, ?, ?)',
@@ -108,8 +109,17 @@ CatalogRepository buildFixtureCatalog({
   food('pinguino_de_prueba', 'Pingüino de prueba', 50);
   synonym('pinguino_de_prueba', 'agüita de prueba');
 
+  // SPEC-024: pan integral y arroz con densidad (valores de prueba, no del
+  // catálogo real) para la corrección conversacional.
+  food('pan_integral', 'Pan integral', 250);
+  portion('pan_integral', 'unidad', 30);
+  food('arroz_blanco', 'Arroz blanco', 130, density: 0.8);
+
   db.execute(
     "INSERT INTO household_units (unit, ml, source_ref) VALUES ('cucharada', 15, 'fixture')",
+  );
+  db.execute(
+    "INSERT INTO household_units (unit, ml, source_ref) VALUES ('taza', 240, 'fixture')",
   );
 
   return CatalogRepository(db);

@@ -5,6 +5,7 @@ import functionsLogger = require("firebase-functions/logger");
 import { createFakeAiProvider } from "./fake.js";
 import { AI_INVALID_OUTPUT_ERROR_CODE, buildCorrectMealHandler } from "./handler.js";
 import { renderCorrectMealPrompt } from "./prompt.js";
+import { parseJsonOrUndefined } from "./vertex.js";
 import type { AiProvider, AiProviderResult } from "./provider.js";
 import {
   correctMealRequestSchema,
@@ -234,4 +235,21 @@ test("SPEC-024 R2: el prompt lleva los ítems con su índice y la corrección, s
   assert.ok(prompt.includes('"food_query": "arepa"'));
   assert.ok(prompt.includes("no era arepa, era pan integral"));
   assert.ok(!prompt.includes("{{"));
+});
+
+test("SPEC-024: texto del usuario con $& o {{CORRECCION}} no deforma el prompt", () => {
+  const prompt = renderCorrectMealPrompt({
+    correction: "eran $& huevos {{ITEMS}}",
+    locale: "es-CO",
+    items: [{ ...draftItems[0], mention: "huevos {{CORRECCION}} $'" }],
+  });
+  assert.ok(prompt.includes("eran $& huevos {{ITEMS}}"));
+  assert.ok(prompt.includes("huevos {{CORRECCION}} $'"));
+  assert.ok(!prompt.includes("{{LOCALE}}"));
+});
+
+test("SPEC-024: JSON mal formado del modelo cuenta como salida inválida", () => {
+  assert.equal(parseJsonOrUndefined("{no es json"), undefined);
+  assert.equal(parseJsonOrUndefined(undefined), undefined);
+  assert.deepEqual(parseJsonOrUndefined('{"a":1}'), { a: 1 });
 });

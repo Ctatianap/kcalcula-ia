@@ -1,6 +1,7 @@
 import { Ollama } from "ollama";
 import { z } from "zod";
 import type { AiProvider, AiProviderResult } from "./provider.js";
+import { parseJsonOrUndefined } from "./vertex.js";
 import {
   renderCorrectMealPrompt,
   renderExtractLabelPrompt,
@@ -65,7 +66,7 @@ export function createOllamaProvider(config: OllamaProviderConfig): AiProvider {
         options: { temperature: 0 },
       });
       return {
-        raw: JSON.parse(response.message.content),
+        raw: parseJsonOrUndefined(response.message.content),
         modelId: config.model,
         latencyMs: Date.now() - start,
         tokensInput: response.prompt_eval_count,
