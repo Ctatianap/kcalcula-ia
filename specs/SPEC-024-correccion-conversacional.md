@@ -134,6 +134,7 @@ la aplique, para no empezar de nuevo.
     `extractLabel` queda en el backlog (T-044).
   - Respuesta con forma inesperada en la app → mensaje de corrección, sin quedarse cargando.
   - functions 73/73, app 535/535.
+- 2026-10-09: despliegue de `correctMeal` (confirmado por la usuaria) y prueba en el teléfono (AC10).
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -147,7 +148,7 @@ la aplique, para no empezar de nuevo.
 | AC7 | ✅ | `correct_meal_handler.test.ts` › "AC7…" (claves del log y sin el texto) |
 | AC8 | ✅ | `correct_meal_handler.test.ts` › "AC8…"; app › "AC8…" |
 | AC9 | ✅ | `meal_correction_test.dart` › "AC9…" |
-| AC10 | ⏳ | Pendiente: desplegar `correctMeal` (con confirmación) y probar en el teléfono |
+| AC10 | ✅ | 2026-10-09: `correctMeal` desplegado en `kcalcula-ia-dev` (us-east1) con confirmación de la usuaria. En el Motorola (versión de `4f8c49b`): "dos huevos y una arepa" → "no era arepa, era pan integral" → vista previa "• Arepa → Pan integral" → Aplicar → "Pan integral" 32 g · 82 kcal (catálogo real, Buena estimación) → "Deshacer" vuelve a "Arepa" 115 g. No se guardó. Cloud Logging de `correctMeal`: solo `requestId`, `promptVersion`, `modelId`, `latencyMs` (1.213 ms), `tokensInput/Output`, `operationCount` (1) y `valid` |
 
 ## Review
 Informe del reviewer: pendiente.
