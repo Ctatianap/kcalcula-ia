@@ -55,10 +55,18 @@ const addProductErrorMessage =
     'No pude añadir el producto que guardaste. Búscalo en «Añadir '
     'ingrediente».';
 
-String _portionsText(double portions) =>
-    '${formatDecimalEs(portions, maxDecimals: 1)} '
-    // Se compara lo que se muestra, no el double de una división.
-    '${formatDecimalEs(portions, maxDecimals: 1) == '1' ? 'porción' : 'porciones'}';
+String _portionsText(double portions, {bool units = false}) {
+  final shown = formatDecimalEs(portions, maxDecimals: 1);
+  // Se compara lo que se muestra, no el double de una división.
+  final one = shown == '1';
+  return '$shown ${units ? (one ? 'unidad' : 'unidades') : (one ? 'porción' : 'porciones')}';
+}
+
+/// SPEC-045 R6: la unidad siguiente (o anterior), de a una.
+double _nextUnit(double units, {required bool up}) {
+  const epsilon = 1e-9;
+  return up ? (units + epsilon).floor() + 1.0 : (units - epsilon).ceil() - 1.0;
+}
 
 /// SPEC-033 R5: la media porción siguiente (o anterior) a [portions], para
 /// que una cantidad como 3,33 porciones pase a 3,5 (o 3) y no a 3,83.
@@ -988,6 +996,11 @@ class _MatchedRow extends StatelessWidget {
     final portionGrams = ReviewController.portionGramsOf(item);
     final inPortions = portionGrams != null && !item.showInGrams;
     final portions = inPortions ? ReviewController.portionsOf(item)! : 0.0;
+    // SPEC-045 R6: de a una unidad si se dijo en unidades.
+    final units = ReviewController.showsUnits(item);
+    double next(bool up) => units
+        ? _nextUnit(portions, up: up)
+        : _nextHalfPortion(portions, up: up);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1022,16 +1035,14 @@ class _MatchedRow extends StatelessWidget {
                   icon: const Icon(Icons.remove_circle_outline),
                   tooltip: 'Menos',
                   onPressed: inPortions
-                      ? (_nextHalfPortion(portions, up: false) > 0
-                            ? () => onSetPortions(
-                                _nextHalfPortion(portions, up: false),
-                              )
+                      ? (next(false) > 0
+                            ? () => onSetPortions(next(false))
                             : null)
                       : () => onAdjustGrams(-_gramsStep),
                 ),
                 Text(
                   inPortions
-                      ? '${_portionsText(portions)} · '
+                      ? '${_portionsText(portions, units: units)} · '
                             '${item.grams.toStringAsFixed(0)} $unit'
                       : '${item.grams.toStringAsFixed(0)} $unit',
                   key: Key('ingredient-quantity-${item.mention}'),
@@ -1040,8 +1051,7 @@ class _MatchedRow extends StatelessWidget {
                   icon: const Icon(Icons.add_circle_outline),
                   tooltip: 'Más',
                   onPressed: inPortions
-                      ? () =>
-                            onSetPortions(_nextHalfPortion(portions, up: true))
+                      ? () => onSetPortions(next(true))
                       : () => onAdjustGrams(_gramsStep),
                 ),
               ],
@@ -1059,7 +1069,11 @@ class _MatchedRow extends StatelessWidget {
           TextButton(
             key: Key('ingredient-toggle-unit-${item.mention}'),
             onPressed: () => onShowInGrams(inPortions),
-            child: Text(inPortions ? 'Ver en $unit' : 'Ver en porciones'),
+            child: Text(
+              inPortions
+                  ? 'Ver en $unit'
+                  : (units ? 'Ver en unidades' : 'Ver en porciones'),
+            ),
           ),
       ],
     );

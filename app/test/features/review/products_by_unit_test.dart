@@ -291,4 +291,75 @@ void main() {
       throwsArgumentError,
     );
   });
+
+  testWidgets(
+    'R6: dicho en unidades → "2 unidades · 140 g" y −/+ de a una unidad',
+    (tester) async {
+      final h = await MealFlowHarness.pump(
+        tester,
+        aiClient: FakeParseMeal((_) => _twoEggs).client,
+      );
+      // Porción de etiqueta 60 g; una unidad 70 g.
+      await _egg(h.storage, unitGrams: 70);
+      await h.openCaptureAndType(tester, 'dos huevos');
+      await tester.ensureVisible(find.text('Analizar'));
+      await tester.tap(find.text('Analizar'));
+      await tester.pumpAndSettle();
+
+      String quantity() => tester
+          .widget<Text>(find.byKey(const Key('ingredient-quantity-dos huevos')))
+          .data!;
+      expect(quantity(), '2 unidades · 140 g');
+
+      final plus = find.byTooltip('Más').first;
+      await tester.ensureVisible(plus);
+      await tester.tap(plus);
+      await tester.pumpAndSettle();
+      expect(quantity(), '3 unidades · 210 g');
+
+      final minus = find.byTooltip('Menos').first;
+      await tester.tap(minus);
+      await tester.pumpAndSettle();
+      await tester.tap(minus);
+      await tester.pumpAndSettle();
+      expect(quantity(), '1 unidad · 70 g');
+
+      expect(find.text('Ver en g'), findsOneWidget);
+      await tester.tap(find.text('Ver en g'));
+      await tester.pumpAndSettle();
+      expect(quantity(), '70 g');
+      expect(find.text('Ver en unidades'), findsOneWidget);
+    },
+  );
+
+  testWidgets('R6: dicho en porciones sigue en porciones de la etiqueta', (
+    tester,
+  ) async {
+    final h = await MealFlowHarness.pump(
+      tester,
+      aiClient: FakeParseMeal(
+        (_) => parsedMeal([
+          parsedItem(
+            '2 porciones de huevo',
+            'huevo',
+            quantity: 2,
+            unit: 'porcion',
+          ),
+        ]),
+      ).client,
+    );
+    await _egg(h.storage, unitGrams: 70);
+    await h.openCaptureAndType(tester, '2 porciones de huevo');
+    await tester.ensureVisible(find.text('Analizar'));
+    await tester.tap(find.text('Analizar'));
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<Text>(
+            find.byKey(const Key('ingredient-quantity-2 porciones de huevo')),
+          )
+          .data,
+      '2 porciones · 120 g',
+    );
+  });
 }

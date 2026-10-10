@@ -33,6 +33,10 @@ decir cuánto pesa una unidad, para registrar "dos huevos" sin hacer cuentas.
 - R4. La regla de confianza y `nutrition_core` no cambian; el peso de unidad lo escribe la persona
   (como los valores de la etiqueta, invariante 8: fuente = la persona, con `source_ref` del producto).
 - R5. Lo ya guardado no cambia.
+- R6. Si la cantidad se dijo en unidades ("dos huevos") y el producto tiene peso de unidad, el detalle
+  muestra "2 unidades · 140 g" y los botones − / + cambian de a una unidad; "Ver en g" funciona igual
+  ("Ver en unidades" para volver). Si se dijo en porciones o en g, se muestra como hoy (porciones de la
+  etiqueta).
 
 ## Acceptance Criteria
 - AC1. Producto "huevo" (porción 60 g) con peso de unidad 60 → "dos huevos" (2 unidad) → 120 g, "Cantidad
@@ -42,6 +46,9 @@ decir cuánto pesa una unidad, para registrar "dos huevos" sin hacer cuentas.
   mensaje en español y no se guarda `[widget]`.
 - AC4. Migración v10 → v11 conserva todo con `unit_grams` nulo; exportar lo incluye; borrar todo lo
   borra `[integration]`.
+- AC6. Producto con porción de 60 g y peso de unidad 70: "dos huevos" → "2 unidades · 140 g"; + → "3
+  unidades · 210 g"; − dos veces → "1 unidad · 70 g"; "Ver en g" → "70 g". "2 porciones de huevo" →
+  "2 porciones · 120 g" `[widget]`.
 - AC5. Tests existentes (resolución, SPEC-033/034/043, migraciones) verdes; los de migración que
   comparan la versión pasan a esperar 11 `[unit + widget]`.
 
@@ -78,7 +85,7 @@ decir cuánto pesa una unidad, para registrar "dos huevos" sin hacer cuentas.
 - Ninguna.
 
 ## Definition of Done
-- AC1–AC5 con evidencia · analyze y tests verdes en `app` · reviewer PASS enlazado · docs actualizados ·
+- AC1–AC6 con evidencia · analyze y tests verdes en `app` · reviewer PASS enlazado · docs actualizados ·
   aprobación explícita de la usuaria antes de fusionar (Strict).
 
 ## Change Log
@@ -94,6 +101,11 @@ decir cuánto pesa una unidad, para registrar "dos huevos" sin hacer cuentas.
   también el respaldo de 60 g y Estimación; el campo acepta un decimal como máximo y el mensaje lo dice
   ("55,55" → mensaje), así lo guardado y lo mostrado coinciden. Al backlog: T-046 (en "Buscar alimento"
   la opción dice "g" aunque el producto sea en ml). app 552/552.
+- 2026-10-10: prueba de la usuaria en su S25: con peso de unidad 70 g, "dos huevos" mostró "2,3
+  porciones" (140 g ÷ porción de etiqueta de 60 g): el cálculo era correcto pero la presentación
+  confundía. **R6 y AC6 aprobados por la usuaria** ("sí, apruebo el R6"). Implementado
+  (`ReviewController.showsUnits`; −/+ de a una unidad; `setPortions` usa la regla de unidades). app
+  554/554.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -102,7 +114,8 @@ decir cuánto pesa una unidad, para registrar "dos huevos" sin hacer cuentas.
 | AC2 | ✅ | mismo archivo › "AC2…" |
 | AC3 | ✅ | mismo archivo › grupo "AC3: "Editar producto"" ("55,5", vacío, 0, -3, 5001, abc) |
 | AC4 | ✅ | mismo archivo › "AC4: migrar desde la v10…" |
-| AC5 | ✅ | app 549/549; tests de resolución sin cambios; migraciones esperan 11 |
+| AC5 | ✅ | app 554/554; tests de resolución sin cambios; migraciones esperan 11 |
+| AC6 | ✅ | `products_by_unit_test.dart` › "R6: dicho en unidades…" y "R6: dicho en porciones…" |
 | Manual | ⏳ | "dos huevos" con el producto "huevo" en el teléfono, pendiente |
 
 ## Review
