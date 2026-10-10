@@ -378,6 +378,13 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   dependencies: []
   status: done  # SPEC-044
   spec_required: true    # specs/SPEC-044-salida-ia-mal-formada.md — Strict
+- id: T-045
+  title: Mis productos medidos por unidad
+  objective: >
+    Hallazgo en la prueba de SPEC-024: "dos huevos" con el producto personal "huevo" (porción 60 g) queda
+    "Sin equivalencia". Peso de una unidad opcional en "Editar producto".
+  dependencies: [T-041]
+  spec_required: true    # specs/SPEC-045-productos-por-unidad.md — Strict
 - id: F2
   # SPEC-022 (comidas frecuentes y favoritas): Done 2026-10-08.
   # SPEC-023 (confianza visual): Done 2026-10-08.
