@@ -384,6 +384,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     Hallazgo en la prueba de SPEC-024: "dos huevos" con el producto personal "huevo" (porción 60 g) queda
     "Sin equivalencia". Peso de una unidad opcional en "Editar producto".
   dependencies: [T-041]
+  status: done  # SPEC-045
   spec_required: true    # specs/SPEC-045-productos-por-unidad.md — Strict
 - id: T-046
   title: Unidad correcta (g o ml) en las opciones de "Buscar alimento"

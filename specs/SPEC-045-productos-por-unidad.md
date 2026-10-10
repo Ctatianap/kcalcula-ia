@@ -1,7 +1,7 @@
 # SPEC-045: Mis productos medidos por unidad
 
 ## Status
-Implementing
+Done
 Path: Strict (unidades y resolución de cantidades; esquema de `user.db`)
 
 ## Objective
@@ -109,6 +109,8 @@ decir cuánto pesa una unidad, para registrar "dos huevos" sin hacer cuentas.
 - 2026-10-10: reviewer PASS (segunda revisión). MINOR corregidos: se muestra en unidades solo si la
   cantidad se resolvió con la regla de unidades (una comida guardada antes de poner el peso, con el
   respaldo de SPEC-043, sigue en porciones); el test de AC6 vuelve a "Ver en unidades"; AC en orden.
+- 2026-10-10: prueba de la usuaria en su S25 y **aprobación explícita para fusionar y hacer push**
+  ("ya lo probé, funciona, fusiona y haz push"). Status → Done.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -119,7 +121,7 @@ decir cuánto pesa una unidad, para registrar "dos huevos" sin hacer cuentas.
 | AC4 | ✅ | mismo archivo › "AC4: migrar desde la v10…" |
 | AC5 | ✅ | app 554/554; tests de resolución sin cambios; migraciones esperan 11 |
 | AC6 | ✅ | `products_by_unit_test.dart` › "R6: dicho en unidades…" y "R6: dicho en porciones…" |
-| Manual | ⏳ | "dos huevos" con el producto "huevo" en el teléfono, pendiente |
+| Manual | ✅ | 2026-10-10, en el S25 de la usuaria (versión de `4b4c69b`): "dos huevos" con el producto "huevo" (peso de unidad 70 g) → "2 unidades · 140 g", −/+ de a una unidad ("ya lo probé, funciona") |
 
 ## Review
 Revisión 2 (2026-10-10, sobre `53f4ba9`, con R6): **PASS**; MINOR corregidos (Change Log).
@@ -127,4 +129,4 @@ Revisión 2 (2026-10-10, sobre `53f4ba9`, con R6): **PASS**; MINOR corregidos (C
 Revisión 1 (2026-10-10, subagente `reviewer`, sobre `6c9698e`): **PASS** con MINOR (ver Change Log).
 AC1–AC5 con evidencia; `nutrition_core`, prompts y catálogo sin cambios; el peso lo escribe la persona
 (invariante 8); "porcion" sigue mandando en SPEC-033 y SPEC-043; migración, exportar y borrar todo;
-privacidad al día. Falta la prueba manual.
+privacidad al día. Prueba manual hecha después (Verificación).
