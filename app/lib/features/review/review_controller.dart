@@ -494,6 +494,9 @@ class ReviewController extends ChangeNotifier {
     return food != null &&
         isPersonalProductFood(food) &&
         item.unitRaw == 'unidad' &&
+        // Resuelto con la regla de unidades (no una comida guardada antes
+        // de ponerle peso de unidad, que usó el respaldo de SPEC-043).
+        item.basis == QuantityBasis.unitPortion &&
         food.portionFor('unidad') != null;
   }
 

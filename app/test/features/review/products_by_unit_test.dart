@@ -328,7 +328,9 @@ void main() {
       await tester.tap(find.text('Ver en g'));
       await tester.pumpAndSettle();
       expect(quantity(), '70 g');
-      expect(find.text('Ver en unidades'), findsOneWidget);
+      await tester.tap(find.text('Ver en unidades'));
+      await tester.pumpAndSettle();
+      expect(quantity(), '1 unidad · 70 g');
     },
   );
 

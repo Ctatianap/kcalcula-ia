@@ -46,11 +46,11 @@ decir cuánto pesa una unidad, para registrar "dos huevos" sin hacer cuentas.
   mensaje en español y no se guarda `[widget]`.
 - AC4. Migración v10 → v11 conserva todo con `unit_grams` nulo; exportar lo incluye; borrar todo lo
   borra `[integration]`.
+- AC5. Tests existentes (resolución, SPEC-033/034/043, migraciones) verdes; los de migración que
+  comparan la versión pasan a esperar 11 `[unit + widget]`.
 - AC6. Producto con porción de 60 g y peso de unidad 70: "dos huevos" → "2 unidades · 140 g"; + → "3
   unidades · 210 g"; − dos veces → "1 unidad · 70 g"; "Ver en g" → "70 g". "2 porciones de huevo" →
   "2 porciones · 120 g" `[widget]`.
-- AC5. Tests existentes (resolución, SPEC-033/034/043, migraciones) verdes; los de migración que
-  comparan la versión pasan a esperar 11 `[unit + widget]`.
 
 ## Technical Constraints
 - Invariantes 3, 4 y 8. `nutrition_core` sin cambios. Normalización de números con
@@ -106,6 +106,9 @@ decir cuánto pesa una unidad, para registrar "dos huevos" sin hacer cuentas.
   confundía. **R6 y AC6 aprobados por la usuaria** ("sí, apruebo el R6"). Implementado
   (`ReviewController.showsUnits`; −/+ de a una unidad; `setPortions` usa la regla de unidades). app
   554/554.
+- 2026-10-10: reviewer PASS (segunda revisión). MINOR corregidos: se muestra en unidades solo si la
+  cantidad se resolvió con la regla de unidades (una comida guardada antes de poner el peso, con el
+  respaldo de SPEC-043, sigue en porciones); el test de AC6 vuelve a "Ver en unidades"; AC en orden.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -119,7 +122,9 @@ decir cuánto pesa una unidad, para registrar "dos huevos" sin hacer cuentas.
 | Manual | ⏳ | "dos huevos" con el producto "huevo" en el teléfono, pendiente |
 
 ## Review
-Revisión (2026-10-10, subagente `reviewer`, sobre `6c9698e`): **PASS** con MINOR (ver Change Log).
+Revisión 2 (2026-10-10, sobre `53f4ba9`, con R6): **PASS**; MINOR corregidos (Change Log).
+
+Revisión 1 (2026-10-10, subagente `reviewer`, sobre `6c9698e`): **PASS** con MINOR (ver Change Log).
 AC1–AC5 con evidencia; `nutrition_core`, prompts y catálogo sin cambios; el peso lo escribe la persona
 (invariante 8); "porcion" sigue mandando en SPEC-033 y SPEC-043; migración, exportar y borrar todo;
 privacidad al día. Falta la prueba manual.
