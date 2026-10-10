@@ -1642,6 +1642,17 @@ class $PersonalProductsTable extends PersonalProducts
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _unitGramsMeta = const VerificationMeta(
+    'unitGrams',
+  );
+  @override
+  late final GeneratedColumn<double> unitGrams = GeneratedColumn<double>(
+    'unit_grams',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1659,6 +1670,7 @@ class $PersonalProductsTable extends PersonalProducts
     createdAt,
     servingUnit,
     brand,
+    unitGrams,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1791,6 +1803,12 @@ class $PersonalProductsTable extends PersonalProducts
         brand.isAcceptableOrUnknown(data['brand']!, _brandMeta),
       );
     }
+    if (data.containsKey('unit_grams')) {
+      context.handle(
+        _unitGramsMeta,
+        unitGrams.isAcceptableOrUnknown(data['unit_grams']!, _unitGramsMeta),
+      );
+    }
     return context;
   }
 
@@ -1860,6 +1878,10 @@ class $PersonalProductsTable extends PersonalProducts
         DriftSqlType.string,
         data['${effectivePrefix}brand'],
       ),
+      unitGrams: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}unit_grams'],
+      ),
     );
   }
 
@@ -1892,6 +1914,9 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
 
   /// SPEC-025 R1: marca, opcional ("Alpina").
   final String? brand;
+
+  /// SPEC-045 R2: peso (o volumen, en `servingUnit`) de una unidad, opcional.
+  final double? unitGrams;
   const PersonalProduct({
     required this.id,
     required this.nameEs,
@@ -1908,6 +1933,7 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
     required this.createdAt,
     required this.servingUnit,
     this.brand,
+    this.unitGrams,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1936,6 +1962,9 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
     map['serving_unit'] = Variable<String>(servingUnit);
     if (!nullToAbsent || brand != null) {
       map['brand'] = Variable<String>(brand);
+    }
+    if (!nullToAbsent || unitGrams != null) {
+      map['unit_grams'] = Variable<double>(unitGrams);
     }
     return map;
   }
@@ -1967,6 +1996,9 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
       brand: brand == null && nullToAbsent
           ? const Value.absent()
           : Value(brand),
+      unitGrams: unitGrams == null && nullToAbsent
+          ? const Value.absent()
+          : Value(unitGrams),
     );
   }
 
@@ -1991,6 +2023,7 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       servingUnit: serializer.fromJson<String>(json['servingUnit']),
       brand: serializer.fromJson<String?>(json['brand']),
+      unitGrams: serializer.fromJson<double?>(json['unitGrams']),
     );
   }
   @override
@@ -2012,6 +2045,7 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'servingUnit': serializer.toJson<String>(servingUnit),
       'brand': serializer.toJson<String?>(brand),
+      'unitGrams': serializer.toJson<double?>(unitGrams),
     };
   }
 
@@ -2031,6 +2065,7 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
     DateTime? createdAt,
     String? servingUnit,
     Value<String?> brand = const Value.absent(),
+    Value<double?> unitGrams = const Value.absent(),
   }) => PersonalProduct(
     id: id ?? this.id,
     nameEs: nameEs ?? this.nameEs,
@@ -2049,6 +2084,7 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
     createdAt: createdAt ?? this.createdAt,
     servingUnit: servingUnit ?? this.servingUnit,
     brand: brand.present ? brand.value : this.brand,
+    unitGrams: unitGrams.present ? unitGrams.value : this.unitGrams,
   );
   PersonalProduct copyWithCompanion(PersonalProductsCompanion data) {
     return PersonalProduct(
@@ -2079,6 +2115,7 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
           ? data.servingUnit.value
           : this.servingUnit,
       brand: data.brand.present ? data.brand.value : this.brand,
+      unitGrams: data.unitGrams.present ? data.unitGrams.value : this.unitGrams,
     );
   }
 
@@ -2099,7 +2136,8 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
           ..write('sourceRef: $sourceRef, ')
           ..write('createdAt: $createdAt, ')
           ..write('servingUnit: $servingUnit, ')
-          ..write('brand: $brand')
+          ..write('brand: $brand, ')
+          ..write('unitGrams: $unitGrams')
           ..write(')'))
         .toString();
   }
@@ -2121,6 +2159,7 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
     createdAt,
     servingUnit,
     brand,
+    unitGrams,
   );
   @override
   bool operator ==(Object other) =>
@@ -2140,7 +2179,8 @@ class PersonalProduct extends DataClass implements Insertable<PersonalProduct> {
           other.sourceRef == this.sourceRef &&
           other.createdAt == this.createdAt &&
           other.servingUnit == this.servingUnit &&
-          other.brand == this.brand);
+          other.brand == this.brand &&
+          other.unitGrams == this.unitGrams);
 }
 
 class PersonalProductsCompanion extends UpdateCompanion<PersonalProduct> {
@@ -2159,6 +2199,7 @@ class PersonalProductsCompanion extends UpdateCompanion<PersonalProduct> {
   final Value<DateTime> createdAt;
   final Value<String> servingUnit;
   final Value<String?> brand;
+  final Value<double?> unitGrams;
   const PersonalProductsCompanion({
     this.id = const Value.absent(),
     this.nameEs = const Value.absent(),
@@ -2175,6 +2216,7 @@ class PersonalProductsCompanion extends UpdateCompanion<PersonalProduct> {
     this.createdAt = const Value.absent(),
     this.servingUnit = const Value.absent(),
     this.brand = const Value.absent(),
+    this.unitGrams = const Value.absent(),
   });
   PersonalProductsCompanion.insert({
     this.id = const Value.absent(),
@@ -2192,6 +2234,7 @@ class PersonalProductsCompanion extends UpdateCompanion<PersonalProduct> {
     this.createdAt = const Value.absent(),
     this.servingUnit = const Value.absent(),
     this.brand = const Value.absent(),
+    this.unitGrams = const Value.absent(),
   }) : nameEs = Value(nameEs),
        energyKcal100 = Value(energyKcal100),
        proteinG100 = Value(proteinG100),
@@ -2215,6 +2258,7 @@ class PersonalProductsCompanion extends UpdateCompanion<PersonalProduct> {
     Expression<DateTime>? createdAt,
     Expression<String>? servingUnit,
     Expression<String>? brand,
+    Expression<double>? unitGrams,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2232,6 +2276,7 @@ class PersonalProductsCompanion extends UpdateCompanion<PersonalProduct> {
       if (createdAt != null) 'created_at': createdAt,
       if (servingUnit != null) 'serving_unit': servingUnit,
       if (brand != null) 'brand': brand,
+      if (unitGrams != null) 'unit_grams': unitGrams,
     });
   }
 
@@ -2251,6 +2296,7 @@ class PersonalProductsCompanion extends UpdateCompanion<PersonalProduct> {
     Value<DateTime>? createdAt,
     Value<String>? servingUnit,
     Value<String?>? brand,
+    Value<double?>? unitGrams,
   }) {
     return PersonalProductsCompanion(
       id: id ?? this.id,
@@ -2268,6 +2314,7 @@ class PersonalProductsCompanion extends UpdateCompanion<PersonalProduct> {
       createdAt: createdAt ?? this.createdAt,
       servingUnit: servingUnit ?? this.servingUnit,
       brand: brand ?? this.brand,
+      unitGrams: unitGrams ?? this.unitGrams,
     );
   }
 
@@ -2319,6 +2366,9 @@ class PersonalProductsCompanion extends UpdateCompanion<PersonalProduct> {
     if (brand.present) {
       map['brand'] = Variable<String>(brand.value);
     }
+    if (unitGrams.present) {
+      map['unit_grams'] = Variable<double>(unitGrams.value);
+    }
     return map;
   }
 
@@ -2339,7 +2389,8 @@ class PersonalProductsCompanion extends UpdateCompanion<PersonalProduct> {
           ..write('sourceRef: $sourceRef, ')
           ..write('createdAt: $createdAt, ')
           ..write('servingUnit: $servingUnit, ')
-          ..write('brand: $brand')
+          ..write('brand: $brand, ')
+          ..write('unitGrams: $unitGrams')
           ..write(')'))
         .toString();
   }
@@ -6121,6 +6172,7 @@ typedef $$PersonalProductsTableCreateCompanionBuilder =
       Value<DateTime> createdAt,
       Value<String> servingUnit,
       Value<String?> brand,
+      Value<double?> unitGrams,
     });
 typedef $$PersonalProductsTableUpdateCompanionBuilder =
     PersonalProductsCompanion Function({
@@ -6139,6 +6191,7 @@ typedef $$PersonalProductsTableUpdateCompanionBuilder =
       Value<DateTime> createdAt,
       Value<String> servingUnit,
       Value<String?> brand,
+      Value<double?> unitGrams,
     });
 
 final class $$PersonalProductsTableReferences
@@ -6261,6 +6314,11 @@ class $$PersonalProductsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<double> get unitGrams => $composableBuilder(
+    column: $table.unitGrams,
+    builder: (column) => ColumnFilters(column),
+  );
+
   Expression<bool> personalProductAliasesRefs(
     Expression<bool> Function($$PersonalProductAliasesTableFilterComposer f) f,
   ) {
@@ -6371,6 +6429,11 @@ class $$PersonalProductsTableOrderingComposer
     column: $table.brand,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<double> get unitGrams => $composableBuilder(
+    column: $table.unitGrams,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$PersonalProductsTableAnnotationComposer
@@ -6438,6 +6501,9 @@ class $$PersonalProductsTableAnnotationComposer
 
   GeneratedColumn<String> get brand =>
       $composableBuilder(column: $table.brand, builder: (column) => column);
+
+  GeneratedColumn<double> get unitGrams =>
+      $composableBuilder(column: $table.unitGrams, builder: (column) => column);
 
   Expression<T> personalProductAliasesRefs<T extends Object>(
     Expression<T> Function($$PersonalProductAliasesTableAnnotationComposer a) f,
@@ -6511,6 +6577,7 @@ class $$PersonalProductsTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<String> servingUnit = const Value.absent(),
                 Value<String?> brand = const Value.absent(),
+                Value<double?> unitGrams = const Value.absent(),
               }) => PersonalProductsCompanion(
                 id: id,
                 nameEs: nameEs,
@@ -6527,6 +6594,7 @@ class $$PersonalProductsTableTableManager
                 createdAt: createdAt,
                 servingUnit: servingUnit,
                 brand: brand,
+                unitGrams: unitGrams,
               ),
           createCompanionCallback:
               ({
@@ -6545,6 +6613,7 @@ class $$PersonalProductsTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<String> servingUnit = const Value.absent(),
                 Value<String?> brand = const Value.absent(),
+                Value<double?> unitGrams = const Value.absent(),
               }) => PersonalProductsCompanion.insert(
                 id: id,
                 nameEs: nameEs,
@@ -6561,6 +6630,7 @@ class $$PersonalProductsTableTableManager
                 createdAt: createdAt,
                 servingUnit: servingUnit,
                 brand: brand,
+                unitGrams: unitGrams,
               ),
           withReferenceMapper: (p0) => p0
               .map(

@@ -54,6 +54,14 @@ Future<void> _openEdit(WidgetTester tester, int id) async {
 Future<void> _tapButton(WidgetTester tester, Finder button) async {
   FocusManager.instance.primaryFocus?.unfocus();
   await tester.pumpAndSettle();
+  // La lista construye solo lo visible (SPEC-045 sumó un campo).
+  if (button.evaluate().isEmpty) {
+    await tester.scrollUntilVisible(
+      button,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+  }
   await tester.ensureVisible(button);
   await tester.pumpAndSettle();
   await tester.tap(button);

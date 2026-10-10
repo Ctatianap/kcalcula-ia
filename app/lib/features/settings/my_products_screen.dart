@@ -8,12 +8,18 @@ import '../../infra/catalog/food_match_result.dart';
 import '../../infra/food_resolution/food_query_resolver.dart';
 import '../../infra/storage/app_database.dart' show PersonalProduct;
 import '../../infra/storage/storage_providers.dart';
+import '../../infra/storage/storage_repository.dart' show isValidUnitGrams;
+import '../../ui/number_input_es.dart';
 import '../../ui/personal_products_texts.dart';
 import '../../ui/theme.dart';
 
 /// SPEC-034 R1: el mismo texto que "Elegir de mis productos".
 const noProductsMessage = noPersonalProductsMessage;
 const productNameRequiredMessage = 'Escribe el nombre del producto.';
+
+/// SPEC-045 R1.
+const unitGramsInvalidMessage =
+    'Escribe un número mayor que 0 y hasta 5.000, o déjalo vacío.';
 const aliasRequiredMessage = 'Escribe cómo lo llamas.';
 const aliasRepeatedMessage = 'Ya tienes ese nombre.';
 const tooManyAliasesMessage = 'Puedes guardar hasta 10 nombres.';
@@ -224,6 +230,14 @@ class _EditProductScreenState extends ConsumerState<EditProductScreen> {
 
   /// SPEC-025 R1.
   late final _brand = TextEditingController(text: widget.product.brand ?? '');
+
+  /// SPEC-045 R1.
+  late final _unitGrams = TextEditingController(
+    text: widget.product.unitGrams == null
+        ? ''
+        : formatDecimalEs(widget.product.unitGrams!, maxDecimals: 1),
+  );
+  String? _unitGramsError;
   final _newAlias = TextEditingController();
   late String _unit = widget.product.servingUnit;
   late final List<String> _aliases = [...widget.aliases];
@@ -236,6 +250,7 @@ class _EditProductScreenState extends ConsumerState<EditProductScreen> {
   void dispose() {
     _name.dispose();
     _brand.dispose();
+    _unitGrams.dispose();
     _newAlias.dispose();
     super.dispose();
   }
@@ -265,11 +280,20 @@ class _EditProductScreenState extends ConsumerState<EditProductScreen> {
 
   Future<void> _save() async {
     final nameError = validateProductName(_name.text);
+    // SPEC-045 R1: vacío = sin peso de unidad.
+    final unitText = _unitGrams.text.trim();
+    final unitGrams = unitText.isEmpty ? null : parseDecimal(unitText);
+    final unitError =
+        unitText.isNotEmpty &&
+            (unitGrams == null || !isValidUnitGrams(unitGrams))
+        ? unitGramsInvalidMessage
+        : null;
     setState(() {
       _nameError = nameError;
+      _unitGramsError = unitError;
       _saveError = null;
     });
-    if (nameError != null) return;
+    if (nameError != null || unitError != null) return;
     // Un nombre escrito sin tocar "+" no se pierde: se agrega (o se avisa).
     if (_newAlias.text.trim().isNotEmpty) {
       _addAlias();
@@ -285,6 +309,7 @@ class _EditProductScreenState extends ConsumerState<EditProductScreen> {
             servingUnit: _unit,
             aliases: _aliases,
             brand: _brand.text,
+            unitGrams: unitGrams,
           );
       if (mounted) Navigator.of(context).pop();
     } catch (_) {
@@ -366,6 +391,21 @@ class _EditProductScreenState extends ConsumerState<EditProductScreen> {
             selected: {_unit},
             showSelectedIcon: false,
             onSelectionChanged: (value) => setState(() => _unit = value.single),
+          ),
+          const SizedBox(height: 12),
+          // SPEC-045 R1.
+          TextField(
+            key: const Key('edit-product-unit-grams'),
+            controller: _unitGrams,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(
+              labelText: 'Peso de una unidad (opcional)',
+              suffixText: _unit,
+              helperText:
+                  'Ej: un huevo pesa 60 g. Así «dos huevos» se calcula solo.',
+              helperMaxLines: 2,
+              errorText: _unitGramsError,
+            ),
           ),
           const SizedBox(height: 20),
           Text('Así lo llamas', style: text.titleSmall),

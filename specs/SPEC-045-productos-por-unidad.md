@@ -1,7 +1,7 @@
 # SPEC-045: Mis productos medidos por unidad
 
 ## Status
-Draft
+Implementing
 Path: Strict (unidades y resolución de cantidades; esquema de `user.db`)
 
 ## Objective
@@ -82,6 +82,22 @@ decir cuánto pesa una unidad, para registrar "dos huevos" sin hacer cuentas.
 
 ## Change Log
 - 2026-10-10: creación a partir del hallazgo en la prueba de SPEC-024 ("con qué seguimos").
+- 2026-10-10: **Approved por la usuaria** ("aprobada la SPEC-045"). Status → Implementing.
+- 2026-10-10: implementada. Detalles menores: `isValidUnitGrams` en el repositorio (también rechaza un
+  valor inválido); el campo muestra la unidad del producto (g o ml); el helper `_tapButton` de
+  `my_products_screen_test.dart` ahora desplaza la lista hasta el botón (el campo nuevo lo dejó fuera
+  de la pantalla), sin cambiar lo que verifica; los tests de migración esperan la versión 11. Con peso
+  de unidad, la búsqueda manual (SPEC-018) también ofrece "Unidad" para ese producto. app 549/549.
+
+## Verificación
+| AC | Estado | Evidencia |
+|----|--------|-----------|
+| AC1 | ✅ | `app/test/features/review/products_by_unit_test.dart` › "AC1: con peso de unidad 60…" (unidad) y "AC1: "dos huevos" en el detalle…" (pantalla) |
+| AC2 | ✅ | mismo archivo › "AC2…" |
+| AC3 | ✅ | mismo archivo › grupo "AC3: "Editar producto"" ("55,5", vacío, 0, -3, 5001, abc) |
+| AC4 | ✅ | mismo archivo › "AC4: migrar desde la v10…" |
+| AC5 | ✅ | app 549/549; tests de resolución sin cambios; migraciones esperan 11 |
+| Manual | ⏳ | "dos huevos" con el producto "huevo" en el teléfono, pendiente |
 
 ## Review
 Informe del reviewer:
