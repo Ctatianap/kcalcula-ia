@@ -150,6 +150,9 @@ kcal enteras (redondeo half-up) y macros con 1 decimal. Los valores estimados se
 - `personal_products(..., serving_unit)` y `personal_product_aliases(product_id, term)`: productos de
   etiquetas confirmadas (SPEC-004/033) con su unidad y los nombres con que la persona los llama
   (SPEC-034, `user.db` v8).
+- `personal_products.unit_grams` (SPEC-045, `user.db` v11): peso (o volumen) de una unidad, opcional. Si
+  existe, el producto lleva además la porción "unidad" y "2 unidad" se resuelve con `resolveGrams`
+  (base `unit_portion`, Buena estimación); si no, "unidad" queda sin equivalencia (SPEC-043).
 - `personal_products.brand` (SPEC-025, `user.db` v10): marca opcional del producto. Al reconocer
   (`FoodQueryResolver.resolve(foodQuery, mention:)`), si la frase trae como palabra(s) completa(s) la
   marca de algún producto, se eligen los productos de esa marca cuyo nombre o alias contiene el resto

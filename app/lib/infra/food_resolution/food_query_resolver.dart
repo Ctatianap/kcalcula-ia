@@ -42,6 +42,16 @@ FoodCatalogEntry personalProductToFoodCatalogEntry(PersonalProduct product) =>
           sourceRef: product.sourceRef,
           isCuratedEstimate: false,
         ),
+        // SPEC-045 R3: con peso de una unidad, "2 unidad" se resuelve con la
+        // regla de unidades de `nutrition_core`.
+        if (product.unitGrams case final unit?)
+          PortionOption(
+            descriptor: 'unidad',
+            grams: unit,
+            sourceId: personalProductSourceId,
+            sourceRef: product.sourceRef,
+            isCuratedEstimate: false,
+          ),
       ],
     );
 

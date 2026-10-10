@@ -124,6 +124,9 @@ class FavoriteMealWithItems {
 String mealKeyOf(Iterable<({String foodId, double grams})> items) =>
     (items.map((i) => '${i.foodId}@${i.grams}').toList()..sort()).join('|');
 
+/// SPEC-045 R1: peso de una unidad válido (> 0 y hasta 5.000).
+bool isValidUnitGrams(double value) => value > 0 && value <= 5000;
+
 class StorageRepository {
   final AppDatabase _db;
 
@@ -320,7 +323,17 @@ class StorageRepository {
 
     /// SPEC-025 R1: `null` o vacía = sin marca.
     String? brand,
+
+    /// SPEC-045 R2: peso de una unidad; `null` = sin peso.
+    double? unitGrams,
   }) {
+    if (unitGrams != null && !isValidUnitGrams(unitGrams)) {
+      throw ArgumentError.value(
+        unitGrams,
+        'unitGrams',
+        'debe ser > 0 y ≤ 5000',
+      );
+    }
     // SPEC-025 R1: hasta 40 caracteres.
     var cleanBrand = brand?.trim();
     if (cleanBrand != null && cleanBrand.length > 40) {
@@ -336,6 +349,7 @@ class StorageRepository {
           brand: Value(
             cleanBrand == null || cleanBrand.isEmpty ? null : cleanBrand,
           ),
+          unitGrams: Value(unitGrams),
         ),
       );
       await (_db.delete(
@@ -681,6 +695,8 @@ class StorageRepository {
               'servingUnit': p.servingUnit,
               // SPEC-025 R1.
               'brand': p.brand,
+              // SPEC-045 R2.
+              'unitGrams': p.unitGrams,
               'aliases': aliases[p.id] ?? const <String>[],
               'sourceRef': p.sourceRef,
             },

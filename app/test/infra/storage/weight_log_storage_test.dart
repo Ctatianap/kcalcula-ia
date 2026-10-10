@@ -216,7 +216,7 @@ void main() {
           .customSelect('PRAGMA user_version')
           .map((row) => row.read<int>('user_version'))
           .getSingle();
-      expect(version, 10); // SPEC-025 la subió a 10.
+      expect(version, 11); // SPEC-045 la subió a 11.
     },
   );
 }

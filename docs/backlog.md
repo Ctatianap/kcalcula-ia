@@ -378,6 +378,22 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
   dependencies: []
   status: done  # SPEC-044
   spec_required: true    # specs/SPEC-044-salida-ia-mal-formada.md — Strict
+- id: T-045
+  title: Mis productos medidos por unidad
+  objective: >
+    Hallazgo en la prueba de SPEC-024: "dos huevos" con el producto personal "huevo" (porción 60 g) queda
+    "Sin equivalencia". Peso de una unidad opcional en "Editar producto".
+  dependencies: [T-041]
+  status: done  # SPEC-045
+  spec_required: true    # specs/SPEC-045-productos-por-unidad.md — Strict
+- id: T-046
+  title: Unidad correcta (g o ml) en las opciones de "Buscar alimento"
+  objective: >
+    Reviewer de SPEC-045: en "Elegir cantidad" las opciones dicen "Porción · 200 g" o "Unidad · 200 g"
+    aunque el producto personal sea en ml. Mostrar la unidad del producto (`servingUnitOf`). Fast Path
+    (texto), sin cambiar cálculos.
+  dependencies: [T-045]
+  spec_required: false
 - id: F2
   # SPEC-022 (comidas frecuentes y favoritas): Done 2026-10-08.
   # SPEC-023 (confianza visual): Done 2026-10-08.

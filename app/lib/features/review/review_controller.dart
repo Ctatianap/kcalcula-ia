@@ -482,7 +482,22 @@ class ReviewController extends ChangeNotifier {
   static double? portionGramsOf(ReviewItem item) {
     final food = item.food;
     if (food == null || !isPersonalProductFood(food)) return null;
+    // SPEC-045 R6: dicho en unidades y con peso de unidad → de a unidad.
+    if (showsUnits(item)) return food.portionFor('unidad')!.grams;
     return food.portionFor('porcion')?.grams;
+  }
+
+  /// SPEC-045 R6: el ingrediente se dijo en unidades y su producto tiene
+  /// peso de unidad: se muestra en unidades, no en porciones de la etiqueta.
+  static bool showsUnits(ReviewItem item) {
+    final food = item.food;
+    return food != null &&
+        isPersonalProductFood(food) &&
+        item.unitRaw == 'unidad' &&
+        // Resuelto con la regla de unidades (no una comida guardada antes
+        // de ponerle peso de unidad, que usó el respaldo de SPEC-043).
+        item.basis == QuantityBasis.unitPortion &&
+        food.portionFor('unidad') != null;
   }
 
   /// SPEC-033 R5: cuántas porciones de la etiqueta son los gramos actuales.
@@ -503,7 +518,8 @@ class ReviewController extends ChangeNotifier {
     final grams = resolveGrams(
       input: QuantityInput(
         quantity: portions,
-        unit: QuantityUnit.porcion,
+        // SPEC-045 R6: en unidades, la regla de unidades.
+        unit: showsUnits(item) ? QuantityUnit.unidad : QuantityUnit.porcion,
         isVague: false,
       ),
       food: food,

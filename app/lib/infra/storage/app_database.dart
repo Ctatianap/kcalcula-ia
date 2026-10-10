@@ -68,6 +68,9 @@ class PersonalProducts extends Table {
 
   /// SPEC-025 R1: marca, opcional ("Alpina").
   TextColumn get brand => text().nullable()();
+
+  /// SPEC-045 R2: peso (o volumen, en `servingUnit`) de una unidad, opcional.
+  RealColumn get unitGrams => real().nullable()();
 }
 
 /// SPEC-034 R2/R4: nombres con que la persona llama a un producto personal
@@ -185,7 +188,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -249,6 +252,15 @@ class AppDatabase extends _$AppDatabase {
             .get();
         if (!columns.any((c) => c.read<String>('name') == 'brand')) {
           await m.addColumn(personalProducts, personalProducts.brand);
+        }
+      }
+      if (from < 11) {
+        // SPEC-045 R2. Solo si falta (desde v1 la tabla ya trae la columna).
+        final columns = await m.database
+            .customSelect('PRAGMA table_info(personal_products)')
+            .get();
+        if (!columns.any((c) => c.read<String>('name') == 'unit_grams')) {
+          await m.addColumn(personalProducts, personalProducts.unitGrams);
         }
       }
     },
