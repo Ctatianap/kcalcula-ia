@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:calorias_ia/features/review/manual_quantity.dart';
 import 'package:calorias_ia/features/review/meal_detail_view.dart';
 import 'package:calorias_ia/features/settings/my_products_screen.dart';
 import 'package:calorias_ia/infra/catalog/catalog_providers.dart';
@@ -100,8 +101,35 @@ void main() {
           isFalse,
         );
         expect(egg.portions.map((p) => p.descriptor), ['porcion']);
+        // El respaldo de SPEC-043: la porción de 60 g y Estimación.
+        final fallback = fallbackResolution(egg);
+        expect(fallback.grams, 60);
+        expect(
+          itemConfidence(
+            basis: fallback.basis,
+            isVague: false,
+            usedCuratedEstimatePortion: fallback.usedCuratedEstimatePortion,
+            usedDensityFallback: fallback.usedDensityFallback,
+            withoutEquivalence: true,
+          ),
+          ConfidenceLevel.estimacion,
+        );
       },
     );
+
+    test('Búsqueda manual: con peso de unidad se ofrece "Unidad" (primero); sin él, no', () async {
+      await _egg(repo, unitGrams: 55);
+      final withUnit = quantityOptionsFor(await food(), const {});
+      expect(withUnit.first.label, startsWith('Unidad'));
+      expect(withUnit.first.gramsPerUnit, 55);
+      expect(withUnit.map((o) => o.label), contains(startsWith('Porción')));
+    });
+
+    test('Búsqueda manual: sin peso de unidad no hay "Unidad"', () async {
+      await _egg(repo);
+      final options = quantityOptionsFor(await food(), const {});
+      expect(options.any((o) => o.label.startsWith('Unidad')), isFalse);
+    });
 
     test('Edge: "1 porción" sigue usando la porción de la etiqueta', () async {
       await _egg(repo, unitGrams: 55);
@@ -197,7 +225,7 @@ void main() {
       expect(saved!.unitGrams, isNull);
     });
 
-    for (final bad in ['0', '-3', '5001', 'abc']) {
+    for (final bad in ['0', '-3', '5001', 'abc', '55,55']) {
       testWidgets('"$bad" → mensaje y no se guarda', (tester) async {
         final (db, id) = await pump(tester);
         await save(tester, bad);

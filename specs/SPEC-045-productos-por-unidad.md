@@ -60,6 +60,7 @@ decir cuánto pesa una unidad, para registrar "dos huevos" sin hacer cuentas.
 ## Edge Cases
 - Producto en ml (leche): "Peso de una unidad" se escribe en ml ("un vaso = 200 ml").
 - Peso de unidad igual a la porción: válido.
+- En "Buscar alimento" (SPEC-018), un producto con peso de unidad ofrece "Unidad" primero (preseleccionada).
 - "1 porción" sigue usando la porción de la etiqueta.
 
 ## Security & Privacy
@@ -88,6 +89,11 @@ decir cuánto pesa una unidad, para registrar "dos huevos" sin hacer cuentas.
   `my_products_screen_test.dart` ahora desplaza la lista hasta el botón (el campo nuevo lo dejó fuera
   de la pantalla), sin cambiar lo que verifica; los tests de migración esperan la versión 11. Con peso
   de unidad, la búsqueda manual (SPEC-018) también ofrece "Unidad" para ese producto. app 549/549.
+- 2026-10-10: reviewer PASS con MINOR. Corregidos o documentados: en "Buscar alimento", con peso de
+  unidad, "Unidad" aparece primero y queda preseleccionada (antes "Porción"), con test; AC2 comprueba
+  también el respaldo de 60 g y Estimación; el campo acepta un decimal como máximo y el mensaje lo dice
+  ("55,55" → mensaje), así lo guardado y lo mostrado coinciden. Al backlog: T-046 (en "Buscar alimento"
+  la opción dice "g" aunque el producto sea en ml). app 553/553.
 
 ## Verificación
 | AC | Estado | Evidencia |
@@ -100,4 +106,7 @@ decir cuánto pesa una unidad, para registrar "dos huevos" sin hacer cuentas.
 | Manual | ⏳ | "dos huevos" con el producto "huevo" en el teléfono, pendiente |
 
 ## Review
-Informe del reviewer:
+Revisión (2026-10-10, subagente `reviewer`, sobre `6c9698e`): **PASS** con MINOR (ver Change Log).
+AC1–AC5 con evidencia; `nutrition_core`, prompts y catálogo sin cambios; el peso lo escribe la persona
+(invariante 8); "porcion" sigue mandando en SPEC-033 y SPEC-043; migración, exportar y borrar todo;
+privacidad al día. Falta la prueba manual.

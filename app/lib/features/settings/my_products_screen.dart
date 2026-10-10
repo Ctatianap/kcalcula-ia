@@ -19,7 +19,8 @@ const productNameRequiredMessage = 'Escribe el nombre del producto.';
 
 /// SPEC-045 R1.
 const unitGramsInvalidMessage =
-    'Escribe un número mayor que 0 y hasta 5.000, o déjalo vacío.';
+    'Escribe un número mayor que 0 y hasta 5.000 (con un decimal como '
+    'máximo), o déjalo vacío.';
 const aliasRequiredMessage = 'Escribe cómo lo llamas.';
 const aliasRepeatedMessage = 'Ya tienes ese nombre.';
 const tooManyAliasesMessage = 'Puedes guardar hasta 10 nombres.';
