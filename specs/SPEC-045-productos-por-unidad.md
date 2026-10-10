@@ -93,7 +93,7 @@ decir cuánto pesa una unidad, para registrar "dos huevos" sin hacer cuentas.
   unidad, "Unidad" aparece primero y queda preseleccionada (antes "Porción"), con test; AC2 comprueba
   también el respaldo de 60 g y Estimación; el campo acepta un decimal como máximo y el mensaje lo dice
   ("55,55" → mensaje), así lo guardado y lo mostrado coinciden. Al backlog: T-046 (en "Buscar alimento"
-  la opción dice "g" aunque el producto sea en ml). app 553/553.
+  la opción dice "g" aunque el producto sea en ml). app 552/552.
 
 ## Verificación
 | AC | Estado | Evidencia |
