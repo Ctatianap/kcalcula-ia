@@ -394,6 +394,7 @@ de verdad de su `Status` (Draft/Approved/Implementing/Review/Done).
     (texto), sin cambiar cálculos.
   dependencies: [T-045]
   spec_required: false
+  status: done  # 2026-10-10: "Elegir cantidad" muestra ml (opciones, campo y vista previa) en productos en ml
 - id: F2
   # SPEC-022 (comidas frecuentes y favoritas): Done 2026-10-08.
   # SPEC-023 (confianza visual): Done 2026-10-08.

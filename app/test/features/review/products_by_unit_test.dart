@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:calorias_ia/features/review/food_search_screen.dart';
 import 'package:calorias_ia/features/review/manual_quantity.dart';
 import 'package:calorias_ia/features/review/meal_detail_view.dart';
 import 'package:calorias_ia/features/settings/my_products_screen.dart';
@@ -362,6 +363,56 @@ void main() {
           )
           .data,
       '2 porciones · 120 g',
+    );
+  });
+
+  testWidgets('T-046: en "Elegir cantidad", un producto en ml muestra ml', (
+    tester,
+  ) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repo = StorageRepository(db);
+    final id = (await tester.runAsync(
+      () => repo.savePersonalProduct(
+        nameEs: 'Leche de prueba',
+        energyKcal100: 45,
+        proteinG100: 3,
+        carbsG100: 5,
+        fatG100: 1.5,
+        servingGrams: 200,
+        sourceRef: 'test',
+        servingUnit: 'ml',
+      ),
+    ))!;
+    await tester.runAsync(
+      () => repo.updatePersonalProduct(
+        id: id,
+        nameEs: 'Leche de prueba',
+        servingUnit: 'ml',
+        aliases: const [],
+        unitGrams: 250,
+      ),
+    );
+    final product = (await tester.runAsync(
+      () => repo.getPersonalProductById(id),
+    ))!;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: QuantityPickerScreen(
+          food: personalProductToFoodCatalogEntry(product),
+          householdUnitMlByUnit: const {},
+          servingUnit: 'ml',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Unidad · 250,0 ml'), findsOneWidget);
+    expect(find.text('Porción · 200,0 ml'), findsOneWidget);
+    expect(find.text('Mililitros'), findsWidgets);
+    // Los macros siguen en g (son gramos de proteína, carbohidratos y grasa).
+    expect(
+      tester.widget<Text>(find.byKey(const Key('quantity-preview-kcal'))).data,
+      startsWith('250,0 ml · '),
     );
   });
 }
