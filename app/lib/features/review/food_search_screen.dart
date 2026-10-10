@@ -133,6 +133,8 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
         builder: (_) => QuantityPickerScreen(
           food: food,
           householdUnitMlByUnit: resolver.householdUnitMlByUnit(),
+          // T-046: "g" o "ml" del producto (SPEC-034 R5).
+          servingUnit: resolver.servingUnitOf(food.id),
         ),
       ),
     );
@@ -248,10 +250,14 @@ class QuantityPickerScreen extends StatefulWidget {
   final FoodCatalogEntry food;
   final Map<QuantityUnit, double> householdUnitMlByUnit;
 
+  /// T-046: "g" o "ml", solo para mostrar (los cálculos no cambian).
+  final String servingUnit;
+
   const QuantityPickerScreen({
     super.key,
     required this.food,
     required this.householdUnitMlByUnit,
+    this.servingUnit = 'g',
   });
 
   @override
@@ -288,9 +294,13 @@ class _QuantityPickerScreenState extends State<QuantityPickerScreen> {
     );
   }
 
+  String get _unit => widget.servingUnit;
+
+  /// T-046: en un producto en ml, "Mililitros" en vez de "Gramos".
   String _optionLabel(QuantityOption o) {
     final grams = o.gramsPerUnit;
-    return grams == null ? o.label : '${o.label} · ${formatMacroEs(grams)} g';
+    if (grams == null) return _unit == 'ml' ? 'Mililitros' : o.label;
+    return '${o.label} · ${formatMacroEs(grams)} $_unit';
   }
 
   @override
@@ -339,7 +349,7 @@ class _QuantityPickerScreenState extends State<QuantityPickerScreen> {
                 ),
                 decoration: InputDecoration(
                   labelText: _option.gramsPerUnit == null
-                      ? 'Gramos'
+                      ? (_unit == 'ml' ? 'Mililitros' : 'Gramos')
                       : 'Cantidad',
                   errorText: item == null ? invalidAmountMessage : null,
                 ),
@@ -354,7 +364,7 @@ class _QuantityPickerScreenState extends State<QuantityPickerScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${formatMacroEs(item.grams)} g · '
+                        '${formatMacroEs(item.grams)} $_unit · '
                         '$approx${_k(nutrients.energyKcal)} kcal',
                         key: const Key('quantity-preview-kcal'),
                         style: text.titleMedium,
